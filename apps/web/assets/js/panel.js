@@ -1,0 +1,464 @@
+/* Greater Türkiye — OSINT panel: zoomable map, filters, record feed, detail drawer. */
+(async function () {
+  'use strict';
+  GT.initChrome();
+  GT.clock(document.getElementById('p-utc'));
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    map: $('p-map'), feed: $('p-feed'), count: $('p-count'), drawer: $('p-drawer'), body: $('p-drawer-body'), close: $('p-close'),
+    search: $('f-search'), region: $('f-region'), type: $('f-type'), status: $('f-status'), banner: $('p-banner'),
+    coords: $('p-coords'), scale: $('p-scale'), tip: $('p-tip'), stateBox: $('p-state'),
+  };
+  const lyr = { regions: $('l-regions'), sites: $('l-sites'), events: $('l-events'), examples: $('l-examples') };
+  const params = new URLSearchParams(location.search);
+  const state = { region: params.get('region') || '', type: params.get('type') || '', status: params.get('status') || '', q: '', selected: params.get('id') || '' };
+
+  let world = null, data = null, loadError = false;
+  let svg = null, gRoot, gCountries, gLabels, gSites, gEvents, proj, zoom, k = 1, W = 0, H = 0;
+  let lastFocus = null;
+
+  wireUi();
+  setTimeout(loadAll); // after the helpers below are initialised
+
+  /* ---------------- loading ---------------- */
+  async function loadAll() {
+    els.stateBox.hidden = false;
+    els.stateBox.textContent = GT.t('p.loading');
+    loadError = false;
+    const [w, d] = await Promise.allSettled([
+      world ? Promise.resolve(world) : GT.loadWorld('assets/data/countries-50m.json'),
+      GT.loadData(),
+    ]);
+    if (w.status === 'fulfilled') world = w.value; else console.warn(w.reason);
+    if (d.status === 'fulfilled') data = d.value; else { loadError = true; console.warn(d.reason); }
+    if (data) lyr.examples.checked = params.get('examples') === '1' || (params.get('examples') !== '0' && data.event.length === 0);
+    els.stateBox.hidden = !!world;
+    if (!world) els.stateBox.textContent = GT.t('p.err');
+    buildFilters();
+    drawMap();
+    render();
+    if (state.region) zoomToRegion(state.region, false);
+    const pre = state.selected && data && data.byId.get(state.selected);
+    if (pre) {
+      if (pre._example && !lyr.examples.checked) { lyr.examples.checked = true; render(); }
+      select(pre, true);
+    }
+  }
+
+  /* ---------------- records ---------------- */
+  const withExamples = (list, prefix) => {
+    if (!data) return [];
+    const out = list.slice();
+    if (lyr.examples.checked) for (const r of data.examples) if (r.id.startsWith(prefix)) out.push(r);
+    return out;
+  };
+  const allEvents = () => withExamples(data ? data.event : [], 'evt_');
+  const allSites = () => withExamples(data ? data.site : [], 'sit_');
+  const fold = (s) => String(s || '').toLocaleLowerCase('tr-TR');
+  const haystack = (e) => fold([e.id, e.event_type, e.title && e.title.tr, e.title && e.title.en, e.summary && e.summary.tr, e.summary && e.summary.en,
+    ...e.regions, ...e.regions.map((r) => GT.label('regions', r))].join(' '));
+
+  function filtered() {
+    const q = fold(state.q.trim());
+    return allEvents()
+      .filter((e) => (!state.region || e.regions.includes(state.region))
+        && (!state.type || e.event_type.split('.')[0] === state.type)
+        && (!state.status || e.assessment.status === state.status)
+        && (!q || haystack(e).includes(q)))
+      .sort((a, b) => b.time.start.localeCompare(a.time.start));
+  }
+
+  /* ---------------- filters ---------------- */
+  function buildFilters() {
+    fillSelect(els.region, [['', GT.t('p.all')], ...GT.REGION_CODES.map((c) => [c, GT.label('regions', c)])], state.region);
+    const domains = new Set();
+    ((GT.vocab && GT.vocab['event-types']) || []).forEach((c) => domains.add(c.code.split('.')[0]));
+    if (!domains.size) Object.keys(GT.DOMAIN).forEach((d) => domains.add(d));
+    fillSelect(els.type, [['', GT.t('p.all')], ...[...domains].map((d) => [d, GT.DOMAIN[d] ? GT.txt(GT.DOMAIN[d]) : d])], state.type);
+    fillSelect(els.status, [['', GT.t('p.all')], ...Object.keys(GT.STATUS).map((s) => [s, GT.txt(GT.STATUS[s])])], state.status);
+  }
+  function fillSelect(sel, opts, value) {
+    sel.replaceChildren(...opts.map(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; return o; }));
+    sel.value = value || '';
+  }
+
+  /* ---------------- map ---------------- */
+  function drawMap() {
+    if (!world) return;
+    W = els.map.clientWidth; H = els.map.clientHeight;
+    if (!W || !H) return;
+    k = 1;
+    proj = d3.geoMercator().fitExtent([[24, 24], [W - 24, H - 24]], { type: 'MultiPoint', coordinates: [[13, 24], [60, 48]] });
+    const path = d3.geoPath(proj);
+
+    svg = d3.select(els.map).selectAll('svg').data([0]).join('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`).attr('aria-label', GT.t('hero.mapAria'));
+    svg.selectAll('*').remove();
+    GT.mapDefs(svg);
+
+    gRoot = svg.append('g');
+    gRoot.append('path').datum(d3.geoGraticule().step([5, 5])()).attr('class', 'm-grat').attr('d', path);
+    gCountries = gRoot.append('g');
+    gCountries.selectAll('path').data(world.countries).join('path')
+      .attr('class', (f) => { const a = GT.a3(f); return 'm-land' + (a === 'TUR' ? ' m-tr' : GT.REGION_OF[a] ? ' m-watch' : ''); })
+      .attr('data-region', (f) => GT.REGION_OF[GT.a3(f)] || null)
+      .attr('d', path)
+      .on('pointermove', (ev, f) => {
+        const r = GT.REGION_OF[GT.a3(f)];
+        showTip(ev, GT.upper(GT.countryName(f)), r ? GT.upper(GT.label('regions', r)) : '');
+      })
+      .on('pointerleave', hideTip)
+      .on('click', (ev, f) => { const r = GT.REGION_OF[GT.a3(f)]; if (r) setRegion(state.region === r ? '' : r); });
+
+    const tr = world.countries.find((f) => GT.a3(f) === 'TUR');
+    gRoot.append('path').datum(world.borders).attr('class', 'm-border').attr('d', path);
+    gRoot.append('path').datum(tr).attr('class', 'm-tr-glow').attr('d', path).attr('filter', 'url(#glow)');
+    gLabels = gRoot.append('g');
+    const c = proj([35, 39]);
+    sweepG = GT.sweep(gRoot.append('g').attr('transform', `translate(${c[0]},${c[1]})`), Math.hypot(W, H) * 1.1, reduce, 16);
+    gSites = gRoot.append('g');
+    gEvents = gRoot.append('g');
+    drawLabels();
+
+    zoom = d3.zoom().scaleExtent([1, 16])
+      .translateExtent([[-W * 0.3, -H * 0.3], [W * 1.3, H * 1.3]])
+      .on('zoom', (ev) => { gRoot.attr('transform', ev.transform); k = ev.transform.k; rescale(); });
+    svg.call(zoom).on('dblclick.zoom', null);
+    svg.on('pointermove.coords', (ev) => {
+      const ll = proj.invert(d3.pointer(ev, gRoot.node()));
+      if (ll) els.coords.textContent = GT.fmtLL(ll);
+    });
+  }
+
+  function drawLabels() {
+    if (!gLabels) return;
+    gLabels.selectAll('*').remove();
+    const add = (cls, at, fs, text, dy = 0) => {
+      const p = proj(at);
+      return gLabels.append('text').attr('class', cls).attr('x', p[0]).attr('y', p[1] + dy).attr('data-fs', fs).text(text);
+    };
+    for (const s of GT.SEAS) add('m-sea', s.at, 11 * s.size, GT.upper(s[GT.lang]));
+    for (const [a3, at] of Object.entries(GT.COUNTRY_LABELS)) {
+      const small = ['CYP', 'XNC', 'LBN', 'ISR', 'ARM', 'KWT', 'MKD', 'ALB'].includes(a3);
+      add('m-label' + (small ? ' sm' : ''), at, small ? 7 : 9.5, GT.upper(GT.countryName(a3)));
+    }
+    for (const code of GT.REGION_CODES) {
+      const r = GT.REGIONS[code];
+      // single-country regions already carry the country label; the Black Sea already has a sea label
+      if (!r.at || r.countries.length === 1 || code === 'black-sea') continue;
+      add('m-rlabel', r.at, 9, GT.upper(GT.label('regions', code)), 14).attr('data-region', code);
+    }
+    add('m-tr-label', [35.1, 39.05], 19, GT.upper('Türkiye'), 6);
+    rescale();
+  }
+
+  let sweepG = null;
+  function rescale() {
+    if (!gLabels) return;
+    svg.classed('zoomed', k >= 1.25); // small-country and region labels only appear once zoomed in
+    if (sweepG) sweepG.style('opacity', Math.max(0, 1 - (k - 1) / 1.2)); // the sweep is an overview effect; fade it when zoomed in
+    const f = Math.pow(k, 0.82);
+    gLabels.selectAll('text').attr('font-size', function () { return +this.dataset.fs / f; });
+    const place = function () { return `translate(${this.dataset.x},${this.dataset.y}) scale(${1 / k})`; };
+    gSites.selectAll('.mk').attr('transform', place);
+    gEvents.selectAll('.mk').attr('transform', place);
+    if (els.scale) els.scale.textContent = k.toFixed(1) + '×';
+  }
+
+  function drawMarkers(list) {
+    if (!gSites) return;
+    gSites.selectAll('*').remove();
+    gEvents.selectAll('*').remove();
+    const bind = (m, rec, title, sub) => m
+      .attr('class', 'mk' + (rec.id === state.selected ? ' sel' : ''))
+      .attr('tabindex', 0).attr('role', 'button').attr('aria-label', title)
+      .on('click', (ev) => { ev.stopPropagation(); select(rec, true); })
+      .on('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); select(rec, true); } })
+      .on('pointermove', (ev) => showTip(ev, title, sub))
+      .on('pointerleave', hideTip);
+
+    if (lyr.sites.checked) {
+      for (const s of allSites()) {
+        const g = s.location && s.location.geometry;
+        if (!g || g.type !== 'Point') continue;
+        const [x, y] = proj(g.coordinates);
+        const m = gSites.append('g').attr('data-x', x).attr('data-y', y);
+        bind(m, s, GT.txt(s.name), GT.upper(GT.label('site-types', s.site_type)));
+        m.append('path').attr('class', 'mk-site').attr('d', d3.symbol(d3.symbolDiamond, 80)());
+      }
+    }
+    if (lyr.events.checked) {
+      const pulseAll = list.length <= 40;
+      for (const e of list) {
+        const g = e.location && e.location.geometry;
+        if (!g) continue;
+        const [x, y] = proj(g.type === 'Point' ? g.coordinates : d3.geoCentroid(g));
+        const m = gEvents.append('g').attr('data-x', x).attr('data-y', y);
+        bind(m, e, GT.txt(e.title), GT.upper(GT.label('event-types', e.event_type)));
+        if (!reduce && (pulseAll || e.id === state.selected)) m.append('circle').attr('class', 'mk-pulse').attr('r', 6);
+        m.append('circle').attr('class', 'mk-ev st-' + e.assessment.status + (e._example ? ' is-example' : '')).attr('r', 5.5);
+      }
+    }
+    rescale();
+  }
+
+  function applyRegionClass() {
+    if (!svg) return;
+    svg.classed('show-regions', lyr.regions.checked || !!state.region);
+    gCountries.selectAll('.m-land').classed('hl', function () { return !!state.region && this.getAttribute('data-region') === state.region; });
+    gLabels.selectAll('.m-rlabel').style('opacity', function () { return state.region && this.dataset.region === state.region ? 1 : null; });
+  }
+
+  function zoomToRegion(code, animate) {
+    const r = GT.REGIONS[code];
+    if (!zoom || !r) return;
+    const a = proj(r.bbox[0]), b = proj(r.bbox[1]);
+    const x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]);
+    const kk = Math.max(1, Math.min(16, 0.82 / Math.max((x1 - x0) / viewW(), (y1 - y0) / H)));
+    const t = d3.zoomIdentity.translate(viewW() / 2, H / 2).scale(kk).translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
+    svg.transition().duration(animate && !reduce ? 900 : 0).call(zoom.transform, t);
+  }
+  // Visible map width: the open drawer covers the right side on wide screens.
+  const viewW = () => (els.drawer.classList.contains('open') && window.innerWidth > 860 ? Math.max(200, W - els.drawer.offsetWidth) : W);
+
+  function flyTo(rec) {
+    const g = rec.location && rec.location.geometry;
+    if (!zoom) return;
+    if (!g) { if (rec.regions && rec.regions.length) zoomToRegion(rec.regions[0], true); return; }
+    const [x, y] = proj(g.type === 'Point' ? g.coordinates : d3.geoCentroid(g));
+    const kk = Math.max(k, rec.id.startsWith('sit_') ? 6 : 4);
+    const t = d3.zoomIdentity.translate(viewW() / 2, H / 2).scale(kk).translate(-x, -y);
+    svg.transition().duration(reduce ? 0 : 900).call(zoom.transform, t);
+  }
+
+  function setRegion(code) {
+    state.region = code;
+    els.region.value = code;
+    render();
+    if (code) zoomToRegion(code, true);
+    else if (svg) svg.transition().duration(reduce ? 0 : 700).call(zoom.transform, d3.zoomIdentity);
+  }
+
+  /* ---------------- rendering ---------------- */
+  function render() {
+    const list = filtered();
+    els.count.textContent = GT.t('p.count', { n: list.length });
+    els.banner.hidden = !lyr.examples.checked;
+    renderFeed(list);
+    drawMarkers(list);
+    applyRegionClass();
+    syncUrl();
+  }
+
+  function renderFeed(list) {
+    els.feed.replaceChildren();
+    if (loadError) {
+      const box = GT.el('div', 'p-empty');
+      box.append(GT.el('p', null, GT.t('p.err')));
+      const b = GT.el('button', 'btn btn-sm', GT.t('p.retry'));
+      b.type = 'button';
+      b.addEventListener('click', loadAll);
+      box.append(b);
+      els.feed.append(box);
+      return;
+    }
+    if (!data) return;
+    if (!list.length) {
+      const box = GT.el('div', 'p-empty');
+      box.append(GT.el('p', null, GT.t(data.event.length ? 'p.none' : 'p.noreal')));
+      if (!data.event.length) {
+        const a = GT.el('a', 'btn btn-sm btn-red', GT.t('p.addFirst'));
+        a.href = GT.REPO + '/datasets/issues/new/choose';
+        a.target = '_blank'; a.rel = 'noopener';
+        box.append(a);
+      }
+      els.feed.append(box);
+      return;
+    }
+    for (const e of list) {
+      const li = GT.el('div');
+      li.setAttribute('role', 'listitem');
+      const b = GT.el('button', 'fi');
+      b.type = 'button';
+      b.dataset.id = e.id;
+      b.setAttribute('aria-current', String(e.id === state.selected));
+      const top = GT.el('div', 'fi-top');
+      top.append(GT.el('span', null, GT.fmtTime(e.time.start, e.time.precision)), GT.el('span', 'chip', GT.label('event-types', e.event_type)),
+        GT.el('span', 'badge st-' + e.assessment.status, GT.txt(GT.STATUS[e.assessment.status])));
+      if (e._example) top.append(GT.el('span', 'ex-tag', GT.upper(GT.t('p.example'))));
+      const where = e.location && e.location.geometry ? GT.txt(GT.PRECISION[e.location.precision]) : GT.t('p.nogeo');
+      b.append(top, GT.el('div', 'fi-title', GT.txt(e.title)), GT.el('div', 'fi-meta', e.regions.map((r) => GT.label('regions', r)).join(' · ') + ' — ' + where));
+      b.addEventListener('click', () => select(e, true));
+      li.append(b);
+      els.feed.append(li);
+    }
+  }
+
+  function select(rec, fly) {
+    lastFocus = document.activeElement;
+    state.selected = rec.id;
+    renderDrawer(rec);
+    els.drawer.classList.add('open');
+    els.drawer.setAttribute('aria-hidden', 'false');
+    els.drawer.inert = false;
+    els.close.focus({ preventScroll: true });
+    els.feed.querySelectorAll('.fi').forEach((b) => b.setAttribute('aria-current', String(b.dataset.id === rec.id)));
+    drawMarkers(filtered());
+    if (fly) flyTo(rec);
+    syncUrl();
+  }
+
+  function closeDrawer() {
+    if (!els.drawer.classList.contains('open')) return;
+    els.drawer.classList.remove('open');
+    els.drawer.setAttribute('aria-hidden', 'true');
+    els.drawer.inert = true;
+    state.selected = '';
+    els.feed.querySelectorAll('.fi').forEach((b) => b.setAttribute('aria-current', 'false'));
+    drawMarkers(filtered());
+    syncUrl();
+    if (lastFocus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
+  }
+
+  const actorName = (id) => { const a = data && data.byId.get(id); return a ? GT.txt(a.name) : id; };
+  const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return u; } };
+  const safeUrl = (u) => (/^https?:\/\//i.test(u) ? u : '#');
+  const ext = (a) => { a.target = '_blank'; a.rel = 'noopener noreferrer'; return a; };
+
+  function renderDrawer(rec) {
+    const body = GT.el('div', 'd-body');
+    const isEvt = rec.id.startsWith('evt_');
+    if (rec._example) body.append(GT.el('p', 'd-warn', GT.t('d.exampleWarn')));
+
+    const kick = GT.el('div', 'd-kicker');
+    if (isEvt) kick.append(GT.el('span', 'chip', GT.label('event-types', rec.event_type)), GT.el('span', 'badge st-' + rec.assessment.status, GT.txt(GT.STATUS[rec.assessment.status])));
+    if (rec.site_type) kick.append(GT.el('span', 'chip', GT.label('site-types', rec.site_type)));
+    if (rec._example) kick.append(GT.el('span', 'ex-tag', GT.upper(GT.t('p.example'))));
+    body.append(kick);
+
+    const h = GT.el('h2', 'd-title', GT.txt(rec.title || rec.name));
+    h.id = 'p-d-title';
+    body.append(h);
+    const sum = rec.summary || rec.description;
+    if (sum) body.append(GT.el('p', 'd-sum', GT.txt(sum)));
+
+    const dl = GT.el('dl', 'd-dl');
+    const row = (key, content) => {
+      if (content == null || content === '' || (Array.isArray(content) && !content.length)) return;
+      const r = GT.el('div', 'd-row');
+      r.append(GT.el('dt', null, GT.t(key)));
+      const dd = GT.el('dd');
+      if (Array.isArray(content)) {
+        const ul = GT.el('ul');
+        content.forEach((c) => { const li = GT.el('li'); li.append(c); ul.append(li); });
+        dd.append(ul);
+      } else dd.append(content);
+      r.append(dd);
+      dl.append(r);
+    };
+    const withSub = (main, sub) => { const s = GT.el('span', null, main); if (sub) s.append(GT.el('span', 'sub', sub)); return s; };
+
+    if (isEvt) {
+      const t = rec.time;
+      row('d.time', withSub(GT.fmtTime(t.start, t.precision) + (t.end ? ' → ' + GT.fmtTime(t.end, t.precision) : ''), `${GT.t('d.basis')}: ${t.basis} · ${t.precision}`));
+    }
+    if (rec.location) {
+      const l = rec.location, g = l.geometry, bits = [];
+      if (g && g.type === 'Point') bits.push(GT.fmtLL(g.coordinates));
+      if (l.uncertainty_m) bits.push('±' + (l.uncertainty_m >= 1000 ? l.uncertainty_m / 1000 + ' km' : l.uncertainty_m + ' m'));
+      bits.push(l.method);
+      row('d.location', withSub([GT.txt(l.place_name), GT.txt(GT.PRECISION[l.precision])].filter(Boolean).join(' — '), bits.join(' · ')));
+    }
+    if (rec.regions) row('d.regions', rec.regions.map((r) => GT.label('regions', r)).join(' · '));
+    if (isEvt && rec.countries) row('d.countries', rec.countries.map((c) => GT.countryName(c)).join(' · '));
+    if (!isEvt && rec.country) row('d.country', GT.countryName(rec.country));
+    if (rec.operators) row('d.operators', rec.operators.map(actorName).join(' · '));
+    if (rec.actors) row('d.actors', rec.actors.map((a) => withSub(actorName(a.ref), GT.ROLE[a.role] ? GT.txt(GT.ROLE[a.role]) : a.role)));
+    if (rec.equipment) row('d.equipment', rec.equipment.map((q) => {
+      const r2 = data.byId.get(q.ref);
+      return (r2 ? GT.txt(r2.name) : q.ref) + (q.quantity ? ` · ${q.quantity} ${GT.t('d.qty')}` : '');
+    }));
+    if (rec.claims) row('d.claims', rec.claims.map((c) => withSub(GT.t('d.claimBy', { actor: actorName(c.by) }), `${GT.label('characterizations', c.characterization)} · [${c.source + 1}]`)));
+    if (rec.sources) row('d.sources', rec.sources.map((s, i) => {
+      const wrap = GT.el('span');
+      const pub = s.ref && data.byId.get(s.ref);
+      const a = ext(GT.el('a', 'd-link', `[${i + 1}] ` + (pub ? GT.txt(pub.name) : hostOf(s.url))));
+      a.href = safeUrl(s.url);
+      wrap.append(a);
+      (s.archives || []).forEach((ar) => { const x = ext(GT.el('a', 'd-arch', GT.t('d.archive'))); x.href = safeUrl(ar.url); wrap.append(x); });
+      const rel = s.reliability || (pub && pub.reliability);
+      const meta = [s.lang && s.lang.toUpperCase(), s.published_at ? GT.fmtTime(s.published_at, 'minute') : '', rel ? rel + ' — ' + GT.txt(GT.RELIABILITY[rel]) : ''].filter(Boolean).join(' · ');
+      if (meta) wrap.append(GT.el('span', 'sub', meta));
+      return wrap;
+    }));
+    if (rec.assessment) {
+      const a = rec.assessment;
+      row('d.assessment', withSub(`${GT.txt(GT.STATUS[a.status])} · ${a.credibility} — ${GT.txt(GT.CREDIBILITY[a.credibility])}`, a.method && a.method.length ? GT.t('d.method') + ': ' + a.method.join(', ') : ''));
+    }
+    const idBox = GT.el('span', 'd-id');
+    const cp = GT.el('button', null, GT.t('d.copy'));
+    cp.type = 'button';
+    cp.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(rec.id); cp.textContent = GT.t('d.copied'); setTimeout(() => { cp.textContent = GT.t('d.copy'); }, 1500); } catch (e) { /* clipboard blocked */ }
+    });
+    idBox.append(GT.el('code', null, rec.id), cp);
+    row('d.id', idBox);
+    body.append(dl);
+
+    const act = GT.el('div', 'd-actions');
+    const gh = ext(GT.el('a', 'btn btn-sm', GT.t('d.github')));
+    gh.href = GT.recordUrl(rec);
+    act.append(gh);
+    if (!rec._example) {
+      const cr = ext(GT.el('a', 'btn btn-sm', GT.t('d.correct')));
+      cr.href = `${GT.REPO}/datasets/issues/new?template=03-correction.yml&title=${encodeURIComponent('Düzeltme / Correction: ' + rec.id)}`;
+      act.append(cr);
+    }
+    body.append(act);
+    els.body.replaceChildren(body);
+  }
+
+  /* ---------------- tooltip, url, wiring ---------------- */
+  function showTip(ev, title, sub) {
+    const r = els.map.getBoundingClientRect();
+    els.tip.replaceChildren(document.createTextNode(title));
+    if (sub) els.tip.append(GT.el('small', null, sub));
+    els.tip.style.left = ev.clientX - r.left + 'px';
+    els.tip.style.top = ev.clientY - r.top + 'px';
+    els.tip.hidden = false;
+  }
+  function hideTip() { els.tip.hidden = true; }
+
+  function syncUrl() {
+    const p = new URLSearchParams();
+    if (state.region) p.set('region', state.region);
+    if (state.type) p.set('type', state.type);
+    if (state.status) p.set('status', state.status);
+    if (state.selected) p.set('id', state.selected);
+    const qs = p.toString();
+    history.replaceState(null, '', qs ? '?' + qs : location.pathname);
+  }
+
+  function wireUi() {
+    els.search.addEventListener('input', GT.debounce(() => { state.q = els.search.value; render(); }, 120));
+    els.region.addEventListener('change', () => setRegion(els.region.value));
+    els.type.addEventListener('change', () => { state.type = els.type.value; render(); });
+    els.status.addEventListener('change', () => { state.status = els.status.value; render(); });
+    Object.values(lyr).forEach((c) => c.addEventListener('change', render));
+    $('z-in').addEventListener('click', () => svg && svg.transition().duration(reduce ? 0 : 350).call(zoom.scaleBy, 1.7));
+    $('z-out').addEventListener('click', () => svg && svg.transition().duration(reduce ? 0 : 350).call(zoom.scaleBy, 1 / 1.7));
+    $('z-reset').addEventListener('click', () => setRegion(''));
+    els.close.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+    document.addEventListener('gt:lang', () => {
+      buildFilters();
+      drawLabels();
+      render();
+      const r = state.selected && data && data.byId.get(state.selected);
+      if (r) renderDrawer(r);
+    });
+    window.addEventListener('resize', GT.debounce(() => { drawMap(); render(); if (state.region) zoomToRegion(state.region, false); }, 200));
+  }
+})();
