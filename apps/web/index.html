@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greater Türkiye — Açık kaynak istihbarat topluluğu</title>
+<meta name="description" content="Türkiye'nin dış güvenlik ortamını yalnızca açık kaynaklardan izleyen gönüllü OSINT topluluğu. Doğrulanmış, iki dilli, açık lisanslı veri.">
+<meta name="theme-color" content="#050505">
+<meta name="color-scheme" content="dark">
+<meta property="og:title" content="Greater Türkiye — OSINT">
+<meta property="og:description" content="Türkiye'nin dış güvenlik ortamı için açık kaynak istihbarat topluluğu · Open-source intelligence community for Türkiye's defence">
+<meta property="og:type" content="website">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/montserrat-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body class="page-home">
+<a class="skip" href="#main" data-i18n="a11y.skip">İçeriğe geç</a>
+
+<header class="site-header">
+  <a class="brand" href="./" aria-label="Greater Türkiye">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13.5" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/><circle cx="16" cy="16" r="7.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M16 .5v6M16 25.5v6M.5 16h6M25.5 16h6" stroke="currentColor" stroke-width="1.2"/><circle cx="16" cy="16" r="2.6" fill="#c8002a"/></svg>
+    <span class="brand-word">GREATER<b>TÜRKİYE</b></span>
+  </a>
+  <nav class="site-nav" aria-label="Ana menü / Main menu">
+    <a href="panel.html" data-i18n="nav.panel">Panel</a>
+    <a href="#bolgeler" data-i18n="nav.data">Veri</a>
+    <a href="https://github.com/Greater-Turkiye/handbook" data-i18n="nav.handbook">El Kitabı</a>
+    <a href="#katil" data-i18n="nav.join">Katıl</a>
+  </nav>
+  <div class="nav-tools">
+    <div class="lang" role="group" data-i18n-aria="a11y.lang" aria-label="Dil"><button type="button" data-lang="tr">TR</button><button type="button" data-lang="en">EN</button></div>
+    <a class="btn btn-sm btn-red" href="panel.html" data-i18n="nav.open">Paneli aç</a>
+    <button class="nav-burger" type="button" aria-expanded="false" data-i18n-aria="a11y.menu" aria-label="Menü"><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div id="hero-map" class="hero-map"></div>
+    <div class="hero-fade" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <p class="eyebrow" data-i18n="hero.eyebrow">Açık kaynak istihbarat topluluğu</p>
+      <h1 class="hero-title"><span data-i18n="hero.title1">Çevremizi</span><em data-i18n="hero.title2">izliyoruz</em></h1>
+      <p class="hero-lead" data-i18n="hero.lead"></p>
+      <div class="hero-cta">
+        <a class="btn btn-red" href="panel.html"><span data-i18n="hero.cta1">Paneli aç</span><i class="arr" aria-hidden="true"></i></a>
+        <a class="btn" href="#katil" data-i18n="hero.cta2">Katkı ver</a>
+      </div>
+    </div>
+    <dl class="hud hud-tr">
+      <div><dt data-i18n="hud.focus">Odak</dt><dd>39.00°N · 35.00°E</dd></div>
+      <div><dt data-i18n="hud.proj">Projeksiyon</dt><dd>ORTHO · 5°</dd></div>
+      <div class="hud-region"><dt data-i18n="hud.hover">Bölge</dt><dd id="hud-region">—</dd></div>
+    </dl>
+    <dl class="hud hud-br">
+      <div><dt><i class="live-dot" aria-hidden="true"></i>&nbsp; <span data-i18n="hud.utc">UTC</span></dt><dd id="hud-utc">--:--:--Z</dd></div>
+      <div><dt data-i18n="hud.regions">İzleme bölgesi</dt><dd>14</dd></div>
+      <div><dt data-i18n="hud.records">Kayıt</dt><dd id="hud-records">—</dd></div>
+    </dl>
+    <div class="hero-scroll" aria-hidden="true"><span></span></div>
+  </section>
+
+  <div class="ticker">
+    <span class="ticker-label"><i class="live-dot" aria-hidden="true"></i><span data-i18n="ticker.label">Kayıt akışı</span></span>
+    <div class="ticker-track"><div class="ticker-items" id="ticker"></div></div>
+  </div>
+
+  <section class="sec" id="bolgeler" aria-labelledby="h-regions">
+    <span class="sec-num" aria-hidden="true">01 / 05</span>
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="regions.eyebrow">İzleme alanları</p>
+        <h2 class="sec-title" id="h-regions"><span data-i18n="regions.title1">Dışarıya bakan</span> <b data-i18n="regions.title2">göz.</b></h2>
+      </div>
+      <p class="sec-lead" data-i18n="regions.lead"></p>
+    </div>
+    <div class="region-grid" id="region-grid"></div>
+  </section>
+
+  <section class="sec" aria-labelledby="h-how">
+    <span class="sec-num" aria-hidden="true">02 / 05</span>
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="how.eyebrow">Yöntem</p>
+        <h2 class="sec-title" id="h-how"><span data-i18n="how.title1">Topla. Doğrula.</span> <b data-i18n="how.title2">İncele. Yayımla.</b></h2>
+      </div>
+      <p class="sec-lead" data-i18n="how.lead"></p>
+    </div>
+    <div class="steps rv">
+      <div class="step"><span class="step-n">01</span><h3 data-i18n="how.1.t">Topla</h3><p data-i18n="how.1.d"></p></div>
+      <div class="step"><span class="step-n">02</span><h3 data-i18n="how.2.t">Doğrula</h3><p data-i18n="how.2.d"></p></div>
+      <div class="step"><span class="step-n">03</span><h3 data-i18n="how.3.t">İncele</h3><p data-i18n="how.3.d"></p></div>
+      <div class="step"><span class="step-n">04</span><h3 data-i18n="how.4.t">Yayımla</h3><p data-i18n="how.4.d"></p></div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="h-stats">
+    <span class="sec-num" aria-hidden="true">03 / 05</span>
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="stats.eyebrow">Açık veri</p>
+        <h2 class="sec-title" id="h-stats"><span data-i18n="stats.title1">Her kayıt</span> <b data-i18n="stats.title2">denetlenebilir.</b></h2>
+      </div>
+      <p class="sec-lead" data-i18n="stats.lead"></p>
+    </div>
+    <div class="stats rv">
+      <div class="stat"><span class="stat-n" data-stat="event">—</span><span class="stat-l" data-i18n="stats.event">Olay</span></div>
+      <div class="stat"><span class="stat-n" data-stat="source">—</span><span class="stat-l" data-i18n="stats.source">Kaynak</span></div>
+      <div class="stat"><span class="stat-n" data-stat="actor">—</span><span class="stat-l" data-i18n="stats.actor">Aktör</span></div>
+      <div class="stat"><span class="stat-n" data-stat="site">—</span><span class="stat-l" data-i18n="stats.site">Tesis</span></div>
+      <div class="stat"><span class="stat-n" data-stat="equipment">—</span><span class="stat-l" data-i18n="stats.equipment">Teçhizat tipi</span></div>
+    </div>
+    <p class="stats-note" id="stats-note"><span></span> · <a href="https://github.com/Greater-Turkiye/datasets">github.com/Greater-Turkiye/datasets</a></p>
+  </section>
+
+  <section class="sec sec-red" aria-labelledby="h-red">
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="red.eyebrow">Kırmızı çizgiler</p>
+        <h2 class="sec-title" id="h-red"><span data-i18n="red.title1">Asla</span> <b data-i18n="red.title2">yapmadıklarımız.</b></h2>
+      </div>
+      <p class="sec-lead" data-i18n="red.lead"></p>
+    </div>
+    <ol class="red-list rv">
+      <li data-i18n="red.1"></li><li data-i18n="red.2"></li><li data-i18n="red.3"></li><li data-i18n="red.4"></li>
+      <li data-i18n="red.5"></li><li data-i18n="red.6"></li><li data-i18n="red.7"></li>
+    </ol>
+    <div><a class="btn red-more" href="https://github.com/Greater-Turkiye/handbook/blob/main/tr/02-red-lines.md"><span data-i18n="red.more">Kırmızı çizgilerin tamamı</span><i class="arr" aria-hidden="true"></i></a></div>
+  </section>
+
+  <section class="sec" id="katil" aria-labelledby="h-join">
+    <span class="sec-num" aria-hidden="true">05 / 05</span>
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="join.eyebrow">Katıl</p>
+        <h2 class="sec-title" id="h-join"><span data-i18n="join.title1">Takma adla da</span> <b data-i18n="join.title2">katkı verebilirsin.</b></h2>
+      </div>
+      <p class="sec-lead" data-i18n="join.lead"></p>
+    </div>
+    <div class="join-grid rv">
+      <a class="join-card" href="https://github.com/Greater-Turkiye/datasets"><span class="k" data-i18n="join.datasets.k">Veri</span><h3 data-i18n="join.datasets.t">datasets</h3><p data-i18n="join.datasets.d"></p><span class="go" data-i18n="join.go">Depoyu aç</span></a>
+      <a class="join-card" href="https://github.com/Greater-Turkiye/handbook"><span class="k" data-i18n="join.handbook.k">Yöntem</span><h3 data-i18n="join.handbook.t">handbook</h3><p data-i18n="join.handbook.d"></p><span class="go" data-i18n="join.go">Depoyu aç</span></a>
+      <a class="join-card" href="https://github.com/Greater-Turkiye/platform"><span class="k" data-i18n="join.platform.k">Kod</span><h3 data-i18n="join.platform.t">platform</h3><p data-i18n="join.platform.d"></p><span class="go" data-i18n="join.go">Depoyu aç</span></a>
+      <a class="join-card" href="https://github.com/Greater-Turkiye/.github"><span class="k" data-i18n="join.github.k">Topluluk</span><h3 data-i18n="join.github.t">.github</h3><p data-i18n="join.github.d"></p><span class="go" data-i18n="join.go">Depoyu aç</span></a>
+    </div>
+    <div class="join-cta rv">
+      <a class="btn btn-red" href="https://github.com/search?q=org%3AGreater-Turkiye+label%3A%22good+first+issue%22+state%3Aopen&amp;type=issues"><span data-i18n="join.gfi">Yeni başlayanlara uygun işler</span><i class="arr" aria-hidden="true"></i></a>
+      <a class="btn" href="https://github.com/Greater-Turkiye/datasets/issues/new/choose" data-i18n="join.submit">Olay öner</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="foot-inner">
+    <div class="foot-brand">
+      <a class="brand" href="./" aria-label="Greater Türkiye">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13.5" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/><circle cx="16" cy="16" r="7.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M16 .5v6M16 25.5v6M.5 16h6M25.5 16h6" stroke="currentColor" stroke-width="1.2"/><circle cx="16" cy="16" r="2.6" fill="#c8002a"/></svg>
+        <span class="brand-word">GREATER<b>TÜRKİYE</b></span>
+      </a>
+      <p data-i18n="foot.tag"></p>
+    </div>
+    <div class="foot-col">
+      <h4 data-i18n="foot.community">Topluluk</h4>
+      <a href="https://github.com/Greater-Turkiye/handbook/blob/main/tr/02-red-lines.md" data-i18n="foot.redlines">Kırmızı çizgiler</a>
+      <a href="https://github.com/Greater-Turkiye/handbook/blob/main/tr/04-opsec.md" data-i18n="foot.opsec">OPSEC</a>
+      <a href="https://github.com/Greater-Turkiye/.github/blob/main/CODE_OF_CONDUCT.md" data-i18n="foot.coc">Davranış kuralları</a>
+      <a href="https://github.com/Greater-Turkiye/.github/blob/main/SECURITY.md" data-i18n="foot.security">Güvenlik ve kaldırma</a>
+    </div>
+    <div class="foot-col">
+      <h4 data-i18n="foot.data">Veri</h4>
+      <a href="https://github.com/Greater-Turkiye/datasets" data-i18n="foot.dataset">Veri seti</a>
+      <a href="https://github.com/Greater-Turkiye/datasets/tree/main/schemas/v1" data-i18n="foot.schemas">Şemalar</a>
+      <a href="https://github.com/Greater-Turkiye/datasets/releases" data-i18n="foot.releases">Sürümler</a>
+      <a href="https://github.com/Greater-Turkiye/datasets/blob/main/CITATION.cff" data-i18n="foot.cite">Atıf</a>
+    </div>
+    <div class="foot-col">
+      <h4 data-i18n="foot.project">Proje</h4>
+      <a href="panel.html" data-i18n="nav.panel">Panel</a>
+      <a href="https://github.com/Greater-Turkiye/platform/blob/main/ROADMAP.md" data-i18n="foot.roadmap">Yol haritası</a>
+      <a href="https://github.com/Greater-Turkiye/handbook" data-i18n="nav.handbook">El Kitabı</a>
+      <a href="https://github.com/Greater-Turkiye">GitHub</a>
+    </div>
+  </div>
+  <div class="foot-base"><span data-i18n="foot.license">İçerik ve veri CC BY 4.0 · Kod MIT</span><span data-i18n="foot.disclaimer"></span></div>
+</footer>
+
+<script src="assets/vendor/d3.min.js"></script>
+<script src="assets/vendor/topojson-client.min.js"></script>
+<script src="assets/js/gt.js"></script>
+<script src="assets/js/home.js"></script>
+</body>
+</html>
