@@ -14,9 +14,10 @@ Phases proceed in order; publishing parts of a phase are not switched on before 
 
 ## Aşamalar / Phases
 
-### Aşama 1 — Çekirdek / Phase 1 — Core (tamamlandı / done)
+### Aşama 1 — Çekirdek / Phase 1 — Core (neredeyse tamam / nearly done)
 
-- [x] GitHub organizasyonu, ekipler (`maintainers`, `reviewers`, `triagers`), zorunlu 2FA — GitHub org, teams, mandatory 2FA
+- [x] GitHub organizasyonu — GitHub org
+- [ ] Ekipler (`maintainers`, `reviewers`, `triagers`), zorunlu 2FA, org güvenlik varsayılanları — Teams, mandatory 2FA, org security defaults
 - [x] Depolar: `.github`, `handbook`, `datasets`, `platform`, `internal` — Repositories
 - [x] JSON şemaları (`schemas/v1`) ve sözlükler — JSON Schemas and vocabularies
 - [x] Doğrulayıcı `tools/gt.py` (`validate`, `build`, `new`, `id`) — Validator
