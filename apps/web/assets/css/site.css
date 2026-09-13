@@ -314,10 +314,24 @@ a.ticker-item:hover { color: #fff; }
 
 /* ---------- refinements ---------- */
 .hero { min-height: min(100dvh, 1080px); }
-.m-tr-label { letter-spacing: .36em; }
+.m-tr-label { font-weight: 300; letter-spacing: .62em; fill: rgba(255, 255, 255, .92); paint-order: stroke; stroke: rgba(40, 0, 8, .55); stroke-width: 3px; }
 .page-panel .m-tr { fill-opacity: .72; }
 .d-body { clear: both; padding-top: 6px; }
 .p-map svg:not(.zoomed) .m-label.sm, .p-map svg:not(.zoomed) .m-rlabel { display: none; }
+
+/* defence agreements: mutual-defence allies in red, cooperation partners in dark red */
+.m-land.m-ally { fill: rgba(153, 0, 28, .52); stroke: rgba(200, 0, 42, .8); stroke-width: .8; }
+.m-land.m-ally:hover { fill: rgba(170, 0, 32, .66); }
+.m-land.m-coop { fill: #26070e; stroke: rgba(153, 0, 28, .6); stroke-width: .7; }
+.m-land.m-coop:hover { fill: #330a13; }
+.lg i.ally { border-radius: 0; background: rgba(153, 0, 28, .6); outline: 1px solid rgba(200, 0, 42, .8); }
+.lg i.coop { border-radius: 0; background: #26070e; outline: 1px solid rgba(153, 0, 28, .7); }
+.hero-legend { position: absolute; z-index: 2; left: var(--gut); bottom: 36px; display: flex; flex-wrap: wrap; gap: 10px 22px;
+  font: 500 9.5px var(--m); letter-spacing: .16em; text-transform: uppercase; color: var(--t2); pointer-events: none; }
+@media (max-width: 860px) {
+  .hero-legend { right: var(--gut); bottom: 18px; gap: 6px 14px; font-size: 8.5px; letter-spacing: .12em; }
+  .hero-inner { padding-bottom: 112px; }
+}
 
 /* ---------- responsive ---------- */
 @media (max-width: 1100px) {

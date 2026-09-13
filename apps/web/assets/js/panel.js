@@ -90,7 +90,8 @@
     W = els.map.clientWidth; H = els.map.clientHeight;
     if (!W || !H) return;
     k = 1;
-    proj = d3.geoMercator().fitExtent([[24, 24], [W - 24, H - 24]], { type: 'MultiPoint', coordinates: [[13, 24], [60, 48]] });
+    // Balkans to Pakistan, Black Sea to the Gulf
+    proj = d3.geoMercator().fitExtent([[24, 24], [W - 24, H - 24]], { type: 'MultiPoint', coordinates: [[13, 22], [74, 48]] });
     const path = d3.geoPath(proj);
 
     svg = d3.select(els.map).selectAll('svg').data([0]).join('svg')
@@ -102,12 +103,17 @@
     gRoot.append('path').datum(d3.geoGraticule().step([5, 5])()).attr('class', 'm-grat').attr('d', path);
     gCountries = gRoot.append('g');
     gCountries.selectAll('path').data(world.countries).join('path')
-      .attr('class', (f) => { const a = GT.a3(f); return 'm-land' + (a === 'TUR' ? ' m-tr' : GT.REGION_OF[a] ? ' m-watch' : ''); })
+      .attr('class', (f) => {
+        const a = GT.a3(f);
+        if (a === 'TUR') return 'm-land m-tr';
+        return 'm-land' + (GT.REGION_OF[a] ? ' m-watch' : '') + (GT.PARTNERS[a] ? ' m-' + GT.PARTNERS[a].tier : '');
+      })
       .attr('data-region', (f) => GT.REGION_OF[GT.a3(f)] || null)
       .attr('d', path)
       .on('pointermove', (ev, f) => {
-        const r = GT.REGION_OF[GT.a3(f)];
-        showTip(ev, GT.upper(GT.countryName(f)), r ? GT.upper(GT.label('regions', r)) : '');
+        const a = GT.a3(f), r = GT.REGION_OF[a];
+        const sub = [r ? GT.upper(GT.label('regions', r)) : '', GT.partnerLabel(a)].filter(Boolean).join(' · ');
+        showTip(ev, GT.upper(GT.countryName(f)), sub);
       })
       .on('pointerleave', hideTip)
       .on('click', (ev, f) => { const r = GT.REGION_OF[GT.a3(f)]; if (r) setRegion(state.region === r ? '' : r); });
