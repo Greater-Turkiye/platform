@@ -78,63 +78,63 @@
     },
     en: {
       'a11y.skip': 'Skip to content', 'a11y.menu': 'Menu', 'a11y.lang': 'Language',
-      'nav.panel': 'Panel', 'nav.data': 'Data', 'nav.handbook': 'Handbook', 'nav.join': 'Join', 'nav.open': 'Open panel', 'nav.home': 'Home',
+      'nav.panel': 'Dashboard', 'nav.data': 'Data', 'nav.handbook': 'Handbook', 'nav.join': 'Join', 'nav.open': 'Open dashboard', 'nav.home': 'Home',
       'hero.eyebrow': 'Open-source intelligence community',
-      'hero.title1': 'We watch our', 'hero.title2': 'neighbourhood',
-      'hero.lead': 'We monitor Türkiye’s external security environment from public sources only. Every claim is tied to its source, archived, reviewed by humans and published as open data anyone can audit.',
-      'hero.cta1': 'Open the panel', 'hero.cta2': 'Contribute',
-      'hero.mapAria': 'Türkiye and its neighbourhood: watch-region map',
+      'hero.title1': 'Eyes on', 'hero.title2': 'the region',
+      'hero.lead': 'We monitor Türkiye’s external security environment using public sources only. Every claim is sourced, archived and checked by a human reviewer, then published as open data that anyone can audit.',
+      'hero.cta1': 'Open the dashboard', 'hero.cta2': 'Contribute',
+      'hero.mapAria': 'Map of Türkiye and its neighbourhood, showing the watch regions',
       'hud.focus': 'Focus', 'hud.proj': 'Projection', 'hud.utc': 'UTC', 'hud.regions': 'Watch regions', 'hud.records': 'Records', 'hud.hover': 'Region',
-      'ticker.label': 'Record feed', 'ticker.empty': 'The record feed is opening — we are adding the first records together', 'ticker.err': 'The data feed is unreachable right now',
-      'regions.eyebrow': 'Watch areas', 'regions.title1': 'An eye turned', 'regions.title2': 'outward.',
-      'regions.lead': 'Fourteen editorial watch regions. Regions are areas of interest, never sovereignty claims. Every contested characterization is attributed to whoever makes it.',
-      'regions.records': 'records', 'regions.open': 'Open in panel',
+      'ticker.label': 'Live feed', 'ticker.empty': 'The feed is just starting — we are adding the first records together', 'ticker.err': 'The data feed is currently unavailable',
+      'regions.eyebrow': 'Watch regions', 'regions.title1': 'Looking', 'regions.title2': 'outward.',
+      'regions.lead': 'Fourteen editorial watch regions. Each marks an area of interest, never a claim of sovereignty. Every contested characterisation is attributed to the party that makes it.',
+      'regions.records': 'records', 'regions.open': 'Open in dashboard',
       'how.eyebrow': 'Method', 'how.title1': 'Collect. Verify.', 'how.title2': 'Review. Publish.',
-      'how.lead': 'Accuracy before speed. Automation collects and ranks; the decision is always human.',
-      'how.1.t': 'Collect', 'how.1.d': 'Official statements, news agencies, NAVTEX/NOTAM notices, imagery and tracking services: public sources only.',
-      'how.2.t': 'Verify', 'how.2.d': 'Admiralty scale: source reliability A–F, information credibility 1–6. An unarchived source never counts as verified.',
-      'how.3.t': 'Review', 'how.3.d': 'Every record passes human review. Labels like “violation” or “provocation” are attributed to their owner, never asserted by us.',
-      'how.4.t': 'Publish', 'how.4.d': 'Openly licensed data: JSONL, CSV, GeoJSON. Nothing is posted without human approval; corrections are announced openly.',
-      'stats.eyebrow': 'Open data', 'stats.title1': 'Every record', 'stats.title2': 'is auditable.',
-      'stats.lead': 'Records live in Git and every change is traceable; the data is open to all under CC BY 4.0.',
+      'how.lead': 'Accuracy before speed. Automation collects and sorts; a human always makes the call.',
+      'how.1.t': 'Collect', 'how.1.d': 'Official statements, news agencies, NAVTEX/NOTAM notices, satellite and tracking services: public sources only.',
+      'how.2.t': 'Verify', 'how.2.d': 'Admiralty scale: source reliability A–F, information credibility 1–6. No source counts as verified until it has been archived.',
+      'how.3.t': 'Review', 'how.3.d': 'Every record is reviewed by a person. Labels such as “violation” or “provocation” are attributed to whoever uses them, never stated in our own voice.',
+      'how.4.t': 'Publish', 'how.4.d': 'Openly licensed data in JSONL, CSV and GeoJSON. Nothing goes out without human approval, and corrections are announced publicly.',
+      'stats.eyebrow': 'Open data', 'stats.title1': 'Every record', 'stats.title2': 'open to audit.',
+      'stats.lead': 'Records live in Git, so every change is traceable. The data is open to everyone under CC BY 4.0.',
       'stats.event': 'Events', 'stats.source': 'Sources', 'stats.actor': 'Actors', 'stats.site': 'Sites', 'stats.equipment': 'Equipment types',
-      'stats.note': 'Live count · from the datasets repository', 'stats.err': 'Data could not be loaded right now',
+      'stats.note': 'Live count · from the datasets repository', 'stats.err': 'Unable to load data right now',
       'red.eyebrow': 'Red lines', 'red.title1': 'What we', 'red.title2': 'never do.',
-      'red.lead': 'These rules are absolute and also enforced by automated checks. When in doubt, we do not publish.',
-      'red.1': 'We never share positions or movements of Turkish forces.',
-      'red.2': 'We never use classified or leaked material — from any country.',
-      'red.3': 'We never collect in the field near military zones.',
+      'red.lead': 'These rules are absolute, and automated checks enforce them too. When in doubt, we do not publish.',
+      'red.1': 'We never share the positions or movements of Turkish forces.',
+      'red.2': 'We never use classified or leaked material, whatever its country of origin.',
+      'red.3': 'We never gather information on the ground near military zones.',
       'red.4': 'We never track private individuals or publish personal data.',
-      'red.5': 'We never share imagery of prisoners of war or casualties.',
-      'red.6': 'We never use targeting, inciting or hateful language.',
-      'red.7': 'We never present unsourced claims or copy copyrighted content.',
-      'red.more': 'All red lines',
+      'red.5': 'We never share images of prisoners of war or casualties.',
+      'red.6': 'We never use language that targets, incites or spreads hatred.',
+      'red.7': 'We never publish unsourced claims or copy copyrighted material.',
+      'red.more': 'See all red lines',
       'join.eyebrow': 'Join', 'join.title1': 'Pseudonymous', 'join.title2': 'contributors welcome.',
-      'join.lead': 'Data entry, source suggestions, translation, code or review. Read the red lines and OPSEC pages first, then pick a task.',
-      'join.datasets.k': 'Data', 'join.datasets.t': 'datasets', 'join.datasets.d': 'Event, actor, site and source records; schemas and the validator.',
+      'join.lead': 'Data entry, source suggestions, translation, code or review. Start with the red lines and OPSEC pages, then pick a task.',
+      'join.datasets.k': 'Data', 'join.datasets.t': 'datasets', 'join.datasets.d': 'Event, actor, site and source records, plus schemas and the validator.',
       'join.handbook.k': 'Method', 'join.handbook.t': 'handbook', 'join.handbook.d': 'Red lines, verification, OPSEC, style guide and decision records.',
-      'join.platform.k': 'Code', 'join.platform.t': 'platform', 'join.platform.d': 'Collection, review and publishing infrastructure; this site lives here.',
-      'join.github.k': 'Community', 'join.github.t': '.github', 'join.github.d': 'Code of conduct, governance, security and the contributing guide.',
-      'join.go': 'Open repository', 'join.gfi': 'Good first issues', 'join.submit': 'Submit an event',
-      'foot.tag': 'An open-source intelligence community for Türkiye’s external security environment.',
-      'foot.disclaimer': 'Volunteer community; not affiliated with any state body or political organisation.',
+      'join.platform.k': 'Code', 'join.platform.t': 'platform', 'join.platform.d': 'Collection, review and publishing infrastructure — including this site.',
+      'join.github.k': 'Community', 'join.github.t': '.github', 'join.github.d': 'Code of conduct, governance, security policy and contributing guide.',
+      'join.go': 'View repository', 'join.gfi': 'Good first issues', 'join.submit': 'Suggest an event',
+      'foot.tag': 'An open-source intelligence community covering Türkiye’s external security environment.',
+      'foot.disclaimer': 'A volunteer community, not affiliated with any state body or political organisation.',
       'foot.community': 'Community', 'foot.data': 'Data', 'foot.project': 'Project',
       'foot.redlines': 'Red lines', 'foot.coc': 'Code of conduct', 'foot.security': 'Security & takedowns', 'foot.opsec': 'OPSEC',
       'foot.dataset': 'Dataset', 'foot.schemas': 'Schemas', 'foot.releases': 'Releases', 'foot.cite': 'Citation',
-      'foot.roadmap': 'Roadmap', 'foot.license': 'Content & data CC BY 4.0 · Code MIT',
-      'p.title': 'OSINT panel', 'p.search': 'Search', 'p.searchPh': 'Search records…', 'p.region': 'Region', 'p.type': 'Type', 'p.status': 'Status', 'p.all': 'All',
+      'foot.roadmap': 'Roadmap', 'foot.license': 'Content & data: CC BY 4.0 · Code: MIT',
+      'p.title': 'OSINT dashboard', 'p.search': 'Search', 'p.searchPh': 'Search records…', 'p.region': 'Region', 'p.type': 'Type', 'p.status': 'Status', 'p.all': 'All',
       'p.layers': 'Layers', 'p.lyr.regions': 'Regions', 'p.lyr.sites': 'Sites', 'p.lyr.events': 'Events', 'p.lyr.examples': 'Example data',
-      'p.feed': 'Records', 'p.count': '{n} records', 'p.cursor': 'Cursor', 'p.zoom': 'Scale',
-      'p.demo': 'Demo mode: records tagged “EXAMPLE” are fictional and do not describe real events.',
-      'p.none': 'No records match the filters.', 'p.noreal': 'No verified event records yet. We are adding the first ones together.', 'p.addFirst': 'Submit the first record',
-      'p.err': 'Data could not be loaded.', 'p.retry': 'Retry', 'p.loading': 'Loading',
+      'p.feed': 'Records', 'p.count': '{n} records', 'p.cursor': 'Cursor', 'p.zoom': 'Zoom',
+      'p.demo': 'Demo mode: records marked “EXAMPLE” are fictional and do not describe real events.',
+      'p.none': 'No records match these filters.', 'p.noreal': 'No verified event records yet — we are adding the first ones together.', 'p.addFirst': 'Suggest the first record',
+      'p.err': 'Unable to load data.', 'p.retry': 'Try again', 'p.loading': 'Loading',
       'p.zoomIn': 'Zoom in', 'p.zoomOut': 'Zoom out', 'p.reset': 'Reset view', 'p.close': 'Close',
       'p.nogeo': 'no coordinates', 'p.example': 'Example',
       'lg.unverified': 'Unverified', 'lg.verified': 'Verified', 'lg.partial': 'Partial / disputed', 'lg.example': 'Example (fictional)', 'lg.site': 'Site', 'lg.tr': 'Türkiye',
       'd.time': 'Time', 'd.location': 'Location', 'd.regions': 'Regions', 'd.countries': 'States', 'd.actors': 'Actors', 'd.equipment': 'Equipment', 'd.claims': 'Claims',
       'd.sources': 'Sources', 'd.assessment': 'Assessment', 'd.id': 'ID', 'd.type': 'Type', 'd.operators': 'Operator', 'd.country': 'State',
       'd.github': 'View on GitHub', 'd.correct': 'Suggest a correction', 'd.copy': 'Copy', 'd.copied': 'Copied', 'd.archive': 'archive',
-      'd.claimBy': 'Claimed by {actor}', 'd.exampleWarn': 'This record is FICTIONAL; it only illustrates the data format.', 'd.method': 'Method', 'd.basis': 'basis',
+      'd.claimBy': 'Claimed by {actor}', 'd.exampleWarn': 'This record is FICTIONAL and exists only to illustrate the data format.', 'd.method': 'Method', 'd.basis': 'basis',
       'd.qty': 'units',
     },
   };
@@ -276,7 +276,7 @@
   };
   GT.PRECISION = {
     exact: { tr: 'Kesin', en: 'Exact' }, site: { tr: 'Tesis', en: 'Site' }, locality: { tr: 'Yerleşim', en: 'Locality' }, admin2: { tr: 'İlçe', en: 'District' },
-    admin1: { tr: 'İl / eyalet', en: 'Province' }, country: { tr: 'Ülke', en: 'Country' }, 'sea-area': { tr: 'Deniz alanı', en: 'Sea area' },
+    admin1: { tr: 'İl / eyalet', en: 'Province / state' }, country: { tr: 'Ülke', en: 'Country' }, 'sea-area': { tr: 'Deniz alanı', en: 'Sea area' },
   };
   GT.ROLE = {
     perpetrator: { tr: 'fail', en: 'perpetrator' }, participant: { tr: 'katılımcı', en: 'participant' }, target: { tr: 'hedef', en: 'target' },
@@ -319,19 +319,19 @@
   // Editorial watch regions (vocab/regions.yaml is canonical; this adds map geometry hints).
   const REGIONS = {
     syria: { label: { tr: 'Suriye', en: 'Syria' }, def: { tr: 'Suriye toprakları ve hava sahası.', en: 'Syrian territory and airspace.' }, countries: ['SYR'], bbox: [[35.5, 32.3], [42.4, 37.4]], at: [38.6, 35.1] },
-    iraq: { label: { tr: 'Irak', en: 'Iraq' }, def: { tr: 'Kuzey Irak dahil Irak toprakları.', en: 'Iraq, including northern Iraq.' }, countries: ['IRQ'], bbox: [[38.8, 29], [48.6, 37.4]], at: [43.6, 33] },
+    iraq: { label: { tr: 'Irak', en: 'Iraq' }, def: { tr: 'Kuzey Irak dahil Irak toprakları.', en: 'Iraqi territory, including northern Iraq.' }, countries: ['IRQ'], bbox: [[38.8, 29], [48.6, 37.4]], at: [43.6, 33] },
     iran: { label: { tr: 'İran', en: 'Iran' }, def: { tr: 'İran ve bölgesel askerî faaliyetleri.', en: 'Iran and its regional military activity.' }, countries: ['IRN'], bbox: [[44, 25], [63.4, 39.8]], at: [53.8, 32.4] },
     levant: { label: { tr: 'Levant', en: 'Levant' }, def: { tr: 'İsrail, Filistin, Lübnan, Ürdün.', en: 'Israel, Palestine, Lebanon, Jordan.' }, countries: ['ISR', 'PSE', 'LBN', 'JOR'], bbox: [[34.2, 29.2], [39.3, 34.7]], at: [36.9, 31] },
     caucasus: { label: { tr: 'Kafkasya', en: 'Caucasus' }, def: { tr: 'Azerbaycan, Ermenistan, Gürcistan ve Kuzey Kafkasya.', en: 'Azerbaijan, Armenia, Georgia and the North Caucasus.' }, countries: ['ARM', 'AZE', 'GEO'], bbox: [[39.9, 38.3], [50.5, 43.7]], at: [45.4, 41.3] },
-    aegean: { label: { tr: 'Ege', en: 'Aegean' }, def: { tr: 'Ege Denizi, adalar ve hava sahası.', en: 'Aegean Sea, islands and airspace.' }, countries: ['GRC'], bbox: [[22.5, 35], [28.5, 41]], at: [25.2, 37.6] },
-    'east-med': { label: { tr: 'Doğu Akdeniz', en: 'Eastern Mediterranean' }, def: { tr: 'Deniz yetki alanları ve enerji sahaları.', en: 'Maritime zones and energy fields.' }, countries: [], bbox: [[27, 31], [36.5, 37]], at: [30.2, 33.4] },
-    cyprus: { label: { tr: 'Kıbrıs', en: 'Cyprus' }, def: { tr: 'Kıbrıs adası (KKTC ve GKRY).', en: 'The island of Cyprus (TRNC and Greek Cypriot side).' }, countries: ['CYP', 'XNC'], bbox: [[32.2, 34.5], [34.7, 35.8]], at: [33.3, 34.5] },
-    'black-sea': { label: { tr: 'Karadeniz', en: 'Black Sea' }, def: { tr: 'Karadeniz ve kıyı devletlerinin deniz/hava faaliyeti.', en: 'Black Sea and littoral states’ naval/air activity.' }, countries: [], bbox: [[27.4, 40.8], [41.8, 47.3]], at: [34.6, 43.6] },
+    aegean: { label: { tr: 'Ege', en: 'Aegean' }, def: { tr: 'Ege Denizi, adalar ve hava sahası.', en: 'The Aegean Sea, its islands and airspace.' }, countries: ['GRC'], bbox: [[22.5, 35], [28.5, 41]], at: [25.2, 37.6] },
+    'east-med': { label: { tr: 'Doğu Akdeniz', en: 'Eastern Mediterranean' }, def: { tr: 'Deniz yetki alanları ve enerji sahaları.', en: 'Maritime jurisdiction areas and energy fields.' }, countries: [], bbox: [[27, 31], [36.5, 37]], at: [30.2, 33.4] },
+    cyprus: { label: { tr: 'Kıbrıs', en: 'Cyprus' }, def: { tr: 'Kıbrıs adası (KKTC ve GKRY).', en: 'The island of Cyprus (TRNC and Greek Cypriot Administration).' }, countries: ['CYP', 'XNC'], bbox: [[32.2, 34.5], [34.7, 35.8]], at: [33.3, 34.5] },
+    'black-sea': { label: { tr: 'Karadeniz', en: 'Black Sea' }, def: { tr: 'Karadeniz ve kıyı devletlerinin deniz/hava faaliyeti.', en: 'The Black Sea and the naval and air activity of its littoral states.' }, countries: [], bbox: [[27.4, 40.8], [41.8, 47.3]], at: [34.6, 43.6] },
     'libya-north-africa': { label: { tr: 'Libya ve Kuzey Afrika', en: 'Libya and North Africa' }, def: { tr: 'Libya, Mısır, Tunus, Cezayir, Fas.', en: 'Libya, Egypt, Tunisia, Algeria, Morocco.' }, countries: ['LBY', 'EGY', 'TUN', 'DZA', 'MAR'], bbox: [[-9, 19.5], [37, 37.5]], at: [18, 27.5] },
     'gulf-red-sea': { label: { tr: 'Körfez ve Kızıldeniz', en: 'Gulf and Red Sea' }, def: { tr: 'Basra Körfezi, Kızıldeniz, Yemen ve Afrika Boynuzu.', en: 'Persian Gulf, Red Sea, Yemen and the Horn of Africa.' }, countries: ['SAU', 'ARE', 'QAT', 'KWT', 'BHR', 'OMN', 'YEM', 'SOM', 'SML', 'DJI', 'ERI', 'SDN'], bbox: [[32, 10], [60, 30.5]], at: [45, 23] },
     balkans: { label: { tr: 'Balkanlar', en: 'Balkans' }, def: { tr: 'Batı Balkanlar, Bulgaristan, Romanya.', en: 'Western Balkans, Bulgaria, Romania.' }, countries: ['BGR', 'ROU', 'SRB', 'BIH', 'MNE', 'MKD', 'ALB', 'XKX', 'HRV', 'SVN'], bbox: [[13.4, 39.6], [29.8, 48.3]], at: [21.6, 44] },
     'central-asia': { label: { tr: 'Orta Asya', en: 'Central Asia' }, def: { tr: 'Türk devletleri ve Orta Asya.', en: 'Turkic states and Central Asia.' }, countries: ['KAZ', 'UZB', 'TKM', 'KGZ', 'TJK'], bbox: [[46.5, 35], [87, 55.5]], at: [62, 42] },
-    global: { label: { tr: 'Küresel', en: 'Global' }, def: { tr: 'Bölgeye bağlı olmayan: tedarik, küresel güçler, siber.', en: 'Not region-specific: procurement, great powers, cyber.' }, countries: [], bbox: [[12, 20], [62, 50]], at: null },
+    global: { label: { tr: 'Küresel', en: 'Global' }, def: { tr: 'Bölgeye bağlı olmayan: tedarik, küresel güçler, siber.', en: 'Not tied to one region: procurement, great powers, cyber.' }, countries: [], bbox: [[12, 20], [62, 50]], at: null },
   };
   GT.REGIONS = REGIONS;
   GT.REGION_CODES = Object.keys(REGIONS);
@@ -349,10 +349,17 @@
   GT.COUNTRY_LABELS = {
     GRC: [21.9, 39.6], BGR: [25.3, 42.75], SYR: [38.4, 35.3], IRQ: [43.6, 33.3], IRN: [54, 32.8], GEO: [43.6, 42.15], ARM: [44.9, 40.25], AZE: [47.9, 40.45],
     UKR: [31.5, 48.8], RUS: [42.5, 49.3], EGY: [29.8, 26.5], LBY: [18, 27.8], JOR: [36.8, 30.7], SAU: [44.5, 24.8], ROU: [24.8, 45.9], SRB: [20.9, 44.1],
-    ISR: [34.9, 31.3], LBN: [35.9, 33.9], CYP: [32.9, 34.82], XNC: [33.62, 35.28], TKM: [58.5, 39.2], KAZ: [66, 48], UZB: [63.5, 41.8], ALB: [20, 41],
+    ISR: [34.85, 30.7], LBN: [35.9, 33.9], CYP: [32.9, 34.82], XNC: [33.62, 35.28], TKM: [58.5, 39.2], KAZ: [66, 48], UZB: [63.5, 41.8], ALB: [20, 41],
     MKD: [21.7, 41.6], ITA: [14.5, 41.8], TUN: [9.5, 34], DZA: [3, 29], SDN: [30, 16], YEM: [47.5, 15.8], OMN: [56.5, 20.8], KWT: [47.7, 29.3],
     PAK: [69.6, 29.6], PSE: [35.3, 31.95],
   };
+  // extra place labels (shown when zoomed in on the dashboard)
+  GT.PLACE_LABELS = [
+    { at: [34.38, 31.42], tr: 'Gazze', en: 'Gaza' },
+    { at: [35.8, 33.05], tr: 'Golan', en: 'Golan' },
+  ];
+  Object.assign(I18N.tr, { 'lg.occupied': 'İşgal altındaki topraklar (Filistin, Golan, Kırım)', 'lg.concern': 'Doğu Türkistan · Uygur Türklerine yönelik ihlaller' });
+  Object.assign(I18N.en, { 'lg.occupied': 'Occupied territory (Palestine, Golan, Crimea)', 'lg.concern': 'East Turkestan · abuses against Uyghur Turks' });
 
   /* Türkiye's defence agreements shown on the map. Every entry carries its sources so the layer stays auditable;
      add a country only with a signed agreement and a primary or reputable source.
@@ -368,12 +375,12 @@
       sources: ['https://english.aawsat.com/arab-world/5175423-t%C3%BCrkiye-equip-train-syrian-army-under-new-defense-pact'],
     },
     'egy-2026': {
-      tr: 'Askerî işbirliği çerçeve anlaşması ve savunma işbirliği mutabakatı · 2026', en: 'Military cooperation framework & defence cooperation MoU · 2026',
+      tr: 'Askerî işbirliği çerçeve anlaşması ve savunma işbirliği mutabakatı · 2026', en: 'Military cooperation framework agreement & defence cooperation MoU · 2026',
       sources: ['https://www.dailysabah.com/politics/diplomacy/turkiye-egypt-sign-defense-cooperation-mou',
         'https://www.al-monitor.com/originals/2026/07/turkey-egypt-expand-military-ties-cooperation-frameworks-what-know'],
     },
     shusha: {
-      tr: 'Şuşa Beyannamesi (müttefiklik, karşılıklı yardım) · 15 Haz 2021', en: 'Shusha Declaration (alliance, mutual assistance) · 15 Jun 2021',
+      tr: 'Şuşa Beyannamesi (müttefiklik, karşılıklı yardım) · 15 Haz 2021', en: 'Shusha Declaration (alliance and mutual assistance) · 15 Jun 2021',
       sources: ['https://www.aa.com.tr/tr/analiz/susa-beyannamesi-ve-turkiye-azerbaycan-iliskilerinde-yeni-ufuklar/2275640',
         'https://avim.org.tr/tr/Bulten/ISTE-SUSA-BEYANNAMESI-NIN-TAM-METNI'],
     },
@@ -382,7 +389,7 @@
       sources: ['https://www.mfa.gov.tr/garanti-antlasmasi-_zurich_11-subat-1959_.tr.mfa'],
     },
     'qat-2014': {
-      tr: 'Askerî eğitim, savunma sanayii ve TSK konuşlanması işbirliği anlaşması · 19 Ara 2014', en: 'Military training, defence industry & stationing cooperation agreement · 19 Dec 2014',
+      tr: 'Askerî eğitim, savunma sanayii ve TSK konuşlanması işbirliği anlaşması · 19 Ara 2014', en: 'Cooperation agreement on military training, defence industry & stationing of Turkish forces · 19 Dec 2014',
       sources: ['https://21yyte.org/orta-dogu-ve-afrika-arastirmalari-merkezi/turkiye-katar-askeri-isbirligi-anlasmasinin-bolgesel-ve-kuresel-yansimalari/8228',
         'https://anlatilaninotesi.com.tr/20150609/1015898130.html'],
     },
@@ -395,7 +402,7 @@
       sources: ['https://www.tbmm.gov.tr/Haber/Detay?Id=52226928-c750-4ae0-84bf-019f6f6e4618'],
     },
     'irq-2024': {
-      tr: 'Askerî, güvenlik işbirliği ve terörle mücadele mutabakatı · 15 Ağu 2024', en: 'Military, security cooperation & counter-terrorism MoU · 15 Aug 2024',
+      tr: 'Askerî, güvenlik işbirliği ve terörle mücadele mutabakatı · 15 Ağu 2024', en: 'Military & security cooperation and counter-terrorism MoU · 15 Aug 2024',
       sources: ['https://www.iletisim.gov.tr/turkce/dis_basinda_turkiye/detay/turkiye-ve-irak-guvenlik-is-birligi-ve-terorle-mucadeleye-dair-mutabakat-zapti-imzaladi',
         'https://tr.euronews.com/2024/08/15/turkiye-ve-irak-arasinda-tarihi-askeri-mutabakat-zapti-imzalandi'],
     },
@@ -446,7 +453,7 @@
   Object.assign(I18N.en, { 'lg.ally': 'Ally · mutual defence', 'lg.coop': 'Defence cooperation agreement', 'lg.kin': 'Organization of Turkic States', 'lg.presence': 'Official Turkish military presence (country level)' });
 
   Object.assign(I18N.tr, { 'lg.blue': "Mavi Vatan · deniz yetki alanları (Türkiye'nin tutumu)", 'lg.agreed': 'Anlaşmayla belirlenmiş', 'lg.position': "Türkiye'nin tutumu (itiraz edilen)", 'lg.island': 'Türk adası' });
-  Object.assign(I18N.en, { 'lg.blue': "Blue Homeland · maritime jurisdiction (Türkiye's position)", 'lg.agreed': 'Set by agreement', 'lg.position': "Türkiye's position (contested)", 'lg.island': 'Turkish island' });
+  Object.assign(I18N.en, { 'lg.blue': "Blue Homeland · maritime jurisdiction (Türkiye's position)", 'lg.agreed': 'Delimited by agreement', 'lg.position': "Türkiye's position (disputed)", 'lg.island': 'Turkish island' });
 
   // d3-geo treats counter-clockwise rings (RFC 7946 order) as "everything but this": flip any polygon larger than a hemisphere.
   const rewind = (f) => {
@@ -462,9 +469,11 @@
   };
 
   Object.assign(I18N.tr, { 'p.regional': 'bölge düzeyi, kesin konum yok', 'lg.regional': 'Olay (bölge düzeyi)' });
-  Object.assign(I18N.en, { 'p.regional': 'region level, no exact location', 'lg.regional': 'Event (region level)' });
+  Object.assign(I18N.en, { 'p.regional': 'region level only; no precise location', 'lg.regional': 'Event (region level)' });
   Object.assign(I18N.tr, { 'lg.mission': 'Türk dış temsilciliği (şehir düzeyi)', 'p.lyr.missions': 'Temsilcilikler','lg.schematic': "Şematik — Türkiye'nin tutumu esas alınarak çizildi, resmî koordinat değildir" });
-  Object.assign(I18N.en, { 'lg.mission': 'Turkish diplomatic mission (city level)', 'p.lyr.missions': 'Missions', 'lg.schematic': "Schematic — drawn from Türkiye's stated position, not official coordinates" });
+  Object.assign(I18N.en, { 'lg.mission': 'Turkish diplomatic mission (city level)', 'p.lyr.missions': 'Missions', 'lg.schematic': "Schematic — based on Türkiye's position, not official coordinates" });
+  Object.assign(I18N.tr, { 'lg.licence': 'KKTC ruhsat sahası (TPAO) · resmî koordinatlar, KKTC Resmî Gazete 161, 22.9.2011' });
+  Object.assign(I18N.en, { 'lg.licence': 'TRNC licence area (TPAO) · official coordinates, TRNC Official Gazette 161, 22 Sep 2011' });
 
   GT.loadWorld = async (url) => {
     const r = await fetch(url);
@@ -474,12 +483,16 @@
     // Mavi Vatan maritime jurisdiction/claims and Turkish islands (see assets/data/MARITIME-SOURCES.md),
     // and Türkiye's diplomatic missions at city level (see assets/data/MISSIONS-SOURCES.md).
     const base = url.replace(/countries-\d+m\.json$/, '');
-    const [disputed, maritime, islands, missions] = await Promise.all(
-      ['disputed-tur-view', 'maritime-tur', 'islands-tur', 'missions-tur'].map((n) => optionalLayer(base + n + '.geojson')));
+    const [disputed, maritime, islands, missions, concern] = await Promise.all(
+      ['disputed-tur-view', 'maritime-tur', 'islands-tur', 'missions-tur', 'concern-regions'].map((n) => optionalLayer(base + n + '.geojson')));
+    // a merged area (e.g. Türkiye + KKTC) replaces the schematic areas it lists in `components`;
+    // licence blocks it lists stay, drawn as outlines inside it
+    const merged = new Set(maritime.flatMap((m) => m.properties.components || []));
     return {
-      maritime,
+      maritime: maritime.filter((m) => !(merged.has(m.properties.id) && m.properties.status === 'schematic')),
       islands,
       missions,
+      concern, // human-rights markers (East Turkestan) — not boundary claims
       countries: topojson.feature(topo, topo.objects.countries).features,
       // no border line between features that map to the same state (e.g. Somaliland is part of Somalia)
       borders: topojson.mesh(topo, topo.objects.countries, (a, b) => a !== b && GT.a3(a) !== GT.a3(b)),
@@ -525,6 +538,11 @@
     tg.append('stop').attr('offset', '100%').attr('stop-color', '#99001c');
     const f = defs.append('filter').attr('id', 'glow').attr('x', '-30%').attr('y', '-30%').attr('width', '160%').attr('height', '160%');
     f.append('feGaussianBlur').attr('stdDeviation', 7);
+    // hatch for territory under occupation (Palestine, Golan, Crimea)
+    const h = defs.append('pattern').attr('id', 'occHatch').attr('width', 6).attr('height', 6)
+      .attr('patternUnits', 'userSpaceOnUse').attr('patternTransform', 'rotate(45)');
+    h.append('rect').attr('width', 6).attr('height', 6).attr('fill', '#161313');
+    h.append('line').attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 6).attr('stroke', 'rgba(232,227,220,0.4)').attr('stroke-width', 1.2);
     return defs;
   };
 })();

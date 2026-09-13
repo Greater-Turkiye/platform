@@ -15,3 +15,4 @@ Tüm varlıklar sitede barındırılır; site üçüncü taraflara istek gönder
 
 Boundaries shown are Natural Earth's de facto boundaries and do not imply any position of the project on sovereignty.
 Gösterilen sınırlar Natural Earth'ün fiilî sınırlarıdır; projenin egemenlik konusundaki bir tutumunu ifade etmez.
+| `data/disputed-tur-view.geojson`, `data/concern-regions.geojson` | [Natural Earth](https://www.naturalearthdata.com) 1:50m breakaway/disputed areas, admin-0 (Palestine) and admin-1 (Xinjiang) | 5.x | Public domain |

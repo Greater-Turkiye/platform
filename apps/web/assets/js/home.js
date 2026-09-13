@@ -90,6 +90,7 @@
       return g;
     };
     const G = { lo: group(loWorld), hi: null };
+    const TR_CENTROID = d3.geoCentroid(loWorld.countries.find((f) => GT.a3(f) === 'TUR'));
 
     function resize() {
       const r = host.getBoundingClientRect();
@@ -151,12 +152,41 @@
       for (const d of g.disputed) {
         c.beginPath(); path(d.f);
         c.fillStyle = (STYLE[d.style] || STYLE.land)[0]; c.fill();
+        if (d.f.properties.occupier) { // territory under occupation: hatch + dashed outline
+          if (!drawGlobe.hatch) {
+            const t = document.createElement('canvas'); t.width = t.height = 6;
+            const x = t.getContext('2d'); x.strokeStyle = 'rgba(232,227,220,0.42)'; x.lineWidth = 1.2;
+            x.beginPath(); x.moveTo(-1, 7); x.lineTo(7, -1); x.stroke();
+            drawGlobe.hatch = c.createPattern(t, 'repeat');
+          }
+          c.fillStyle = drawGlobe.hatch; c.fill();
+          c.setLineDash([2, 2]); c.strokeStyle = 'rgba(232,227,220,0.55)'; c.lineWidth = 0.8; c.stroke(); c.setLineDash([]);
+        }
+      }
+      // human-rights markers (East Turkestan): turquoise dashed outline + label, visible while orbiting
+      for (const cr of loWorld.concern) {
+        c.beginPath(); path(cr);
+        c.fillStyle = 'rgba(63,208,201,0.12)'; c.fill();
+        c.setLineDash([4, 3]); c.strokeStyle = 'rgba(63,208,201,0.95)'; c.lineWidth = 1.3; c.stroke(); c.setLineDash([]);
+        const at = cr.properties.label_at;
+        if (at && d3.geoDistance(at, [-proj.rotate()[0], -proj.rotate()[1]]) < Math.PI / 2 - 0.1) {
+          const lp = proj(at);
+          c.save(); c.font = '600 10px "Plex Mono", monospace'; c.fillStyle = 'rgba(120,230,222,0.95)'; c.textAlign = 'center';
+          c.fillText([...GT.upper(cr.properties['label_' + GT.lang] || cr.properties.label_tr)].join(' '), lp[0], lp[1]);
+          c.restore();
+        }
       }
       // Mavi Vatan (blue): agreed areas solid, schematic areas lighter with dashed edge, notified limits as glowing dashed lines
       for (const m of loWorld.maritime) {
         const st = m.properties.status;
         c.beginPath(); path(m);
         c.save();
+        if (st === 'licence') {
+          // KKTC licence blocks sit inside the merged Türkiye + KKTC area: thin outline only (the fill comes from the merged area)
+          c.strokeStyle = 'rgba(150,200,255,0.75)'; c.lineWidth = 0.7; c.stroke();
+          c.restore();
+          continue;
+        }
         c.shadowColor = 'rgba(70,150,255,0.8)'; c.shadowBlur = 8;
         if (/Polygon/.test(m.geometry.type)) {
           c.fillStyle = st === 'schematic' ? 'rgba(38,120,220,0.26)' : 'rgba(38,120,220,0.42)'; c.fill();
@@ -254,13 +284,13 @@
         const p = proj(at);
         if (inView(p) && facing(at)) spaced(c, GT.upper(GT.countryName(a3)), p[0], p[1], fs * 0.22);
       }
-      // Türkiye
-      const tp = proj([35.1, 39.05]);
+      // Türkiye — centred on the country's area-weighted centroid
+      const tp = proj(TR_CENTROID);
       if (tp) {
         const ts = Math.max(10, R / 26);
         c.font = `300 ${ts}px Montserrat, sans-serif`;
         c.fillStyle = 'rgba(255,255,255,0.94)';
-        spaced(c, GT.upper('Türkiye'), tp[0], tp[1] + fs * 0.9, ts * 0.62);
+        spaced(c, GT.upper('Türkiye'), tp[0], tp[1], ts * 0.62);
       }
       // Turkish islands as dots; Kardak hollow blue (Türkiye's position, contested)
       for (const i of loWorld.islands) {
@@ -393,8 +423,9 @@
     for (const d of world.disputed) {
       const a = d.properties.de_jure;
       svg.append('path').datum(d).attr('d', path)
-        .attr('class', 'm-land m-disputed' + (GT.REGION_OF[a] ? ' m-watch' : '') + GT.partnerClass(a));
+        .attr('class', 'm-land m-disputed' + (GT.REGION_OF[a] ? ' m-watch' : '') + GT.partnerClass(a) + (d.properties.occupier ? ' m-occupied' : ''));
     }
+    for (const cr of world.concern) svg.append('path').datum(cr).attr('d', path).attr('class', 'm-concern');
 
     const tr = world.countries.find((f) => GT.a3(f) === 'TUR');
     svg.append('path').datum(world.borders).attr('class', 'm-border').attr('d', path);
@@ -415,9 +446,9 @@
       const p = proj(at);
       if (ok(p)) labels.append('text').attr('class', 'm-label').attr('x', p[0]).attr('y', p[1]).attr('font-size', fs).text(GT.upper(GT.countryName(a3)));
     }
-    const tp = proj([35.1, 39.05]);
-    labels.append('text').attr('class', 'm-tr-label').attr('x', tp[0]).attr('y', tp[1] + fs * 0.9)
-      .attr('font-size', Math.max(10, R / 26)).text(GT.upper('Türkiye'));
+    const tp = proj(d3.geoCentroid(tr));
+    labels.append('text').attr('class', 'm-tr-label').attr('x', tp[0]).attr('y', tp[1])
+      .attr('font-size', Math.max(10, R / 26)).text([...GT.upper('Türkiye')].join('  '));
 
     if (data) {
       const mk = svg.append('g');
