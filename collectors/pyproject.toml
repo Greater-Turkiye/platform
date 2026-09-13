@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gt-collectors"
+version = "0.1.0"
+description = "Greater Türkiye collectors: normalized signals, Turkish-forces safety filter, HMAC-signed ingest client, RSS/Atom collector."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+# Keep runtime dependencies minimal (ADR 0011, supply chain): everything else is stdlib.
+dependencies = [
+  "PyYAML>=6.0.2,<7",
+]
+
+[project.optional-dependencies]
+# Exact pins so lint/test results are reproducible in CI.
+dev = [
+  "pytest==9.1.1",
+  "ruff==0.16.7",
+]
+
+[project.scripts]
+gt-collect = "gt_collectors.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gt_collectors"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF", "PL"]
+ignore = [
+  "PLR0911", # many early returns are clearer in validators
+  "PLR0912",
+  "PLR0913",
+  "PLR2004", # magic values are ITU/ICAO constants, named where it matters
+  "RUF001",  # we deliberately handle Unicode (Turkish, Greek, Arabic…) text
+  "RUF002",
+  "RUF003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S311", "PLC0415"]

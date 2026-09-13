@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Synthetic Atom fixture. -->
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="el">
+  <title>Παράδειγμα Υπουργείου</title>
+  <id>urn:example:feed</id>
+  <updated>2026-09-12T10:00:00Z</updated>
+  <entry>
+    <title type="html">Ανακοίνωση &lt;em&gt;Τύπου&lt;/em&gt;</title>
+    <link rel="self" href="https://mfa.example.gr/api/entry/7"/>
+    <link rel="alternate" href="https://mfa.example.gr/el/news/7"/>
+    <id>urn:example:7</id>
+    <published>2026-09-12T07:30:00+03:00</published>
+    <updated>2026-09-12T08:00:00Z</updated>
+    <summary type="html">&lt;p&gt;Σύντομο κείμενο.&lt;/p&gt;</summary>
+  </entry>
+  <entry>
+    <title>Only updated date</title>
+    <link href="https://mfa.example.gr/el/news/8"/>
+    <id>urn:example:8</id>
+    <updated>2026-09-11T12:00:00Z</updated>
+    <content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml"><p>XHTML content.</p></div></content>
+  </entry>
+</feed>
