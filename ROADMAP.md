@@ -28,7 +28,7 @@ Phases proceed in order; publishing parts of a phase are not switched on before 
 
 ### Aşama 2 — İlk toplayıcılar / Phase 2 — First collectors
 
-- [ ] D1 şeması: `db/migrations/ops/0001_init.sql`, `db/migrations/signals/0001_init.sql` — D1 schema
+- [x] D1 şeması: `db/migrations/ops/0001_init.sql`, `db/migrations/signals/0001_init.sql` — D1 schema
 - [ ] Toplayıcı çatısı: `uv` projesi, sinyal modeli, HMAC istemcisi — Collector framework: `uv` project, signal model, HMAC client
 - [ ] Türk kuvvetleri güvenlik filtresi ve testleri (ICAO bloğu, MMSI MID, geofence) — Turkish-forces safety filter and tests
 - [ ] Güvenlik filtresi için test örnekleri (sentetik veri) **(good first issue)** — Test fixtures for the safety filter (synthetic data)
