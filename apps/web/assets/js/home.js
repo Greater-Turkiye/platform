@@ -98,10 +98,11 @@
       for (const c of [canvas, cache]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
       narrow = W < 860;
       cx = narrow ? W * 0.5 : W * 0.63;
-      cy = narrow ? H * 0.36 : H * 0.53;
-      const rFocus = narrow ? Math.min(W * 0.7, H * 0.36) : Math.min(H * 0.5, W * 0.36);
+      // on phones the text and legend fill the lower half, so keep the globe in the top third
+      cy = narrow ? H * 0.25 : H * 0.53;
+      const rFocus = narrow ? Math.min(W * 0.62, H * 0.26) : Math.min(H * 0.5, W * 0.36);
       sFocus = rFocus / Math.sin((31 * Math.PI) / 180);
-      sFull = narrow ? Math.min(W * 0.44, H * 0.3) : Math.min(H * 0.42, W * 0.3);
+      sFull = narrow ? Math.min(W * 0.42, H * 0.22) : Math.min(H * 0.42, W * 0.3);
       cacheValid = false;
     }
 
