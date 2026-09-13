@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic RSS 2.0 fixture: invented ministry, invented items. -->
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Example Ministry of Defence</title>
+    <link>https://mod.example.org/</link>
+    <description>Press releases</description>
+    <language>en</language>
+    <item>
+      <title>Minister visits &ldquo;Exercise Blue Example&rdquo;</title>
+      <link>https://mod.example.org/news/1?utm_source=rss&amp;utm_medium=feed&amp;id=1</link>
+      <description><![CDATA[<p>The minister <b>observed</b> the exercise.</p><script>alert(1)</script><p>Second&nbsp;paragraph.</p>]]></description>
+      <pubDate>Sat, 12 Sep 2026 09:58:00 +0300</pubDate>
+      <guid isPermaLink="false">item-1</guid>
+    </item>
+    <item>
+      <title>Relative link item</title>
+      <link>/news/2#section</link>
+      <description>Short text.</description>
+      <dc:date>2026-09-11T08:00:00Z</dc:date>
+    </item>
+    <item>
+      <title>Guid permalink item</title>
+      <guid>https://mod.example.org/news/3</guid>
+      <content:encoded><![CDATA[<div>Only content:encoded here.</div>]]></content:encoded>
+      <pubDate>not a date</pubDate>
+    </item>
+    <item>
+      <title>No link at all</title>
+      <description>Should be counted as invalid.</description>
+    </item>
+    <item>
+      <title>Duplicate of the first (same URL after tracking removal, same text)</title>
+      <link>https://MOD.example.org:443/news/1?id=1&amp;fbclid=abc</link>
+      <description><![CDATA[<p>The minister <b>observed</b> the exercise.</p><script>alert(1)</script><p>Second&nbsp;paragraph.</p>]]></description>
+    </item>
+    <item>
+      <title>Unsafe scheme</title>
+      <link>javascript:alert(1)</link>
+    </item>
+  </channel>
+</rss>

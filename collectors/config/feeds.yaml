@@ -1,0 +1,143 @@
+# Official RSS/Atom feeds confirmed on 2026-09-13 (fetched and parsed; see ../sources.md).
+# Every feed stays `enabled: false` until its terms of use are confirmed by a maintainer and it
+# has a `source_id` in the datasets source registry (datasets issue #4). Disabled feeds can
+# still be tried locally:  gt-collect --feed <id> --dry-run
+feeds:
+  - id: rss-aze-mod
+    kind: rss
+    name: Azerbaijan Ministry of Defence — news
+    country: AZE
+    source_id: null
+    url: https://mod.gov.az/az/rss/
+    cadence_minutes: 60
+    lang: az
+    regions: [caucasus]
+    enabled: false
+    secrets: []
+    notes: >-
+      ~3 items/day, 240 items (~1.1 MB) per fetch, no ETag/Last-Modified. The /en/ and /ru/
+      paths return the same Azerbaijani feed. No terms page found; footer says
+      "© Ministry of Defense of Azerbaijan".
+
+  - id: rss-rus-kremlin-news-en
+    kind: rss
+    name: President of Russia — news (English)
+    country: RUS
+    source_id: null
+    url: http://en.kremlin.ru/events/president/news/feed
+    cadence_minutes: 30
+    lang: en
+    regions: [global]
+    enabled: false
+    secrets: []
+    terms: http://en.kremlin.ru/about/copyrights
+    notes: >-
+      Atom, 20 entries, ~5-9/day. HTTPS timed out from our vantage point; only plain HTTP
+      answered. The terms page returned 403 to us, so its licence has not been confirmed.
+
+  - id: rss-rus-kremlin-news-ru
+    kind: rss
+    name: Президент России — новости (Russian)
+    country: RUS
+    source_id: null
+    url: http://kremlin.ru/events/president/news/feed
+    cadence_minutes: 30
+    lang: ru
+    regions: [global]
+    enabled: false
+    secrets: []
+    terms: http://en.kremlin.ru/about/copyrights
+    notes: Atom, 20 entries, ~5/day. Same caveats as the English feed.
+
+  - id: rss-lbn-army-en
+    kind: rss
+    name: Lebanese Army — news (English)
+    country: LBN
+    source_id: null
+    url: https://www.lebarmy.gov.lb/en/rss.xml
+    cadence_minutes: 60
+    lang: en
+    regions: [levant]
+    enabled: false
+    secrets: []
+    terms: https://www.lebarmy.gov.lb/en/content/privacy-and-security
+    notes: >-
+      ~2-3/day, sends Last-Modified. Site policy says site information "may be distributed or
+      copied unless otherwise specified" and asks for credit. TLS: certificate chain did not verify
+      with Python's default trust store — the collector never disables verification, so this feed
+      fails until the site fixes its chain.
+
+  - id: rss-lbn-army-ar
+    kind: rss
+    name: الجيش اللبناني — أخبار (Arabic)
+    country: LBN
+    source_id: null
+    url: https://www.lebarmy.gov.lb/ar/rss.xml
+    cadence_minutes: 60
+    lang: ar
+    regions: [levant]
+    enabled: false
+    secrets: []
+    terms: https://www.lebarmy.gov.lb/en/content/privacy-and-security
+    notes: ~8/day. Same TLS caveat as the English feed.
+
+  - id: rss-syr-sana-en
+    kind: rss
+    name: SANA (Syrian Arab News Agency, state agency) — English
+    country: SYR
+    source_id: null
+    url: https://sana.sy/en/feed/
+    cadence_minutes: 120
+    lang: en
+    regions: [syria]
+    enabled: false
+    secrets: []
+    terms: https://sana.sy/en/terms-of-use/
+    notes: >-
+      State news agency (Ministry of Information), not MoD/MFA; neither of those publishes a feed.
+      The feed parses and sends an ETag but was stale: newest item 2026-07-28. "All rights reserved".
+
+  - id: rss-cyp-mod
+    kind: rss
+    name: Cyprus Ministry of Defence — announcements (Greek)
+    country: CYP
+    source_id: null
+    url: https://www.gov.cy/mod/feed/
+    cadence_minutes: 180
+    lang: el
+    regions: [cyprus]
+    enabled: false
+    secrets: []
+    notes: >-
+      Valid RSS (WordPress) but returns 403 to our descriptive User-Agent and 200 only to a
+      browser User-Agent. We do not spoof user agents — needs publisher contact or stays off.
+      ~1-2 items/week.
+
+  - id: rss-cyp-mfa
+    kind: rss
+    name: Cyprus Ministry of Foreign Affairs — announcements (Greek)
+    country: CYP
+    source_id: null
+    url: https://www.gov.cy/mfa/feed/
+    cadence_minutes: 360
+    lang: el
+    regions: [cyprus]
+    enabled: false
+    secrets: []
+    notes: Same 403-for-non-browser behaviour as rss-cyp-mod. Low volume (10 items span Jan-Jul 2026).
+
+  - id: rss-rou-mfa
+    kind: rss
+    name: Romania Ministry of Foreign Affairs — news (Romanian)
+    country: ROU
+    source_id: null
+    url: https://www.mae.ro/rss.xml
+    cadence_minutes: 120
+    lang: ro
+    regions: [balkans, black-sea]
+    enabled: false
+    secrets: []
+    notes: >-
+      Valid RSS, ~2-3/day, sends Last-Modified. Resets the connection for our descriptive
+      User-Agent and answers only a browser User-Agent. Stays off (no spoofing). The English feed
+      (/en/rss.xml) is low volume (10 items span Mar-Jul 2026).

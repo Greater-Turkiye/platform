@@ -2,7 +2,9 @@
 
 [Türkçe](#türkçe) · [English](#english) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
 
-> Durum: tasarım. Henüz kod yok. / Status: design. No code yet.
+> Durum: çatı, güvenlik filtresi ve RSS/Atom toplayıcı hazır; hiçbir akış henüz açık değil. / Status: framework, safety filter and RSS/Atom collector in place; no feed is enabled yet.
+>
+> Paket / Package: `gt_collectors` (`src/`), yapılandırma / config: [`config/feeds.yaml`](config/feeds.yaml), kaynaklar / sources: [`sources.md`](sources.md).
 
 ---
 
@@ -32,20 +34,56 @@ Rules:
 
 ## Teknik başvuru / Technical reference
 
+### Geliştirme / Development
+
+Python ≥ 3.11. Standart bir `pyproject.toml` (hatchling); `uv` ya da `pip` ile çalışır. / A standard `pyproject.toml` that works with both `uv` and `pip`.
+
+```bash
+cd collectors
+uv sync --extra dev            # veya / or: python -m venv .venv && . .venv/bin/activate && pip install -e ".[dev]"
+ruff check . && ruff format --check .
+pytest                          # ağ erişimi yok / no network access
+python -m gt_collectors.tools.build_geofence --check
+
+# Sinyalleri JSON satırları olarak yazdır, hiçbir şey gönderme (sır gerekmez)
+# Print signals as JSON lines, send nothing (no secrets needed)
+gt-collect --feed rss-aze-mod --dry-run
+gt-collect --feed rss-aze-mod --dry-run --input saved-feed.xml   # çevrimdışı / offline
+```
+
+Gerçek çalıştırma yalnızca `enabled: true` ve `source_id` dolu akışları, `INGEST_URL` ve `INGEST_HMAC_KEY` ortam değişkenleriyle gönderir. / A real run sends only `enabled: true` feeds that have a `source_id`, using the `INGEST_URL` and `INGEST_HMAC_KEY` environment variables.
+
+| Modül / Module | İçerik / Content |
+|---|---|
+| `signal.py` | `Signal`/`Geo` dataclass'ları, sözleşme doğrulaması / dataclasses, contract validation |
+| `normalize.py` | URL normalleştirme (izleme parametreleri atılır), `content_hash` / URL normalization (tracking params stripped) |
+| `simhash.py` | 64-bit SimHash (yakın kopya) / near-duplicates |
+| `safety.py`, `geo.py`, `data/tr_geofence.json` | Güvenlik filtresi ve geofence / safety filter and geofence |
+| `ingest.py` | HMAC-SHA256 imzalı ≤100'lük partiler / signed batches of ≤100 |
+| `fetch.py` | `urllib` tabanlı küçük HTTP yardımcısı (zaman aşımı, UA, koşullu GET, yeniden deneme) / small HTTP helper |
+| `rss.py`, `config.py`, `cli.py` | RSS/Atom toplayıcı, YAML yapılandırma, `gt-collect` / collector, config, CLI |
+
+Bağımlılıklar / Dependencies: yalnızca / only `PyYAML` at runtime. We use `urllib` rather than `httpx` and `xml.etree` rather than `feedparser`: the few features we need are small to write, and every extra package is supply-chain surface in a job that holds the ingest HMAC key (ADR 0011). XML entity declarations are rejected, so entity-expansion attacks cannot work.
+
 ### Girdi yapılandırması / Input configuration
 
-Toplayıcı örneği başına bir YAML dosyası (`collectors/config/<id>.yaml`, planlanan) / One YAML file per collector instance (planned):
+Tüm RSS akışları tek dosyada: [`config/feeds.yaml`](config/feeds.yaml). Bilinmeyen anahtarlar hata verir. / All RSS feeds live in one file; unknown keys are errors:
 
 ```yaml
-id: rss-example-mod          # benzersiz / unique
-kind: rss                     # rss | gdelt | firms | adsb | ais | sentinel | telegram-web
-source_id: src_...            # datasets deposundaki kaynak kaydı / source record in datasets
-url: https://example.org/feed.xml
-cadence_minutes: 30           # >= 15
-lang: en
-regions: [aegean]
-enabled: false                # koşullar teyit edilene kadar / until terms are confirmed
-secrets: []                   # ör. / e.g. [FIRMS_MAP_KEY]
+feeds:
+  - id: rss-example-mod          # benzersiz / unique
+    kind: rss                     # şimdilik yalnızca rss / only rss for now (gdelt | firms | adsb | ais | … planned)
+    name: Example Ministry of Defence
+    country: XXX                  # ISO 3166-1 alpha-3
+    source_id: null               # datasets kaynak kaydı; göndermek için zorunlu / required to send
+    url: https://example.org/feed.xml
+    cadence_minutes: 30           # >= 15
+    lang: en
+    regions: [aegean]             # datasets vocab/regions.yaml
+    enabled: false                # koşullar teyit edilene kadar / until terms are confirmed
+    secrets: []                   # ör. / e.g. [FIRMS_MAP_KEY]
+    terms: https://example.org/terms
+    notes: …
 ```
 
 ### Çıktı: normalleştirilmiş sinyal / Output: normalized signal
@@ -78,6 +116,15 @@ secrets: []                   # ör. / e.g. [FIRMS_MAP_KEY]
 Ingest bu alanlardan ayrıca `content_hash` (normalleştirilmiş URL + metin, SHA-256) üretir; tekilleştirme bununla yapılır. Partiler en fazla 100 sinyaldir ve HMAC ile imzalanır ([apps/api/README.md](../apps/api/README.md)).
 Ingest additionally derives `content_hash` (SHA-256 of normalized URL + text) and deduplicates on it. Batches hold at most 100 signals and are HMAC-signed.
 
+Uygulama notları / Implementation notes:
+
+- `url` is stored **already normalized**: tracking parameters are removed before anything is stored.
+- `source_id` may be `null` only while a source awaits registry (dry-run only); `send` refuses it.
+- `raw_hash` for RSS is the SHA-256 of the item element's XML serialization.
+- `text` is an excerpt of at most 500 characters; the model rejects more than 1000.
+- `content_hash` = `"sha256:" + hex(SHA-256(UTF-8(normalize_url(url) + "\n" + normalize_text(text))))`. The exact rules are in the `normalize.py` docstring; they are written so a JavaScript port (ingest Worker) gives identical bytes: raw query parts are sorted without re-encoding, the whitespace class is explicit, Unicode is NFC.
+- Ingest batch envelope (`gt-ingest/1`): `{"schema", "collector_id", "sent_at", "signals": [ {…contract…, "content_hash", "simhash"} ]}`. `simhash` is a 16-character hex string (JSON numbers cannot carry 64-bit integers into JS); the Worker should recompute `content_hash` and reject a mismatch.
+
 ### Planlanan toplayıcılar / Planned collectors
 
 Tüm koşullar kullanımdan önce teyit edilecektir. / All terms must be confirmed before use.
@@ -104,7 +151,21 @@ DROP if record has a position and point_in(position, TR_GEOFENCE)    # Türkiye 
 ```
 
 - `mid(mmsi)` tüm MMSI biçimlerini çözmelidir: gemiler (`MIDxxxxxx`), kıyı istasyonları (`00MIDxxxx`), grup çağrıları (`0MIDxxxxx`), SAR hava araçları (`111MIDxxx`), seyir yardımcıları (`99MIDxxxx`) vb. / `mid(mmsi)` must handle all MMSI formats: ships, coast stations, group calls, SAR aircraft, aids to navigation, etc.
-- `TR_GEOFENCE`: Türkiye kara alanı + karasuları + tampon bölge; dosya ve tampon mesafesi bir ADR ile belirlenir (`collectors/geo/`, planlanan). / Türkiye land area + territorial waters + a buffer; the file and buffer distance are set by an ADR (planned under `collectors/geo/`).
+- `TR_GEOFENCE`: Türkiye kara alanı + karasuları + tampon bölge; dosya ve tampon mesafesi bir ADR ile belirlenir. / Türkiye land area + territorial waters + a buffer; the file and buffer distance are set by an ADR.
 - Kod yoksa, geçersizse veya konum belirsizse **güvenli tarafta kal**: at. / If a code is missing, invalid or the position ambiguous, **fail safe**: drop.
 - Filtre testleri CI'de zorunludur ve yalnızca sentetik veriyle yazılır. / Filter tests are mandatory in CI and use synthetic data only.
+
+**Uygulama / Implementation** (`src/gt_collectors/safety.py`, `geo.py`):
+
+- MMSI: the formats above plus `8MIDxxxxx` (handheld) and `98MIDxxxx` (craft associated with a parent ship). `970/972/974…` (SART/MOB/EPIRB) carry no MID and are dropped, as is anything not exactly nine digits or with a MID outside 201–775. Integer MMSIs are zero-padded.
+- ICAO: exactly 24 bits (`"4b8000"`, `"0x4B8000"` or an int). Non-ICAO addresses such as `~abc123` are dropped. So are ADS-B and AIS records **without a position**, and any half-present, non-numeric, non-finite or out-of-range coordinate.
+- Geofence data: `data/tr_geofence.json`, built by `python -m gt_collectors.tools.build_geofence` from the Natural Earth 1:50m data already vendored at `apps/web/assets/data/countries-50m.json` (feature `792`, public domain). Douglas–Peucker simplification with the maximum deviation recorded. A hand-drawn internal-waters polygon covers the Sea of Marmara, the Bosphorus and the Dardanelles, which Natural Earth leaves open between Thrace and Anatolia. CI checks the vendored file is byte-for-byte reproducible.
+- Test: inside a polygon (even-odd ray casting) **or** within `12 nm + simplification error + 2 km source margin`, plus 1 % for the distance approximation (≈ 25 km in total) of any edge. Dependency-free; bounding-box fast path.
+- Only drop **counts** (by reason) are returned. Dropped records are never logged or returned.
+
+**Açık sorular (ADR için) / Open questions for the geofence ADR:**
+
+1. The buffer is uniform. At land borders it also drops points up to ~25 km inside neighbours (e.g. Batumi), and in the Aegean it covers much of the eastern Greek islands (e.g. Kastellorizo/Meis). This is fail-safe, but it hides legitimate signals. Options: a coastal-only buffer, 6 nm in the Aegean, or a smaller land-border margin.
+2. Northern Cyprus (TRNC) and Turkish forces deployed abroad (Syria, Iraq, Qatar, Libya, Somalia, Azerbaijan…) are **not** in the geofence; only the identifier rules cover them. Should N. Cyprus (Natural Earth has it as a separate feature) be added?
+3. Natural Earth 1:50m omits small islands (Bozcaada, the Marmara islands…). The mainland buffer covers them, but not their full territorial sea.
 - Metin içeriği için: Türk kuvvetlerinin konum veya hareketinden söz eden öğeler triyajda `redline_check` ile işaretlenir ve asla otomatik olarak bülten önerisine dönüşmez. / For text: items mentioning Turkish forces positions or movements are flagged `redline_check` in triage and never auto-suggested as bulletins.
