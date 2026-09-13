@@ -552,8 +552,15 @@
     }
     return f;
   };
-  const optionalLayer = async (u) => {
-    try { const r = await fetch(u); return r.ok ? (await r.json()).features.map(rewind) : []; } catch (e) { return []; }
+  // optional layers are the same for every detail level: fetch and prepare each one once per page
+  const layerCache = new Map();
+  const optionalLayer = (u) => {
+    if (!layerCache.has(u)) {
+      layerCache.set(u, (async () => {
+        try { const r = await fetch(u); return r.ok ? (await r.json()).features.map(rewind) : []; } catch (e) { return []; }
+      })());
+    }
+    return layerCache.get(u);
   };
 
   Object.assign(I18N.tr, { 'p.regional': 'bölge düzeyi, kesin konum yok', 'lg.regional': 'Olay (bölge düzeyi)' });

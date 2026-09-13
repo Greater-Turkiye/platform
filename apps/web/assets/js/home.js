@@ -33,25 +33,37 @@
 
   try { data = await GT.loadData(); } catch (e) { dataFailed = true; console.warn(e); }
   renderData();
-  if (globe) globe.invalidate(); else drawStatic();
+  if (globe) globe.refresh(); else drawStatic();
 
   document.addEventListener('gt:lang', () => { if (globe) globe.invalidate(); else drawStatic(); renderData(); });
 
   /* ================= animated globe (canvas) ================= */
+  /* Layers, bottom to top:
+     - halo:  the atmosphere of the moving globe, a CSS radial gradient scaled by the compositor;
+     - move:  redrawn only while the camera moves (1:110m, no shadow blur) with the fast orthographic paths (ortho.js);
+              sized to the globe, at a device-pixel ratio that steps down if frames run slow;
+     - hold:  the still frame on Türkiye (1:50m, glows, exact atmosphere), rendered once and cross-faded by opacity after
+              arrival and before departure — the hold looks exactly as before and costs nothing per frame;
+     - sweep: the radar sweep, a CSS conic-gradient wedge turned by the compositor;
+     - over:  labels, islands and sites, drawn once per hold and faded by opacity;
+     - ev:    the pulsing event markers, a small canvas redrawn each frame. */
   function createGlobe(loWorld) {
-    const canvas = document.createElement('canvas');
-    canvas.setAttribute('role', 'img');
-    canvas.setAttribute('aria-label', GT.t('hero.mapAria'));
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.display = 'block';
-    host.replaceChildren(canvas);
-    const ctx = canvas.getContext('2d');
-    const cache = document.createElement('canvas');
-    const cctx = cache.getContext('2d');
-    const proj = d3.geoOrthographic().clipAngle(90).precision(0.6);
-    const path = d3.geoPath(proj);
+    const R = GT.ortho;
+    const layer = (tag) => { const c = document.createElement(tag); c.setAttribute('aria-hidden', 'true'); return c; };
+    const haloEl = layer('div'), cvMove = layer('canvas'), cvHold = layer('canvas'), sweepEl = layer('div'), cvOver = layer('canvas'), cvEv = layer('canvas');
+    cvOver.removeAttribute('aria-hidden');
+    cvOver.setAttribute('role', 'img');
+    cvOver.setAttribute('aria-label', GT.t('hero.mapAria'));
+    sweepEl.className = 'globe-sweep';
+    haloEl.className = 'globe-halo';
+    cvHold.style.opacity = '0';
+    cvEv.style.pointerEvents = 'none';
+    host.replaceChildren(haloEl, cvMove, cvHold, sweepEl, cvOver, cvEv);
+    // the still frame is opaque (it paints the page background), which lets the compositor skip what lies beneath it
+    const mctx = cvMove.getContext('2d'), hctx = cvHold.getContext('2d', { alpha: false }), octx = cvOver.getContext('2d'), ectx = cvEv.getContext('2d');
+    const proj = d3.geoOrthographic().clipAngle(90).precision(0.6); // label and marker positions, hit-testing
     const grat = d3.geoGraticule().step([10, 10])();
+    const gratMoving = d3.geoGraticule().step([10, 10]).precision(5)(); // fewer points; resampling keeps the curves
     const sphere = { type: 'Sphere' };
 
     // timeline (seconds): hold on Türkiye → depart → orbit → approach → hold …
@@ -59,11 +71,14 @@
     const CYCLE = T.hold + T.depart + T.spin + T.approach;
     const V = 360 / (T.depart / 2 + T.spin + T.approach / 2); // orbit speed so each cycle is exactly one turn
     const SPIN_TILT = -26;
+    const FADE = 0.35; // s: the still hold frame fades in after arrival and out before departure
+    const JOB_BUDGET = 6; // ms per animation frame for re-rendering the hold frame in the background
 
     let W = 0, H = 0, dpr = 1, cx = 0, cy = 0, sFull = 0, sFocus = 0, narrow = false;
     // ?globe-t=<seconds> starts the cycle at a given moment (handy for reviewing each phase)
     let t = Math.max(0, Number(new URLSearchParams(location.search).get('globe-t')) || 0) % CYCLE;
-    let last = performance.now(), visible = true, cacheValid = false, hudTick = 0, hover = null;
+    let last = performance.now(), visible = true, hudTick = 0, hudText = '', hover = null;
+    let holdReady = false, holdAlpha = -1, moveKey = '', job = null, fontsPending = false;
 
     const styleOf = (a3) => {
       if (a3 === 'TUR') return 'tr';
@@ -87,24 +102,62 @@
       }
       g.disputed = world.disputed.map((d) => ({ f: d, style: styleOf(d.properties.de_jure) }));
       g.borders = world.borders;
+      g.all = [...world.countries, ...world.disputed, world.borders]; // what has to be prepared before drawing
       return g;
     };
-    const G = { lo: group(loWorld), hi: null };
+    // G.lo: 1:110m (moving frames); G.hi: 1:50m once prepared; G.next: 1:50m being prepared in the background
+    const G = { lo: group(loWorld), hi: null, next: null };
+    const best = () => G.next || G.hi || G.lo;
     const TR_CENTROID = d3.geoCentroid(loWorld.countries.find((f) => GT.a3(f) === 'TUR'));
+    const HOLD_CAM = { rot: FOCUS, phase: 'hold' };
+
+    /* moving canvas: covers only the globe and its atmosphere; its pixel ratio starts at 1.5 (phones) / 2 and steps
+       down by 0.25 while frames take longer than ~21 ms (down to 1, or 0.75 on phones: a moving globe hides it) */
+    const mv = { x: 0, y: 0, w: 0, h: 0 };
+    let moveCap = 1, moveDpr = 1, slowFrames = 0, moveWall = 0;
+    function placeMove(s) {
+      const m = s * 1.17 + 4, q = 32;
+      const x0 = Math.max(0, Math.floor((cx - m) / q) * q), y0 = Math.max(0, Math.floor((cy - m) / q) * q);
+      const w = Math.max(1, Math.min(W, Math.ceil((cx + m) / q) * q) - x0), h = Math.max(1, Math.min(H, Math.ceil((cy + m) / q) * q) - y0);
+      const bw = Math.round(w * moveDpr), bh = Math.round(h * moveDpr);
+      if (cvMove.width !== bw || cvMove.height !== bh) { cvMove.width = bw; cvMove.height = bh; }
+      if (w !== mv.w || h !== mv.h) { cvMove.style.width = w + 'px'; cvMove.style.height = h + 'px'; }
+      if (x0 !== mv.x || y0 !== mv.y) cvMove.style.transform = `translate(${x0}px,${y0}px)`;
+      Object.assign(mv, { x: x0, y: y0, w, h });
+    }
+    function adapt() {
+      const now = Date.now(), dt = now - moveWall; // wall clock between consecutive moving frames
+      moveWall = now;
+      if (dt > 200) return; // first frame after a pause
+      slowFrames = dt > 21 ? slowFrames + 1 : Math.max(0, slowFrames - 1);
+      const floor = narrow ? 0.75 : 1;
+      if (slowFrames >= 8 && moveDpr > floor) { moveDpr = Math.max(floor, moveDpr - 0.25); slowFrames = 0; }
+    }
 
     function resize() {
       const r = host.getBoundingClientRect();
       W = Math.max(1, r.width); H = Math.max(1, r.height);
-      dpr = Math.min(2, window.devicePixelRatio || 1);
-      for (const c of [canvas, cache]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
       narrow = W < 860;
+      dpr = Math.min(2, window.devicePixelRatio || 1); // still frame and overlay: as sharp as before
+      moveCap = moveDpr = Math.min(narrow ? 1.5 : 2, dpr);
+      for (const c of [cvHold, cvOver]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
       cx = narrow ? W * 0.5 : W * 0.63;
       // on phones the text and legend fill the lower half, so keep the globe in the top third
       cy = narrow ? H * 0.25 : H * 0.53;
       const rFocus = narrow ? Math.min(W * 0.62, H * 0.26) : Math.min(H * 0.5, W * 0.36);
       sFocus = rFocus / Math.sin((31 * Math.PI) / 180);
       sFull = narrow ? Math.min(W * 0.42, H * 0.22) : Math.min(H * 0.42, W * 0.3);
-      cacheValid = false;
+      HOLD_CAM.s = sFocus;
+      moveKey = ''; labelsKey = ''; sweepKey = ''; haloKey = ''; mv.w = 0;
+      // the still frame must match the new size right away
+      job = null;
+      const g = best();
+      for (const f of g.all) R.prepare(f);
+      setCamera(HOLD_CAM, false);
+      run(drawGlobe(hctx, g, true, dpr, 0, 0));
+      if (g === G.next) { G.hi = g; G.next = null; }
+      holdReady = true;
+      fontsPending = !!document.fonts && document.fonts.status !== 'loaded';
     }
 
     const easeInOut = (u) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2);
@@ -126,14 +179,71 @@
       const l2 = l1 + V * T.spin;
       return { rot: [l2 + V * T.approach * (u - (u * u) / 2), SPIN_TILT + (FOCUS[1] - SPIN_TILT) * e, 0], s: geo(sFull, sFocus, e), phase: 'approach', u };
     }
+    function setCamera(cam, fast) {
+      proj.rotate(cam.rot).scale(cam.s).translate([cx, cy]);
+      R.setView(cam.rot, cam.s, [cx, cy], W, H, fast);
+    }
+    const run = (gen) => { while (!gen.next().done); };
 
-    function drawGlobe(c, g) {
-      c.setTransform(dpr, 0, 0, dpr, 0, 0);
-      c.clearRect(0, 0, W, H);
-      path.context(c);
+    // Dots at unit vectors `vecs`, one fill per group of dots that can't share a pixel. The groups are independent of
+    // draw order and every dot has the same colour, so this matches filling each dot on its own, at a fraction of the calls.
+    function drawDots(c, vecs, radius, minDepth) {
+      const { d, r, u, s } = R.view;
+      const gap = 2 * radius + 3, layers = [];
+      for (const v of vecs) {
+        if (v[0] * d[0] + v[1] * d[1] + v[2] * d[2] < minDepth) continue;
+        const px = R.view.x + s * (v[0] * r[0] + v[1] * r[1] + v[2] * r[2]);
+        const py = R.view.y - s * (v[0] * u[0] + v[1] * u[1] + v[2] * u[2]);
+        const gx = Math.floor(px / gap), gy = Math.floor(py / gap);
+        let layer = layers.find((L) => {
+          for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) {
+            const cell = L.cells.get((gx + i) * 65536 + gy + j);
+            if (cell) for (const q of cell) if (Math.hypot(q[0] - px, q[1] - py) < gap) return false;
+          }
+          return true;
+        });
+        if (!layer) layers.push((layer = { cells: new Map(), pts: [] }));
+        const key = gx * 65536 + gy;
+        if (!layer.cells.has(key)) layer.cells.set(key, []);
+        layer.cells.get(key).push([px, py]);
+        layer.pts.push(px, py);
+      }
+      for (const L of layers) {
+        c.beginPath();
+        for (let i = 0; i < L.pts.length; i += 2) { c.moveTo(L.pts[i] + radius, L.pts[i + 1]); c.arc(L.pts[i], L.pts[i + 1], radius, 0, Math.PI * 2); }
+        c.fill();
+      }
+    }
+    const missionVecs = loWorld.missions.map((m) => R.unit(...m.geometry.coordinates));
+
+    /* atmosphere of the moving globe: the same radial gradient as a CSS disc under the moving canvas (site.css .globe-halo),
+       placed and scaled by a compositor transform — no per-frame drawing at all. The sphere covers its inner part. */
+    let haloKey = '';
+    function placeHalo(r, show) {
+      const key = show ? r.toFixed(2) + ',' + cx + ',' + cy : 'off';
+      if (key === haloKey) return;
+      haloKey = key;
+      if (!show) { haloEl.style.visibility = 'hidden'; return; }
+      const d = 2.32 * sFull; // laid out at the orbit size, scaled from there
+      haloEl.style.visibility = '';
+      haloEl.style.width = haloEl.style.height = d + 'px';
+      haloEl.style.transform = `translate(${cx - d / 2}px,${cy - d / 2}px) scale(${r / sFull})`;
+    }
+
+    /* The globe, layer by layer (a generator, so the still frame can be re-rendered a few layers per animation frame).
+       full = the still hold frame: exact atmosphere and glows, painted opaque so it hides the moving canvas beneath.
+       Moving frames leave out the shadow blur; on a device that had to lower their resolution (lean) they also leave out
+       the faint grid and the faint land outlines. (ox, oy): canvas origin on the page. */
+    function* drawGlobe(c, g, full, ratio, ox, oy) {
+      const path = (o) => R.path(c, o);
+      path.bounds = (o) => R.bounds(o);
       const r = proj.scale();
-      // atmosphere
-      if (r < Math.hypot(W, H)) {
+      c.setTransform(1, 0, 0, 1, 0, 0);
+      c.clearRect(0, 0, c.canvas.width, c.canvas.height);
+      c.setTransform(ratio, 0, 0, ratio, -ox * ratio, -oy * ratio);
+      if (full) { c.fillStyle = '#050505'; c.fillRect(0, 0, W, H); } // the page background
+      // atmosphere (moving frames: the .globe-halo element beneath)
+      if (full && r < Math.hypot(W, H)) {
         const halo = c.createRadialGradient(cx, cy, r * 0.96, cx, cy, r * 1.16);
         halo.addColorStop(0, 'rgba(200,0,42,0.18)');
         halo.addColorStop(1, 'rgba(200,0,42,0)');
@@ -141,13 +251,16 @@
         c.beginPath(); c.arc(cx, cy, r * 1.16, 0, Math.PI * 2); c.fill();
       }
       c.beginPath(); path(sphere); c.fillStyle = '#070707'; c.fill();
-      c.beginPath(); path(grat); c.strokeStyle = 'rgba(232,227,220,0.06)'; c.lineWidth = 0.6; c.stroke();
+      const lean = !full && moveDpr < moveCap;
+      if (!lean) { c.beginPath(); path(full ? grat : gratMoving); c.strokeStyle = 'rgba(232,227,220,0.06)'; c.lineWidth = 0.6; c.stroke(); }
+      yield;
       for (const k of ['land', 'watch', 'kin', 'coop', 'ally']) {
         if (!g[k].length) continue;
         c.beginPath();
         for (const f of g[k]) path(f);
         c.fillStyle = STYLE[k][0]; c.fill();
-        c.strokeStyle = STYLE[k][1]; c.lineWidth = k === 'ally' ? 0.8 : 0.5; c.stroke();
+        if (!lean || (k !== 'land' && k !== 'watch')) { c.strokeStyle = STYLE[k][1]; c.lineWidth = k === 'ally' ? 0.8 : 0.5; c.stroke(); }
+        yield;
       }
       for (const d of g.disputed) {
         c.beginPath(); path(d.f);
@@ -176,13 +289,14 @@
           c.restore();
         }
       }
+      yield;
       // Mavi Vatan (blue): agreed areas solid, schematic areas lighter with dashed edge, notified limits as glowing dashed lines
       for (const m of loWorld.maritime) {
         const st = m.properties.status;
         if (st === 'licence') continue; // KKTC licence blocks are part of the merged Türkiye + KKTC area; the panel names them on hover
         c.beginPath(); path(m);
         c.save();
-        c.shadowColor = 'rgba(70,150,255,0.8)'; c.shadowBlur = 8;
+        if (full) { c.shadowColor = 'rgba(70,150,255,0.8)'; c.shadowBlur = 8; } // glow on the still frame only
         if (/Polygon/.test(m.geometry.type)) {
           c.fillStyle = st === 'schematic' ? 'rgba(38,120,220,0.26)' : 'rgba(38,120,220,0.42)'; c.fill();
           c.setLineDash(st === 'schematic' ? [4, 3] : []);
@@ -192,6 +306,7 @@
           c.strokeStyle = 'rgba(110,180,255,1)'; c.lineWidth = 2.2; c.stroke();
         }
         c.restore();
+        if (full) yield;
       }
       // label once zoomed in on Türkiye
       if (proj.scale() > sFull * 1.6) {
@@ -205,6 +320,7 @@
         }
       }
       c.beginPath(); path(g.borders); c.strokeStyle = 'rgba(232,227,220,0.18)'; c.lineWidth = 0.5; c.stroke();
+      yield;
       // Türkiye: gradient fill + glow
       c.beginPath();
       for (const f of g.tr) path(f);
@@ -215,61 +331,78 @@
         c.fillStyle = tg;
       } else c.fillStyle = '#7a0016';
       c.fill();
-      c.save(); c.shadowColor = 'rgba(200,0,42,0.9)'; c.shadowBlur = 14; c.strokeStyle = '#c8002a'; c.lineWidth = 1.2; c.stroke(); c.restore();
+      c.save();
+      if (full) { c.shadowColor = 'rgba(200,0,42,0.9)'; c.shadowBlur = 14; }
+      c.strokeStyle = '#c8002a'; c.lineWidth = 1.2; c.stroke(); c.restore();
       // officially acknowledged Turkish presence (country level): dashed outline
       if (g.presence.length) {
         c.beginPath();
         for (const f of g.presence) path(f);
         c.setLineDash([3, 2]); c.strokeStyle = 'rgba(232,227,220,0.8)'; c.lineWidth = 0.9; c.stroke(); c.setLineDash([]);
       }
-      // Türkiye's diplomatic missions (city level) — visible across the globe while it orbits
-      const centre = [-proj.rotate()[0], -proj.rotate()[1]];
+      // Türkiye's diplomatic missions (city level) — visible across the globe while it orbits (hidden within 0.02 rad of the limb)
       c.fillStyle = 'rgba(255,90,110,0.9)';
-      for (const m of loWorld.missions) {
-        const ll = m.geometry.coordinates;
-        if (d3.geoDistance(ll, centre) > Math.PI / 2 - 0.02) continue;
-        const p = proj(ll);
-        if (p) { c.beginPath(); c.arc(p[0], p[1], 1.4, 0, Math.PI * 2); c.fill(); }
-      }
+      drawDots(c, missionVecs, 1.4, Math.sin(0.02));
       // limb
       c.beginPath(); path(sphere); c.strokeStyle = 'rgba(232,227,220,0.14)'; c.lineWidth = 1; c.stroke();
+    }
+
+    /* Re-rendering the still frame (1:50m arrived, language, fonts) runs in the background, a few layers per animation
+       frame, into a spare canvas that replaces the old frame when complete. */
+    function startJob() {
+      const g = best();
+      const buf = document.createElement('canvas');
+      buf.width = cvHold.width; buf.height = cvHold.height;
+      const bctx = buf.getContext('2d');
+      job = {
+        g, buf,
+        gen: (function* () {
+          let i = 0;
+          for (const f of g.all) { R.prepare(f); if (++i % 16 === 0) yield; }
+          yield* drawGlobe(bctx, g, true, dpr, 0, 0);
+        })(),
+      };
+    }
+    function pumpJob() {
+      if (!job) return;
+      const t0 = performance.now();
+      setCamera(HOLD_CAM, false);
+      while (job && performance.now() - t0 < JOB_BUDGET) {
+        const step = job.gen.next();
+        // rasterise now rather than all at once when the finished frame is copied
+        if (window.createImageBitmap) createImageBitmap(job.buf).then((bm) => bm.close(), () => {});
+        if (step.done) {
+          hctx.setTransform(1, 0, 0, 1, 0, 0);
+          hctx.drawImage(job.buf, 0, 0);
+          if (job.g === G.next) { G.hi = job.g; G.next = null; }
+          job = null;
+        }
+      }
     }
 
     function spaced(c, text, x, y, spacing) {
       const chars = [...text];
       const widths = chars.map((ch) => c.measureText(ch).width);
-      let px = x - (widths.reduce((a, w) => a + w, 0) + spacing * (chars.length - 1)) / 2;
+      const total = widths.reduce((a, w) => a + w, 0) + spacing * (chars.length - 1);
+      let px = x - total / 2;
       chars.forEach((ch, i) => { c.fillText(ch, px, y); px += widths[i] + spacing; });
+      return total;
     }
-    const inView = (p) => p && p[0] > 20 && p[0] < W - 20 && p[1] > 60 && p[1] < H - 20 && (narrow || p[0] > W * 0.46);
+    const onScreen = (p) => p && p[0] > 20 && p[0] < W - 20 && p[1] > 60 && p[1] < H - 20 && (narrow || p[0] > W * 0.46);
     const facing = (ll) => d3.geoDistance(ll, [-proj.rotate()[0], -proj.rotate()[1]]) < Math.PI / 2 - 0.05;
 
-    function drawOverlay(c, alpha, now) {
-      if (alpha <= 0) return;
+    // seas, countries, Türkiye, islands and sites
+    function drawLabels(c) {
       c.save();
-      c.globalAlpha = alpha;
       c.textBaseline = 'middle';
-      const R = sFocus * Math.sin((31 * Math.PI) / 180);
-      const fs = Math.max(8.5, Math.min(11, R / 34));
-      const center = proj([35, 39]);
-      // radar sweep around Türkiye
-      if (c.createConicGradient && center) {
-        const ang = ((now / 1000) % 7) / 7 * Math.PI * 2;
-        const sg = c.createConicGradient(ang, center[0], center[1]);
-        sg.addColorStop(0, 'rgba(200,0,42,0)');
-        sg.addColorStop(0.9, 'rgba(200,0,42,0)');
-        sg.addColorStop(0.997, 'rgba(200,0,42,0.20)');
-        sg.addColorStop(1, 'rgba(200,0,42,0)');
-        c.fillStyle = sg;
-        c.fillRect(0, 0, W, H);
-      }
-      // sea and country labels
+      const R0 = sFocus * Math.sin((31 * Math.PI) / 180);
+      const fs = Math.max(8.5, Math.min(11, R0 / 34));
       c.font = `300 italic ${fs * 1.05}px Montserrat, sans-serif`;
       c.fillStyle = 'rgba(232,227,220,0.24)';
       for (const s of GT.SEAS) {
         if (!facing(s.at)) continue;
         const p = proj(s.at);
-        if (inView(p)) spaced(c, GT.upper(s[GT.lang]), p[0], p[1], fs * 0.42);
+        if (onScreen(p)) spaced(c, GT.upper(s[GT.lang]), p[0], p[1], fs * 0.42);
       }
       c.font = `500 ${fs}px "Plex Mono", monospace`;
       c.fillStyle = 'rgba(232,227,220,0.46)';
@@ -277,12 +410,12 @@
         if (['CYP', 'MKD', 'ALB', 'KWT', 'ARM', 'LBN', 'ISR'].includes(a3)) continue;
         if (narrow && !['GRC', 'SYR', 'IRQ', 'IRN', 'BGR', 'EGY', 'GEO', 'SAU', 'PAK', 'AZE'].includes(a3)) continue;
         const p = proj(at);
-        if (inView(p) && facing(at)) spaced(c, GT.upper(GT.countryName(a3)), p[0], p[1], fs * 0.22);
+        if (onScreen(p) && facing(at)) spaced(c, GT.upper(GT.countryName(a3)), p[0], p[1], fs * 0.22);
       }
       // Türkiye — centred on the country's area-weighted centroid
       const tp = proj(TR_CENTROID);
       if (tp) {
-        const ts = Math.max(10, R / 26);
+        const ts = Math.max(10, R0 / 26);
         c.font = `300 ${ts}px Montserrat, sans-serif`;
         c.fillStyle = 'rgba(255,255,255,0.94)';
         spaced(c, GT.upper('Türkiye'), tp[0], tp[1], ts * 0.62);
@@ -295,72 +428,137 @@
         c.beginPath(); c.arc(p[0], p[1], 2, 0, Math.PI * 2);
         if (i.properties.status === 'tur') { c.fillStyle = '#e8e3dc'; c.fill(); } else { c.strokeStyle = '#5aa5ff'; c.lineWidth = 1.2; c.stroke(); }
       }
-      // real sites and events (examples never appear on the home page)
+      // real sites (examples never appear on the home page)
       if (data) {
-        const pulse = ((now / 1000) % 2.6) / 2.6;
         for (const s of data.site) {
           const g = s.location && s.location.geometry;
           if (!g || g.type !== 'Point' || !facing(g.coordinates)) continue;
           const p = proj(g.coordinates);
-          if (!inView(p)) continue;
+          if (!onScreen(p)) continue;
           c.fillStyle = '#e8e3dc';
           c.beginPath(); c.moveTo(p[0], p[1] - 4.5); c.lineTo(p[0] + 3.2, p[1]); c.lineTo(p[0], p[1] + 4.5); c.lineTo(p[0] - 3.2, p[1]); c.closePath(); c.fill();
-        }
-        for (const e of data.event) {
-          const g = e.location && e.location.geometry;
-          if (!g || g.type !== 'Point' || !facing(g.coordinates)) continue;
-          const p = proj(g.coordinates);
-          if (!inView(p)) continue;
-          const col = e.assessment.status === 'verified' ? '#4fae7b' : ['partially_verified', 'disputed'].includes(e.assessment.status) ? '#d6a13a' : '#c8002a';
-          c.strokeStyle = col; c.globalAlpha = alpha * (1 - pulse);
-          c.beginPath(); c.arc(p[0], p[1], 3.5 + pulse * 11, 0, Math.PI * 2); c.stroke();
-          c.globalAlpha = alpha;
-          c.fillStyle = col; c.beginPath(); c.arc(p[0], p[1], 3.4, 0, Math.PI * 2); c.fill();
         }
       }
       c.restore();
     }
+    // real events: position and colour of those in view
+    function events() {
+      const out = [];
+      if (data) {
+        for (const e of data.event) {
+          const g = e.location && e.location.geometry;
+          if (!g || g.type !== 'Point' || !facing(g.coordinates)) continue;
+          const p = proj(g.coordinates);
+          if (!onScreen(p)) continue;
+          out.push({ p, col: e.assessment.status === 'verified' ? '#4fae7b' : ['partially_verified', 'disputed'].includes(e.assessment.status) ? '#d6a13a' : '#c8002a' });
+        }
+      }
+      return out;
+    }
+    function drawEvents(c, evs, now) {
+      const pulse = ((now / 1000) % 2.6) / 2.6;
+      for (const { p, col } of evs) {
+        c.strokeStyle = col; c.globalAlpha = 1 - pulse;
+        c.beginPath(); c.arc(p[0], p[1], 3.5 + pulse * 11, 0, Math.PI * 2); c.stroke();
+        c.globalAlpha = 1;
+        c.fillStyle = col; c.beginPath(); c.arc(p[0], p[1], 3.4, 0, Math.PI * 2); c.fill();
+      }
+    }
+
+    /* Overlay, faded as a whole (opacity) after arrival and before departure. Labels, islands and sites are drawn once
+       for the hold view and kept (hidden by opacity in between), so no text is drawn while the camera moves: in the last
+       tenth of the approach, when they fade in, the globe is within a fraction of a degree of the hold. Only the small
+       event canvas changes each frame. */
+    let overA = -1, labelsKey = '', sweepKey = '', evs = [], evBox = null;
+    function overlay(cam, a, now) {
+      if (a !== overA) {
+        overA = a;
+        for (const el of [cvOver, cvEv, sweepEl]) el.style.opacity = String(a);
+        sweepEl.style.display = a > 0 ? '' : 'none';
+      }
+      if (a <= 0) return;
+      // sweep: wedge anchored at its centre; sized once so moving it is a compositor-only translate
+      const c0 = proj([35, 39]);
+      if (!sweepKey) {
+        const far = Math.hypot(Math.max(c0[0], W - c0[0]), Math.max(c0[1], H - c0[1])) + 24;
+        sweepEl.style.width = far + 'px';
+        sweepEl.style.height = far * Math.sin((36 * Math.PI) / 180) + 2 + 'px';
+        sweepEl.dataset.h = String(far * Math.sin((36 * Math.PI) / 180) + 2);
+      }
+      const key = c0[0].toFixed(1) + ',' + c0[1].toFixed(1);
+      if (key !== sweepKey) { sweepKey = key; sweepEl.style.translate = `${c0[0]}px ${c0[1] - Number(sweepEl.dataset.h)}px`; }
+
+      const lk = [W, H, dpr, GT.lang, !!data].join('|');
+      if (lk !== labelsKey) {
+        labelsKey = lk;
+        setCamera(HOLD_CAM, false);
+        octx.setTransform(1, 0, 0, 1, 0, 0);
+        octx.clearRect(0, 0, cvOver.width, cvOver.height);
+        octx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        drawLabels(octx);
+        evs = events();
+        if (evs.length) { // the event canvas covers just the pulses
+          const pad = 16, xs = evs.map((e) => e.p[0]), ys = evs.map((e) => e.p[1]);
+          const x0 = Math.floor(Math.min(...xs) - pad), y0 = Math.floor(Math.min(...ys) - pad);
+          const w = Math.ceil(Math.max(...xs) + pad) - x0, h = Math.ceil(Math.max(...ys) + pad) - y0;
+          evBox = { x0, y0 };
+          cvEv.width = Math.round(w * dpr); cvEv.height = Math.round(h * dpr);
+          Object.assign(cvEv.style, { width: w + 'px', height: h + 'px', transform: `translate(${x0}px,${y0}px)`, display: '' });
+        } else cvEv.style.display = 'none';
+        setCamera(cam, true);
+      }
+      if (evs.length) {
+        ectx.setTransform(1, 0, 0, 1, 0, 0);
+        ectx.clearRect(0, 0, cvEv.width, cvEv.height);
+        ectx.setTransform(dpr, 0, 0, dpr, -evBox.x0 * dpr, -evBox.y0 * dpr);
+        drawEvents(ectx, evs, now);
+      }
+    }
 
     function frame(now) {
-      requestAnimationFrame(frame);
-      const dt = Math.min(0.05, (now - last) / 1000);
+      if (!running) return;
+      rafId = requestAnimationFrame(frame);
+      const dt = Math.max(0, Math.min(0.05, (now - last) / 1000));
       last = now;
-      if (!visible) return;
       t = (t + dt) % CYCLE;
       const cam = camera(t);
-      proj.rotate(cam.rot).scale(cam.s).translate([cx, cy]);
+      pumpJob();
+      setCamera(cam, true);
 
-      const detailed = G.hi || G.lo;
-      const useDetail = cam.phase === 'hold' || (cam.phase === 'approach' && cam.u > 0.82) || (cam.phase === 'depart' && cam.u < 0.18);
-      if (cam.phase === 'hold') {
-        if (!cacheValid) { drawGlobe(cctx, detailed); cacheValid = true; }
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(cache, 0, 0);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      } else {
-        drawGlobe(ctx, useDetail ? detailed : G.lo);
+      // still frame: fully shown during the hold, faded at both ends
+      const hA = cam.phase === 'hold' && holdReady ? Math.max(0, Math.min(1, t / FADE, (T.hold - t) / FADE)) : 0;
+      if (hA !== holdAlpha) { holdAlpha = hA; cvHold.style.opacity = String(hA); cvMove.style.visibility = hA >= 1 ? 'hidden' : ''; }
+      placeHalo(cam.s, hA < 1 && cam.s < Math.hypot(W, H));
+      // moving frame: only when the camera moved and the still frame doesn't cover it
+      const key = cam.rot[0] + ',' + cam.rot[1] + ',' + cam.s + ',' + moveDpr;
+      if (hA < 1 && key !== moveKey) {
+        moveKey = key;
+        placeMove(cam.s);
+        run(drawGlobe(mctx, G.lo, false, moveDpr, mv.x, mv.y));
+        if (cam.phase !== 'hold') adapt();
       }
+
       // overlay fades in after arrival and out before leaving
       let a = 0;
       if (cam.phase === 'hold') a = Math.min(1, t / 0.9, (T.hold - t) / 0.7);
       else if (cam.phase === 'approach') a = Math.max(0, (cam.u - 0.9) / 0.1) * 0.6;
-      drawOverlay(ctx, a, now);
+      overlay(cam, Math.max(0, a), now);
 
       if (now - hudTick > 150 && hudFocus) {
         hudTick = now;
         const r = proj.rotate();
         let lon = -r[0] % 360; if (lon > 180) lon -= 360; if (lon < -180) lon += 360;
-        hudFocus.textContent = GT.fmtLL([lon, -r[1]]);
+        const text = GT.fmtLL([lon, -r[1]]);
+        if (text !== hudText) { hudText = text; hudFocus.textContent = text; }
       }
     }
 
     // hover → HUD shows the country / region under the cursor
-    canvas.addEventListener('pointermove', GT.debounce((ev) => {
-      const r = canvas.getBoundingClientRect();
+    cvOver.addEventListener('pointermove', GT.debounce((ev) => {
+      const r = cvOver.getBoundingClientRect();
       const ll = proj.invert([ev.clientX - r.left, ev.clientY - r.top]);
       let hit = null;
-      if (ll && facing(ll)) hit = loWorld.countries.find((f) => d3.geoContains(f, ll)) || null;
+      if (ll && facing(ll)) hit = loWorld.countries.find((f) => R.mayContain(f, ll) && d3.geoContains(f, ll)) || null;
       if (hit === hover) return;
       hover = hit;
       if (!hudRegion) return;
@@ -368,19 +566,33 @@
       const region = GT.REGION_OF[GT.a3(hit)];
       hudRegion.textContent = GT.upper(region ? GT.label('regions', region) : GT.countryName(hit));
     }, 40));
-    canvas.addEventListener('pointerleave', () => { hover = null; if (hudRegion) hudRegion.textContent = '—'; });
+    cvOver.addEventListener('pointerleave', () => { hover = null; if (hudRegion) hudRegion.textContent = '—'; });
 
-    // pause when the hero is scrolled away
+    // stop everything (including the compositor sweep) while the hero is scrolled away or the tab is hidden
+    let running = false, rafId = 0;
+    const update = () => {
+      const on = visible && !document.hidden;
+      if (on === running) return;
+      running = on;
+      if (on) { overA = -1; moveWall = 0; rafId = requestAnimationFrame((n) => { last = n; frame(n); }); }
+      else { cancelAnimationFrame(rafId); sweepEl.style.display = 'none'; }
+    };
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver((en) => { visible = en[0].isIntersecting; last = performance.now(); }).observe(host);
+      new IntersectionObserver((en) => { visible = en[0].isIntersecting; update(); }).observe(host);
     }
+    document.addEventListener('visibilitychange', update);
+    // canvas text drawn before the web fonts arrived is redrawn once they have
+    if (document.fonts) document.fonts.ready.then(() => { labelsKey = ''; if (fontsPending) { fontsPending = false; startJob(); } });
 
     resize();
-    requestAnimationFrame((n) => { last = n; frame(n); });
+    update();
     return {
-      resize,
-      setDetail(world) { G.hi = group(world); cacheValid = false; },
-      invalidate() { cacheValid = false; canvas.setAttribute('aria-label', GT.t('hero.mapAria')); },
+      resize() { resize(); moveDpr = moveCap; },
+      setDetail(world) { G.next = group(world); startJob(); },
+      // new data: only the overlay shows it
+      refresh() { labelsKey = ''; },
+      // language: the still frame carries two labels, the overlay the rest
+      invalidate() { labelsKey = ''; startJob(); cvOver.setAttribute('aria-label', GT.t('hero.mapAria')); },
     };
   }
 

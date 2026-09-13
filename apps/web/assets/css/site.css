@@ -86,6 +86,18 @@ img, svg { display: block; max-width: 100%; }
 .hero { position: relative; min-height: 100vh; min-height: 100dvh; overflow: hidden; display: flex; align-items: center; border-bottom: 1px solid var(--line); }
 .hero-map { position: absolute; inset: 0; }
 .hero-map svg { width: 100%; height: 100%; }
+/* globe: moving frames, the still hold image (cross-faded by opacity) and the overlay, each on its own layer */
+.hero-map canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; will-change: transform; }
+/* atmosphere of the moving globe: the canvas gradient (0.18 → 0 from 0.96 r to 1.16 r) as a disc scaled by the compositor */
+.globe-halo { position: absolute; left: 0; top: 0; pointer-events: none; transform-origin: 50% 50%; will-change: transform;
+  background: radial-gradient(closest-side, rgba(200, 0, 42, .18) 82.76%, rgba(200, 0, 42, 0) 100%); }
+/* radar sweep over the hold: a 36° wedge of the conic gradient, turned by the compositor (no per-frame drawing) */
+.globe-sweep { position: absolute; left: 0; top: 0; pointer-events: none; transform-origin: 0 100%; will-change: transform;
+  background: conic-gradient(from 0deg at 0 100%, rgba(200, 0, 42, 0) 54deg, rgba(200, 0, 42, .2) 88.92deg, rgba(200, 0, 42, 0) 90deg);
+  animation: globe-sweep 7s linear infinite; }
+@keyframes globe-sweep { to { rotate: 1turn; } }
+/* panel: pan/zoom moves the drawn map with a transform on this box (panel.js liveZoom) */
+.p-mover { position: absolute; inset: 0; transform-origin: 0 0; will-change: transform; }
 .hero-fade { position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(90deg, var(--bg) 0%, rgba(5, 5, 5, .92) 26%, rgba(5, 5, 5, .35) 50%, rgba(5, 5, 5, 0) 66%),
               linear-gradient(0deg, var(--bg) 0%, rgba(5, 5, 5, 0) 22%); }
@@ -107,11 +119,14 @@ img, svg { display: block; max-width: 100%; }
 .hud-tr { top: calc(var(--nh) + 28px); right: var(--gut); min-width: 220px; }
 .hud-br { right: var(--gut); bottom: 36px; min-width: 240px; padding-top: 14px; border-top: 1px solid var(--line2); }
 .hud-region dd { color: var(--rb); }
-.live-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--rb); box-shadow: 0 0 0 0 var(--rg); animation: live 2s infinite; vertical-align: middle; }
-@keyframes live { 0% { box-shadow: 0 0 0 0 var(--rg); } 70% { box-shadow: 0 0 0 9px rgba(200, 0, 42, 0); } 100% { box-shadow: 0 0 0 0 rgba(200, 0, 42, 0); } }
+.live-dot { position: relative; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--rb); vertical-align: middle; }
+/* the pulse ring grows 9px around the dot and fades: a scaled, fading disc (compositor-only; a box-shadow repaints every frame) */
+.live-dot::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--rg); opacity: 0; animation: live 2s infinite; }
+@keyframes live { 0% { transform: scale(1); opacity: 1; } 70% { transform: scale(4); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
 .hero-scroll { position: absolute; left: 50%; bottom: 26px; width: 1px; height: 46px; background: var(--line2); overflow: hidden; z-index: 2; }
 .hero-scroll span { position: absolute; left: 0; top: -40%; width: 1px; height: 40%; background: var(--t1); animation: drip 2.4s var(--e) infinite; }
-@keyframes drip { to { top: 110%; } }
+/* from top -40% to 110% of the track = 3.75 × its own height, as a transform (no layout per frame) */
+@keyframes drip { to { transform: translateY(375%); } }
 
 /* ---------- map (shared) ---------- */
 .m-grat { fill: none; stroke: rgba(232, 227, 220, .045); stroke-width: .6; vector-effect: non-scaling-stroke; }
@@ -405,7 +420,10 @@ a.ticker-item:hover { color: #fff; }
 }
 
 /* ---------- late overrides ---------- */
-.m-mission { fill: #ff5a6e; stroke: #050505; stroke-width: .6; vector-effect: non-scaling-stroke; cursor: pointer; }
+/* mission dot = r 2.4 fill with a .6 outline, drawn as two round-capped zero-length strokes that never scale with the zoom */
+.m-mission, .m-mission-edge { fill: none; stroke-linecap: round; vector-effect: non-scaling-stroke; cursor: pointer; }
+.m-mission-edge { stroke: #050505; stroke-width: 5.4; }
+.m-mission { stroke: #ff5a6e; stroke-width: 4.2; }
 .hide-missions .m-mission-g { display: none; }
 /* events without coordinates: hollow ring at the region anchor */
 .mk-ev.is-regional { fill: rgba(5, 5, 5, .55); stroke-width: 2; stroke: var(--rb); }
