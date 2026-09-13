@@ -1,0 +1,5812 @@
+{
+ "type": "FeatureCollection",
+ "metadata": {
+  "title": "Türkiye's diplomatic missions abroad (city-level)",
+  "retrieved": "2026-09-13",
+  "sources": [
+   "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+   "https://www.mfa.gov.tr/site_media/assets/content/temsilcilikler/temsilcilikler.tr.js",
+   "https://www.mfa.gov.tr/site_media/assets/content/temsilcilikler/temsilcilikler.en.js",
+   "https://query.wikidata.org/sparql"
+  ],
+  "note": "Points are city centroids from Wikidata (2-decimal rounding), not building locations. See MISSIONS-SOURCES.md."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     69.17,
+     34.53
+    ]
+   },
+   "properties": {
+    "id": "tur-kabil-be",
+    "kind": "embassy",
+    "name_tr": "Kabil Büyükelçiliği",
+    "name_en": "Turkish Embassy in Kabul",
+    "city_tr": "Kabil",
+    "city_en": "Kabul",
+    "city_wikidata": "Q5838",
+    "country": "AFG",
+    "url": "https://kabil-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     67.12,
+     36.7
+    ]
+   },
+   "properties": {
+    "id": "tur-mserif-bk",
+    "kind": "consulate_general",
+    "name_tr": "Mezar-ı Şerif Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Mazar-e Sharif",
+    "city_tr": "Mezar-ı Şerif",
+    "city_en": "Mazar-i-Sharif",
+    "city_wikidata": "Q130469",
+    "country": "AFG",
+    "url": "https://mserif-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.23,
+     -8.84
+    ]
+   },
+   "properties": {
+    "id": "tur-luanda-be",
+    "kind": "embassy",
+    "name_tr": "Luanda Büyükelçiliği",
+    "name_en": "Turkish Embassy in Luanda",
+    "city_tr": "Luanda",
+    "city_en": "Luanda",
+    "city_wikidata": "Q3897",
+    "country": "AGO",
+    "url": "https://luanda-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     19.82,
+     41.33
+    ]
+   },
+   "properties": {
+    "id": "tur-tiran-be",
+    "kind": "embassy",
+    "name_tr": "Tiran Büyükelçiliği",
+    "name_en": "Turkish Embassy in Tiran",
+    "city_tr": "Tiran",
+    "city_en": "Tirana",
+    "city_wikidata": "Q19689",
+    "country": "ALB",
+    "url": "https://tiran-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     54.4,
+     24.45
+    ]
+   },
+   "properties": {
+    "id": "tur-abudhabi-be",
+    "kind": "embassy",
+    "name_tr": "Abu Dabi Büyükelçiliği",
+    "name_en": "Turkish Embassy in Abu Dhabi",
+    "city_tr": "Abu Dabi",
+    "city_en": "Abu Dhabi",
+    "city_wikidata": "Q1519",
+    "country": "ARE",
+    "url": "https://abudhabi-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     55.31,
+     25.27
+    ]
+   },
+   "properties": {
+    "id": "tur-dubai-bk",
+    "kind": "consulate_general",
+    "name_tr": "Dubai Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Dubai",
+    "city_tr": "Dubai",
+    "city_en": "Dubai",
+    "city_wikidata": "Q612",
+    "country": "ARE",
+    "url": "https://dubai-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -58.38,
+     -34.6
+    ]
+   },
+   "properties": {
+    "id": "tur-buenosaires-be",
+    "kind": "embassy",
+    "name_tr": "Buenos Aires Büyükelçiliği",
+    "name_en": "Turkish Embassy in Buenos Aires",
+    "city_tr": "Buenos Aires",
+    "city_en": "Buenos Aires",
+    "city_wikidata": "Q1486",
+    "country": "ARG",
+    "url": "https://buenosaires-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     149.13,
+     -35.29
+    ]
+   },
+   "properties": {
+    "id": "tur-kanberra-be",
+    "kind": "embassy",
+    "name_tr": "Kanberra Büyükelçiliği",
+    "name_en": "Turkish Embassy in Canberra",
+    "city_tr": "Kanberra",
+    "city_en": "Canberra",
+    "city_wikidata": "Q3114",
+    "country": "AUS",
+    "url": "https://kanberra-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     144.96,
+     -37.81
+    ]
+   },
+   "properties": {
+    "id": "tur-melburn-bk",
+    "kind": "consulate_general",
+    "name_tr": "Melbourne Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Melbourne",
+    "city_tr": "Melbourne",
+    "city_en": "Melbourne",
+    "city_wikidata": "Q3141",
+    "country": "AUS",
+    "url": "https://melburn-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     151.21,
+     -33.87
+    ]
+   },
+   "properties": {
+    "id": "tur-sidney-bk",
+    "kind": "consulate_general",
+    "name_tr": "Sidney Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Sydney",
+    "city_tr": "Sidney",
+    "city_en": "Sydney",
+    "city_wikidata": "Q3130",
+    "country": "AUS",
+    "url": "https://sidney-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     9.75,
+     47.51
+    ]
+   },
+   "properties": {
+    "id": "tur-bregenz-bk",
+    "kind": "consulate_general",
+    "name_tr": "Bregenz Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Bregenz",
+    "city_tr": "Bregenz",
+    "city_en": "Bregenz",
+    "city_wikidata": "Q1737",
+    "country": "AUT",
+    "url": "https://bregenz-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": "Contact page (retrieved 2026-09-13) gives an address in Wolfurt, a municipality adjacent to Bregenz; placed at Bregenz as named by the MFA."
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.04,
+     47.8
+    ]
+   },
+   "properties": {
+    "id": "tur-salzburg-bk",
+    "kind": "consulate_general",
+    "name_tr": "Salzburg Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Salzburg",
+    "city_tr": "Salzburg",
+    "city_en": "Salzburg",
+    "city_wikidata": "Q34713",
+    "country": "AUT",
+    "url": "https://salzburg-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.37,
+     48.21
+    ]
+   },
+   "properties": {
+    "id": "tur-viyana-bk",
+    "kind": "consulate_general",
+    "name_tr": "Viyana Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Vienna",
+    "city_tr": "Viyana",
+    "city_en": "Vienna",
+    "city_wikidata": "Q1741",
+    "country": "AUT",
+    "url": "https://viyana-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.37,
+     48.21
+    ]
+   },
+   "properties": {
+    "id": "tur-viyana-be",
+    "kind": "embassy",
+    "name_tr": "Viyana Büyükelçiliği",
+    "name_en": "Turkish Embassy in Vienna",
+    "city_tr": "Viyana",
+    "city_en": "Vienna",
+    "city_wikidata": "Q1741",
+    "country": "AUT",
+    "url": "https://viyana-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.37,
+     48.21
+    ]
+   },
+   "properties": {
+    "id": "tur-agit-dt",
+    "kind": "permanent_mission",
+    "name_tr": "AGİT Daimi Temsilciliği",
+    "name_en": "Permanent Mission of Türkiye to the OSCE",
+    "city_tr": "Viyana",
+    "city_en": "Vienna",
+    "city_wikidata": "Q1741",
+    "country": "AUT",
+    "url": "https://agit-dt.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     16.37,
+     48.21
+    ]
+   },
+   "properties": {
+    "id": "tur-bmviyana-dt",
+    "kind": "permanent_mission",
+    "name_tr": "Birleşmiş Milletler Viyana Ofisi Nezdinde Türkiye Daimi Temsilciliği",
+    "name_en": "Permanent Mission of Türkiye to the UNOV",
+    "city_tr": "Viyana",
+    "city_en": "Vienna",
+    "city_wikidata": "Q1741",
+    "country": "AUT",
+    "url": "https://bmviyana-dt.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     49.84,
+     40.37
+    ]
+   },
+   "properties": {
+    "id": "tur-baku-be",
+    "kind": "embassy",
+    "name_tr": "Bakü Büyükelçiliği",
+    "name_en": "Turkish Embassy in Baku",
+    "city_tr": "Bakü",
+    "city_en": "Baku",
+    "city_wikidata": "Q9248",
+    "country": "AZE",
+    "url": "https://baku-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     46.36,
+     40.68
+    ]
+   },
+   "properties": {
+    "id": "tur-gence-bk",
+    "kind": "consulate_general",
+    "name_tr": "Gence Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Ganja",
+    "city_tr": "Gence",
+    "city_en": "Ganja",
+    "city_wikidata": "Q131290",
+    "country": "AZE",
+    "url": "https://gence-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     45.41,
+     39.21
+    ]
+   },
+   "properties": {
+    "id": "tur-nahcivan-bk",
+    "kind": "consulate_general",
+    "name_tr": "Nahçıvan Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Nakhchivan",
+    "city_tr": "Nahçıvan",
+    "city_en": "Nakhchivan",
+    "city_wikidata": "Q230104",
+    "country": "AZE",
+    "url": "https://nahcivan-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     29.36,
+     -3.38
+    ]
+   },
+   "properties": {
+    "id": "tur-bujumbura-be",
+    "kind": "embassy",
+    "name_tr": "Bujumbura Büyükelçiliği",
+    "name_en": "Turkish Embassy in Bujumbura",
+    "city_tr": "Bujumbura",
+    "city_en": "Bujumbura",
+    "city_wikidata": "Q3854",
+    "country": "BDI",
+    "url": "https://bujumbura-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.4,
+     51.22
+    ]
+   },
+   "properties": {
+    "id": "tur-anvers-bk",
+    "kind": "consulate_general",
+    "name_tr": "Anvers Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Antwerpen",
+    "city_tr": "Anvers",
+    "city_en": "Antwerp",
+    "city_wikidata": "Q12892",
+    "country": "BEL",
+    "url": "https://anvers-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.35,
+     50.85
+    ]
+   },
+   "properties": {
+    "id": "tur-bruksel-bk",
+    "kind": "consulate_general",
+    "name_tr": "Brüksel Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Brussels",
+    "city_tr": "Brüksel",
+    "city_en": "Brussels",
+    "city_wikidata": "Q239",
+    "country": "BEL",
+    "url": "https://bruksel-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.35,
+     50.85
+    ]
+   },
+   "properties": {
+    "id": "tur-bruksel-be",
+    "kind": "embassy",
+    "name_tr": "Brüksel Büyükelçiliği",
+    "name_en": "Turkish Embassy in Brussels",
+    "city_tr": "Brüksel",
+    "city_en": "Brussels",
+    "city_wikidata": "Q239",
+    "country": "BEL",
+    "url": "https://bruksel-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.35,
+     50.85
+    ]
+   },
+   "properties": {
+    "id": "tur-avbir-dt",
+    "kind": "permanent_mission",
+    "name_tr": "AVBİR Daimi Temsilciliği",
+    "name_en": "Permanent Delegation of Türkiye to the EU",
+    "city_tr": "Brüksel",
+    "city_en": "Brussels",
+    "city_wikidata": "Q239",
+    "country": "BEL",
+    "url": "https://avbir-dt.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.35,
+     50.85
+    ]
+   },
+   "properties": {
+    "id": "tur-nato-dt",
+    "kind": "permanent_mission",
+    "name_tr": "NATO Daimi Temsilciliği",
+    "name_en": "Turkish Delegation to NATO",
+    "city_tr": "Brüksel",
+    "city_en": "Brussels",
+    "city_wikidata": "Q239",
+    "country": "BEL",
+    "url": "https://nato-dt.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     2.42,
+     6.37
+    ]
+   },
+   "properties": {
+    "id": "tur-kotonu-be",
+    "kind": "embassy",
+    "name_tr": "Kotonu Büyükelçiliği",
+    "name_en": "Turkish Embassy in Cotonou",
+    "city_tr": "Kotonu",
+    "city_en": "Cotonou",
+    "city_wikidata": "Q43595",
+    "country": "BEN",
+    "url": "https://kotonu-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -1.53,
+     12.37
+    ]
+   },
+   "properties": {
+    "id": "tur-ugudugu-be",
+    "kind": "embassy",
+    "name_tr": "Vagadugu Büyükelçiliği",
+    "name_en": "Turkish Embassy in Ouagadougou",
+    "city_tr": "Vagadugu",
+    "city_en": "Ouagadougou",
+    "city_wikidata": "Q3777",
+    "country": "BFA",
+    "url": "https://ugudugu-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     90.39,
+     23.73
+    ]
+   },
+   "properties": {
+    "id": "tur-dakka-be",
+    "kind": "embassy",
+    "name_tr": "Dakka Büyükelçiliği",
+    "name_en": "Turkish Embassy in Dhaka",
+    "city_tr": "Dakka",
+    "city_en": "Dhaka",
+    "city_wikidata": "Q1354",
+    "country": "BGD",
+    "url": "https://dakka-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     27.47,
+     42.5
+    ]
+   },
+   "properties": {
+    "id": "tur-burgaz-bk",
+    "kind": "consulate_general",
+    "name_tr": "Burgaz Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Burgas",
+    "city_tr": "Burgaz",
+    "city_en": "Burgas",
+    "city_wikidata": "Q6509",
+    "country": "BGR",
+    "url": "https://burgaz-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     24.74,
+     42.14
+    ]
+   },
+   "properties": {
+    "id": "tur-filibe-bk",
+    "kind": "consulate_general",
+    "name_tr": "Filibe Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Plovdiv",
+    "city_tr": "Filibe",
+    "city_en": "Plovdiv",
+    "city_wikidata": "Q459",
+    "country": "BGR",
+    "url": "https://filibe-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     23.32,
+     42.7
+    ]
+   },
+   "properties": {
+    "id": "tur-sofya-be",
+    "kind": "embassy",
+    "name_tr": "Sofya Büyükelçiliği",
+    "name_en": "Turkish Embassy in Sofia",
+    "city_tr": "Sofya",
+    "city_en": "Sofia",
+    "city_wikidata": "Q472",
+    "country": "BGR",
+    "url": "https://sofya-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     50.58,
+     26.22
+    ]
+   },
+   "properties": {
+    "id": "tur-manama-be",
+    "kind": "embassy",
+    "name_tr": "Manama Büyükelçiliği",
+    "name_en": "Turkish Embassy in Manama",
+    "city_tr": "Manama",
+    "city_en": "Manama",
+    "city_wikidata": "Q3882",
+    "country": "BHR",
+    "url": "https://manama-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     17.19,
+     44.77
+    ]
+   },
+   "properties": {
+    "id": "tur-banjaluka-bk",
+    "kind": "consulate_general",
+    "name_tr": "Banja Luka Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Banja Luka",
+    "city_tr": "Banja Luka",
+    "city_en": "Banja Luka",
+    "city_wikidata": "Q131127",
+    "country": "BIH",
+    "url": "https://banjaluka-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     17.81,
+     43.34
+    ]
+   },
+   "properties": {
+    "id": "tur-mostar-bk",
+    "kind": "consulate_general",
+    "name_tr": "Mostar Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Mostar",
+    "city_tr": "Mostar",
+    "city_en": "Mostar",
+    "city_wikidata": "Q93347",
+    "country": "BIH",
+    "url": "https://mostar-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     18.41,
+     43.86
+    ]
+   },
+   "properties": {
+    "id": "tur-saraybosna-be",
+    "kind": "embassy",
+    "name_tr": "Saraybosna Büyükelçiliği",
+    "name_en": "Turkish Embassy in Sarajevo",
+    "city_tr": "Saraybosna",
+    "city_en": "Sarajevo",
+    "city_wikidata": "Q11194",
+    "country": "BIH",
+    "url": "https://saraybosna-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     27.56,
+     53.9
+    ]
+   },
+   "properties": {
+    "id": "tur-minsk-be",
+    "kind": "embassy",
+    "name_tr": "Minsk Büyükelçiliği",
+    "name_en": "Turkish Embassy in Minsk",
+    "city_tr": "Minsk",
+    "city_en": "Minsk",
+    "city_wikidata": "Q2280",
+    "country": "BLR",
+    "url": "https://minsk-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -68.13,
+     -16.5
+    ]
+   },
+   "properties": {
+    "id": "tur-lapaz-be",
+    "kind": "embassy",
+    "name_tr": "La Paz Büyükelçiliği",
+    "name_en": "Turkish Embassy in La Paz",
+    "city_tr": "La Paz",
+    "city_en": "La Paz",
+    "city_wikidata": "Q1491",
+    "country": "BOL",
+    "url": "https://lapaz-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -47.88,
+     -15.79
+    ]
+   },
+   "properties": {
+    "id": "tur-brezilya-be",
+    "kind": "embassy",
+    "name_tr": "Brasilia Büyükelçiliği",
+    "name_en": "Turkish Embassy in Brasília",
+    "city_tr": "Brasilia",
+    "city_en": "Brasília",
+    "city_wikidata": "Q2844",
+    "country": "BRA",
+    "url": "https://brezilya-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -46.63,
+     -23.55
+    ]
+   },
+   "properties": {
+    "id": "tur-saopaulo-bk",
+    "kind": "consulate_general",
+    "name_tr": "Sao Paulo Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Sao Paulo",
+    "city_tr": "Sao Paulo",
+    "city_en": "São Paulo",
+    "city_wikidata": "Q174",
+    "country": "BRA",
+    "url": "https://saopaulo-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.92,
+     4.92
+    ]
+   },
+   "properties": {
+    "id": "tur-bandar-be",
+    "kind": "embassy",
+    "name_tr": "Bandar Seri Begavan Büyükelçiliği",
+    "name_en": "Turkish Embassy in Bandar Seri Begawan",
+    "city_tr": "Bandar Seri Begavan",
+    "city_en": "Bandar Seri Begawan",
+    "city_wikidata": "Q9279",
+    "country": "BRN",
+    "url": "https://bandar-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     25.91,
+     -24.66
+    ]
+   },
+   "properties": {
+    "id": "tur-gaboron-be",
+    "kind": "embassy",
+    "name_tr": "Gaboron Büyükelçiliği",
+    "name_en": "Turkish Embassy in Gaborone",
+    "city_tr": "Gaboron",
+    "city_en": "Gaborone",
+    "city_wikidata": "Q3919",
+    "country": "BWA",
+    "url": "https://gaboron-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -73.59,
+     45.5
+    ]
+   },
+   "properties": {
+    "id": "tur-montreal-bk",
+    "kind": "consulate_general",
+    "name_tr": "Montreal Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Montreal",
+    "city_tr": "Montreal",
+    "city_en": "Montreal",
+    "city_wikidata": "Q340",
+    "country": "CAN",
+    "url": "https://montreal-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -73.59,
+     45.5
+    ]
+   },
+   "properties": {
+    "id": "tur-icao-dt",
+    "kind": "permanent_mission",
+    "name_tr": "ICAO Daimi Temsilciliği",
+    "name_en": "Permanent Mission of Türkiye to ICAO",
+    "city_tr": "Montreal",
+    "city_en": "Montreal",
+    "city_wikidata": "Q340",
+    "country": "CAN",
+    "url": "https://icao-dt.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -75.69,
+     45.42
+    ]
+   },
+   "properties": {
+    "id": "tur-ottava-be",
+    "kind": "embassy",
+    "name_tr": "Ottawa Büyükelçiliği",
+    "name_en": "Turkish Embassy in Ottawa",
+    "city_tr": "Ottawa",
+    "city_en": "Ottawa",
+    "city_wikidata": "Q1930",
+    "country": "CAN",
+    "url": "https://ottava-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -79.39,
+     43.67
+    ]
+   },
+   "properties": {
+    "id": "tur-toronto-bk",
+    "kind": "consulate_general",
+    "name_tr": "Toronto Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Toronto",
+    "city_tr": "Toronto",
+    "city_en": "Toronto",
+    "city_wikidata": "Q172",
+    "country": "CAN",
+    "url": "https://toronto-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -123.11,
+     49.26
+    ]
+   },
+   "properties": {
+    "id": "tur-vancouver-bk",
+    "kind": "consulate_general",
+    "name_tr": "Vancouver Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Vancouver",
+    "city_tr": "Vancouver",
+    "city_en": "Vancouver",
+    "city_wikidata": "Q24639",
+    "country": "CAN",
+    "url": "https://vancouver-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     7.45,
+     46.95
+    ]
+   },
+   "properties": {
+    "id": "tur-bern-be",
+    "kind": "embassy",
+    "name_tr": "Bern Büyükelçiliği",
+    "name_en": "Turkish Embassy in Bern",
+    "city_tr": "Bern",
+    "city_en": "Bern",
+    "city_wikidata": "Q70",
+    "country": "CHE",
+    "url": "https://bern-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.15,
+     46.2
+    ]
+   },
+   "properties": {
+    "id": "tur-cenevre-bk",
+    "kind": "consulate_general",
+    "name_tr": "Cenevre Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Geneva",
+    "city_tr": "Cenevre",
+    "city_en": "Geneva",
+    "city_wikidata": "Q71",
+    "country": "CHE",
+    "url": "https://cenevre-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.15,
+     46.2
+    ]
+   },
+   "properties": {
+    "id": "tur-cenevreofisi-dt",
+    "kind": "permanent_mission",
+    "name_tr": "BM Cenevre Ofisi Daimi Temsilciliği",
+    "name_en": "Permanent Mission of Türkiye to UN at Geneva",
+    "city_tr": "Cenevre",
+    "city_en": "Geneva",
+    "city_wikidata": "Q71",
+    "country": "CHE",
+    "url": "https://cenevreofisi-dt.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.15,
+     46.2
+    ]
+   },
+   "properties": {
+    "id": "tur-dto-dt",
+    "kind": "permanent_mission",
+    "name_tr": "Dünya Ticaret Örgütü Nezdinde Türkiye  Daimi Temsilciliği",
+    "name_en": "Permanent Mission of Türkiye to the WTO",
+    "city_tr": "Cenevre",
+    "city_en": "Geneva",
+    "city_wikidata": "Q71",
+    "country": "CHE",
+    "url": "https://dto-dt.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     8.54,
+     47.37
+    ]
+   },
+   "properties": {
+    "id": "tur-zurih-bk",
+    "kind": "consulate_general",
+    "name_tr": "Zürih Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Zürich",
+    "city_tr": "Zürih",
+    "city_en": "Zurich",
+    "city_wikidata": "Q72",
+    "country": "CHE",
+    "url": "https://zurih-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -70.65,
+     -33.44
+    ]
+   },
+   "properties": {
+    "id": "tur-santiago-be",
+    "kind": "embassy",
+    "name_tr": "Santiago Büyükelçiliği",
+    "name_en": "Turkish Embassy in Santiago",
+    "city_tr": "Santiago",
+    "city_en": "Santiago",
+    "city_wikidata": "Q2887",
+    "country": "CHL",
+    "url": "https://santiago-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     116.41,
+     39.9
+    ]
+   },
+   "properties": {
+    "id": "tur-pekin-be",
+    "kind": "embassy",
+    "name_tr": "Pekin Büyükelçiliği",
+    "name_en": "Turkish Embassy in Beijing",
+    "city_tr": "Pekin",
+    "city_en": "Beijing",
+    "city_wikidata": "Q956",
+    "country": "CHN",
+    "url": "https://pekin-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     104.06,
+     30.66
+    ]
+   },
+   "properties": {
+    "id": "tur-cengdu-bk",
+    "kind": "consulate_general",
+    "name_tr": "Çengdu Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Chengdu",
+    "city_tr": "Çengdu",
+    "city_en": "Chengdu",
+    "city_wikidata": "Q30002",
+    "country": "CHN",
+    "url": "https://cengdu-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     113.26,
+     23.13
+    ]
+   },
+   "properties": {
+    "id": "tur-guangzhou-bk",
+    "kind": "consulate_general",
+    "name_tr": "Guanco Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Guangzhou",
+    "city_tr": "Guanco",
+    "city_en": "Guangzhou",
+    "city_wikidata": "Q16572",
+    "country": "CHN",
+    "url": "https://guangzhou-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.16,
+     22.28
+    ]
+   },
+   "properties": {
+    "id": "tur-hongkong-bk",
+    "kind": "consulate_general",
+    "name_tr": "Hong Kong Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Hong Kong",
+    "city_tr": "Hong Kong",
+    "city_en": "Hong Kong",
+    "city_wikidata": "Q8646",
+    "country": "CHN",
+    "url": "https://hongkong-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     121.47,
+     31.23
+    ]
+   },
+   "properties": {
+    "id": "tur-sanghay-bk",
+    "kind": "consulate_general",
+    "name_tr": "Şanhay Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Shanghai",
+    "city_tr": "Şanhay",
+    "city_en": "Shanghai",
+    "city_wikidata": "Q8686",
+    "country": "CHN",
+    "url": "https://sanghay-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -4.03,
+     5.34
+    ]
+   },
+   "properties": {
+    "id": "tur-abidjan-be",
+    "kind": "embassy",
+    "name_tr": "Abidjan Büyükelçiliği",
+    "name_en": "Turkish Embassy in Abidjan",
+    "city_tr": "Abidjan",
+    "city_en": "Abidjan",
+    "city_wikidata": "Q1515",
+    "country": "CIV",
+    "url": "https://abidjan-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.52,
+     3.86
+    ]
+   },
+   "properties": {
+    "id": "tur-yaounde-be",
+    "kind": "embassy",
+    "name_tr": "Yaounde Büyükelçiliği",
+    "name_en": "Turkish Embassy in Yaoundé",
+    "city_tr": "Yaounde",
+    "city_en": "Yaoundé",
+    "city_wikidata": "Q3808",
+    "country": "CMR",
+    "url": "https://yaounde-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.31,
+     -4.32
+    ]
+   },
+   "properties": {
+    "id": "tur-kinsasa-be",
+    "kind": "embassy",
+    "name_tr": "Kinşasa Büyükelçiliği",
+    "name_en": "Turkish Embassy in Kinshasa",
+    "city_tr": "Kinşasa",
+    "city_en": "Kinshasa",
+    "city_wikidata": "Q3838",
+    "country": "COD",
+    "url": "https://kinsasa-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.27,
+     -4.27
+    ]
+   },
+   "properties": {
+    "id": "tur-brazavil-be",
+    "kind": "embassy",
+    "name_tr": "Brazavil Büyükelçiliği",
+    "name_en": "Turkish Embassy in Brazzaville",
+    "city_tr": "Brazavil",
+    "city_en": "Brazzaville",
+    "city_wikidata": "Q3844",
+    "country": "COG",
+    "url": "https://brazavil-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -74.08,
+     4.61
+    ]
+   },
+   "properties": {
+    "id": "tur-bogota-be",
+    "kind": "embassy",
+    "name_tr": "Bogota Büyükelçiliği",
+    "name_en": "Turkish Embassy in Bogotá",
+    "city_tr": "Bogota",
+    "city_en": "Bogotá",
+    "city_wikidata": "Q2841",
+    "country": "COL",
+    "url": "https://bogota-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -84.08,
+     9.93
+    ]
+   },
+   "properties": {
+    "id": "tur-sanhose-be",
+    "kind": "embassy",
+    "name_tr": "San Hose Büyükelçiliği",
+    "name_en": "Turkish Embassy in  San José",
+    "city_tr": "San Hose",
+    "city_en": "San José",
+    "city_wikidata": "Q3070",
+    "country": "CRI",
+    "url": "https://sanhose-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -82.36,
+     23.14
+    ]
+   },
+   "properties": {
+    "id": "tur-havana-be",
+    "kind": "embassy",
+    "name_tr": "Havana Büyükelçiliği",
+    "name_en": "Turkish Embassy in Havana",
+    "city_tr": "Havana",
+    "city_en": "Havana",
+    "city_wikidata": "Q1563",
+    "country": "CUB",
+    "url": "https://havana-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.42,
+     50.09
+    ]
+   },
+   "properties": {
+    "id": "tur-prag-be",
+    "kind": "embassy",
+    "name_tr": "Prag Büyükelçiliği",
+    "name_en": "Turkish Embassy in Prague",
+    "city_tr": "Prag",
+    "city_en": "Prague",
+    "city_wikidata": "Q1085",
+    "country": "CZE",
+    "url": "https://prag-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.38,
+     52.52
+    ]
+   },
+   "properties": {
+    "id": "tur-berlin-bk",
+    "kind": "consulate_general",
+    "name_tr": "Berlin Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Berlin",
+    "city_tr": "Berlin",
+    "city_en": "Berlin",
+    "city_wikidata": "Q64",
+    "country": "DEU",
+    "url": "https://berlin-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.38,
+     52.52
+    ]
+   },
+   "properties": {
+    "id": "tur-berlin-be",
+    "kind": "embassy",
+    "name_tr": "Berlin Büyükelçiliği",
+    "name_en": "Turkish Embassy in Berlin",
+    "city_tr": "Berlin",
+    "city_en": "Berlin",
+    "city_wikidata": "Q64",
+    "country": "DEU",
+    "url": "https://berlin-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.96,
+     50.94
+    ]
+   },
+   "properties": {
+    "id": "tur-koln-bk",
+    "kind": "consulate_general",
+    "name_tr": "Köln Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Cologne",
+    "city_tr": "Köln",
+    "city_en": "Cologne",
+    "city_wikidata": "Q365",
+    "country": "DEU",
+    "url": "https://koln-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.78,
+     51.23
+    ]
+   },
+   "properties": {
+    "id": "tur-dusseldorf-bk",
+    "kind": "consulate_general",
+    "name_tr": "Düsseldorf Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Dusseldorf",
+    "city_tr": "Düsseldorf",
+    "city_en": "Düsseldorf",
+    "city_wikidata": "Q1718",
+    "country": "DEU",
+    "url": "https://dusseldorf-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     7.01,
+     51.45
+    ]
+   },
+   "properties": {
+    "id": "tur-essen-bk",
+    "kind": "consulate_general",
+    "name_tr": "Essen Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Essen",
+    "city_tr": "Essen",
+    "city_en": "Essen",
+    "city_wikidata": "Q2066",
+    "country": "DEU",
+    "url": "https://essen-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     8.68,
+     50.11
+    ]
+   },
+   "properties": {
+    "id": "tur-frankfurt-bk",
+    "kind": "consulate_general",
+    "name_tr": "Frankfurt Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Frankfurt",
+    "city_tr": "Frankfurt",
+    "city_en": "Frankfurt",
+    "city_wikidata": "Q1794",
+    "country": "DEU",
+    "url": "https://frankfurt-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     10.0,
+     53.55
+    ]
+   },
+   "properties": {
+    "id": "tur-hamburg-bk",
+    "kind": "consulate_general",
+    "name_tr": "Hamburg Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Hamburg",
+    "city_tr": "Hamburg",
+    "city_en": "Hamburg",
+    "city_wikidata": "Q1055",
+    "country": "DEU",
+    "url": "https://hamburg-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     9.74,
+     52.37
+    ]
+   },
+   "properties": {
+    "id": "tur-hannover-bk",
+    "kind": "consulate_general",
+    "name_tr": "Hannover Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Hannover",
+    "city_tr": "Hannover",
+    "city_en": "Hanover",
+    "city_wikidata": "Q1715",
+    "country": "DEU",
+    "url": "https://hannover-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     8.4,
+     49.02
+    ]
+   },
+   "properties": {
+    "id": "tur-karlsruhe-bk",
+    "kind": "consulate_general",
+    "name_tr": "Karlsruhe Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Karlsruhe",
+    "city_tr": "Karlsruhe",
+    "city_en": "Karlsruhe",
+    "city_wikidata": "Q1040",
+    "country": "DEU",
+    "url": "https://karlsruhe-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     9.5,
+     51.32
+    ]
+   },
+   "properties": {
+    "id": "tur-kassel-bk",
+    "kind": "consulate_general",
+    "name_tr": "Kassel Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Kassel",
+    "city_tr": "Kassel",
+    "city_en": "Kassel",
+    "city_wikidata": "Q2865",
+    "country": "DEU",
+    "url": "https://kassel-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     8.27,
+     50.0
+    ]
+   },
+   "properties": {
+    "id": "tur-mainz-bk",
+    "kind": "consulate_general",
+    "name_tr": "Mainz Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Mainz",
+    "city_tr": "Mainz",
+    "city_en": "Mainz",
+    "city_wikidata": "Q1720",
+    "country": "DEU",
+    "url": "https://mainz-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.57,
+     48.14
+    ]
+   },
+   "properties": {
+    "id": "tur-munih-bk",
+    "kind": "consulate_general",
+    "name_tr": "Münih Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Munich",
+    "city_tr": "Münih",
+    "city_en": "Munich",
+    "city_wikidata": "Q1726",
+    "country": "DEU",
+    "url": "https://munih-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     7.63,
+     51.96
+    ]
+   },
+   "properties": {
+    "id": "tur-munster-bk",
+    "kind": "consulate_general",
+    "name_tr": "Münster Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Munster",
+    "city_tr": "Münster",
+    "city_en": "Münster",
+    "city_wikidata": "Q2742",
+    "country": "DEU",
+    "url": "https://munster-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.08,
+     49.45
+    ]
+   },
+   "properties": {
+    "id": "tur-nurnberg-bk",
+    "kind": "consulate_general",
+    "name_tr": "Nürnberg Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Nuremberg",
+    "city_tr": "Nürnberg",
+    "city_en": "Nuremberg",
+    "city_wikidata": "Q2090",
+    "country": "DEU",
+    "url": "https://nurnberg-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     9.18,
+     48.78
+    ]
+   },
+   "properties": {
+    "id": "tur-stuttgart-bk",
+    "kind": "consulate_general",
+    "name_tr": "Stuttgart Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Stuttgart",
+    "city_tr": "Stuttgart",
+    "city_en": "Stuttgart",
+    "city_wikidata": "Q1022",
+    "country": "DEU",
+    "url": "https://stuttgart-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     43.15,
+     11.6
+    ]
+   },
+   "properties": {
+    "id": "tur-cibuti-be",
+    "kind": "embassy",
+    "name_tr": "Cibuti Büyükelçiliği",
+    "name_en": "Turkish Embassy in Djibouti",
+    "city_tr": "Cibuti",
+    "city_en": "Djibouti",
+    "city_wikidata": "Q3604",
+    "country": "DJI",
+    "url": "https://cibuti-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.57,
+     55.68
+    ]
+   },
+   "properties": {
+    "id": "tur-kopenhag-be",
+    "kind": "embassy",
+    "name_tr": "Kopenhag Büyükelçiliği",
+    "name_en": "Turkish Embassy in Copenhagen",
+    "city_tr": "Kopenhag",
+    "city_en": "Copenhagen",
+    "city_wikidata": "Q1748",
+    "country": "DNK",
+    "url": "https://kopenhag-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -69.94,
+     18.46
+    ]
+   },
+   "properties": {
+    "id": "tur-santodomingo-be",
+    "kind": "embassy",
+    "name_tr": "Santo Domingo Büyükelçiliği",
+    "name_en": "Turkish Embassy in Santo Domingo",
+    "city_tr": "Santo Domingo",
+    "city_en": "Santo Domingo",
+    "city_wikidata": "Q34820",
+    "country": "DOM",
+    "url": "https://santodomingo-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     3.06,
+     36.78
+    ]
+   },
+   "properties": {
+    "id": "tur-cezayir-be",
+    "kind": "embassy",
+    "name_tr": "Cezayir Büyükelçiliği",
+    "name_en": "Turkish Embassy in Algeria",
+    "city_tr": "Cezayir",
+    "city_en": "Algiers",
+    "city_wikidata": "Q3561",
+    "country": "DZA",
+    "url": "https://cezayir-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -78.51,
+     -0.22
+    ]
+   },
+   "properties": {
+    "id": "tur-kito-be",
+    "kind": "embassy",
+    "name_tr": "Kito Büyükelçiliği",
+    "name_en": "Turkish Embassy in Quito",
+    "city_tr": "Kito",
+    "city_en": "Quito",
+    "city_wikidata": "Q2900",
+    "country": "ECU",
+    "url": "https://kito-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     29.89,
+     31.2
+    ]
+   },
+   "properties": {
+    "id": "tur-iskenderiye-bk",
+    "kind": "consulate_general",
+    "name_tr": "İskenderiye Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Alexandria",
+    "city_tr": "İskenderiye",
+    "city_en": "Alexandria",
+    "city_wikidata": "Q87",
+    "country": "EGY",
+    "url": "https://iskenderiye-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     31.24,
+     30.04
+    ]
+   },
+   "properties": {
+    "id": "tur-kahire-be",
+    "kind": "embassy",
+    "name_tr": "Kahire Büyükelçiliği",
+    "name_en": "Turkish Embassy in Cairo",
+    "city_tr": "Kahire",
+    "city_en": "Cairo",
+    "city_wikidata": "Q85",
+    "country": "EGY",
+    "url": "https://kahire-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     38.92,
+     15.33
+    ]
+   },
+   "properties": {
+    "id": "tur-asmara-be",
+    "kind": "embassy",
+    "name_tr": "Asmara Büyükelçiliği",
+    "name_en": "Turkish Embassy in Asmara",
+    "city_tr": "Asmara",
+    "city_en": "Asmara",
+    "city_wikidata": "Q3642",
+    "country": "ERI",
+    "url": "https://asmara-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     2.18,
+     41.38
+    ]
+   },
+   "properties": {
+    "id": "tur-barselona-bk",
+    "kind": "consulate_general",
+    "name_tr": "Barselona Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Barcelona",
+    "city_tr": "Barselona",
+    "city_en": "Barcelona",
+    "city_wikidata": "Q1492",
+    "country": "ESP",
+    "url": "https://barselona-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.7,
+     40.42
+    ]
+   },
+   "properties": {
+    "id": "tur-madrid-be",
+    "kind": "embassy",
+    "name_tr": "Madrid Büyükelçiliği",
+    "name_en": "Turkish Embassy in Madrid",
+    "city_tr": "Madrid",
+    "city_en": "Madrid",
+    "city_wikidata": "Q2807",
+    "country": "ESP",
+    "url": "https://madrid-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     24.75,
+     59.44
+    ]
+   },
+   "properties": {
+    "id": "tur-tallin-be",
+    "kind": "embassy",
+    "name_tr": "Tallinn Büyükelçiliği",
+    "name_en": "Turkish Embassy in Tallinn",
+    "city_tr": "Tallinn",
+    "city_en": "Tallinn",
+    "city_wikidata": "Q1770",
+    "country": "EST",
+    "url": "https://tallin-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     38.75,
+     9.04
+    ]
+   },
+   "properties": {
+    "id": "tur-addisababa-be",
+    "kind": "embassy",
+    "name_tr": "Addis Ababa Büyükelçiliği",
+    "name_en": "Turkish Embassy in Addis Ababa",
+    "city_tr": "Addis Ababa",
+    "city_en": "Addis Ababa",
+    "city_wikidata": "Q3624",
+    "country": "ETH",
+    "url": "https://addisababa-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     24.94,
+     60.17
+    ]
+   },
+   "properties": {
+    "id": "tur-helsinki-be",
+    "kind": "embassy",
+    "name_tr": "Helsinki Büyükelçiliği",
+    "name_en": "Turkish Embassy in Helsinki",
+    "city_tr": "Helsinki",
+    "city_en": "Helsinki",
+    "city_wikidata": "Q1757",
+    "country": "FIN",
+    "url": "https://helsinki-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -0.58,
+     44.84
+    ]
+   },
+   "properties": {
+    "id": "tur-bordo-bk",
+    "kind": "consulate_general",
+    "name_tr": "Bordeaux Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Bordeaux",
+    "city_tr": "Bordeaux",
+    "city_en": "Bordeaux",
+    "city_wikidata": "Q1479",
+    "country": "FRA",
+    "url": "https://bordo-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.83,
+     45.77
+    ]
+   },
+   "properties": {
+    "id": "tur-lyon-bk",
+    "kind": "consulate_general",
+    "name_tr": "Lyon Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Lyon",
+    "city_tr": "Lyon",
+    "city_en": "Lyon",
+    "city_wikidata": "Q456",
+    "country": "FRA",
+    "url": "https://lyon-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     5.38,
+     43.3
+    ]
+   },
+   "properties": {
+    "id": "tur-marsilya-bk",
+    "kind": "consulate_general",
+    "name_tr": "Marsilya Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Marseille",
+    "city_tr": "Marsilya",
+    "city_en": "Marseille",
+    "city_wikidata": "Q23482",
+    "country": "FRA",
+    "url": "https://marsilya-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -1.55,
+     47.22
+    ]
+   },
+   "properties": {
+    "id": "tur-nant-bk",
+    "kind": "consulate_general",
+    "name_tr": "Nantes Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Nantes",
+    "city_tr": "Nantes",
+    "city_en": "Nantes",
+    "city_wikidata": "Q12191",
+    "country": "FRA",
+    "url": "https://nant-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     2.35,
+     48.86
+    ]
+   },
+   "properties": {
+    "id": "tur-paris-bk",
+    "kind": "consulate_general",
+    "name_tr": "Paris Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Paris",
+    "city_tr": "Paris",
+    "city_en": "Paris",
+    "city_wikidata": "Q90",
+    "country": "FRA",
+    "url": "https://paris-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": "Contact page (retrieved 2026-09-13) gives an address in Boulogne-Billancourt, adjacent to Paris; placed at Paris as named by the MFA."
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     2.35,
+     48.86
+    ]
+   },
+   "properties": {
+    "id": "tur-paris-be",
+    "kind": "embassy",
+    "name_tr": "Paris Büyükelçiliği",
+    "name_en": "Turkish Embassy in Paris",
+    "city_tr": "Paris",
+    "city_en": "Paris",
+    "city_wikidata": "Q90",
+    "country": "FRA",
+    "url": "https://paris-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     2.35,
+     48.86
+    ]
+   },
+   "properties": {
+    "id": "tur-oecd-dt",
+    "kind": "permanent_mission",
+    "name_tr": "OECD Daimi Temsilciliği",
+    "name_en": "Permanent Representation of the Republic of Türkiye to the OECD",
+    "city_tr": "Paris",
+    "city_en": "Paris",
+    "city_wikidata": "Q90",
+    "country": "FRA",
+    "url": "https://oecd-dt.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     2.35,
+     48.86
+    ]
+   },
+   "properties": {
+    "id": "tur-unesco-dt",
+    "kind": "permanent_mission",
+    "name_tr": "UNESCO Daimi Temsilciliği",
+    "name_en": "Permanent Delegation of the Republic of Türkiye to UNESCO",
+    "city_tr": "Paris",
+    "city_en": "Paris",
+    "city_wikidata": "Q90",
+    "country": "FRA",
+    "url": "https://unesco-dt.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     7.75,
+     48.57
+    ]
+   },
+   "properties": {
+    "id": "tur-strazburg-bk",
+    "kind": "consulate_general",
+    "name_tr": "Strazburg Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Strasbourg",
+    "city_tr": "Strazburg",
+    "city_en": "Strasbourg",
+    "city_wikidata": "Q6602",
+    "country": "FRA",
+    "url": "https://strazburg-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     7.75,
+     48.57
+    ]
+   },
+   "properties": {
+    "id": "tur-avkons-dt",
+    "kind": "permanent_mission",
+    "name_tr": "Avrupa Konseyi Nezdinde Türkiye Daimi Temsilciliği",
+    "name_en": "Permanent Representation of Türkiye to the Council of Europe",
+    "city_tr": "Strazburg",
+    "city_en": "Strasbourg",
+    "city_wikidata": "Q6602",
+    "country": "FRA",
+    "url": "https://avkons-dt.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     9.44,
+     0.41
+    ]
+   },
+   "properties": {
+    "id": "tur-librevil-be",
+    "kind": "embassy",
+    "name_tr": "Librevil Büyükelçiliği",
+    "name_en": "Turkish Embassy in Libreville",
+    "city_tr": "Librevil",
+    "city_en": "Libreville",
+    "city_wikidata": "Q3825",
+    "country": "GAB",
+    "url": "https://librevil-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -3.19,
+     55.95
+    ]
+   },
+   "properties": {
+    "id": "tur-edinburg-bk",
+    "kind": "consulate_general",
+    "name_tr": "Edinburgh Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Edinburgh",
+    "city_tr": "Edinburgh",
+    "city_en": "Edinburgh",
+    "city_wikidata": "Q23436",
+    "country": "GBR",
+    "url": "https://edinburg-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -0.13,
+     51.51
+    ]
+   },
+   "properties": {
+    "id": "tur-londra-bk",
+    "kind": "consulate_general",
+    "name_tr": "Londra Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in London",
+    "city_tr": "Londra",
+    "city_en": "London",
+    "city_wikidata": "Q84",
+    "country": "GBR",
+    "url": "https://londra-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -0.13,
+     51.51
+    ]
+   },
+   "properties": {
+    "id": "tur-londra-be",
+    "kind": "embassy",
+    "name_tr": "Londra Büyükelçiliği",
+    "name_en": "Turkish Embassy in London",
+    "city_tr": "Londra",
+    "city_en": "London",
+    "city_wikidata": "Q84",
+    "country": "GBR",
+    "url": "https://londra-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.25,
+     53.48
+    ]
+   },
+   "properties": {
+    "id": "tur-manchester-bk",
+    "kind": "consulate_general",
+    "name_tr": "Manchester Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Manchester",
+    "city_tr": "Manchester",
+    "city_en": "Manchester",
+    "city_wikidata": "Q18125",
+    "country": "GBR",
+    "url": "https://manchester-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     41.64,
+     41.65
+    ]
+   },
+   "properties": {
+    "id": "tur-batum-bk",
+    "kind": "consulate_general",
+    "name_tr": "Batum Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Batumi",
+    "city_tr": "Batum",
+    "city_en": "Batumi",
+    "city_wikidata": "Q25475",
+    "country": "GEO",
+    "url": "https://batum-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.79,
+     41.72
+    ]
+   },
+   "properties": {
+    "id": "tur-tiflis-be",
+    "kind": "embassy",
+    "name_tr": "Tiflis Büyükelçiliği",
+    "name_en": "Turkish Embassy in Tbilisi",
+    "city_tr": "Tiflis",
+    "city_en": "Tbilisi",
+    "city_wikidata": "Q994",
+    "country": "GEO",
+    "url": "https://tiflis-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -0.2,
+     5.56
+    ]
+   },
+   "properties": {
+    "id": "tur-akra-be",
+    "kind": "embassy",
+    "name_tr": "Akra Büyükelçiliği",
+    "name_en": "Turkish Embassy in Accra",
+    "city_tr": "Akra",
+    "city_en": "Accra",
+    "city_wikidata": "Q3761",
+    "country": "GHA",
+    "url": "https://akra-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -13.71,
+     9.51
+    ]
+   },
+   "properties": {
+    "id": "tur-konakri-be",
+    "kind": "embassy",
+    "name_tr": "Konakri Büyükelçiliği",
+    "name_en": "Turkish Embassy in Conakry",
+    "city_tr": "Konakri",
+    "city_en": "Conakry",
+    "city_wikidata": "Q3733",
+    "country": "GIN",
+    "url": "https://konakri-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -16.58,
+     13.45
+    ]
+   },
+   "properties": {
+    "id": "tur-banjul-be",
+    "kind": "embassy",
+    "name_tr": "Banjul Büyükelçiliği",
+    "name_en": "Turkish Embassy in Banjul",
+    "city_tr": "Banjul",
+    "city_en": "Banjul",
+    "city_wikidata": "Q3726",
+    "country": "GMB",
+    "url": "https://banjul-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -15.58,
+     11.86
+    ]
+   },
+   "properties": {
+    "id": "tur-bissau-be",
+    "kind": "embassy",
+    "name_tr": "Bissau Büyükelçiliği",
+    "name_en": "Turkish Embassy in Guinea Bissau",
+    "city_tr": "Bissau",
+    "city_en": "Bissau",
+    "city_wikidata": "Q3739",
+    "country": "GNB",
+    "url": "https://bissau-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     8.77,
+     3.75
+    ]
+   },
+   "properties": {
+    "id": "tur-malabo-be",
+    "kind": "embassy",
+    "name_tr": "Malabo Büyükelçiliği",
+    "name_en": "Turkish Embassy in Malabo",
+    "city_tr": "Malabo",
+    "city_en": "Malabo",
+    "city_wikidata": "Q3818",
+    "country": "GNQ",
+    "url": "https://malabo-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     23.73,
+     37.98
+    ]
+   },
+   "properties": {
+    "id": "tur-atinapire-bk",
+    "kind": "consulate_general",
+    "name_tr": "Atina - Pire Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Athens",
+    "city_tr": "Atina",
+    "city_en": "Athens",
+    "city_wikidata": "Q1524",
+    "country": "GRC",
+    "url": "https://atinapire-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     23.73,
+     37.98
+    ]
+   },
+   "properties": {
+    "id": "tur-atina-be",
+    "kind": "embassy",
+    "name_tr": "Atina Büyükelçiliği",
+    "name_en": "Turkish Embassy in Athens",
+    "city_tr": "Atina",
+    "city_en": "Athens",
+    "city_wikidata": "Q1524",
+    "country": "GRC",
+    "url": "https://atina-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     25.4,
+     41.12
+    ]
+   },
+   "properties": {
+    "id": "tur-gumulcine-bk",
+    "kind": "consulate_general",
+    "name_tr": "Gümülcine Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Komotini",
+    "city_tr": "Gümülcine",
+    "city_en": "Komotini",
+    "city_wikidata": "Q208403",
+    "country": "GRC",
+    "url": "https://gumulcine-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     28.22,
+     36.43
+    ]
+   },
+   "properties": {
+    "id": "tur-rodos-bk",
+    "kind": "consulate_general",
+    "name_tr": "Rodos Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Rhodes",
+    "city_tr": "Rodos",
+    "city_en": "Rhodes",
+    "city_wikidata": "Q188731",
+    "country": "GRC",
+    "url": "https://rodos-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     22.94,
+     40.64
+    ]
+   },
+   "properties": {
+    "id": "tur-selanik-bk",
+    "kind": "consulate_general",
+    "name_tr": "Selanik Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Thessaloniki",
+    "city_tr": "Selanik",
+    "city_en": "Thessaloniki",
+    "city_wikidata": "Q17151",
+    "country": "GRC",
+    "url": "https://selanik-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -90.51,
+     14.64
+    ]
+   },
+   "properties": {
+    "id": "tur-guatemala-be",
+    "kind": "embassy",
+    "name_tr": "Guatemala Büyükelçiliği",
+    "name_en": "Turkish Embassy in Ciudad de Guatemala",
+    "city_tr": "Guatemala",
+    "city_en": "Guatemala City",
+    "city_wikidata": "Q1555",
+    "country": "GTM",
+    "url": "https://guatemala-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.98,
+     45.81
+    ]
+   },
+   "properties": {
+    "id": "tur-zagreb-be",
+    "kind": "embassy",
+    "name_tr": "Zagreb Büyükelçiliği",
+    "name_en": "Turkish Embassy in Zagreb",
+    "city_tr": "Zagreb",
+    "city_en": "Zagreb",
+    "city_wikidata": "Q1435",
+    "country": "HRV",
+    "url": "https://zagreb-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     19.04,
+     47.5
+    ]
+   },
+   "properties": {
+    "id": "tur-budapeste-be",
+    "kind": "embassy",
+    "name_tr": "Budapeşte Büyükelçiliği",
+    "name_en": "Turkish Embassy in Budapest",
+    "city_tr": "Budapeşte",
+    "city_en": "Budapest",
+    "city_wikidata": "Q1781",
+    "country": "HUN",
+    "url": "https://budapeste-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     106.83,
+     -6.18
+    ]
+   },
+   "properties": {
+    "id": "tur-cakarta-be",
+    "kind": "embassy",
+    "name_tr": "Cakarta Büyükelçiliği",
+    "name_en": "Turkish Embassy in Jakarta",
+    "city_tr": "Cakarta",
+    "city_en": "Jakarta",
+    "city_wikidata": "Q3630",
+    "country": "IDN",
+    "url": "https://cakarta-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     78.47,
+     17.36
+    ]
+   },
+   "properties": {
+    "id": "tur-haydarabad-bk",
+    "kind": "consulate_general",
+    "name_tr": "Haydarabad Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Haydarabad",
+    "city_tr": "Haydarabad",
+    "city_en": "Hyderabad",
+    "city_wikidata": "Q1361",
+    "country": "IND",
+    "url": "https://haydarabad-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     72.88,
+     19.08
+    ]
+   },
+   "properties": {
+    "id": "tur-mumbai-bk",
+    "kind": "consulate_general",
+    "name_tr": "Mumbai Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Mumbai",
+    "city_tr": "Mumbai",
+    "city_en": "Mumbai",
+    "city_wikidata": "Q1156",
+    "country": "IND",
+    "url": "https://mumbai-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     77.21,
+     28.61
+    ]
+   },
+   "properties": {
+    "id": "tur-yenidelhi-be",
+    "kind": "embassy",
+    "name_tr": "Yeni Delhi Büyükelçiliği",
+    "name_en": "Turkish Embassy in New Delhi",
+    "city_tr": "Yeni Delhi",
+    "city_en": "New Delhi",
+    "city_wikidata": "Q987",
+    "country": "IND",
+    "url": "https://yenidelhi-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -6.26,
+     53.35
+    ]
+   },
+   "properties": {
+    "id": "tur-dublin-be",
+    "kind": "embassy",
+    "name_tr": "Dublin Büyükelçiliği",
+    "name_en": "Turkish Embassy in Dublin",
+    "city_tr": "Dublin",
+    "city_en": "Dublin",
+    "city_wikidata": "Q1761",
+    "country": "IRL",
+    "url": "https://dublin-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     59.61,
+     36.3
+    ]
+   },
+   "properties": {
+    "id": "tur-meshed-bk",
+    "kind": "consulate_general",
+    "name_tr": "Meşhed Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Mashhad",
+    "city_tr": "Meşhed",
+    "city_en": "Mashhad",
+    "city_wikidata": "Q121157",
+    "country": "IRN",
+    "url": "https://meshed-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     46.3,
+     38.07
+    ]
+   },
+   "properties": {
+    "id": "tur-tebriz-bk",
+    "kind": "consulate_general",
+    "name_tr": "Tebriz Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Tabriz",
+    "city_tr": "Tebriz",
+    "city_en": "Tabriz",
+    "city_wikidata": "Q80053",
+    "country": "IRN",
+    "url": "https://tebriz-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     51.39,
+     35.69
+    ]
+   },
+   "properties": {
+    "id": "tur-tahran-be",
+    "kind": "embassy",
+    "name_tr": "Tahran Büyükelçiliği",
+    "name_en": "Turkish Embassy in Tehran",
+    "city_tr": "Tahran",
+    "city_en": "Tehran",
+    "city_wikidata": "Q3616",
+    "country": "IRN",
+    "url": "https://tahran-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     45.07,
+     37.55
+    ]
+   },
+   "properties": {
+    "id": "tur-urumiye-bk",
+    "kind": "consulate_general",
+    "name_tr": "Urumiye Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Orumiyeh",
+    "city_tr": "Urumiye",
+    "city_en": "Urmia",
+    "city_wikidata": "Q179665",
+    "country": "IRN",
+    "url": "https://urumiye-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.37,
+     33.32
+    ]
+   },
+   "properties": {
+    "id": "tur-bagdat-be",
+    "kind": "embassy",
+    "name_tr": "Bağdat Büyükelçiliği",
+    "name_en": "Turkish Embassy in Baghdad",
+    "city_tr": "Bağdat",
+    "city_en": "Baghdad",
+    "city_wikidata": "Q1530",
+    "country": "IRQ",
+    "url": "https://bagdat-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     47.81,
+     30.52
+    ]
+   },
+   "properties": {
+    "id": "tur-basra-bk",
+    "kind": "consulate_general",
+    "name_tr": "Basra Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Basra",
+    "city_tr": "Basra",
+    "city_en": "Basra",
+    "city_wikidata": "Q48195",
+    "country": "IRQ",
+    "url": "https://basra-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.01,
+     36.19
+    ]
+   },
+   "properties": {
+    "id": "tur-erbil-bk",
+    "kind": "consulate_general",
+    "name_tr": "Erbil Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Erbil",
+    "city_tr": "Erbil",
+    "city_en": "Erbil",
+    "city_wikidata": "Q132754",
+    "country": "IRQ",
+    "url": "https://erbil-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     43.13,
+     36.34
+    ]
+   },
+   "properties": {
+    "id": "tur-musul-bk",
+    "kind": "consulate_general",
+    "name_tr": "Musul Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Mosul",
+    "city_tr": "Musul",
+    "city_en": "Mosul",
+    "city_wikidata": "Q83317",
+    "country": "IRQ",
+    "url": "https://musul-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     34.78,
+     32.08
+    ]
+   },
+   "properties": {
+    "id": "tur-telaviv-be",
+    "kind": "embassy",
+    "name_tr": "Tel Aviv Büyükelçiliği",
+    "name_en": "Turkish Embassy in Tel Aviv",
+    "city_tr": "Tel Aviv",
+    "city_en": "Tel Aviv",
+    "city_wikidata": "Q33935",
+    "country": "ISR",
+    "url": "https://telaviv-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     9.19,
+     45.47
+    ]
+   },
+   "properties": {
+    "id": "tur-milano-bk",
+    "kind": "consulate_general",
+    "name_tr": "Milano Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Milano",
+    "city_tr": "Milano",
+    "city_en": "Milan",
+    "city_wikidata": "Q490",
+    "country": "ITA",
+    "url": "https://milano-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.48,
+     41.89
+    ]
+   },
+   "properties": {
+    "id": "tur-roma-be",
+    "kind": "embassy",
+    "name_tr": "Roma Büyükelçiliği",
+    "name_en": "Turkish Embassy in Rome",
+    "city_tr": "Roma",
+    "city_en": "Rome",
+    "city_wikidata": "Q220",
+    "country": "ITA",
+    "url": "https://roma-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     35.93,
+     31.93
+    ]
+   },
+   "properties": {
+    "id": "tur-amman-be",
+    "kind": "embassy",
+    "name_tr": "Amman Büyükelçiliği",
+    "name_en": "Turkish Embassy in Amman",
+    "city_tr": "Amman",
+    "city_en": "Amman",
+    "city_wikidata": "Q3805",
+    "country": "JOR",
+    "url": "https://amman-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     136.91,
+     35.18
+    ]
+   },
+   "properties": {
+    "id": "tur-nagoya-bk",
+    "kind": "consulate_general",
+    "name_tr": "Nagoya Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Nagoya",
+    "city_tr": "Nagoya",
+    "city_en": "Nagoya",
+    "city_wikidata": "Q11751",
+    "country": "JPN",
+    "url": "https://nagoya-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     139.69,
+     35.69
+    ]
+   },
+   "properties": {
+    "id": "tur-tokyo-be",
+    "kind": "embassy",
+    "name_tr": "Tokyo Büyükelçiliği",
+    "name_en": "Turkish Embassy in Tokyo",
+    "city_tr": "Tokyo",
+    "city_en": "Tokyo",
+    "city_wikidata": "Q1490",
+    "country": "JPN",
+    "url": "https://tokyo-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     51.16,
+     43.65
+    ]
+   },
+   "properties": {
+    "id": "tur-aktau-bk",
+    "kind": "consulate_general",
+    "name_tr": "Aktau Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Aktau",
+    "city_tr": "Aktau",
+    "city_en": "Aktau",
+    "city_wikidata": "Q198989",
+    "country": "KAZ",
+    "url": "https://aktau-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     76.92,
+     43.24
+    ]
+   },
+   "properties": {
+    "id": "tur-almati-bk",
+    "kind": "consulate_general",
+    "name_tr": "Almatı Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Almaty",
+    "city_tr": "Almatı",
+    "city_en": "Almaty",
+    "city_wikidata": "Q35493",
+    "country": "KAZ",
+    "url": "https://almati-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     71.43,
+     51.13
+    ]
+   },
+   "properties": {
+    "id": "tur-astana-be",
+    "kind": "embassy",
+    "name_tr": "Astana Büyükelçiliği",
+    "name_en": "Turkish Embassy in Astana",
+    "city_tr": "Astana",
+    "city_en": "Astana",
+    "city_wikidata": "Q1520",
+    "country": "KAZ",
+    "url": "https://astana-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     68.27,
+     43.3
+    ]
+   },
+   "properties": {
+    "id": "tur-turkistan-bk",
+    "kind": "consulate_general",
+    "name_tr": "Türkistan Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Turkistan",
+    "city_tr": "Türkistan",
+    "city_en": "Turkistan",
+    "city_wikidata": "Q848638",
+    "country": "KAZ",
+    "url": "https://turkistan-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     36.82,
+     -1.29
+    ]
+   },
+   "properties": {
+    "id": "tur-nairobi-be",
+    "kind": "embassy",
+    "name_tr": "Nairobi Büyükelçiliği",
+    "name_en": "Turkish Embassy in Nairobi",
+    "city_tr": "Nairobi",
+    "city_en": "Nairobi",
+    "city_wikidata": "Q3870",
+    "country": "KEN",
+    "url": "https://nairobi-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     74.57,
+     42.87
+    ]
+   },
+   "properties": {
+    "id": "tur-biskek-be",
+    "kind": "embassy",
+    "name_tr": "Bişkek Büyükelçiliği",
+    "name_en": "Turkish Embassy in Bishkek",
+    "city_tr": "Bişkek",
+    "city_en": "Bishkek",
+    "city_wikidata": "Q9361",
+    "country": "KGZ",
+    "url": "https://biskek-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     104.92,
+     11.57
+    ]
+   },
+   "properties": {
+    "id": "tur-punompen-be",
+    "kind": "embassy",
+    "name_tr": "Punom Pen Büyükelçiliği",
+    "name_en": "Turkish Embassy in Phnom Penh",
+    "city_tr": "Punom Pen",
+    "city_en": "Phnom Penh",
+    "city_wikidata": "Q1850",
+    "country": "KHM",
+    "url": "https://punompen-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     126.99,
+     37.56
+    ]
+   },
+   "properties": {
+    "id": "tur-seul-be",
+    "kind": "embassy",
+    "name_tr": "Seul Büyükelçiliği",
+    "name_en": "Turkish Embassy in Seoul",
+    "city_tr": "Seul",
+    "city_en": "Seoul",
+    "city_wikidata": "Q8684",
+    "country": "KOR",
+    "url": "https://seul-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     47.98,
+     29.38
+    ]
+   },
+   "properties": {
+    "id": "tur-kuveyt-be",
+    "kind": "embassy",
+    "name_tr": "Kuveyt Büyükelçiliği",
+    "name_en": "Turkish Embassy in Kuwait",
+    "city_tr": "Kuveyt",
+    "city_en": "Kuwait City",
+    "city_wikidata": "Q35178",
+    "country": "KWT",
+    "url": "https://kuveyt-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     102.63,
+     17.98
+    ]
+   },
+   "properties": {
+    "id": "tur-viyentiyan-be",
+    "kind": "embassy",
+    "name_tr": "Viyentiyan Büyükelçiliği",
+    "name_en": "Turkish Embassy in Vientiane",
+    "city_tr": "Viyentiyan",
+    "city_en": "Vientiane",
+    "city_wikidata": "Q9326",
+    "country": "LAO",
+    "url": "https://viyentiyan-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     35.51,
+     33.89
+    ]
+   },
+   "properties": {
+    "id": "tur-beyrut-be",
+    "kind": "embassy",
+    "name_tr": "Beyrut Büyükelçiliği",
+    "name_en": "Turkish Embassy in Beirut",
+    "city_tr": "Beyrut",
+    "city_en": "Beirut",
+    "city_wikidata": "Q3820",
+    "country": "LBN",
+    "url": "https://beyrut-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": "Contact page (retrieved 2026-09-13) gives an address in Rabieh (Metn), adjacent to Beirut; placed at Beirut as named by the MFA."
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.09,
+     32.38
+    ]
+   },
+   "properties": {
+    "id": "tur-misurata-bk",
+    "kind": "consulate_general",
+    "name_tr": "Misurata Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Misrata",
+    "city_tr": "Misurata",
+    "city_en": "Misrata",
+    "city_wikidata": "Q131323",
+    "country": "LBY",
+    "url": "https://misurata-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.19,
+     32.89
+    ]
+   },
+   "properties": {
+    "id": "tur-trablus-be",
+    "kind": "embassy",
+    "name_tr": "Trablus Büyükelçiliği",
+    "name_en": "Turkish Embassy in Tripoli",
+    "city_tr": "Trablus",
+    "city_en": "Tripoli",
+    "city_wikidata": "Q3579",
+    "country": "LBY",
+    "url": "https://trablus-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     79.86,
+     6.93
+    ]
+   },
+   "properties": {
+    "id": "tur-kolombo-be",
+    "kind": "embassy",
+    "name_tr": "Kolombo Büyükelçiliği",
+    "name_en": "Turkish Embassy in Colombo",
+    "city_tr": "Kolombo",
+    "city_en": "Colombo",
+    "city_wikidata": "Q35381",
+    "country": "LKA",
+    "url": "https://kolombo-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     25.28,
+     54.69
+    ]
+   },
+   "properties": {
+    "id": "tur-vilnius-be",
+    "kind": "embassy",
+    "name_tr": "Vilnius Büyükelçiliği",
+    "name_en": "Turkish Embassy in Vilnius",
+    "city_tr": "Vilnius",
+    "city_en": "Vilnius",
+    "city_wikidata": "Q216",
+    "country": "LTU",
+    "url": "https://vilnius-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.13,
+     49.61
+    ]
+   },
+   "properties": {
+    "id": "tur-luksemburg-be",
+    "kind": "embassy",
+    "name_tr": "Lüksemburg Büyükelçiliği",
+    "name_en": "Turkish Embassy in Luxembourg",
+    "city_tr": "Lüksemburg",
+    "city_en": "Luxembourg",
+    "city_wikidata": "Q1842",
+    "country": "LUX",
+    "url": "https://luksemburg-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     24.11,
+     56.95
+    ]
+   },
+   "properties": {
+    "id": "tur-riga-be",
+    "kind": "embassy",
+    "name_tr": "Riga Büyükelçiliği",
+    "name_en": "Turkish Embassy in Riga",
+    "city_tr": "Riga",
+    "city_en": "Riga",
+    "city_wikidata": "Q1773",
+    "country": "LVA",
+    "url": "https://riga-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -6.84,
+     34.02
+    ]
+   },
+   "properties": {
+    "id": "tur-rabat-be",
+    "kind": "embassy",
+    "name_tr": "Rabat Büyükelçiliği",
+    "name_en": "Turkish Embassy in Rabat",
+    "city_tr": "Rabat",
+    "city_en": "Rabat",
+    "city_wikidata": "Q3551",
+    "country": "MAR",
+    "url": "https://rabat-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     28.84,
+     47.02
+    ]
+   },
+   "properties": {
+    "id": "tur-kisinev-be",
+    "kind": "embassy",
+    "name_tr": "Kişinev Büyükelçiliği",
+    "name_en": "Turkish Embassy in Chişinau",
+    "city_tr": "Kişinev",
+    "city_en": "Chișinău",
+    "city_wikidata": "Q21197",
+    "country": "MDA",
+    "url": "https://kisinev-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     28.66,
+     46.3
+    ]
+   },
+   "properties": {
+    "id": "tur-komrat-bk",
+    "kind": "consulate_general",
+    "name_tr": "Komrat Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Comrat",
+    "city_tr": "Komrat",
+    "city_en": "Comrat",
+    "city_wikidata": "Q241122",
+    "country": "MDA",
+    "url": "https://komrat-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     47.52,
+     -18.91
+    ]
+   },
+   "properties": {
+    "id": "tur-antananarivo-be",
+    "kind": "embassy",
+    "name_tr": "Antananarivo Büyükelçiliği",
+    "name_en": "Turkish Embassy in Antananarivo",
+    "city_tr": "Antananarivo",
+    "city_en": "Antananarivo",
+    "city_wikidata": "Q3915",
+    "country": "MDG",
+    "url": "https://antananarivo-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -99.14,
+     19.35
+    ]
+   },
+   "properties": {
+    "id": "tur-meksika-be",
+    "kind": "embassy",
+    "name_tr": "Meksika Büyükelçiliği",
+    "name_en": "Turkish Embassy in Ciudad de Mexico",
+    "city_tr": "Meksika",
+    "city_en": "Mexico City",
+    "city_wikidata": "Q1489",
+    "country": "MEX",
+    "url": "https://meksika-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     21.43,
+     42.0
+    ]
+   },
+   "properties": {
+    "id": "tur-uskup-be",
+    "kind": "embassy",
+    "name_tr": "Üsküp Büyükelçiliği",
+    "name_en": "Turkish Embassy in Skopje",
+    "city_tr": "Üsküp",
+    "city_en": "Skopje",
+    "city_wikidata": "Q384",
+    "country": "MKD",
+    "url": "https://uskup-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -7.99,
+     12.65
+    ]
+   },
+   "properties": {
+    "id": "tur-bamako-be",
+    "kind": "embassy",
+    "name_tr": "Bamako Büyükelçiliği",
+    "name_en": "Turkish Embassy in Bamako",
+    "city_tr": "Bamako",
+    "city_en": "Bamako",
+    "city_wikidata": "Q3703",
+    "country": "MLI",
+    "url": "https://bamako-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.51,
+     35.9
+    ]
+   },
+   "properties": {
+    "id": "tur-valetta-be",
+    "kind": "embassy",
+    "name_tr": "Valetta Büyükelçiliği",
+    "name_en": "Turkish Embassy in Valletta",
+    "city_tr": "Valetta",
+    "city_en": "Valletta",
+    "city_wikidata": "Q23800",
+    "country": "MLT",
+    "url": "https://valetta-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": "Contact page (retrieved 2026-09-13) gives an address in Floriana, adjacent to Valletta; placed at Valletta as named by the MFA."
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     96.16,
+     16.8
+    ]
+   },
+   "properties": {
+    "id": "tur-nepido-be",
+    "kind": "embassy",
+    "name_tr": "Nepido Büyükelçiliği",
+    "name_en": "Turkish Embassy in Myanmar",
+    "city_tr": "Yangon",
+    "city_en": "Yangon",
+    "city_wikidata": "Q37995",
+    "country": "MMR",
+    "url": "https://nepido-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": "MFA list names the post \"Nepido Büyükelçiliği\"; its contact page (retrieved 2026-09-13) gives an address in Yangon."
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     19.26,
+     42.44
+    ]
+   },
+   "properties": {
+    "id": "tur-podgorica-be",
+    "kind": "embassy",
+    "name_tr": "Podgoritsa Büyükelçiliği",
+    "name_en": "Turkish Embassy in Podgorica",
+    "city_tr": "Podgoritsa",
+    "city_en": "Podgorica",
+    "city_wikidata": "Q23564",
+    "country": "MNE",
+    "url": "https://podgorica-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     106.91,
+     47.92
+    ]
+   },
+   "properties": {
+    "id": "tur-ulanbator-be",
+    "kind": "embassy",
+    "name_tr": "Ulanbator Büyükelçiliği",
+    "name_en": "Turkish Embassy in Ulaanbaatar",
+    "city_tr": "Ulanbator",
+    "city_en": "Ulaanbaatar",
+    "city_wikidata": "Q23430",
+    "country": "MNG",
+    "url": "https://ulanbator-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     32.57,
+     -25.97
+    ]
+   },
+   "properties": {
+    "id": "tur-maputo-be",
+    "kind": "embassy",
+    "name_tr": "Maputo Büyükelçiliği",
+    "name_en": "Turkish Embassy in Maputo",
+    "city_tr": "Maputo",
+    "city_en": "Maputo",
+    "city_wikidata": "Q3889",
+    "country": "MOZ",
+    "url": "https://maputo-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -15.98,
+     18.09
+    ]
+   },
+   "properties": {
+    "id": "tur-nuaksot-be",
+    "kind": "embassy",
+    "name_tr": "Nuakşot Büyükelçiliği",
+    "name_en": "Turkish Embassy in Nouakchott",
+    "city_tr": "Nuakşot",
+    "city_en": "Nouakchott",
+    "city_wikidata": "Q3688",
+    "country": "MRT",
+    "url": "https://nuaksot-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     101.7,
+     3.15
+    ]
+   },
+   "properties": {
+    "id": "tur-kualalumpur-be",
+    "kind": "embassy",
+    "name_tr": "Kuala Lumpur Büyükelçiliği",
+    "name_en": "Turkish Embassy in Kuala Lumpur",
+    "city_tr": "Kuala Lumpur",
+    "city_en": "Kuala Lumpur",
+    "city_wikidata": "Q1865",
+    "country": "MYS",
+    "url": "https://kualalumpur-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     17.08,
+     -22.57
+    ]
+   },
+   "properties": {
+    "id": "tur-windhoek-be",
+    "kind": "embassy",
+    "name_tr": "Windhoek Büyükelçiliği",
+    "name_en": "Turkish Embassy in Windhoek",
+    "city_tr": "Windhoek",
+    "city_en": "Windhoek",
+    "city_wikidata": "Q3935",
+    "country": "NAM",
+    "url": "https://windhoek-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     2.12,
+     13.52
+    ]
+   },
+   "properties": {
+    "id": "tur-niamey-be",
+    "kind": "embassy",
+    "name_tr": "Niamey Büyükelçiliği",
+    "name_en": "Turkish Embassy in Niamey",
+    "city_tr": "Niamey",
+    "city_en": "Niamey",
+    "city_wikidata": "Q3674",
+    "country": "NER",
+    "url": "https://niamey-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     7.49,
+     9.06
+    ]
+   },
+   "properties": {
+    "id": "tur-abuja-be",
+    "kind": "embassy",
+    "name_tr": "Abuja Büyükelçiliği",
+    "name_en": "Turkish Embassy in Abuja",
+    "city_tr": "Abuja",
+    "city_en": "Abuja",
+    "city_wikidata": "Q3787",
+    "country": "NGA",
+    "url": "https://abuja-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.88,
+     52.37
+    ]
+   },
+   "properties": {
+    "id": "tur-amsterdam-bk",
+    "kind": "consulate_general",
+    "name_tr": "Amsterdam Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Amsterdam",
+    "city_tr": "Amsterdam",
+    "city_en": "Amsterdam",
+    "city_wikidata": "Q727",
+    "country": "NLD",
+    "url": "https://amsterdam-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.17,
+     52.25
+    ]
+   },
+   "properties": {
+    "id": "tur-deventer-bk",
+    "kind": "consulate_general",
+    "name_tr": "Deventer Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Deventer",
+    "city_tr": "Deventer",
+    "city_en": "Deventer",
+    "city_wikidata": "Q10001",
+    "country": "NLD",
+    "url": "https://deventer-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.48,
+     51.92
+    ]
+   },
+   "properties": {
+    "id": "tur-rotterdam-bk",
+    "kind": "consulate_general",
+    "name_tr": "Rotterdam Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Rotterdam",
+    "city_tr": "Rotterdam",
+    "city_en": "Rotterdam",
+    "city_wikidata": "Q34370",
+    "country": "NLD",
+    "url": "https://rotterdam-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.31,
+     52.08
+    ]
+   },
+   "properties": {
+    "id": "tur-lahey-be",
+    "kind": "embassy",
+    "name_tr": "Lahey Büyükelçiliği",
+    "name_en": "Turkish Embassy in The Hague",
+    "city_tr": "Lahey",
+    "city_en": "The Hague",
+    "city_wikidata": "Q36600",
+    "country": "NLD",
+    "url": "https://lahey-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     10.74,
+     59.91
+    ]
+   },
+   "properties": {
+    "id": "tur-oslo-be",
+    "kind": "embassy",
+    "name_tr": "Oslo Büyükelçiliği",
+    "name_en": "Turkish Embassy in Oslo",
+    "city_tr": "Oslo",
+    "city_en": "Oslo",
+    "city_wikidata": "Q585",
+    "country": "NOR",
+    "url": "https://oslo-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     174.78,
+     -41.29
+    ]
+   },
+   "properties": {
+    "id": "tur-wellington-be",
+    "kind": "embassy",
+    "name_tr": "Wellington Büyükelçiliği",
+    "name_en": "Turkish Embassy in Wellington",
+    "city_tr": "Wellington",
+    "city_en": "Wellington",
+    "city_wikidata": "Q23661",
+    "country": "NZL",
+    "url": "https://wellington-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     58.59,
+     23.61
+    ]
+   },
+   "properties": {
+    "id": "tur-muskat-be",
+    "kind": "embassy",
+    "name_tr": "Muskat Büyükelçiliği",
+    "name_en": "Turkish Embassy in Muscat",
+    "city_tr": "Muskat",
+    "city_en": "Muscat",
+    "city_wikidata": "Q3826",
+    "country": "OMN",
+    "url": "https://muskat-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     73.04,
+     33.7
+    ]
+   },
+   "properties": {
+    "id": "tur-islamabad-be",
+    "kind": "embassy",
+    "name_tr": "İslamabad Büyükelçiliği",
+    "name_en": "Turkish Embassy in Islamabad",
+    "city_tr": "İslamabad",
+    "city_en": "Islamabad",
+    "city_wikidata": "Q1362",
+    "country": "PAK",
+    "url": "https://islamabad-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     67.01,
+     24.86
+    ]
+   },
+   "properties": {
+    "id": "tur-karaci-bk",
+    "kind": "consulate_general",
+    "name_tr": "Karaçi Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Karachi",
+    "city_tr": "Karaçi",
+    "city_en": "Karachi",
+    "city_wikidata": "Q8660",
+    "country": "PAK",
+    "url": "https://karaci-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     74.34,
+     31.55
+    ]
+   },
+   "properties": {
+    "id": "tur-lahor-bk",
+    "kind": "consulate_general",
+    "name_tr": "Lahor Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Lahor",
+    "city_tr": "Lahor",
+    "city_en": "Lahore",
+    "city_wikidata": "Q11739",
+    "country": "PAK",
+    "url": "https://lahor-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -79.53,
+     8.97
+    ]
+   },
+   "properties": {
+    "id": "tur-panama-be",
+    "kind": "embassy",
+    "name_tr": "Panama Büyükelçiliği",
+    "name_en": "Turkish Embassy in Panama",
+    "city_tr": "Panama",
+    "city_en": "Panama City",
+    "city_wikidata": "Q3306",
+    "country": "PAN",
+    "url": "https://panama-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.04,
+     -12.06
+    ]
+   },
+   "properties": {
+    "id": "tur-lima-be",
+    "kind": "embassy",
+    "name_tr": "Lima Büyükelçiliği",
+    "name_en": "Turkish Embassy in Lima",
+    "city_tr": "Lima",
+    "city_en": "Lima",
+    "city_wikidata": "Q2868",
+    "country": "PER",
+    "url": "https://lima-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     120.98,
+     14.6
+    ]
+   },
+   "properties": {
+    "id": "tur-manila-be",
+    "kind": "embassy",
+    "name_tr": "Manila Büyükelçiliği",
+    "name_en": "Turkish Embassy in Manila",
+    "city_tr": "Manila",
+    "city_en": "Manila",
+    "city_wikidata": "Q1461",
+    "country": "PHL",
+    "url": "https://manila-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     21.01,
+     52.23
+    ]
+   },
+   "properties": {
+    "id": "tur-varsova-be",
+    "kind": "embassy",
+    "name_tr": "Varşova Büyükelçiliği",
+    "name_en": "Turkish Embassy in Warsaw",
+    "city_tr": "Varşova",
+    "city_en": "Warsaw",
+    "city_wikidata": "Q270",
+    "country": "POL",
+    "url": "https://varsova-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -9.14,
+     38.71
+    ]
+   },
+   "properties": {
+    "id": "tur-lizbon-be",
+    "kind": "embassy",
+    "name_tr": "Lizbon Büyükelçiliği",
+    "name_en": "Turkish Embassy in Lisboa",
+    "city_tr": "Lizbon",
+    "city_en": "Lisbon",
+    "city_wikidata": "Q597",
+    "country": "PRT",
+    "url": "https://lizbon-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -57.63,
+     -25.28
+    ]
+   },
+   "properties": {
+    "id": "tur-asuncion-be",
+    "kind": "embassy",
+    "name_tr": "Asuncion Büyükelçiliği",
+    "name_en": "Turkish Embassy in Paraguay",
+    "city_tr": "Asuncion",
+    "city_en": "Asunción",
+    "city_wikidata": "Q2933",
+    "country": "PRY",
+    "url": "https://asuncion-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     35.23,
+     31.78
+    ]
+   },
+   "properties": {
+    "id": "tur-kudus-bk",
+    "kind": "consulate_general",
+    "name_tr": "Kudüs Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Jerusalem",
+    "city_tr": "Kudüs",
+    "city_en": "Jerusalem",
+    "city_wikidata": "Q1218",
+    "country": "PSE",
+    "url": "https://kudus-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     51.53,
+     25.29
+    ]
+   },
+   "properties": {
+    "id": "tur-doha-be",
+    "kind": "embassy",
+    "name_tr": "Doha Büyükelçiliği",
+    "name_en": "Turkish Embassy in Doha",
+    "city_tr": "Doha",
+    "city_en": "Doha",
+    "city_wikidata": "Q3861",
+    "country": "QAT",
+    "url": "https://doha-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     26.1,
+     44.41
+    ]
+   },
+   "properties": {
+    "id": "tur-bukres-be",
+    "kind": "embassy",
+    "name_tr": "Bükreş Büyükelçiliği",
+    "name_en": "Turkish Embassy in Bucharest",
+    "city_tr": "Bükreş",
+    "city_en": "Bucharest",
+    "city_wikidata": "Q19660",
+    "country": "ROU",
+    "url": "https://bukres-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     28.65,
+     44.18
+    ]
+   },
+   "properties": {
+    "id": "tur-kostence-bk",
+    "kind": "consulate_general",
+    "name_tr": "Köstence Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Constanta",
+    "city_tr": "Köstence",
+    "city_en": "Constanța",
+    "city_wikidata": "Q79808",
+    "country": "ROU",
+    "url": "https://kostence-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     49.11,
+     55.79
+    ]
+   },
+   "properties": {
+    "id": "tur-kazan-bk",
+    "kind": "consulate_general",
+    "name_tr": "Kazan Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Kazan",
+    "city_tr": "Kazan",
+    "city_en": "Kazan",
+    "city_wikidata": "Q900",
+    "country": "RUS",
+    "url": "https://kazan-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     38.98,
+     45.03
+    ]
+   },
+   "properties": {
+    "id": "tur-krasnodar-bk",
+    "kind": "consulate_general",
+    "name_tr": "Krasnodar Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Krasnodar",
+    "city_tr": "Krasnodar",
+    "city_en": "Krasnodar",
+    "city_wikidata": "Q3646",
+    "country": "RUS",
+    "url": "https://krasnodar-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     37.62,
+     55.75
+    ]
+   },
+   "properties": {
+    "id": "tur-moskova-be",
+    "kind": "embassy",
+    "name_tr": "Moskova Büyükelçiliği",
+    "name_en": "Turkish Embassy in Moscow",
+    "city_tr": "Moskova",
+    "city_en": "Moscow",
+    "city_wikidata": "Q649",
+    "country": "RUS",
+    "url": "https://moskova-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     30.32,
+     59.95
+    ]
+   },
+   "properties": {
+    "id": "tur-stpetersburg-bk",
+    "kind": "consulate_general",
+    "name_tr": "St. Petersburg Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in St. Petersburg",
+    "city_tr": "St. Petersburg",
+    "city_en": "Saint Petersburg",
+    "city_wikidata": "Q656",
+    "country": "RUS",
+    "url": "https://stpetersburg-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     30.11,
+     -1.95
+    ]
+   },
+   "properties": {
+    "id": "tur-kigali-be",
+    "kind": "embassy",
+    "name_tr": "Kigali Büyükelçiliği",
+    "name_en": "Turkish Embassy in Kigali",
+    "city_tr": "Kigali",
+    "city_en": "Kigali",
+    "city_wikidata": "Q3859",
+    "country": "RWA",
+    "url": "https://kigali-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     39.16,
+     21.53
+    ]
+   },
+   "properties": {
+    "id": "tur-cidde-bk",
+    "kind": "consulate_general",
+    "name_tr": "Cidde Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Jeddah",
+    "city_tr": "Cidde",
+    "city_en": "Jeddah",
+    "city_wikidata": "Q374365",
+    "country": "SAU",
+    "url": "https://cidde-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     39.16,
+     21.53
+    ]
+   },
+   "properties": {
+    "id": "tur-iit-dt",
+    "kind": "permanent_mission",
+    "name_tr": "İİT Daimi Temsilciliği",
+    "name_en": "Permanent Mission to the OIC",
+    "city_tr": "Cidde",
+    "city_en": "Jeddah",
+    "city_wikidata": "Q374365",
+    "country": "SAU",
+    "url": "https://iit-dt.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     46.71,
+     24.65
+    ]
+   },
+   "properties": {
+    "id": "tur-riyad-be",
+    "kind": "embassy",
+    "name_tr": "Riyad Büyükelçiliği",
+    "name_en": "Turkish Embassy in Riyadh",
+    "city_tr": "Riyad",
+    "city_en": "Riyadh",
+    "city_wikidata": "Q3692",
+    "country": "SAU",
+    "url": "https://riyad-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     37.22,
+     19.62
+    ]
+   },
+   "properties": {
+    "id": "tur-hartum-be",
+    "kind": "embassy",
+    "name_tr": "Hartum Büyükelçiliği",
+    "name_en": "Turkish Embassy in Khartoum",
+    "city_tr": "Port Sudan",
+    "city_en": "Port Sudan",
+    "city_wikidata": "Q208718",
+    "country": "SDN",
+    "url": "https://hartum-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": "MFA list names the post \"Hartum Büyükelçiliği\" (Khartoum); its contact page (retrieved 2026-09-13) gives an address in Port Sudan."
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -17.43,
+     14.67
+    ]
+   },
+   "properties": {
+    "id": "tur-dakar-be",
+    "kind": "embassy",
+    "name_tr": "Dakar Büyükelçiliği",
+    "name_en": "Turkish Embassy in Dakar",
+    "city_tr": "Dakar",
+    "city_en": "Dakar",
+    "city_wikidata": "Q3718",
+    "country": "SEN",
+    "url": "https://dakar-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     103.8,
+     1.3
+    ]
+   },
+   "properties": {
+    "id": "tur-singapur-be",
+    "kind": "embassy",
+    "name_tr": "Singapur Büyükelçiliği",
+    "name_en": "Turkish Embassy in Singapore",
+    "city_tr": "Singapur",
+    "city_en": "Singapore",
+    "city_wikidata": "Q334",
+    "country": "SGP",
+    "url": "https://singapur-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -13.24,
+     8.49
+    ]
+   },
+   "properties": {
+    "id": "tur-freetown-be",
+    "kind": "embassy",
+    "name_tr": "Freetown Büyükelçiliği",
+    "name_en": "Turkish Embassy in Freetown",
+    "city_tr": "Freetown",
+    "city_en": "Freetown",
+    "city_wikidata": "Q3780",
+    "country": "SLE",
+    "url": "https://freetown-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     44.06,
+     9.57
+    ]
+   },
+   "properties": {
+    "id": "tur-hargeysa-bk",
+    "kind": "consulate_general",
+    "name_tr": "Hargeysa Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Hargeisa",
+    "city_tr": "Hargeysa",
+    "city_en": "Hargeisa",
+    "city_wikidata": "Q168652",
+    "country": "SOM",
+    "url": "https://hargeysa-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     45.34,
+     2.04
+    ]
+   },
+   "properties": {
+    "id": "tur-mogadisu-be",
+    "kind": "embassy",
+    "name_tr": "Mogadişu Büyükelçiliği",
+    "name_en": "Turkish Embassy in Mogadishu",
+    "city_tr": "Mogadişu",
+    "city_en": "Mogadishu",
+    "city_wikidata": "Q2449",
+    "country": "SOM",
+    "url": "https://mogadisu-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     20.46,
+     44.82
+    ]
+   },
+   "properties": {
+    "id": "tur-belgrad-be",
+    "kind": "embassy",
+    "name_tr": "Belgrad Büyükelçiliği",
+    "name_en": "Turkish Embassy in Belgrade",
+    "city_tr": "Belgrad",
+    "city_en": "Belgrade",
+    "city_wikidata": "Q3711",
+    "country": "SRB",
+    "url": "https://belgrad-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     20.52,
+     43.15
+    ]
+   },
+   "properties": {
+    "id": "tur-yenipazar-bk",
+    "kind": "consulate_general",
+    "name_tr": "Yeni Pazar Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Novi Pazar",
+    "city_tr": "Yeni Pazar",
+    "city_en": "Novi Pazar",
+    "city_wikidata": "Q202453",
+    "country": "SRB",
+    "url": "https://yenipazar-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     31.58,
+     4.85
+    ]
+   },
+   "properties": {
+    "id": "tur-juba-be",
+    "kind": "embassy",
+    "name_tr": "Juba Büyükelçiliği",
+    "name_en": "Turkish Embassy in Juba",
+    "city_tr": "Juba",
+    "city_en": "Juba",
+    "city_wikidata": "Q1947",
+    "country": "SSD",
+    "url": "https://juba-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     17.11,
+     48.15
+    ]
+   },
+   "properties": {
+    "id": "tur-bratislava-be",
+    "kind": "embassy",
+    "name_tr": "Bratislava Büyükelçiliği",
+    "name_en": "Turkish Embassy in Bratislava",
+    "city_tr": "Bratislava",
+    "city_en": "Bratislava",
+    "city_wikidata": "Q1780",
+    "country": "SVK",
+    "url": "https://bratislava-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.51,
+     46.05
+    ]
+   },
+   "properties": {
+    "id": "tur-ljubljana-be",
+    "kind": "embassy",
+    "name_tr": "Lübliyana Büyükelçiliği",
+    "name_en": "Turkish Embassy in Ljubljana",
+    "city_tr": "Lübliyana",
+    "city_en": "Ljubljana",
+    "city_wikidata": "Q437",
+    "country": "SVN",
+    "url": "https://ljubljana-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     18.07,
+     59.33
+    ]
+   },
+   "properties": {
+    "id": "tur-stokholm-be",
+    "kind": "embassy",
+    "name_tr": "Stokholm Büyükelçiliği",
+    "name_en": "Turkish Embassy in Stockholm",
+    "city_tr": "Stokholm",
+    "city_en": "Stockholm",
+    "city_wikidata": "Q1754",
+    "country": "SWE",
+    "url": "https://stokholm-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     37.16,
+     36.2
+    ]
+   },
+   "properties": {
+    "id": "tur-halep-bk",
+    "kind": "consulate_general",
+    "name_tr": "Halep Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Aleppo",
+    "city_tr": "Halep",
+    "city_en": "Aleppo",
+    "city_wikidata": "Q41183",
+    "country": "SYR",
+    "url": "https://halep-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     36.29,
+     33.51
+    ]
+   },
+   "properties": {
+    "id": "tur-sam-be",
+    "kind": "embassy",
+    "name_tr": "Şam Büyükelçiliği",
+    "name_en": "Turkish Embassy in Damascus",
+    "city_tr": "Şam",
+    "city_en": "Damascus",
+    "city_wikidata": "Q3766",
+    "country": "SYR",
+    "url": "https://sam-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.05,
+     12.11
+    ]
+   },
+   "properties": {
+    "id": "tur-encemine-be",
+    "kind": "embassy",
+    "name_tr": "Encemine Büyükelçiliği",
+    "name_en": "Turkish Embassy in N'Djamena",
+    "city_tr": "Encemine",
+    "city_en": "N'Djamena",
+    "city_wikidata": "Q3659",
+    "country": "TCD",
+    "url": "https://encemine-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     1.22,
+     6.13
+    ]
+   },
+   "properties": {
+    "id": "tur-lome-be",
+    "kind": "embassy",
+    "name_tr": "Lome Büyükelçiliği",
+    "name_en": "Turkish Embassy in Lome",
+    "city_tr": "Lome",
+    "city_en": "Lomé",
+    "city_wikidata": "Q3792",
+    "country": "TGO",
+    "url": "https://lome-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.52,
+     13.75
+    ]
+   },
+   "properties": {
+    "id": "tur-bangkok-be",
+    "kind": "embassy",
+    "name_tr": "Bangkok Büyükelçiliği",
+    "name_en": "Turkish Embassy in Bangkok",
+    "city_tr": "Bangkok",
+    "city_en": "Bangkok",
+    "city_wikidata": "Q1861",
+    "country": "THA",
+    "url": "https://bangkok-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     68.79,
+     38.57
+    ]
+   },
+   "properties": {
+    "id": "tur-dusanbe-be",
+    "kind": "embassy",
+    "name_tr": "Duşanbe Büyükelçiliği",
+    "name_en": "Turkish Embassy in Dushanbe",
+    "city_tr": "Duşanbe",
+    "city_en": "Dushanbe",
+    "city_wikidata": "Q9365",
+    "country": "TJK",
+    "url": "https://dusanbe-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     58.38,
+     37.95
+    ]
+   },
+   "properties": {
+    "id": "tur-askabat-be",
+    "kind": "embassy",
+    "name_tr": "Aşkabat Büyükelçiliği",
+    "name_en": "Turkish Embassy in Ashgabat",
+    "city_tr": "Aşkabat",
+    "city_en": "Ashgabat",
+    "city_wikidata": "Q23438",
+    "country": "TKM",
+    "url": "https://askabat-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -61.52,
+     10.67
+    ]
+   },
+   "properties": {
+    "id": "tur-portofspain-be",
+    "kind": "embassy",
+    "name_tr": "Port of Spain Büyükelçiliği",
+    "name_en": "Turkish Embassy in Port of Spain",
+    "city_tr": "Port of Spain",
+    "city_en": "Port of Spain",
+    "city_wikidata": "Q39178",
+    "country": "TTO",
+    "url": "https://portofspain-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     10.18,
+     36.8
+    ]
+   },
+   "properties": {
+    "id": "tur-tunus-be",
+    "kind": "embassy",
+    "name_tr": "Tunus Büyükelçiliği",
+    "name_en": "Turkish Embassy in Tunisia",
+    "city_tr": "Tunus",
+    "city_en": "Tunis",
+    "city_wikidata": "Q3572",
+    "country": "TUN",
+    "url": "https://tunus-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     39.28,
+     -6.82
+    ]
+   },
+   "properties": {
+    "id": "tur-darusselam-be",
+    "kind": "embassy",
+    "name_tr": "Darüsselam Büyükelçiliği",
+    "name_en": "Turkish Embassy in Dar es Salaam",
+    "city_tr": "Darüsselam",
+    "city_en": "Dar es Salaam",
+    "city_wikidata": "Q1960",
+    "country": "TZA",
+    "url": "https://darusselam-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     32.58,
+     0.31
+    ]
+   },
+   "properties": {
+    "id": "tur-kampala-be",
+    "kind": "embassy",
+    "name_tr": "Kampala Büyükelçiliği",
+    "name_en": "Turkish Embassy in Kampala",
+    "city_tr": "Kampala",
+    "city_en": "Kampala",
+    "city_wikidata": "Q3894",
+    "country": "UGA",
+    "url": "https://kampala-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     30.52,
+     50.45
+    ]
+   },
+   "properties": {
+    "id": "tur-kiev-be",
+    "kind": "embassy",
+    "name_tr": "Kiev Büyükelçiliği",
+    "name_en": "Turkish Embassy in Kyiv",
+    "city_tr": "Kiev",
+    "city_en": "Kyiv",
+    "city_wikidata": "Q1899",
+    "country": "UKR",
+    "url": "https://kiev-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     30.73,
+     46.48
+    ]
+   },
+   "properties": {
+    "id": "tur-odessa-bk",
+    "kind": "consulate_general",
+    "name_tr": "Odessa Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Odessa",
+    "city_tr": "Odessa",
+    "city_en": "Odesa",
+    "city_wikidata": "Q1874",
+    "country": "UKR",
+    "url": "https://odessa-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -56.19,
+     -34.91
+    ]
+   },
+   "properties": {
+    "id": "tur-montevideo-be",
+    "kind": "embassy",
+    "name_tr": "Montevideo Büyükelçiliği",
+    "name_en": "Turkish Embassy in Uruguay",
+    "city_tr": "Montevideo",
+    "city_en": "Montevideo",
+    "city_wikidata": "Q1335",
+    "country": "URY",
+    "url": "https://montevideo-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -71.06,
+     42.36
+    ]
+   },
+   "properties": {
+    "id": "tur-boston-bk",
+    "kind": "consulate_general",
+    "name_tr": "Boston Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Boston",
+    "city_tr": "Boston",
+    "city_en": "Boston",
+    "city_wikidata": "Q100",
+    "country": "USA",
+    "url": "https://boston-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -87.63,
+     41.88
+    ]
+   },
+   "properties": {
+    "id": "tur-sikago-bk",
+    "kind": "consulate_general",
+    "name_tr": "Chicago Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Chicago",
+    "city_tr": "Chicago",
+    "city_en": "Chicago",
+    "city_wikidata": "Q1297",
+    "country": "USA",
+    "url": "https://sikago-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -95.38,
+     29.76
+    ]
+   },
+   "properties": {
+    "id": "tur-houston-bk",
+    "kind": "consulate_general",
+    "name_tr": "Houston Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Houston",
+    "city_tr": "Houston",
+    "city_en": "Houston",
+    "city_wikidata": "Q16555",
+    "country": "USA",
+    "url": "https://houston-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -118.24,
+     34.05
+    ]
+   },
+   "properties": {
+    "id": "tur-losangeles-bk",
+    "kind": "consulate_general",
+    "name_tr": "Los Angeles Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Los Angeles",
+    "city_tr": "Los Angeles",
+    "city_en": "Los Angeles",
+    "city_wikidata": "Q65",
+    "country": "USA",
+    "url": "https://losangeles-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": "Contact page (retrieved 2026-09-13) gives an address in Beverly Hills, adjacent to Los Angeles; placed at Los Angeles as named by the MFA."
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -80.19,
+     25.77
+    ]
+   },
+   "properties": {
+    "id": "tur-miami-bk",
+    "kind": "consulate_general",
+    "name_tr": "Miami Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Miami",
+    "city_tr": "Miami",
+    "city_en": "Miami",
+    "city_wikidata": "Q8652",
+    "country": "USA",
+    "url": "https://miami-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -74.01,
+     40.71
+    ]
+   },
+   "properties": {
+    "id": "tur-newyork-bk",
+    "kind": "consulate_general",
+    "name_tr": "New York Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in New York",
+    "city_tr": "New York",
+    "city_en": "New York City",
+    "city_wikidata": "Q60",
+    "country": "USA",
+    "url": "https://newyork-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -74.01,
+     40.71
+    ]
+   },
+   "properties": {
+    "id": "tur-turkuno-dt",
+    "kind": "permanent_mission",
+    "name_tr": "Turkuno Daimi Temsilciliği",
+    "name_en": "Permanent Mission of the Republic of Türkiye to the United Nations",
+    "city_tr": "New York",
+    "city_en": "New York City",
+    "city_wikidata": "Q60",
+    "country": "USA",
+    "url": "https://turkuno-dt.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.04,
+     38.9
+    ]
+   },
+   "properties": {
+    "id": "tur-vasington-be",
+    "kind": "embassy",
+    "name_tr": "Washington Büyükelçiliği",
+    "name_en": "Turkish Embassy in Washington, D.C.",
+    "city_tr": "Washington",
+    "city_en": "Washington, D.C.",
+    "city_wikidata": "Q61",
+    "country": "USA",
+    "url": "https://vasington-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     66.98,
+     39.65
+    ]
+   },
+   "properties": {
+    "id": "tur-semerkant-bk",
+    "kind": "consulate_general",
+    "name_tr": "Semerkant Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Samarkand",
+    "city_tr": "Semerkant",
+    "city_en": "Samarkand",
+    "city_wikidata": "Q5753",
+    "country": "UZB",
+    "url": "https://semerkant-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     69.28,
+     41.31
+    ]
+   },
+   "properties": {
+    "id": "tur-taskent-be",
+    "kind": "embassy",
+    "name_tr": "Taşkent Büyükelçiliği",
+    "name_en": "Turkish Embassy in Tashkent",
+    "city_tr": "Taşkent",
+    "city_en": "Tashkent",
+    "city_wikidata": "Q269",
+    "country": "UZB",
+    "url": "https://taskent-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.48,
+     41.89
+    ]
+   },
+   "properties": {
+    "id": "tur-vatikan-be",
+    "kind": "embassy",
+    "name_tr": "Vatikan Büyükelçiliği",
+    "name_en": "Turkish Embassy in Vatikan",
+    "city_tr": "Roma",
+    "city_en": "Rome",
+    "city_wikidata": "Q220",
+    "country": "VAT",
+    "url": "https://vatikan-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": "Embassy accredited to the Holy See (VAT); its contact page (retrieved 2026-09-13) gives an address in Rome, Italy."
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -66.91,
+     10.51
+    ]
+   },
+   "properties": {
+    "id": "tur-karakas-be",
+    "kind": "embassy",
+    "name_tr": "Karakas Büyükelçiliği",
+    "name_en": "Turkish Embassy in Caracas",
+    "city_tr": "Karakas",
+    "city_en": "Caracas",
+    "city_wikidata": "Q1533",
+    "country": "VEN",
+    "url": "https://karakas-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     105.84,
+     21.02
+    ]
+   },
+   "properties": {
+    "id": "tur-hanoi-be",
+    "kind": "embassy",
+    "name_tr": "Hanoi Büyükelçiliği",
+    "name_en": "Turkish Embassy in Hanoi",
+    "city_tr": "Hanoi",
+    "city_en": "Hanoi",
+    "city_wikidata": "Q1858",
+    "country": "VNM",
+    "url": "https://hanoi-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     21.17,
+     42.67
+    ]
+   },
+   "properties": {
+    "id": "tur-pristine-be",
+    "kind": "embassy",
+    "name_tr": "Priştine Büyükelçiliği",
+    "name_en": "Turkish Embassy in Prishtina",
+    "city_tr": "Priştine",
+    "city_en": "Pristina",
+    "city_wikidata": "Q25270",
+    "country": "XKX",
+    "url": "https://pristine-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     20.74,
+     42.23
+    ]
+   },
+   "properties": {
+    "id": "tur-prizren-bk",
+    "kind": "consulate_general",
+    "name_tr": "Prizren Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Prizren",
+    "city_tr": "Prizren",
+    "city_en": "Prizren",
+    "city_wikidata": "Q200061",
+    "country": "XKX",
+    "url": "https://prizren-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     33.95,
+     35.12
+    ]
+   },
+   "properties": {
+    "id": "tur-gazimagusa-bk",
+    "kind": "consulate_general",
+    "name_tr": "Gazimağusa Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Famagusta",
+    "city_tr": "Gazimağusa",
+    "city_en": "Famagusta",
+    "city_wikidata": "Q193190",
+    "country": "XNC",
+    "url": "https://gazimagusa-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": "Contact page (retrieved 2026-09-13) describes the post as a \"Geçici Hizmet Ofisi\" (temporary service office) in Gazimağusa."
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     33.36,
+     35.19
+    ]
+   },
+   "properties": {
+    "id": "tur-lefkosa-be",
+    "kind": "embassy",
+    "name_tr": "Lefkoşa Büyükelçiliği",
+    "name_en": "Turkish Embassy in Nicosia",
+    "city_tr": "Lefkoşa",
+    "city_en": "North Nicosia",
+    "city_wikidata": "Q2762100",
+    "country": "XNC",
+    "url": "https://lefkosa-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     46.71,
+     24.65
+    ]
+   },
+   "properties": {
+    "id": "tur-sana-be",
+    "kind": "embassy",
+    "name_tr": "Sana Büyükelçiliği",
+    "name_en": "Turkish Embassy in Sana'a",
+    "city_tr": "Riyad",
+    "city_en": "Riyadh",
+    "city_wikidata": "Q3692",
+    "country": "YEM",
+    "url": "https://sana-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": "MFA list names the post \"Sana Büyükelçiliği\" (Sanaa, YEM); its contact page (retrieved 2026-09-13) gives the address \"c/o Turkish Embassy in Riyadh\", Saudi Arabia."
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     18.42,
+     -33.93
+    ]
+   },
+   "properties": {
+    "id": "tur-capetown-bk",
+    "kind": "consulate_general",
+    "name_tr": "Cape Town Başkonsolosluğu",
+    "name_en": "Turkish Consulate General in Cape Town",
+    "city_tr": "Cape Town",
+    "city_en": "Cape Town",
+    "city_wikidata": "Q5465",
+    "country": "ZAF",
+    "url": "https://capetown-bk.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     28.19,
+     -25.75
+    ]
+   },
+   "properties": {
+    "id": "tur-pretoria-be",
+    "kind": "embassy",
+    "name_tr": "Pretoria Büyükelçiliği",
+    "name_en": "Turkish Embassy in Pretoria",
+    "city_tr": "Pretoria",
+    "city_en": "Pretoria",
+    "city_wikidata": "Q3926",
+    "country": "ZAF",
+    "url": "https://pretoria-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     28.28,
+     -15.42
+    ]
+   },
+   "properties": {
+    "id": "tur-lusaka-be",
+    "kind": "embassy",
+    "name_tr": "Lusaka Büyükelçiliği",
+    "name_en": "Turkish Embassy in Lusaka",
+    "city_tr": "Lusaka",
+    "city_en": "Lusaka",
+    "city_wikidata": "Q3881",
+    "country": "ZMB",
+    "url": "https://lusaka-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     31.05,
+     -17.83
+    ]
+   },
+   "properties": {
+    "id": "tur-harare-be",
+    "kind": "embassy",
+    "name_tr": "Harare Büyükelçiliği",
+    "name_en": "Turkish Embassy in Harare",
+    "city_tr": "Harare",
+    "city_en": "Harare",
+    "city_wikidata": "Q3921",
+    "country": "ZWE",
+    "url": "https://harare-be.mfa.gov.tr/",
+    "source": "https://www.mfa.gov.tr/yurtdisi-teskilati.tr.mfa",
+    "note": null
+   }
+  }
+ ]
+}

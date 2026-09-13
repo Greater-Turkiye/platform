@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # Keeps SHA-pinned actions current (ARCHITECTURE.md §8).
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+  - package-ecosystem: pip
+    directory: /collectors
+    schedule:
+      interval: weekly
+    groups:
+      python:
+        patterns: ["*"]

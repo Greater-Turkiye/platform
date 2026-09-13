@@ -29,16 +29,16 @@ Phases proceed in order; publishing parts of a phase are not switched on before 
 ### Aşama 2 — İlk toplayıcılar / Phase 2 — First collectors
 
 - [x] D1 şeması: `db/migrations/ops/0001_init.sql`, `db/migrations/signals/0001_init.sql` — D1 schema
-- [ ] Toplayıcı çatısı: `uv` projesi, sinyal modeli, HMAC istemcisi — Collector framework: `uv` project, signal model, HMAC client
-- [ ] Türk kuvvetleri güvenlik filtresi ve testleri (ICAO bloğu, MMSI MID, geofence) — Turkish-forces safety filter and tests
-- [ ] Güvenlik filtresi için test örnekleri (sentetik veri) **(good first issue)** — Test fixtures for the safety filter (synthetic data)
-- [ ] RSS toplayıcı — RSS collector
-- [ ] RSS kaynak listesi: resmî bakanlık/hükümet akışlarını bulup koşullarını not etmek **(good first issue)** — RSS source list: find official feeds and note their terms
+- [x] Toplayıcı çatısı: `uv` projesi, sinyal modeli, HMAC istemcisi — Collector framework: `uv` project, signal model, HMAC client
+- [x] Türk kuvvetleri güvenlik filtresi ve testleri (ICAO bloğu, MMSI MID, geofence) — Turkish-forces safety filter and tests
+- [x] Güvenlik filtresi için test örnekleri (sentetik veri) **(good first issue)** — Test fixtures for the safety filter (synthetic data)
+- [x] RSS toplayıcı — RSS collector
+- [x] RSS kaynak listesi: resmî bakanlık/hükümet akışlarını bulup koşullarını not etmek **(good first issue)** — RSS source list: find official feeds and note their terms ([collectors/sources.md](collectors/sources.md); koşulların bakımcı onayı bekleniyor / terms await maintainer confirmation)
 - [ ] NASA FIRMS toplayıcı — NASA FIRMS collector
 - [ ] `api` Worker: `/v1/ingest` (HMAC, parti ≤100, `content_hash` tekilleştirme) — ingest endpoint
 - [ ] `scheduler` Worker: cron → `workflow_dispatch` — scheduler Worker
 - [ ] GitHub App kaydı ve en az yetkili kurulumlar — GitHub App registration and least-privilege installations
-- [ ] CI: lint, test, SHA'ya sabitlenmiş Actions, Dependabot — CI: lint, tests, SHA-pinned Actions, Dependabot
+- [x] CI: lint, test, SHA'ya sabitlenmiş Actions, Dependabot — CI: lint, tests, SHA-pinned Actions, Dependabot (`collectors-ci.yml`, `.github/dependabot.yml`)
 - [ ] Belgelerdeki kırık bağlantıları denetleyen iş akışı **(good first issue)** — Workflow that checks docs for broken links
 
 ### Aşama 3 — İnceleme / Phase 3 — Review

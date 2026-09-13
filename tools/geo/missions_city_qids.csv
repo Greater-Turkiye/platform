@@ -1,0 +1,253 @@
+web_key,qid,city_tr,city_en,status_note,note,resolved_from
+abidjan-be,Q1515,,,,,Abidjan
+abudhabi-be,Q1519,,,,,Abu Dhabi
+abuja-be,Q3787,,,,,Abuja
+addisababa-be,Q3624,,,,,Addis Ababa
+agit-dt,Q1741,Viyana,,,permanent mission placed at organisation seat; city_tr as spelled in the MFA list,Vienna
+akra-be,Q3761,,,,,Accra
+aktau-bk,Q198989,,,,,Aktau
+almati-bk,Q35493,,,,,Almaty
+amman-be,Q3805,,,,,Amman
+amsterdam-bk,Q727,,,,,Amsterdam
+antananarivo-be,Q3915,,,,,Antananarivo
+anvers-bk,Q12892,,,,,Antwerp
+askabat-be,Q23438,,,,,Ashgabat
+asmara-be,Q3642,,,,,Asmara
+astana-be,Q1520,,,,,Astana
+asuncion-be,Q2933,,,,,Asunción
+atina-be,Q1524,,,,,Athens
+atinapire-bk,Q1524,Atina,,,"MFA name ""Atina - Pire""; contact page address is Paleo Psychiko, Athens",Athens
+avbir-dt,Q239,Brüksel,,,permanent mission placed at organisation seat; city_tr as spelled in the MFA list,Brussels
+avkons-dt,Q6602,Strazburg,,,permanent mission placed at organisation seat; city_tr as spelled in the MFA list,Strasbourg
+bagdat-be,Q1530,,,,,Baghdad
+baku-be,Q9248,,,,,Baku
+bamako-be,Q3703,,,,,Bamako
+bandar-be,Q9279,,,,,Bandar Seri Begawan
+bangkok-be,Q1861,,,,,Bangkok
+banjaluka-bk,Q131127,,,,,Banja Luka
+banjul-be,Q3726,,,,,Banjul
+barselona-bk,Q1492,,,,,Barcelona
+basra-bk,Q48195,,,,,Basra
+batum-bk,Q25475,,,,,Batumi
+belgrad-be,Q3711,,,,,Belgrade
+berlin-be,Q64,,,,,Berlin
+berlin-bk,Q64,,,,,Berlin
+bern-be,Q70,,,,,Bern
+beyrut-be,Q3820,,,"Contact page (retrieved 2026-09-13) gives an address in Rabieh (Metn), adjacent to Beirut; placed at Beirut as named by the MFA.","Contact page address: Rabieh, Zone II, 1st Street, Metn",Beirut
+biskek-be,Q9361,,,,,Bishkek
+bissau-be,Q3739,,,,,Bissau
+bmviyana-dt,Q1741,Viyana,,,permanent mission placed at organisation seat; city_tr as spelled in the MFA list,Vienna
+bogota-be,Q2841,,,,,Bogotá
+bordo-bk,Q1479,,,,,Bordeaux
+boston-bk,Q100,,,,,Boston
+bratislava-be,Q1780,,,,,Bratislava
+brazavil-be,Q3844,,,,,Brazzaville
+bregenz-bk,Q1737,,,"Contact page (retrieved 2026-09-13) gives an address in Wolfurt, a municipality adjacent to Bregenz; placed at Bregenz as named by the MFA.","Contact page address: Senderstr. 10, 6922 Wolfurt",Bregenz
+brezilya-be,Q2844,,,,,Brasília
+bruksel-be,Q239,,,,,Brussels
+bruksel-bk,Q239,,,,,Brussels
+budapeste-be,Q1781,,,,,Budapest
+buenosaires-be,Q1486,,,,,Buenos Aires
+bujumbura-be,Q3854,,,,,Bujumbura
+bukres-be,Q19660,,,,,Bucharest
+burgaz-bk,Q6509,,,,,Burgas
+cakarta-be,Q3630,,,,,Jakarta
+capetown-bk,Q5465,,,,,Cape Town
+cenevre-bk,Q71,,,,,Geneva
+cenevreofisi-dt,Q71,Cenevre,,,permanent mission placed at organisation seat; city_tr as spelled in the MFA list,Geneva
+cengdu-bk,Q30002,,,,,Chengdu
+cezayir-be,Q3561,,,,,Algiers
+cibuti-be,Q3604,,,,label match returned the country item; city item chosen,Djibouti
+cidde-bk,Q374365,,,,,Jeddah
+dakar-be,Q3718,,,,,Dakar
+dakka-be,Q1354,,,,,Dhaka
+darusselam-be,Q1960,,,,,Dar es Salaam
+deventer-bk,Q10001,,,,,Deventer
+doha-be,Q3861,,,,,Doha
+dto-dt,Q71,Cenevre,,,permanent mission placed at organisation seat; city_tr as spelled in the MFA list,Geneva
+dubai-bk,Q612,,,,,Dubai
+dublin-be,Q1761,,,,,Dublin
+dusanbe-be,Q9365,,,,,Dushanbe
+dusseldorf-bk,Q1718,,,,,Düsseldorf
+edinburg-bk,Q23436,,,,,Edinburgh
+encemine-be,Q3659,,,,,N'Djamena
+erbil-bk,Q132754,,,,,Erbil
+essen-bk,Q2066,,,,,Essen
+filibe-bk,Q459,,,,,Plovdiv
+frankfurt-bk,Q1794,,,,,Frankfurt
+freetown-be,Q3780,,,,,Freetown
+gaboron-be,Q3919,,,,,Gaborone
+gazimagusa-bk,Q193190,,,"Contact page (retrieved 2026-09-13) describes the post as a ""Geçici Hizmet Ofisi"" (temporary service office) in Gazimağusa.",,Famagusta
+gence-bk,Q131290,,,,,Ganja
+guangzhou-bk,Q16572,,,,,Guangzhou
+guatemala-be,Q1555,,,,,Guatemala City
+gumulcine-bk,Q208403,,,,,Komotini
+halep-bk,Q41183,,,,,Aleppo
+hamburg-bk,Q1055,,,,,Hamburg
+hannover-bk,Q1715,,,,,Hannover
+hanoi-be,Q1858,,,,,Hanoi
+harare-be,Q3921,,,,,Harare
+hargeysa-bk,Q168652,,,,,Hargeisa
+hartum-be,Q208718,Port Sudan,,"MFA list names the post ""Hartum Büyükelçiliği"" (Khartoum); its contact page (retrieved 2026-09-13) gives an address in Port Sudan.","MFA list name ""Hartum""; contact page address is Port Sudan",Khartoum
+havana-be,Q1563,,,,,Havana
+haydarabad-bk,Q1361,,,,,Hyderabad
+helsinki-be,Q1757,,,,,Helsinki
+hongkong-bk,Q8646,,,,,Hong Kong
+houston-bk,Q16555,,,,,Houston
+icao-dt,Q340,Montreal,,,permanent mission placed at organisation seat; city_tr as spelled in the MFA list,Montreal
+iit-dt,Q374365,Cidde,,,permanent mission placed at organisation seat; city_tr as spelled in the MFA list,Jeddah
+iskenderiye-bk,Q87,,,,,Alexandria
+islamabad-be,Q1362,,,,,Islamabad
+juba-be,Q1947,,,,,Juba
+kabil-be,Q5838,,,,,Kabul
+kahire-be,Q85,,,,,Cairo
+kampala-be,Q3894,,,,,Kampala
+kanberra-be,Q3114,,,,,Canberra
+karaci-bk,Q8660,,,,,Karachi
+karakas-be,Q1533,,,,,Caracas
+karlsruhe-bk,Q1040,,,,,Karlsruhe
+kassel-bk,Q2865,,,,,Kassel
+kazan-bk,Q900,,,,,Kazan
+kiev-be,Q1899,,,,,Kyiv
+kigali-be,Q3859,,,,,Kigali
+kinsasa-be,Q3838,,,,,Kinshasa
+kisinev-be,Q21197,,,,,Chișinău
+kito-be,Q2900,,,,,Quito
+koln-bk,Q365,,,,,Cologne
+kolombo-be,Q35381,,,,,Colombo
+komrat-bk,Q241122,,,,,Comrat
+konakri-be,Q3733,,,,,Conakry
+kopenhag-be,Q1748,,,,,Copenhagen
+kostence-bk,Q79808,,,,,Constanța
+kotonu-be,Q43595,,,,,Cotonou
+krasnodar-bk,Q3646,,,,,Krasnodar
+kualalumpur-be,Q1865,,,,,Kuala Lumpur
+kudus-bk,Q1218,,,,,Jerusalem
+kuveyt-be,Q35178,,,,,Kuwait City
+lahey-be,Q36600,,,,,The Hague
+lahor-bk,Q11739,,,,,Lahore
+lapaz-be,Q1491,,,,,La Paz
+lefkosa-be,Q2762100,,,,"Lefkoşa (North Nicosia), capital of the KKTC",Nicosia
+librevil-be,Q3825,,,,,Libreville
+lima-be,Q2868,,,,,Lima
+lizbon-be,Q597,,,,,Lisbon
+ljubljana-be,Q437,,,,,Ljubljana
+lome-be,Q3792,,,,,Lomé
+londra-be,Q84,,,,,London
+londra-bk,Q84,,,,,London
+losangeles-bk,Q65,,,"Contact page (retrieved 2026-09-13) gives an address in Beverly Hills, adjacent to Los Angeles; placed at Los Angeles as named by the MFA.","Contact page address: 8500 Wilshire Blvd. Suite 900, Beverly Hills, CA 90211",Los Angeles
+luanda-be,Q3897,,,,,Luanda
+luksemburg-be,Q1842,,,,label match returned the country item; city item chosen,Luxembourg
+lusaka-be,Q3881,,,,,Lusaka
+lyon-bk,Q456,,,,,Lyon
+madrid-be,Q2807,,,,,Madrid
+mainz-bk,Q1720,,,,,Mainz
+malabo-be,Q3818,,,,,Malabo
+manama-be,Q3882,,,,,Manama
+manchester-bk,Q18125,,,,,Manchester
+manila-be,Q1461,,,,,Manila
+maputo-be,Q3889,,,,,Maputo
+marsilya-bk,Q23482,,,,,Marseille
+meksika-be,Q1489,,,,,Mexico City
+melburn-bk,Q3141,,,,,Melbourne
+meshed-bk,Q121157,,,,,Mashhad
+miami-bk,Q8652,,,,,Miami
+milano-bk,Q490,,,,,Milan
+minsk-be,Q2280,,,,,Minsk
+misurata-bk,Q131323,,Misrata,,Wikidata English label is wrong (Arabic text); enwiki sitelink = Misrata,Misrata
+mogadisu-be,Q2449,,,,,Mogadishu
+montevideo-be,Q1335,,,,,Montevideo
+montreal-bk,Q340,,,,,Montreal
+moskova-be,Q649,,,,,Moscow
+mostar-bk,Q93347,,,,,Mostar
+mserif-bk,Q130469,,,,,Mazar-i-Sharif
+mumbai-bk,Q1156,,,,,Mumbai
+munih-bk,Q1726,,,,,Munich
+munster-bk,Q2742,,,,,Münster
+muskat-be,Q3826,,,,,Muscat
+musul-bk,Q83317,,,,,Mosul
+nagoya-bk,Q11751,,,,,Nagoya
+nahcivan-bk,Q230104,,,,,Nakhchivan
+nairobi-be,Q3870,,,,,Nairobi
+nant-bk,Q12191,,,,,Nantes
+nato-dt,Q239,Brüksel,,,permanent mission placed at organisation seat; city_tr as spelled in the MFA list,Brussels
+nepido-be,Q37995,Yangon,,"MFA list names the post ""Nepido Büyükelçiliği""; its contact page (retrieved 2026-09-13) gives an address in Yangon.","MFA list name ""Nepido""; contact page address is Mayangone Township, Yangon",Naypyidaw
+newyork-bk,Q60,,,,label match returned the US state; city item chosen,New York
+niamey-be,Q3674,,,,,Niamey
+nuaksot-be,Q3688,,,,,Nouakchott
+nurnberg-bk,Q2090,,,,,Nuremberg
+odessa-bk,Q1874,,,,,Odesa
+oecd-dt,Q90,Paris,,,permanent mission placed at organisation seat; city_tr as spelled in the MFA list,Paris
+oslo-be,Q585,,,,,Oslo
+ottava-be,Q1930,,,,,Ottawa
+panama-be,Q3306,,,,,Panama City
+paris-be,Q90,,,,,Paris
+paris-bk,Q90,,,"Contact page (retrieved 2026-09-13) gives an address in Boulogne-Billancourt, adjacent to Paris; placed at Paris as named by the MFA.",Contact page address: 44 rue de Sèvres 92100 Boulogne-Billancourt,Paris
+pekin-be,Q956,,,,,Beijing
+podgorica-be,Q23564,,,,,Podgorica
+portofspain-be,Q39178,,,,,Port of Spain
+prag-be,Q1085,,,,,Prague
+pretoria-be,Q3926,,,,,Pretoria
+pristine-be,Q25270,,,,Kosovo has no P298 on Wikidata; resolved manually,Pristina
+prizren-bk,Q200061,,,,Kosovo has no P298 on Wikidata; resolved manually,Prizren
+punompen-be,Q1850,,,,,Phnom Penh
+rabat-be,Q3551,,,,,Rabat
+riga-be,Q1773,,,,,Riga
+riyad-be,Q3692,,,,,Riyadh
+rodos-bk,Q188731,,,,label match returned the island; city item chosen,Rhodes
+roma-be,Q220,,,,,Rome
+rotterdam-bk,Q34370,,,,,Rotterdam
+salzburg-bk,Q34713,,,,,Salzburg
+sam-be,Q3766,,,,,Damascus
+sana-be,Q3692,Riyad,,"MFA list names the post ""Sana Büyükelçiliği"" (Sanaa, YEM); its contact page (retrieved 2026-09-13) gives the address ""c/o Turkish Embassy in Riyadh"", Saudi Arabia.","Contact page address is ""c/o Turkish Embassy in Riyadh""",Sana'a
+sanghay-bk,Q8686,,,,,Shanghai
+sanhose-be,Q3070,,,,,San José
+santiago-be,Q2887,,,,,Santiago
+santodomingo-be,Q34820,,,,,Santo Domingo
+saopaulo-bk,Q174,,,,,São Paulo
+saraybosna-be,Q11194,,,,,Sarajevo
+selanik-bk,Q17151,,,,,Thessaloniki
+semerkant-bk,Q5753,,,,,Samarkand
+seul-be,Q8684,,,,,Seoul
+sidney-bk,Q3130,,,,,Sydney
+sikago-bk,Q1297,,,,,Chicago
+singapur-be,Q334,,,,,Singapore
+sofya-be,Q472,,,,,Sofia
+stokholm-be,Q1754,,,,,Stockholm
+stpetersburg-bk,Q656,,,,"MFA English name ""St. Petersburg""",St. Petersburg
+strazburg-bk,Q6602,,,,,Strasbourg
+stuttgart-bk,Q1022,,,,,Stuttgart
+tahran-be,Q3616,,,,,Tehran
+tallin-be,Q1770,,,,,Tallinn
+taskent-be,Q269,,,,,Tashkent
+tebriz-bk,Q80053,,,,,Tabriz
+telaviv-be,Q33935,,,,,Tel Aviv
+tiflis-be,Q994,,,,,Tbilisi
+tiran-be,Q19689,,,,,Tirana
+tokyo-be,Q1490,,,,,Tokyo
+toronto-bk,Q172,,,,,Toronto
+trablus-be,Q3579,,,,,Tripoli
+tunus-be,Q3572,,,,,Tunis
+turkistan-bk,Q848638,,,,label match returned the historical region; city item chosen,Turkistan
+turkuno-dt,Q60,New York,,,permanent mission placed at organisation seat; city_tr as spelled in the MFA list,New York City
+ugudugu-be,Q3777,,,,,Ouagadougou
+ulanbator-be,Q23430,,,,,Ulaanbaatar
+unesco-dt,Q90,Paris,,,permanent mission placed at organisation seat; city_tr as spelled in the MFA list,Paris
+urumiye-bk,Q179665,,,,,Urmia
+uskup-be,Q384,,,,,Skopje
+valetta-be,Q23800,,,"Contact page (retrieved 2026-09-13) gives an address in Floriana, adjacent to Valletta; placed at Valletta as named by the MFA.","Contact page address: 35, Sir Luigi Preziosi Square FRN-1154, Floriana",Valletta
+vancouver-bk,Q24639,,,,,Vancouver
+varsova-be,Q270,,,,,Warsaw
+vasington-be,Q61,,,,,"Washington, D.C."
+vatikan-be,Q220,Roma,,"Embassy accredited to the Holy See (VAT); its contact page (retrieved 2026-09-13) gives an address in Rome, Italy.","Embassy to the Holy See; contact page address is Via Serchio 9-11, 00198 Roma",Vatican City
+vilnius-be,Q216,,,,,Vilnius
+viyana-be,Q1741,,,,,Vienna
+viyana-bk,Q1741,,,,,Vienna
+viyentiyan-be,Q9326,,,,,Vientiane
+wellington-be,Q23661,,,,,Wellington
+windhoek-be,Q3935,,,,,Windhoek
+yaounde-be,Q3808,,,,,Yaoundé
+yenidelhi-be,Q987,,,,,New Delhi
+yenipazar-bk,Q202453,,,,,Novi Pazar
+zagreb-be,Q1435,,,,,Zagreb
+zurih-bk,Q72,,,,,Zürich
