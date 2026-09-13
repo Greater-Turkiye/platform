@@ -1,9 +1,9 @@
 # Deniz yetki alanları ve adalar — kaynaklar / Maritime jurisdiction and islands — sources
 
-[Türkçe](#türkçe) · [English](#english) · [Şematik alanlar / Schematic areas](#şematik-alanlar--schematic-areas) · [KKTC ruhsat sahaları / TRNC licence areas](#kktc-ruhsat-sahaları--trnc-licence-areas) · [Kaynak belgeler / Source documents](#kaynak-belgeler--source-documents) · [Doğrulama / Validation](#doğrulama--validation)
+[Türkçe](#türkçe) · [English](#english) · [Şematik alanlar / Schematic areas](#şematik-alanlar--schematic-areas) · [Marmara ve Boğazlar / Marmara and the Straits](#marmara-denizi-ve-türk-boğazları--sea-of-marmara-and-the-turkish-straits) · [KKTC ruhsat sahaları / TRNC licence areas](#kktc-ruhsat-sahaları--trnc-licence-areas) · [Kaynak belgeler / Source documents](#kaynak-belgeler--source-documents) · [Doğrulama / Validation](#doğrulama--validation)
 
 Dosyalar / Files: `maritime-tur.geojson`, `islands-tur.geojson`
-Üretim / Build: `python tools/geo/build_maritime.py [--cache DIR] [--preview out.png] [--no-schematic] [--no-kktc]` (shapely ≥ 2.1, pyshp; şematik alanlar için ayrıca / for the schematic areas also numpy, scipy, contourpy; KKTC ruhsat sahaları için / for the TRNC licence areas pyproj ≥ 3.6; matplotlib yalnızca önizleme için / only for the preview). Yalnızca şematik alanları yeniden üretmek için / To rebuild only the schematic areas: `python tools/geo/build_maritime_schematic.py [--cache DIR]` (KKTC ruhsat sahalarını korur, birleşik alanı yeniden üretir / keeps the TRNC licence areas and rebuilds the merged area). Yalnızca KKTC ruhsat sahaları ve birleşik alan / Only the TRNC licence areas and the merged area: `python tools/geo/build_kktc_licences.py [--cache DIR] [--preview kktc-preview.png]` (köşe tabloları / corner tables: `tools/geo/kktc_licences.csv`)
+Üretim / Build: `python tools/geo/build_maritime.py [--cache DIR] [--preview out.png] [--no-schematic] [--no-kktc] [--no-marmara]` (shapely ≥ 2.1, pyshp; şematik alanlar için ayrıca / for the schematic areas also numpy, scipy, contourpy; KKTC ruhsat sahaları için / for the TRNC licence areas pyproj ≥ 3.6; matplotlib yalnızca önizleme için / only for the preview). Yalnızca şematik alanları yeniden üretmek için / To rebuild only the schematic areas: `python tools/geo/build_maritime_schematic.py [--cache DIR]` (KKTC ruhsat sahalarını korur, birleşik alanı yeniden üretir / keeps the TRNC licence areas and rebuilds the merged area). Yalnızca KKTC ruhsat sahaları ve birleşik alan / Only the TRNC licence areas and the merged area: `python tools/geo/build_kktc_licences.py [--cache DIR] [--preview kktc-preview.png]` (köşe tabloları / corner tables: `tools/geo/kktc_licences.csv`). Yalnızca Marmara Denizi ve Boğazlar / Only the Sea of Marmara and the Straits: `python tools/geo/build_marmara_straits.py [--cache DIR]`. Her yol öğeleri aynı sırayla yazar (`build_maritime.FEATURE_ORDER`); kısmi üretimler tam üretimle bayt bayt aynıdır. / Every path writes the features in the same order (`build_maritime.FEATURE_ORDER`), so partial rebuilds are byte-identical to a full one.
 Erişim tarihi / Accessed: 2026-09-13
 
 > **Türkiye'nin tutumu / Türkiye's position.** `status: "claimed"` taşıyan ve `position_tr/position_en` alanı olan her öğe Türkiye'nin BM'ye bildirdiği ya da Dışişleri Bakanlığı'nın açıkladığı tutumdur; tartışmasız bir olgu olarak sunulmamalıdır. Harita bu öğeleri "Türkiye'nin tutumu / Türkiye's position" etiketiyle göstermelidir.
@@ -15,6 +15,9 @@ Erişim tarihi / Accessed: 2026-09-13
 > **KKTC ruhsat sahası / TRNC licence area.** `status: "licence"` (`kind: "kktc-licence"`) taşıyan yedi poligon (`kktc-licence-A` … `-G`), KKTC Bakanlar Kurulu'nun TPAO'ya verdiği deniz ruhsat sahalarıdır; köşeleri **resmî** (KKTC Resmî Gazete Sayı 161, 22.9.2011). Bunlar KKTC'nin ve Türkiye'nin tutumudur; GKRY ve Yunanistan itiraz eder. Yeni durum değeri henüz sitede ayrıca biçimlendirilmemiştir (şimdilik `schematic` dışı her poligon gibi düz dolgu); harita bunları "KKTC ruhsat sahası — KKTC'nin ve Türkiye'nin tutumu" diye etiketlemelidir.
 > The seven `status: "licence"` (`kind: "kktc-licence"`) polygons (`kktc-licence-A` … `-G`) are the offshore licence areas the TRNC Council of Ministers granted to TPAO; their corners are **official** (TRNC Official Gazette No. 161, 22 Sep 2011). They are the TRNC's and Türkiye's position, contested by the Greek Cypriot Administration and Greece. The new status value is not yet styled on the site (for now it gets the solid fill of every non-`schematic` polygon); the map should label them "TRNC licence area — the TRNC's and Türkiye's position".
 
+> **Marmara Denizi ve Boğazlar / Sea of Marmara and the Straits.** `tur-marmara-straits` (`status: "agreed"`, `kind: "internal-waters"`) İstanbul Boğazı, Marmara Denizi ve Çanakkale Boğazı'nı tek alan olarak gösterir: Marmara Denizi Türk iç suları, Boğazlar Türk karasularıdır; geçiş rejimi 1936 Montrö Sözleşmesi'dir. Tartışmalı değildir (`contested: false`). Sitenin `agreed` göstergesindeki "Anlaşmayla belirlenmiş" ifadesi bu öğe için tam uymaz; `kind` ile ayrı etiketlenebilir.
+> `tur-marmara-straits` (`status: "agreed"`, `kind: "internal-waters"`) shows the Istanbul Strait, the Sea of Marmara and the Çanakkale Strait as one area: the Sea of Marmara is Turkish internal waters, the Straits are Turkish territorial waters, and passage is governed by the 1936 Montreux Convention. It is not contested (`contested: false`). The site's legend text for `agreed` ("Set by agreement") does not quite fit this feature; it can be labelled separately by `kind`.
+
 ---
 
 ## Türkçe
@@ -24,6 +27,7 @@ Erişim tarihi / Accessed: 2026-09-13
 | Öğe (`id`) | Geometri | Durum | Dayanak | Koordinat kaynağı |
 |---|---|---|---|---|
 | `tur-blacksea-eez` | Poligon (930 köşe) | `agreed` | 1973, 1978, 1986/87 (SSCB), 1997 (Bulgaristan, Gürcistan) anlaşmaları; 86/11264 sayılı BKK | Marine Regions (VLIZ) "Turkish Exclusive Economic Zone", MRGID 5697 — CC BY 4.0; antlaşma koordinatlarıyla karşılaştırıldı |
+| `tur-marmara-straits` | Poligon (1 395 köşe) | `agreed` (`kind: "internal-waters"`) | Marmara Denizi: Türk iç suları; İstanbul ve Çanakkale Boğazları: Türk karasuları (2674 sayılı Kanun md. I, IV); geçiş: 1936 Montrö Sözleşmesi | IHO Deniz Alanları "Sea of Marmara" (Marine Regions MRGID 3369, CC BY 4.0) — bkz. [Marmara ve Boğazlar](#marmara-denizi-ve-türk-boğazları--sea-of-marmara-and-the-turkish-straits) |
 | `tur-med-cs-a74550-a` | Çizgi (23 nokta) | `claimed` | A/74/550 ek, bölüm A — 2011 Türkiye–KKTC Kıta Sahanlığı Sınırlandırma Anlaşması | A/74/550 (resmî koordinat listesi) |
 | `tur-med-cs-a74550-b` | Çizgi (14 nokta, A–N) | `claimed` | A/74/550 ek, bölüm B — Türkiye ve Mısır kıyıları arası orta hat, 28°D – 32°16'18"D | A/74/550 |
 | `tur-med-cs-a74550-c` | Çoklu çizgi | `claimed` | A/74/550 ek, bölüm C — 32°16'18"D boylamı, "yabancı karasuları hariç" | A/74/550; Kıbrıs 12 dm karasuları Marine Regions (CC BY 4.0) ile çıkarıldı |
@@ -84,6 +88,7 @@ Bu çizgiler değiştirilmedi. Alanı dolgu olarak göstermek için ayrıca **ş
 | Feature (`id`) | Geometry | Status | Basis | Coordinate source |
 |---|---|---|---|---|
 | `tur-blacksea-eez` | Polygon (930 vertices) | `agreed` | 1973, 1978, 1986/87 (USSR), 1997 (Bulgaria, Georgia) agreements; Decree 86/11264 | Marine Regions (VLIZ) "Turkish Exclusive Economic Zone", MRGID 5697 — CC BY 4.0; cross-checked against treaty coordinates |
+| `tur-marmara-straits` | Polygon (1,395 vertices) | `agreed` (`kind: "internal-waters"`) | Sea of Marmara: Turkish internal waters; Istanbul and Çanakkale Straits: Turkish territorial waters (Act No. 2674, Arts. I, IV); passage: 1936 Montreux Convention | IHO Sea Areas "Sea of Marmara" (Marine Regions MRGID 3369, CC BY 4.0), see [Marmara and the Straits](#marmara-denizi-ve-türk-boğazları--sea-of-marmara-and-the-turkish-straits) |
 | `tur-med-cs-a74550-a` | Line (23 points) | `claimed` | A/74/550 annex, section A — 2011 Türkiye–TRNC Continental Shelf Delimitation Agreement | A/74/550 (official coordinate list) |
 | `tur-med-cs-a74550-b` | Line (14 points, A–N) | `claimed` | A/74/550 annex, section B — median line between the Turkish and Egyptian coasts, 28°E – 32°16'18"E | A/74/550 |
 | `tur-med-cs-a74550-c` | MultiLine | `claimed` | A/74/550 annex, section C — meridian 32°16'18"E, "except foreign territorial waters" | A/74/550; Cyprus 12-nm territorial sea removed using Marine Regions (CC BY 4.0) |
@@ -163,7 +168,7 @@ These lines are unchanged. To show the area as a fill, a separate **schematic** 
 **Ege (`tur-aegean-schematic`).**
 - Türkiye ana karası ile Yunanistan ana karası kıyıları arasındaki **orta (eşit uzaklık) hattı**, iki taraftaki **tüm adalar yok sayılarak** hesaplandı. Hat, Meriç ağzındaki kara sınırı ucundan (NE 10m: 40,7385°K 26,0440°D; hatta uzaklığı 117 m) güneye iner ve Girit'i ~25,40°D'de keser; Türkiye tarafı alındı.
 - Her Yunan adası ve adacığının 6 dm karasuları çıkarıldı (yukarıdaki 3. madde). **Türk adaları** (Gökçeada, Bozcaada vb.) alan içinde kaldı; yalnızca kara parçaları çıkarıldı. Natural Earth 10m'de bulunmayan küçük Türk adacıkları (ör. Tavşan Adaları) kara olarak çıkarılamadığından dolgunun altında kalır.
-- Kuzeyde Çanakkale Boğazı, IHO'nun Kumkale–Seddülbahir (Cape Helles) hattında kesildi (40,0428°K 26,1741°D – 40,0060°K 26,2114°D); Marmara alana dahil değildir.
+- Kuzeyde Çanakkale Boğazı, IHO'nun Kumkale–Seddülbahir (Cape Helles) hattında kesildi (40,0428°K 26,1741°D – 40,0060°K 26,2114°D); Marmara alana dahil değildir. Marmara Denizi ve Boğazlar ayrı bir öğedir (`tur-marmara-straits`).
 - Alan kıyıdan başlar; Türk iç suları ve karasuları dahildir.
 
 **Doğu Akdeniz (`tur-med-schematic`).**
@@ -196,7 +201,7 @@ These lines are unchanged. To show the area as a fill, a separate **schematic** 
 **Aegean (`tur-aegean-schematic`).**
 - **Median (equidistance) line** between the Turkish mainland and Greek mainland coasts, **ignoring all islands** on both sides. It starts at the land-border terminus at the Evros/Meriç mouth (NE 10m: 40.7385°N 26.0440°E; 117 m from the line), runs south and crosses Crete at ~25.40°E; Türkiye's side is kept.
 - The 6-nm territorial sea of every Greek island and islet is removed (item 3 above). **Turkish islands** (Gökçeada, Bozcaada, etc.) stay inside the area; only their land is removed. Small Turkish islets that are not in Natural Earth 10m (e.g. Tavşan Adaları) cannot be removed as land and lie under the fill.
-- In the north the Dardanelles are cut at the IHO Kumkale–Cape Helles line (40.0428°N 26.1741°E – 40.0060°N 26.2114°E); the Sea of Marmara is not included.
+- In the north the Dardanelles are cut at the IHO Kumkale–Cape Helles line (40.0428°N 26.1741°E – 40.0060°N 26.2114°E); the Sea of Marmara is not included. The Sea of Marmara and the Straits are a separate feature (`tur-marmara-straits`).
 - The area starts at the coast and includes Turkish internal waters and territorial sea.
 
 **Eastern Mediterranean (`tur-med-schematic`).**
@@ -216,6 +221,62 @@ These lines are unchanged. To show the area as a fill, a separate **schematic** 
 - The Aegean/Mediterranean split is the IHO cartographic limit, not a legal one.
 - Because of generalisation the areas stand ~150 m to ~1 km off coasts and foreign territorial seas; this does not imply a jurisdictional gap.
 - **Fix (Black Sea piece).** The previous version of `tur-med-schematic` (and so of `tur-kktc-med-merged`) contained a detached 140.5 km² strip of the Black Sea off Sakarya (41.09–41.12°N, 30.71–31.28°E). Cause: the envelope's closing edge along 41°N over land (37°E → 22°E) was treated as a straight chord in the metric (LAEA) steps, so it bulged to 41.23°N at 31°E and crossed the Black Sea coast. Now only parts touching the IHO Aegean Sea or Eastern Mediterranean basin are kept. The build also asserts that both schematic areas stay south of 41°N and that the Aegean area touches the Sea of Marmara at most along the Dardanelles closing line. The Aegean area is unchanged: it has no detached part in the Black Sea or the Marmara, and its northernmost point is 40.75°N (the Evros/Meriç mouth).
+
+---
+
+## Marmara Denizi ve Türk Boğazları / Sea of Marmara and the Turkish Straits
+
+| `id` | Geometri / Geometry | Durum / Status | Alan / Area | Köşe / Vertices |
+|---|---|---|---|---|
+| `tur-marmara-straits` | Polygon (1 parça / part; 25 delik — adalar / holes — islands) | `agreed`, `kind: "internal-waters"`, `contested: false` | ≈ 11,434 km² | 1,395 |
+
+### Türkçe
+
+**Kapsam.** İstanbul Boğazı, Marmara Denizi ve Çanakkale Boğazı, tek alan olarak. Dışişleri Bakanlığı'na göre Türk Boğazları "İstanbul ve Çanakkale Boğazları ile Marmara Denizi'nden oluşan" bir su yolları sistemidir. 1994 Tüzüğü de "Boğazlar ve Marmara bölgesi"ni Marmara Denizi, İstanbul Boğazı ve Çanakkale Boğazı'nı kapsayan deniz alanı olarak tanımlar (Türk Boğazları ve Marmara Bölgesi Deniz Trafik Düzeni Tüzüğü, 1 Temmuz 1994; DOALOS İngilizce metni, md. 2(b)).
+
+**Hukuki durum (öğenin `basis`/`position` alanları).** Marmara Denizi Türk iç sularıdır; İstanbul ve Çanakkale Boğazları Türk karasularıdır; Boğazlardan geçiş 1936 Montrö Sözleşmesi'ne tabidir. Kaynak metinlerde ifade şöyledir:
+- **2674 sayılı Karasuları Kanunu** (20 Mayıs 1982): md. I, Türkiye'nin egemenliği kara ülkesinin ötesinde karasularına uzanır, genişlik 6 deniz milidir; md. IV, esas hatların kara tarafındaki sular ve körfezlerin suları iç sulardır. Kanun Marmara Denizi'ni adıyla anmaz; esas hatlar "resmî büyük ölçekli haritalarda" gösterilir (md. V) ve bu projede bulunamamıştır. "Marmara = iç sular" sınıflandırması bu nedenle Türkiye'nin tutumu olarak verilmiştir (kıyılarının tamamı Türkiye'dedir).
+- **Montrö Boğazlar Rejimine İlişkin Sözleşme** (Montrö, 20 Temmuz 1936; LNTS c. 173): önsöz, "Çanakkale Boğazı, Marmara Denizi ve İstanbul Boğazı"nı "'Boğazlar' genel adı altında" toplar (UK Treaty Series No. 30 (1937), İngilizce çeviri s. 351). Dışişleri Bakanlığı'na göre ticaret gemileri geçiş serbestisinden yararlanır, savaş gemilerinin geçişi ise Karadeniz'e kıyıdaş olup olmamalarına göre değişen kısıtlamalara tabidir. Bakanlık Boğazların "Türkiye'nin yetkisi altında" olduğunu belirtir.
+
+**Geometri.**
+1. **Kaynak.** IHO S-23 (1953) "Sea of Marmara" (Marine Regions MRGID 3369, CC BY 4.0), 11 651 km². Boğazları ağızlarına kadar içerir. IHO sınırları, 1994 Tüzüğü'nün giriş hatlarıdır:
+   - İstanbul Boğazı kuzey girişi 41,2329°K 29,1162°D – 41,2191°K 29,1533°D (3,5 km), md. 2(l) "Anadolu Feneri – Türkeli Feneri";
+   - Çanakkale Boğazı güney girişi 40,0060°K 26,2114°D – 40,0244°K 26,1928°D (2,6 km), md. 2(o) "Mehmetçik Burnu Feneri – Kumkale Feneri".
+2. **Suya kırpma.** Natural Earth 10m kara çıkarıldı. Ancak NE 10m (1:10 milyon) İstanbul Boğazı'nı kapatır (Avrupa ve Asya tek kara poligonudur) ve Çanakkale Boğazı'nı daraltır. Bu yüzden iki boğaz koridorunda (28,90–29,25°D × 40,98–41,25°K ve 26,10–26,75°D × 39,95–40,47°K) IHO poligonunun kendi kıyı çizgisi kullanıldı. Sonuç, bu koridorlarda NE 10m kara ile 42,6 km² örtüşür.
+3. **Komşular.**
+   - Karadeniz MEB'i (`tur-blacksea-eez`) İstanbul Boğazı'nda 41°13'K'de kesilmiştir. Bu alan da orada durur, ikisi aynı düz ızgara kenarını paylaşır: örtüşme ve aralık yoktur. Boğaz'ın 41°13'K ile Türkeli–Anadolu hattı arasındaki 0,3–1,8 km'lik kuzey ucu Karadeniz öğesinin içindedir.
+   - Çanakkale ağzında Ege şematik alanı aynı IHO hattı boyunca ~1 m uzaklıkta uzanır. 4 ondalığa yuvarlamanın örtüşme yaratmaması için Ege alanından ~13 m pay bırakıldı; aralık ≈ 11 m'dir.
+4. **Genelleştirme.** 100 m sadeleştirme (Karadeniz poligonuyla aynı), 1e-4° ızgara, RFC 7946 yönü (dış halka saat yönü tersine). 5 km²'den küçük kopuk parçalar atıldı (1 parça, 0,1 km²). NE 10m ve IHO'daki adalar delik olarak kalır (25 delik); NE 10m'de olmayan küçük adacıklar dolgunun altında kalabilir.
+5. **Denetimler.** Tek parça; diğer tüm öğelerle örtüşme 0; iki boğaz da 250 m aşındırmadan sonra açık kalır (her yerde ≥ 500 m genişlik). Şematik alanlar için 41°K denetimi aynen korunur; bu öğe ayrıdır.
+
+**Uyarılar.**
+- Geometri hukuki bir sınır değil, IHO'nun kartografik deniz alanıdır; ağız hatları Tüzük'teki giriş hatlarıyla örtüşür. Esas hatlar ve karasuları dış sınırı ayrıca çizilmedi.
+- Boğaz koridorlarında dolgu, sitenin çizdiği Natural Earth 50m karanın üzerine taşabilir (dar su yolunun görünür kalması için bilinçli seçim).
+- `agreed` durumu, alanın Karadeniz MEB'i gibi düz mavi çizilmesi içindir; alan bir anlaşmayla değil, Türkiye'nin egemenliğiyle belirlenir.
+
+### English
+
+**Coverage.** The Istanbul Strait, the Sea of Marmara and the Çanakkale Strait, as one area. According to the Ministry of Foreign Affairs, the Turkish Straits are "a unique system of waterways consisting of Istanbul and Çanakkale Straits and the Marmara Sea". The 1994 Regulations define "the Straits and the Marmara region" as "the maritime area comprising the Sea of Marmara, the Strait of Istanbul (the Bosphorus), the Strait of Canakkale (the Dardanelles)…" (Maritime Traffic Regulations for the Turkish Straits and the Marmara Region, in force 1 July 1994; DOALOS English text, Art. 2(b)).
+
+**Legal status (the feature's `basis`/`position` fields).** The Sea of Marmara is Turkish internal waters; the Istanbul and Çanakkale Straits are Turkish territorial waters; passage through the Straits is governed by the 1936 Montreux Convention. What the source texts say:
+- **Act No. 2674 on the Territorial Sea** (20 May 1982): Art. I says Türkiye's sovereignty extends beyond its land territory to its territorial sea, whose breadth is six nautical miles. Art. IV says the waters on the land side of the baselines and the waters of bays are internal waters. The Act does not name the Sea of Marmara; the baselines are to be "marked on official large-scale maps" (Art. V), which this project did not find. The "Marmara = internal waters" classification is therefore given as Türkiye's position (its coasts are entirely Turkish).
+- **Montreux Convention Regarding the Regime of the Straits** (Montreux, 20 July 1936; LNTS vol. 173): the preamble covers "the Straits of the Dardanelles, the Sea of Marmora and the Bosphorus comprised under the general term 'Straits'" (UK Treaty Series No. 30 (1937), English translation p. 351). According to the MFA, merchant vessels enjoy freedom of passage, while the passage of warships is subject to restrictions that vary depending on whether they belong to Black Sea littoral states. The MFA also describes the Straits as under "Türkiye's jurisdiction".
+
+**Geometry.**
+1. **Source.** IHO S-23 (1953) "Sea of Marmara" (Marine Regions MRGID 3369, CC BY 4.0), 11,651 km², which includes the Straits up to their mouths. Its limits there are the entrance lines of the 1994 Regulations:
+   - northern entrance of the Istanbul Strait, 41.2329°N 29.1162°E – 41.2191°N 29.1533°E (3.5 km), Art. 2(l) "Anadolu Lighthouse – Turkeli Lighthouse";
+   - southern entrance of the Çanakkale Strait, 40.0060°N 26.2114°E – 40.0244°N 26.1928°E (2.6 km), Art. 2(o) "Mehmetcik Cape Lighthouse – Kumkale Lighthouse".
+2. **Clipped to water.** Natural Earth 10m land is removed. However, at 1:10 million NE 10m closes the Istanbul Strait (Europe and Asia form one land polygon) and narrows the Çanakkale Strait. In two strait corridors (28.90–29.25°E × 40.98–41.25°N and 26.10–26.75°E × 39.95–40.47°N) the IHO polygon's own shoreline is used instead. The result overlaps NE 10m land by 42.6 km², in those corridors.
+3. **Neighbours.**
+   - The Black Sea EEZ (`tur-blacksea-eez`) is cut at 41°13'N in the Istanbul Strait. This area stops there too, so the two share one straight grid edge, with no overlap and no gap. The strait's northern 0.3–1.8 km between 41°13'N and the Turkeli–Anadolu line is part of the Black Sea feature.
+   - At the Çanakkale mouth, the Aegean schematic area runs along the same IHO line ~1 m away. A ~13 m margin from it keeps 4-decimal rounding from creating an overlap; the gap is ≈ 11 m.
+4. **Generalisation.** Simplified at 100 m (as the Black Sea polygon), 1e-4° grid, RFC 7946 winding (exterior counter-clockwise). Detached parts under 5 km² dropped (1 part, 0.1 km²). Islands in NE 10m and IHO stay as holes (25); small islets missing from NE 10m may lie under the fill.
+5. **Checks.** One part; zero overlap with every other feature; both straits stay open after a 250 m erosion (≥ 500 m wide throughout). The 41°N guard for the schematic areas is unchanged; this feature is separate.
+
+**Caveats.**
+- The geometry is the IHO's cartographic sea area, not a legal limit; its mouth lines match the Regulations' entrance lines. Baselines and the outer limit of the territorial sea are not drawn.
+- In the strait corridors the fill can extend over the Natural Earth 50m land the site draws. This is deliberate, so the narrow waterways stay visible.
+- `agreed` is used so the area is drawn solid blue like the Black Sea EEZ; the area rests on Türkiye's sovereignty, not on an agreement.
 
 ---
 
@@ -397,9 +458,9 @@ KKTC Resmî Gazete Sayı 161 (22.9.2011), s. 1064–1066, AR/KKTC/A–G; enlem/b
 | Agreement Turkey–Bulgaria, Mutludere/Rezovska and Black Sea delimitation, 4 Dec 1997 | UNTS 36204 | https://www.un.org/depts/los/LEGISLATIONANDTREATIES/PDFFILES/TREATIES/TUR-BGR1997MB.PDF | Black Sea; points 1–10 (cross-check) |
 | Protocol Turkey–Georgia, confirmation of maritime boundaries, 14 Jul 1997 | — | https://www.un.org/depts/los/LEGISLATIONANDTREATIES/PDFFILES/TREATIES/TUR-GEO1997BS.PDF | Black Sea |
 | Decree No. 86/11264 (Black Sea EEZ), 17 Dec 1986 | — | https://www.un.org/depts/los/LEGISLATIONANDTREATIES/PDFFILES/TUR_1986_Decree.pdf | Black Sea |
-| Act No. 2674 on the Territorial Sea, 20 May 1982 | — | https://www.un.org/depts/los/LEGISLATIONANDTREATIES/PDFFILES/TUR_1982_Act.pdf | Aegean omission rationale; 6-nm breadth (schematic areas) |
+| Act No. 2674 on the Territorial Sea, 20 May 1982 | — | https://www.un.org/depts/los/LEGISLATIONANDTREATIES/PDFFILES/TUR_1982_Act.pdf | Aegean omission rationale; 6-nm breadth (schematic areas); Sea of Marmara/Straits: Arts. I, IV |
 | Marine Regions Maritime Boundaries — Turkish EEZ (MRGID 5697); Cypriot 12 NM | — | https://www.marineregions.org/gazetteer.php?p=details&id=5697 · WFS `https://geo.vliz.be/geoserver/MarineRegions/wfs` | Black Sea polygon; Cyprus TS cut-out (line C and schematic Med area) |
-| Marine Regions IHO Sea Areas (IHO S-23, 1953) — Aegean Sea (MRGID 3315), Mediterranean Sea – Eastern Basin (4280), Sea of Marmara (3369) | CC BY 4.0 | https://www.marineregions.org/gazetteer.php?p=details&id=3315 · https://www.marineregions.org/gazetteer.php?p=details&id=4280 · WFS `MarineRegions:iho` | Aegean/Mediterranean split; Dardanelles closing line (schematic areas) |
+| Marine Regions IHO Sea Areas (IHO S-23, 1953) — Aegean Sea (MRGID 3315), Mediterranean Sea – Eastern Basin (4280), Sea of Marmara (3369) | CC BY 4.0 | https://www.marineregions.org/gazetteer.php?p=details&id=3315 · https://www.marineregions.org/gazetteer.php?p=details&id=4280 · WFS `MarineRegions:iho` | Aegean/Mediterranean split; Dardanelles closing line (schematic areas); `tur-marmara-straits` geometry (Sea of Marmara, 3369) |
 | Marine Regions licence, citation and disclaimer | CC BY 4.0 | https://www.marineregions.org/disclaimer.php | Licence |
 | MFA: The Kardak Dispute (28 Jan 1996) | — | https://www.mfa.gov.tr/the-kardak-dispute.en.mfa | Kardak basis |
 | MFA: Islands, Islets and Rocks in the Aegean Which Were Not Ceded to Greece by International Treaties | — | https://www.mfa.gov.tr/islands_-islets-and-rocks-in-the-aegean-which-were-not-ceded-to-greece-by-international-treaties.en.mfa | Kardak basis (EGAYDAAK) |
@@ -415,8 +476,11 @@ KKTC Resmî Gazete Sayı 161 (22.9.2011), s. 1064–1066, AR/KKTC/A–G; enlem/b
 | Cyprus Hydrocarbons Service — exploration activities | — | https://hydrocarbons.gov.cy/en/licensing/exploration-activities | Caveat: Greek Cypriot licences (no coordinates) |
 | Letters A/66/851 (Cyprus, 15 Jun 2012), A/66/899 (Türkiye, 5 Sep 2012), A/68/857 (Türkiye, 25 Apr 2014) | A/66/851 · A/66/899 · A/68/857 | https://documents.un.org/api/symbol/access?l=en&t=pdf&s=A/68/857 (same pattern for the others) | Checked: no licence-area coordinates; A/68/857 = the 27 points of the 2011 line |
 | EPSG "ED50 to WGS 84 (4)" (Cyprus); ED50 / UTM zone 36N (EPSG:23036) | EPSG | via PROJ / pyproj | Datum check and conversion of the licence corners |
+| Convention Regarding the Regime of the Straits, Montreux, 20 July 1936 — UK Treaty Series No. 30 (1937) (French text + English translation) | LNTS vol. 173 | https://treaties.fcdo.gov.uk/data/Library2/pdf/1937-TS0030.pdf · https://treaties.un.org/doc/Publication/UNTS/LON/Volume%20173/v173.pdf | Sea of Marmara/Straits: passage regime; preamble "Straits" = Dardanelles, Sea of Marmara, Bosphorus |
+| MFA: The Turkish Straits; Implementation of the Montreux Convention | — | https://www.mfa.gov.tr/the-turkish-straits.en.mfa · https://www.mfa.gov.tr/implementation-of-the-montreux-convention.en.mfa | Sea of Marmara/Straits: definition of the Turkish Straits, passage regime |
+| Maritime Traffic Regulations for the Turkish Straits and the Marmara Region, in force 1 July 1994 (DOALOS English text) | — | https://www.un.org/depts/los/LEGISLATIONANDTREATIES/PDFFILES/TUR_1994_Regulations.pdf | Sea of Marmara/Straits: Art. 2(b) definition; Art. 2(l), (o) strait entrance lines (check of the IHO limits) |
 
-**Atıf / Attribution (CC BY 4.0):** Flanders Marine Institute (2026): MarineRegions.org. Available online at www.marineregions.org. Veri değiştirilmiştir (Karadeniz'e kırpıldı, sadeleştirildi; şematik alanlarda Kıbrıs 12 dm ve IHO deniz alanları yalnızca çıkarma/bölme için kullanıldı). / Data modified (clipped to the Black Sea, simplified; in the schematic areas the Cyprus 12 NM and IHO sea-area polygons are used only for subtraction/splitting).
+**Atıf / Attribution (CC BY 4.0):** Flanders Marine Institute (2026): MarineRegions.org. Available online at www.marineregions.org. Veri değiştirilmiştir (Karadeniz'e kırpıldı, sadeleştirildi; şematik alanlarda Kıbrıs 12 dm ve IHO deniz alanları yalnızca çıkarma/bölme için kullanıldı). / Data modified (clipped to the Black Sea, simplified; in the schematic areas the Cyprus 12 NM and IHO sea-area polygons are used only for subtraction/splitting). IHO "Sea of Marmara" poligonu `tur-marmara-straits` öğesinin temelidir (kırpıldı, sadeleştirildi). / The IHO "Sea of Marmara" polygon is the basis of `tur-marmara-straits` (clipped, simplified).
 
 ---
 
@@ -424,8 +488,9 @@ KKTC Resmî Gazete Sayı 161 (22.9.2011), s. 1064–1066, AR/KKTC/A–G; enlem/b
 
 Output of `build_maritime.py` (2026-09-13):
 
-- `maritime-tur.geojson`: 15 features, 3,388 vertices (5 original features: 975; 2 schematic areas: 1,562; 7 TRNC licence areas: 92; merged Türkiye + TRNC area: 759); every geometry `is_valid`; ≤ 4 decimals. Original features: exterior ring counter-clockwise, holes clockwise. Schematic areas, licence areas and the merged area: exterior clockwise, holes counter-clockwise. A full `build_maritime.py` run reproduces the committed `maritime-tur.geojson` and `islands-tur.geojson` byte for byte.
+- `maritime-tur.geojson`: 16 features, 4,783 vertices (5 original features: 975; Sea of Marmara and Straits: 1,395; 2 schematic areas: 1,562; 7 TRNC licence areas: 92; merged Türkiye + TRNC area: 759); every geometry `is_valid`; ≤ 4 decimals. Original features: exterior ring counter-clockwise, holes clockwise. Schematic areas, licence areas and the merged area: exterior clockwise, holes counter-clockwise. A full `build_maritime.py` run reproduces the committed `maritime-tur.geojson` and `islands-tur.geojson` byte for byte.
 - TRNC licence areas: printed lat/lon (as ED50) vs printed UTM 36N X/Y — max residual 0.62 m over 59 corners (as WGS84: ~62 m); ED50 → WGS84 shift 118–123 m; licence areas ∩ Natural Earth 10m land: 0 deg²; no overlaps between areas (≤ 2 m² float noise); 26 corners on A/74/550 section A, 79–121 m from the site's line after conversion.
+- Sea of Marmara and Straits (`tur-marmara-straits`): 1 part, 25 island holes, 1,395 vertices, ≈ 11,434 km² (IHO polygon 11,651 km²); RFC 7946 winding; overlap with every other feature 0 (tested in floating precision); shares its 41°13'N edge with the Black Sea EEZ (distance 0); ≈ 11 m from the Aegean schematic area at the Çanakkale mouth; both straits open after a 250 m erosion; ∩ Natural Earth 10m land 42.6 km² (strait corridors, where NE 10m closes or narrows the straits). The 15 other features are byte-identical to the previous version.
 - Merged area: 2 parts, 4 holes (those of `tur-med-schematic`), 759 vertices, ≈ 194,040 km²; TRNC 12-nm territorial sea (schematic) 7,082 km², of which 1,888 km² new; slivers filled 33.4 km²; holes filled 32.3 km²; ∩ Natural Earth 10m land: 0 deg²; Greek Cypriot-side 12 nm added: none (asserted < 0.5 km²); water in the TRNC 12-nm belt outside the area: 15.9 km², none of it in pieces wider than 120 m; nothing of any component lost (checked at 2e-4°). Licence geometries and the other 14 features are byte-identical to the previous version. Both `build_maritime.py` (full) and `build_maritime_schematic.py` (schematic-only) reproduce the committed file byte for byte.
 - Schematic areas ∩ (Natural Earth 10m land ∪ minor islands ∪ Greek islands' 6-nm TS ∪ Cyprus 12 nm ∪ Syria 12 nm): 0 deg². Minimum clearance to land: 144 m (Aegean), 146 m (Med); to Greek islands' 6-nm TS: 149 m, 220 m.
 - Aegean median: Evros/Meriç land-border terminus lies 117 m from the computed line. Independent spot checks (planar LAEA distance to the NE polygons) on the line: 40.3°N 25.427°E — 66.26 km to Turkish vs 66.16 km to Greek mainland; 38.5°N 25.137°E — 98.06 vs 98.01 km; 35.8°N 25.346°E — 204.82 vs 204.74 km (Δ ≤ 0.1 km).

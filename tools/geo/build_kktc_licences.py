@@ -547,7 +547,7 @@ def main():
     report: list[str] = []
     land = bm.load_land(args.cache)
     keep = [f for f in fc["features"] if not is_kktc(f)]
-    feats = keep + build(args.cache, land, report, keep)
+    feats = bm.ordered(keep + build(args.cache, land, report, keep))
     meta = {k: v for k, v in fc.items() if k not in ("type", "features")}
     meta["description"] = bm.META_DESCRIPTION
     bm.write_fc(path, feats, meta)
