@@ -15,12 +15,14 @@ Every coordinate comes from a fetched, citable source. Nothing here is hand-draw
     not polygons: Türkiye has not published closing coordinates (east of point A23,
     or west of 28°E) and inventing them is out of scope.
   * Islands: Wikidata P625 coordinates (CC0), one QID per island.
+  * TRNC licence areas A–G (TRNC Official Gazette No. 161, 22 Sep 2011) and the merged
+    Türkiye + TRNC area: tools/geo/build_kktc_licences.py (corner tables in kktc_licences.csv).
 See apps/web/assets/data/MARITIME-SOURCES.md for provenance and caveats.
 
 Usage:
-  python tools/geo/build_maritime.py [--cache DIR] [--preview out.png]
+  python tools/geo/build_maritime.py [--cache DIR] [--preview out.png] [--no-schematic] [--no-kktc]
 
-Dependencies: shapely>=2, pyshp (shapefile), matplotlib (only for --preview).
+Dependencies: shapely>=2, pyshp (shapefile), pyproj (TRNC licence areas), matplotlib (only for --preview).
 """
 from __future__ import annotations
 
@@ -161,7 +163,9 @@ META_DESCRIPTION = (
     "Türkiye's maritime jurisdiction areas and notified limits. Mediterranean lines are "
     "Türkiye's position as notified to the UN (A/74/550, A/74/757) and the Türkiye–Libya MoU; "
     "features with status 'schematic' are areas constructed by this project from Türkiye's stated "
-    "position, not official coordinates; see MARITIME-SOURCES.md.")
+    "position, not official coordinates; features with status 'licence' are the TRNC's offshore licence "
+    "areas A–G granted to TPAO (official coordinates, TRNC Official Gazette No. 161, 22 Sep 2011); "
+    "see MARITIME-SOURCES.md.")
 
 POS_TR = "Türkiye'nin tutumu"
 POS_EN = "Türkiye's position"
@@ -445,7 +449,7 @@ def preview(png: Path, land, maritime: list[dict], isl: list[dict]):
     for g in getattr(land, "geoms", [land]):
         x, y = g.exterior.xy
         ax.fill(x, y, color="#d9d6cf", lw=0.3, ec="#9a968d")
-    colours = {"agreed": "#1f6fb2", "claimed": "#c2410c", "schematic": "#0e7490"}
+    colours = {"agreed": "#1f6fb2", "claimed": "#c2410c", "schematic": "#0e7490", "licence": "#b45309"}
     from matplotlib.patches import PathPatch
     from matplotlib.path import Path as MPath
     for f in sorted(maritime, key=lambda f: f["properties"]["status"] != "schematic"):
@@ -472,7 +476,7 @@ def preview(png: Path, land, maritime: list[dict], isl: list[dict]):
     ax.set_xlim(24.5, 42.5); ax.set_ylim(33.2, 44.2); ax.set_aspect(1 / math.cos(math.radians(38.5)))
     ax.set_title("maritime-tur.geojson + islands-tur.geojson — preview (blue: agreed; orange dashed: "
                  "claimed / Türkiye's position; purple: Libya MoU; hatched teal: schematic area, "
-                 "not official coordinates)", fontsize=8)
+                 "not official coordinates; brown: TRNC licence areas A–G)", fontsize=8)
     ax.grid(lw=0.2)
     fig.tight_layout(); fig.savefig(png); plt.close(fig)
 
@@ -484,6 +488,8 @@ def main():
     ap.add_argument("--preview", type=Path)
     ap.add_argument("--no-schematic", action="store_true",
                     help="skip the schematic Aegean/Eastern Mediterranean areas (build_maritime_schematic.py)")
+    ap.add_argument("--no-kktc", action="store_true",
+                    help="skip the TRNC licence areas A–G and the merged Türkiye+TRNC area (build_kktc_licences.py)")
     args = ap.parse_args()
     args.cache.mkdir(parents=True, exist_ok=True)
 
@@ -493,6 +499,9 @@ def main():
     if not args.no_schematic:
         import build_maritime_schematic  # same directory; see that file for the construction
         maritime += build_maritime_schematic.build(args.cache, land, report)
+    if not args.no_kktc:
+        import build_kktc_licences  # licence areas A–G; merged area only if tur-med-schematic was built
+        maritime += build_kktc_licences.build(args.cache, land, report, maritime)
     isl = islands(land, report)
 
     total = sum(nverts(shape(f["geometry"])) for f in maritime)
