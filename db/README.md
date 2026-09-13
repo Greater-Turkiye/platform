@@ -2,7 +2,7 @@
 
 [Türkçe](#türkçe) · [English](#english) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
 
-> Durum: tasarım. Migration dosyaları Aşama 2'de eklenecek. / Status: design. Migration files arrive in Phase 2.
+> Durum: ilk migration'lar hazır (`migrations/ops/0001_init.sql`, `migrations/signals/0001_init.sql`); henüz uzak veritabanına uygulanmadı. / Status: initial migrations in place; not yet applied to a remote database.
 
 ## Türkçe
 
@@ -52,7 +52,7 @@ Dizinler / Indexes: `content_hash` (UNIQUE), `(triage_status, created_at)`.
 `id`, `review_id`, `kind` (`event` | `actor` | `site` | `equipment` | `source`), `record_id`, `branch`, `pr_number`, `pr_url`, `promoted_by`, `state` (`open` | `merged` | `closed`), `created_at`, `updated_at`
 
 **publications** — kanal gönderileri / channel posts
-`id`, `type` (`bulletin` | `record` | `correction`), `record_id`, `review_id`, `channel`, `lang`, `status` (`queued` | `held` | `posted` | `failed` | `deleted`), `text`, `external_id`, `external_url`, `corrects_publication_id`, `idempotency_key` (UNIQUE), `approved_by`, `posted_at`, `created_at`
+`id`, `type` (`bulletin` | `record` | `correction`), `record_id`, `review_id`, `channel`, `lang`, `status` (`queued` | `held` | `posted` | `failed` | `deleted`), `text`, `external_id`, `external_url`, `corrects_publication_id`, `idempotency_key`, `approved_by`, `posted_at`, `created_at` — UNIQUE (`idempotency_key`, `channel`): bir kuyruk mesajı kanal başına bir satır üretir / one queue message becomes one row per channel
 
 **usage_ledger** — ücretsiz kota defteri / free quota ledger
 `day` (UTC `YYYY-MM-DD`), `service` (`github-models` | `workers-ai` | `queues` | `d1-writes` | …), `units`, `daily_limit`, `updated_at` — PK (`day`, `service`)
@@ -62,6 +62,41 @@ Dizinler / Indexes: `content_hash` (UNIQUE), `(triage_status, created_at)`.
 
 **collector_state**
 `collector_id` (PK), `enabled`, `last_run_at`, `last_success_at`, `next_due_at`, `cursor` (ETag / Last-Modified / son kimlik / last id), `consecutive_failures`, `last_error`
+
+### Uygulama notları / Implementation notes
+
+- **STRICT** tables everywhere (column types are enforced). `CHECK` constraints enforce the enums, `sha256:` hashes, TypeID prefixes, JSON validity (`json_valid`), the ≤300/≤1000-character title/text limits (excerpts, never full text), and the timestamp format. Timestamps are exactly `YYYY-MM-DDTHH:MM:SSZ`, so they sort as text.
+- `simhash` is a signed 64-bit INTEGER. On the wire, collectors send it as 16 hex characters (JS numbers cannot hold 64 bits).
+- `reviews.content_hash` is UNIQUE: one review per signal, so replayed triage results are harmless. A decision (`status <> 'queued'`) must record `decided_by` and `decided_at`.
+- `publications`:
+  - `record` rows need a `record_id` (`evt_…`), `correction` rows a `corrects_publication_id`, and `posted` rows a `posted_at`.
+  - `channel` is a lowercase code, checked by pattern rather than a fixed list, so a new channel needs no table rebuild.
+- `usage_ledger` and `collector_state` are updated all day, so they are `WITHOUT ROWID`: the primary key is the table, and an upsert costs one written row instead of two.
+- D1 enforces foreign keys by default. Within `ops`, `decided_by`, `promoted_by`, `review_id` and `corrects_publication_id` are real foreign keys. Cross-database references (`content_hash`) are not.
+
+**Yazma bütçesi / Write budget** (100,000 rows written per day; every index entry counts):
+
+| İşlem / Operation | Yazılan satır / Rows written |
+|---|---|
+| `signals` insert (row + `content_hash` UNIQUE + `(triage_status, created_at)`) | ≈ 3 |
+| Duplicate insert (`INSERT … ON CONFLICT (content_hash) DO NOTHING`) | 0 |
+| Triage status update (row + one index entry) | ≈ 2 |
+| Retention delete | ≈ 3 |
+| **Per signal lifetime** | **≈ 8 → at most ~12,000 new signals/day** |
+
+The `ops` tables handle hundreds of rows per day, so their lookup indexes are cheap: `reviews (status, created_at)` for the queue, `publications (channel, posted_at)` for rate limits, and UNIQUE `drafts.pr_number` and `reviewers.telegram_user_id`. `db/tests` fails if an index is added to `signals` or to the hot tables without updating the test, so any new index has to be a deliberate choice.
+
+**Saklama / Retention** (daily, scheduler Worker). The one `signals` index serves this query, so no extra time index is written:
+
+```sql
+DELETE FROM signals WHERE id IN (
+  SELECT id FROM signals
+  WHERE triage_status IN ('pending','scored','duplicate','dropped','queued')
+    AND created_at < strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-90 days')
+  LIMIT 500);   -- repeat until 0 rows; stop early if the day's write budget runs low
+```
+
+**Test**: `python -m unittest discover -s db/tests -v` applies every migration to in-memory SQLite. It checks constraints, the index set and the query plans (standard library only; CI: `.github/workflows/db-ci.yml`).
 
 ### Migration kuralları / Migration conventions
 
