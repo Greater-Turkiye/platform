@@ -157,6 +157,12 @@ ISLAND_WIKI = {  # page the coordinate was cross-checked against
     "Q2119012": "https://en.wikipedia.org/wiki/Imia",
 }
 
+META_DESCRIPTION = (
+    "Türkiye's maritime jurisdiction areas and notified limits. Mediterranean lines are "
+    "Türkiye's position as notified to the UN (A/74/550, A/74/757) and the Türkiye–Libya MoU; "
+    "features with status 'schematic' are areas constructed by this project from Türkiye's stated "
+    "position, not official coordinates; see MARITIME-SOURCES.md.")
+
 POS_TR = "Türkiye'nin tutumu"
 POS_EN = "Türkiye's position"
 MAX_BLACKSEA_VERTICES = 1600
@@ -428,7 +434,7 @@ def write_fc(path: Path, features: list[dict], meta: dict):
     """One feature per line for readable diffs; UTF-8, no ASCII escaping."""
     head = json.dumps({"type": "FeatureCollection", **meta}, ensure_ascii=False)[:-1]
     body = ",\n".join(json.dumps(f, ensure_ascii=False, separators=(",", ":")) for f in features)
-    path.write_text(head + ',"features":[\n' + body + "\n]}\n", encoding="utf-8")
+    path.write_text(head + ',"features":[\n' + body + "\n]}\n", encoding="utf-8", newline="\n")
 
 
 def preview(png: Path, land, maritime: list[dict], isl: list[dict]):
@@ -439,13 +445,19 @@ def preview(png: Path, land, maritime: list[dict], isl: list[dict]):
     for g in getattr(land, "geoms", [land]):
         x, y = g.exterior.xy
         ax.fill(x, y, color="#d9d6cf", lw=0.3, ec="#9a968d")
-    colours = {"agreed": "#1f6fb2", "claimed": "#c2410c"}
-    for f in maritime:
+    colours = {"agreed": "#1f6fb2", "claimed": "#c2410c", "schematic": "#0e7490"}
+    from matplotlib.patches import PathPatch
+    from matplotlib.path import Path as MPath
+    for f in sorted(maritime, key=lambda f: f["properties"]["status"] != "schematic"):
         g = shape(f["geometry"]); st = f["properties"]["status"]
         if isinstance(g, (Polygon, MultiPolygon)):
             for p in getattr(g, "geoms", [g]):
-                x, y = p.exterior.xy
-                ax.fill(x, y, color=colours[st], alpha=0.25, lw=0.8, ec=colours[st])
+                rings = [p.exterior] + list(p.interiors)   # draw holes (islands, territorial seas)
+                verts = [c for r in rings for c in r.coords]
+                codes = [c for r in rings for c in [MPath.MOVETO] + [MPath.LINETO] * (len(r.coords) - 1)]
+                hatch = "////" if st == "schematic" else None
+                ax.add_patch(PathPatch(MPath(verts, codes), fc=colours[st], alpha=0.25 if st != "schematic" else 0.18,
+                                       lw=0.5 if st == "schematic" else 0.8, ec=colours[st], hatch=hatch))
         else:
             for l in getattr(g, "geoms", [g]):
                 x, y = l.xy
@@ -459,7 +471,8 @@ def preview(png: Path, land, maritime: list[dict], isl: list[dict]):
                     fontsize=6.5, color=c)
     ax.set_xlim(24.5, 42.5); ax.set_ylim(33.2, 44.2); ax.set_aspect(1 / math.cos(math.radians(38.5)))
     ax.set_title("maritime-tur.geojson + islands-tur.geojson — preview (blue: agreed; orange dashed: "
-                 "claimed / Türkiye's position; purple: Libya MoU)", fontsize=8)
+                 "claimed / Türkiye's position; purple: Libya MoU; hatched teal: schematic area, "
+                 "not official coordinates)", fontsize=8)
     ax.grid(lw=0.2)
     fig.tight_layout(); fig.savefig(png); plt.close(fig)
 
@@ -469,12 +482,17 @@ def main():
     ap.add_argument("--cache", type=Path, default=Path(tempfile.gettempdir()) / "gt-geo-cache")
     ap.add_argument("--out", type=Path, default=OUT)
     ap.add_argument("--preview", type=Path)
+    ap.add_argument("--no-schematic", action="store_true",
+                    help="skip the schematic Aegean/Eastern Mediterranean areas (build_maritime_schematic.py)")
     args = ap.parse_args()
     args.cache.mkdir(parents=True, exist_ok=True)
 
     report: list[str] = []
     land = load_land(args.cache)
     maritime = [black_sea(args.cache, land, report)] + med_features(args.cache, land, report)
+    if not args.no_schematic:
+        import build_maritime_schematic  # same directory; see that file for the construction
+        maritime += build_maritime_schematic.build(args.cache, land, report)
     isl = islands(land, report)
 
     total = sum(nverts(shape(f["geometry"])) for f in maritime)
@@ -483,10 +501,7 @@ def main():
         assert g.is_valid, f["properties"]["id"]
     report.append(f"maritime-tur.geojson: {len(maritime)} features, {total} vertices")
 
-    meta_m = {"name": "maritime-tur", "description": (
-        "Türkiye's maritime jurisdiction areas and notified limits. Mediterranean lines are "
-        "Türkiye's position as notified to the UN (A/74/550, A/74/757) and the Türkiye–Libya MoU; "
-        "see MARITIME-SOURCES.md.")}
+    meta_m = {"name": "maritime-tur", "description": META_DESCRIPTION}
     meta_i = {"name": "islands-tur", "description": "Türkiye's islands for labelling; see MARITIME-SOURCES.md."}
     write_fc(args.out / "maritime-tur.geojson", maritime, meta_m)
     write_fc(args.out / "islands-tur.geojson", isl, meta_i)
