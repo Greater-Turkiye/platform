@@ -300,7 +300,8 @@
     '706': 'SOM', '262': 'DJI', '232': 'ERI', '231': 'ETH', '398': 'KAZ', '860': 'UZB', '795': 'TKM', '417': 'KGZ', '762': 'TJK', '004': 'AFG',
     '586': 'PAK', '380': 'ITA', '470': 'MLT',
   };
-  const NAMELESS = { 'N. Cyprus': 'XNC', Kosovo: 'XKX', Somaliland: 'SML' };
+  // Somaliland is not recognised by Türkiye: it is drawn as part of Somalia.
+  const NAMELESS = { 'N. Cyprus': 'XNC', Kosovo: 'XKX', Somaliland: 'SOM' };
   const NAMES = {
     TUR: ['Türkiye', 'Türkiye'], GRC: ['Yunanistan', 'Greece'], CYP: ['GKRY', 'Greek Cypriot Admin.'], XNC: ['KKTC', 'TRNC'], SYR: ['Suriye', 'Syria'],
     IRQ: ['Irak', 'Iraq'], IRN: ['İran', 'Iran'], ISR: ['İsrail', 'Israel'], PSE: ['Filistin', 'Palestine'], LBN: ['Lübnan', 'Lebanon'], JOR: ['Ürdün', 'Jordan'],
@@ -338,8 +339,8 @@
   for (const [code, r] of Object.entries(REGIONS)) for (const a of r.countries) GT.REGION_OF[a] = code;
 
   GT.SEAS = [
-    { at: [24.4, 36.95], tr: 'Ege Denizi', en: 'Aegean Sea', size: 1 },
-    { at: [30.4, 34.6], tr: 'Akdeniz', en: 'Mediterranean', size: 1.1 },
+    { at: [24.9, 36.3], tr: 'Ege Denizi', en: 'Aegean Sea', size: 1 },
+    { at: [28.6, 33.9], tr: 'Akdeniz', en: 'Mediterranean', size: 1.1 },
     { at: [34.6, 43.25], tr: 'Karadeniz', en: 'Black Sea', size: 1.15 },
     { at: [50.6, 41.8], tr: 'Hazar', en: 'Caspian', size: .9 },
     { at: [50.8, 27.4], tr: 'Basra Körfezi', en: 'Persian Gulf', size: .8 },
@@ -350,7 +351,7 @@
     UKR: [31.5, 48.8], RUS: [42.5, 49.3], EGY: [29.8, 26.5], LBY: [18, 27.8], JOR: [36.8, 30.7], SAU: [44.5, 24.8], ROU: [24.8, 45.9], SRB: [20.9, 44.1],
     ISR: [34.9, 31.3], LBN: [35.9, 33.9], CYP: [32.9, 34.82], XNC: [33.62, 35.28], TKM: [58.5, 39.2], KAZ: [66, 48], UZB: [63.5, 41.8], ALB: [20, 41],
     MKD: [21.7, 41.6], ITA: [14.5, 41.8], TUN: [9.5, 34], DZA: [3, 29], SDN: [30, 16], YEM: [47.5, 15.8], OMN: [56.5, 20.8], KWT: [47.7, 29.3],
-    PAK: [69.6, 29.6],
+    PAK: [69.6, 29.6], PSE: [35.3, 31.95],
   };
 
   /* Türkiye's defence agreements shown on the map. Every entry carries its sources so the layer stays auditable;
@@ -371,24 +372,116 @@
       sources: ['https://www.dailysabah.com/politics/diplomacy/turkiye-egypt-sign-defense-cooperation-mou',
         'https://www.al-monitor.com/originals/2026/07/turkey-egypt-expand-military-ties-cooperation-frameworks-what-know'],
     },
+    shusha: {
+      tr: 'Şuşa Beyannamesi (müttefiklik, karşılıklı yardım) · 15 Haz 2021', en: 'Shusha Declaration (alliance, mutual assistance) · 15 Jun 2021',
+      sources: ['https://www.aa.com.tr/tr/analiz/susa-beyannamesi-ve-turkiye-azerbaycan-iliskilerinde-yeni-ufuklar/2275640',
+        'https://avim.org.tr/tr/Bulten/ISTE-SUSA-BEYANNAMESI-NIN-TAM-METNI'],
+    },
+    guarantee: {
+      tr: 'Garanti ve İttifak Antlaşmaları · 1959/60 (garantör devlet)', en: 'Treaties of Guarantee and Alliance · 1959/60 (guarantor power)',
+      sources: ['https://www.mfa.gov.tr/garanti-antlasmasi-_zurich_11-subat-1959_.tr.mfa'],
+    },
+    'qat-2014': {
+      tr: 'Askerî eğitim, savunma sanayii ve TSK konuşlanması işbirliği anlaşması · 19 Ara 2014', en: 'Military training, defence industry & stationing cooperation agreement · 19 Dec 2014',
+      sources: ['https://21yyte.org/orta-dogu-ve-afrika-arastirmalari-merkezi/turkiye-katar-askeri-isbirligi-anlasmasinin-bolgesel-ve-kuresel-yansimalari/8228',
+        'https://anlatilaninotesi.com.tr/20150609/1015898130.html'],
+    },
+    'lby-2019': {
+      tr: 'Güvenlik ve askerî işbirliği mutabakatı (Trablus hükümeti) · 27 Kas 2019', en: 'Security & military cooperation MoU (Tripoli government) · 27 Nov 2019',
+      sources: ['https://www.aa.com.tr/tr/libya/turkiye-libya-guvenlik-ve-askeri-is-birligi-mutabakat-muhtirasi-resmi-gazetede/1684355'],
+    },
+    'som-2024': {
+      tr: 'Savunma ve ekonomik işbirliği çerçeve anlaşması · 8 Şub 2024', en: 'Defence & economic cooperation framework agreement · 8 Feb 2024',
+      sources: ['https://www.tbmm.gov.tr/Haber/Detay?Id=52226928-c750-4ae0-84bf-019f6f6e4618'],
+    },
+    'irq-2024': {
+      tr: 'Askerî, güvenlik işbirliği ve terörle mücadele mutabakatı · 15 Ağu 2024', en: 'Military, security cooperation & counter-terrorism MoU · 15 Aug 2024',
+      sources: ['https://www.iletisim.gov.tr/turkce/dis_basinda_turkiye/detay/turkiye-ve-irak-guvenlik-is-birligi-ve-terorle-mucadeleye-dair-mutabakat-zapti-imzaladi',
+        'https://tr.euronews.com/2024/08/15/turkiye-ve-irak-arasinda-tarihi-askeri-mutabakat-zapti-imzalandi'],
+    },
+    ots: {
+      tr: 'Türk Devletleri Teşkilatı', en: 'Organization of Turkic States',
+      sources: ['https://turkicstates.org/tr/turk-konseyi-hakkinda', 'https://turkicstates.org/tr/gozlemci-ulkeler'],
+    },
   };
+  // kin = Organization of Turkic States member/observer; presence = officially acknowledged permanent Turkish military
+  // presence, shown at COUNTRY level only (red line: never positions or movements).
   GT.PARTNERS = {
     SAU: { tier: 'ally', agreement: 'mecca' },
     PAK: { tier: 'ally', agreement: 'mecca' },
+    AZE: { tier: 'ally', agreement: 'shusha', kin: true },
+    XNC: { tier: 'ally', agreement: 'guarantee', kin: true, observer: true, presence: true },
     SYR: { tier: 'coop', agreement: 'syr-2025' },
     EGY: { tier: 'coop', agreement: 'egy-2026' },
+    QAT: { tier: 'coop', agreement: 'qat-2014', presence: true },
+    LBY: { tier: 'coop', agreement: 'lby-2019', presence: true },
+    SOM: { tier: 'coop', agreement: 'som-2024', presence: true },
+    IRQ: { tier: 'coop', agreement: 'irq-2024' },
+    KAZ: { tier: 'kin', agreement: 'ots' },
+    KGZ: { tier: 'kin', agreement: 'ots' },
+    UZB: { tier: 'kin', agreement: 'ots' },
+    TKM: { tier: 'kin', agreement: 'ots', observer: true },
+    HUN: { tier: 'kin', agreement: 'ots', observer: true },
   };
-  GT.partnerLabel = (a3) => (GT.PARTNERS[a3] ? GT.txt(GT.AGREEMENTS[GT.PARTNERS[a3].agreement]) : '');
-  Object.assign(I18N.tr, { 'lg.ally': 'Mekke Savunma Anlaşması', 'lg.coop': 'Savunma işbirliği anlaşması' });
-  Object.assign(I18N.en, { 'lg.ally': 'Mecca Defence Agreement', 'lg.coop': 'Defence cooperation agreement' });
+  GT.PRESENCE_SOURCES = {
+    QAT: ['https://21yyte.org/orta-dogu-ve-afrika-arastirmalari-merkezi/turkiye-katar-askeri-isbirligi-anlasmasinin-bolgesel-ve-kuresel-yansimalari/8228'],
+    SOM: ['https://www.aa.com.tr/tr/politika/turk-silahli-kuvvetlerine-somalide-yeni-gorev/3280005'],
+    LBY: ['https://www.aa.com.tr/tr/gundem/turk-askerinin-libyadaki-gorev-suresi-uzatildi/3777943'],
+    XNC: ['https://www.mfa.gov.tr/garanti-antlasmasi-_zurich_11-subat-1959_.tr.mfa'],
+  };
+  GT.partnerClass = (a3) => {
+    const p = GT.PARTNERS[a3];
+    return p ? ' m-' + p.tier + (p.presence ? ' m-presence' : '') : '';
+  };
+  GT.partnerLabel = (a3) => {
+    const p = GT.PARTNERS[a3];
+    if (!p) return '';
+    const bits = [GT.txt(GT.AGREEMENTS[p.agreement])];
+    if (p.kin && p.agreement !== 'ots') bits.push(GT.txt(GT.AGREEMENTS.ots));
+    if (p.observer) bits[bits.length - 1] += GT.lang === 'tr' ? ' (gözlemci)' : ' (observer)';
+    if (p.presence) bits.push(GT.t('lg.presence'));
+    return bits.join(' · ');
+  };
+  Object.assign(I18N.tr, { 'lg.ally': 'Müttefik · karşılıklı savunma', 'lg.coop': 'Savunma işbirliği anlaşması', 'lg.kin': 'Türk Devletleri Teşkilatı', 'lg.presence': 'Resmî TSK varlığı (ülke düzeyi)' });
+  Object.assign(I18N.en, { 'lg.ally': 'Ally · mutual defence', 'lg.coop': 'Defence cooperation agreement', 'lg.kin': 'Organization of Turkic States', 'lg.presence': 'Official Turkish military presence (country level)' });
+
+  Object.assign(I18N.tr, { 'lg.blue': "Mavi Vatan · deniz yetki alanları (Türkiye'nin tutumu)", 'lg.agreed': 'Anlaşmayla belirlenmiş', 'lg.position': "Türkiye'nin tutumu (itiraz edilen)", 'lg.island': 'Türk adası' });
+  Object.assign(I18N.en, { 'lg.blue': "Blue Homeland · maritime jurisdiction (Türkiye's position)", 'lg.agreed': 'Set by agreement', 'lg.position': "Türkiye's position (contested)", 'lg.island': 'Turkish island' });
+
+  // d3-geo treats counter-clockwise rings (RFC 7946 order) as "everything but this": flip any polygon larger than a hemisphere.
+  const rewind = (f) => {
+    const g = f.geometry;
+    if (g && /Polygon/.test(g.type) && d3.geoArea(f) > 2 * Math.PI) {
+      const rev = (poly) => poly.map((ring) => ring.slice().reverse());
+      g.coordinates = g.type === 'Polygon' ? rev(g.coordinates) : g.coordinates.map(rev);
+    }
+    return f;
+  };
+  const optionalLayer = async (u) => {
+    try { const r = await fetch(u); return r.ok ? (await r.json()).features.map(rewind) : []; } catch (e) { return []; }
+  };
+
+  Object.assign(I18N.tr, { 'lg.mission': 'Türk dış temsilciliği (şehir düzeyi)', 'p.lyr.missions': 'Temsilcilikler' });
+  Object.assign(I18N.en, { 'lg.mission': 'Turkish diplomatic mission (city level)', 'p.lyr.missions': 'Missions' });
 
   GT.loadWorld = async (url) => {
     const r = await fetch(url);
     if (!r.ok) throw new Error('world: HTTP ' + r.status);
     const topo = await r.json();
+    // Optional layers: areas per Türkiye's official position (Crimea → Ukraine, Golan → Syria),
+    // Mavi Vatan maritime jurisdiction/claims and Turkish islands (see assets/data/MARITIME-SOURCES.md),
+    // and Türkiye's diplomatic missions at city level (see assets/data/MISSIONS-SOURCES.md).
+    const base = url.replace(/countries-\d+m\.json$/, '');
+    const [disputed, maritime, islands, missions] = await Promise.all(
+      ['disputed-tur-view', 'maritime-tur', 'islands-tur', 'missions-tur'].map((n) => optionalLayer(base + n + '.geojson')));
     return {
+      maritime,
+      islands,
+      missions,
       countries: topojson.feature(topo, topo.objects.countries).features,
-      borders: topojson.mesh(topo, topo.objects.countries, (a, b) => a !== b),
+      // no border line between features that map to the same state (e.g. Somaliland is part of Somalia)
+      borders: topojson.mesh(topo, topo.objects.countries, (a, b) => a !== b && GT.a3(a) !== GT.a3(b)),
+      disputed,
     };
   };
   GT.a3 = (f) => (f.id ? NUM[f.id] : NAMELESS[f.properties.name]) || null;

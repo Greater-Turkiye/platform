@@ -106,7 +106,7 @@
       .attr('class', (f) => {
         const a = GT.a3(f);
         if (a === 'TUR') return 'm-land m-tr';
-        return 'm-land' + (GT.REGION_OF[a] ? ' m-watch' : '') + (GT.PARTNERS[a] ? ' m-' + GT.PARTNERS[a].tier : '');
+        return 'm-land' + (GT.REGION_OF[a] ? ' m-watch' : '') + GT.partnerClass(a);
       })
       .attr('data-region', (f) => GT.REGION_OF[GT.a3(f)] || null)
       .attr('d', path)
@@ -120,6 +120,44 @@
 
     const tr = world.countries.find((f) => GT.a3(f) === 'TUR');
     gRoot.append('path').datum(world.borders).attr('class', 'm-border').attr('d', path);
+    // Crimea and Golan drawn with their de jure state per Türkiye's position
+    for (const d of world.disputed) {
+      const p = d.properties;
+      gRoot.append('path').datum(d).attr('d', path)
+        .attr('class', 'm-land m-disputed' + (GT.REGION_OF[p.de_jure] ? ' m-watch' : '') + GT.partnerClass(p.de_jure))
+        .attr('data-region', GT.REGION_OF[p.de_jure] || null)
+        .on('pointermove', (ev) => showTip(ev, GT.upper(GT.countryName(p.de_jure) + ' · ' + p['name_' + GT.lang]), p['note_' + GT.lang]))
+        .on('pointerleave', hideTip);
+    }
+    // Mavi Vatan: agreed maritime areas and Türkiye's notified limits (contested → dashed)
+    for (const m of world.maritime) {
+      const p = m.properties, area = /Polygon/.test(m.geometry.type);
+      gRoot.append('path').datum(m).attr('d', path)
+        .attr('class', area ? 'm-blue-area' : 'm-blue-line' + (p.status === 'claimed' ? ' claimed' : ''))
+        .on('pointermove', (ev) => showTip(ev, GT.upper(p['name_' + GT.lang] || p.name_tr), GT.t(p.status === 'claimed' ? 'lg.position' : 'lg.agreed')))
+        .on('pointerleave', hideTip);
+    }
+    // Turkish islands; Kardak drawn hollow (Türkiye's position, contested)
+    gIslands = gRoot.append('g');
+    for (const i of world.islands) {
+      const p = i.properties, [x, y] = proj(i.geometry.coordinates);
+      const name = p['name_' + GT.lang] || p.name_tr;
+      const m = gIslands.append('g').attr('class', 'mk').attr('data-x', x).attr('data-y', y)
+        .on('pointermove', (ev) => showTip(ev, GT.upper(name), GT.t(p.status === 'tur' ? 'lg.island' : 'lg.position')))
+        .on('pointerleave', hideTip);
+      m.append('circle').attr('class', 'm-isl' + (p.status === 'tur' ? '' : ' pos')).attr('r', 3.2);
+    }
+    // Türkiye's diplomatic missions at city level (inviolable under the Vienna Conventions, not Turkish territory)
+    for (const ms of world.missions) {
+      const p = ms.properties, [x, y] = proj(ms.geometry.coordinates);
+      const m = gIslands.append('g').attr('class', 'mk m-mission-g').attr('data-x', x).attr('data-y', y)
+        .on('pointermove', (ev) => showTip(ev, GT.upper(p['name_' + GT.lang] || p.name_tr || p.city_tr), (p['city_' + GT.lang] || p.city_tr) + ' · ' + GT.t('lg.mission')))
+        .on('pointerleave', hideTip)
+        .on('click', () => { if (/^https:\/\//.test(p.url || '')) window.open(p.url, '_blank', 'noopener'); });
+      m.append('circle').attr('class', 'm-mission').attr('r', 2.4);
+    }
+    const lm = document.getElementById('l-missions');
+    if (lm) { const sync = () => svg.classed('hide-missions', !lm.checked); lm.onchange = sync; sync(); }
     gRoot.append('path').datum(tr).attr('class', 'm-tr-glow').attr('d', path).attr('filter', 'url(#glow)');
     gLabels = gRoot.append('g');
     const c = proj([35, 39]);
@@ -160,7 +198,7 @@
     rescale();
   }
 
-  let sweepG = null;
+  let sweepG = null, gIslands = null;
   function rescale() {
     if (!gLabels) return;
     svg.classed('zoomed', k >= 1.25); // small-country and region labels only appear once zoomed in
@@ -170,6 +208,7 @@
     const place = function () { return `translate(${this.dataset.x},${this.dataset.y}) scale(${1 / k})`; };
     gSites.selectAll('.mk').attr('transform', place);
     gEvents.selectAll('.mk').attr('transform', place);
+    if (gIslands) gIslands.selectAll('.mk').attr('transform', place);
     if (els.scale) els.scale.textContent = k.toFixed(1) + '×';
   }
 

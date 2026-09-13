@@ -324,13 +324,28 @@ a.ticker-item:hover { color: #fff; }
 .m-land.m-ally:hover { fill: rgba(170, 0, 32, .66); }
 .m-land.m-coop { fill: #26070e; stroke: rgba(153, 0, 28, .6); stroke-width: .7; }
 .m-land.m-coop:hover { fill: #330a13; }
+.m-land.m-kin { fill: #1c0c10; stroke: rgba(200, 0, 42, .38); stroke-width: .6; }
+.m-land.m-kin:hover { fill: #26101a; }
+.m-land.m-presence { stroke: rgba(232, 227, 220, .85); stroke-width: 1.1; stroke-dasharray: 3 2; }
+.m-land.m-disputed { stroke: rgba(232, 227, 220, .35); stroke-dasharray: 1.5 2; }
+/* Mavi Vatan: agreed maritime areas (fill) and Türkiye's notified limits (dashed = contested) */
+.m-blue-area { fill: rgba(38, 120, 220, .24); stroke: rgba(90, 165, 255, .75); stroke-width: .9; vector-effect: non-scaling-stroke; }
+.m-blue-line { fill: none; stroke: rgba(90, 165, 255, .95); stroke-width: 1.6; vector-effect: non-scaling-stroke; pointer-events: stroke; }
+.m-blue-line.claimed { stroke-dasharray: 5 3; }
+.m-isl { fill: #e8e3dc; stroke: #050505; stroke-width: .8; vector-effect: non-scaling-stroke; }
+.m-isl.pos { fill: #050505; stroke: #5aa5ff; stroke-width: 1.4; }
+.m-isl-label { font-family: var(--m); font-weight: 500; letter-spacing: .14em; fill: rgba(232, 227, 220, .7); pointer-events: none; }
+.lg i.blue { border-radius: 0; background: rgba(38, 120, 220, .32); outline: 1px solid rgba(90, 165, 255, .9); }
+@media (max-width: 860px) { .hero-inner { padding-bottom: 196px; } }
+.lg i.kin { border-radius: 0; background: #1c0c10; outline: 1px solid rgba(200, 0, 42, .5); }
+.lg i.presence { border-radius: 0; background: transparent; outline: 1px dashed rgba(232, 227, 220, .85); }
 .lg i.ally { border-radius: 0; background: rgba(153, 0, 28, .6); outline: 1px solid rgba(200, 0, 42, .8); }
 .lg i.coop { border-radius: 0; background: #26070e; outline: 1px solid rgba(153, 0, 28, .7); }
 .hero-legend { position: absolute; z-index: 2; left: var(--gut); bottom: 36px; display: flex; flex-wrap: wrap; gap: 10px 22px;
   font: 500 9.5px var(--m); letter-spacing: .16em; text-transform: uppercase; color: var(--t2); pointer-events: none; }
 @media (max-width: 860px) {
   .hero-legend { right: var(--gut); bottom: 18px; gap: 6px 14px; font-size: 8.5px; letter-spacing: .12em; }
-  .hero-inner { padding-bottom: 112px; }
+  .hero-inner { padding-bottom: 168px; }
 }
 
 /* ---------- responsive ---------- */
@@ -380,4 +395,16 @@ a.ticker-item:hover { color: #fff; }
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
   .rv { opacity: 1; transform: none; }
   .ticker-items { animation: none; }
+}
+
+/* ---------- late overrides ---------- */
+.m-mission { fill: #ff5a6e; stroke: #050505; stroke-width: .6; vector-effect: non-scaling-stroke; cursor: pointer; }
+.hide-missions .m-mission-g { display: none; }
+.lg i.mission { width: 7px; height: 7px; border-radius: 50%; background: #ff5a6e; }
+.hero-legend { right: calc(var(--gut) + 290px); } /* keep clear of the bottom-right HUD */
+@media (max-width: 860px) {
+  /* legend flows below the hero text instead of overlapping the buttons */
+  .hero { flex-wrap: wrap; align-content: flex-end; }
+  .hero-inner { padding-bottom: 24px; }
+  .hero-legend { position: relative; left: auto; right: auto; bottom: auto; width: 100%; padding: 0 var(--gut) 28px; }
 }
