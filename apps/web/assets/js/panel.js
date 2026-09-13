@@ -140,6 +140,15 @@
         .on('pointermove', (ev) => showTip(ev, GT.upper(p['name_' + GT.lang] || p.name_tr), p['note_' + GT.lang]))
         .on('pointerleave', hideTip);
     }
+    // Türkiye's officially announced operation areas (ADR 0015): whole areas only, with status and as-of date
+    for (const op of world.ops || []) {
+      const p = op.properties;
+      const status = `${GT.t('ops.' + p.status)} (${p.status_as_of} ${GT.t('ops.asof')})`;
+      gRoot.append('path').datum(op).attr('d', path).attr('class', 'm-ops' + (p.status === 'active' ? '' : ' ended'))
+        .on('pointermove', (ev) => showTip(ev, GT.upper(p['name_' + GT.lang] || p.name_tr),
+          [status, p['status_note_' + GT.lang] || p['note_' + GT.lang]].filter(Boolean).join(' · ')))
+        .on('pointerleave', hideTip);
+    }
     // Mavi Vatan: agreed maritime areas and Türkiye's notified limits (contested → dashed)
     for (const m of world.maritime) {
       const p = m.properties, area = /Polygon/.test(m.geometry.type);
