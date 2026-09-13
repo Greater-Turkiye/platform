@@ -133,8 +133,9 @@
     for (const m of world.maritime) {
       const p = m.properties, area = /Polygon/.test(m.geometry.type);
       gRoot.append('path').datum(m).attr('d', path)
-        .attr('class', area ? 'm-blue-area' : 'm-blue-line' + (p.status === 'claimed' ? ' claimed' : ''))
-        .on('pointermove', (ev) => showTip(ev, GT.upper(p['name_' + GT.lang] || p.name_tr), GT.t(p.status === 'claimed' ? 'lg.position' : 'lg.agreed')))
+        .attr('class', (area ? 'm-blue-area' : 'm-blue-line') + (p.status === 'claimed' || p.status === 'schematic' ? ' ' + p.status : ''))
+        .on('pointermove', (ev) => showTip(ev, GT.upper(p['name_' + GT.lang] || p.name_tr),
+          GT.t(p.status === 'claimed' ? 'lg.position' : p.status === 'schematic' ? 'lg.schematic' : 'lg.agreed')))
         .on('pointerleave', hideTip);
     }
     // Turkish islands; Kardak drawn hollow (Türkiye's position, contested)
@@ -236,14 +237,25 @@
     }
     if (lyr.events.checked) {
       const pulseAll = list.length <= 40;
+      const perRegion = {};
       for (const e of list) {
         const g = e.location && e.location.geometry;
-        if (!g) continue;
-        const [x, y] = proj(g.type === 'Point' ? g.coordinates : d3.geoCentroid(g));
+        let pt = g ? (g.type === 'Point' ? g.coordinates : d3.geoCentroid(g)) : null;
+        let regional = false;
+        if (!pt) {
+          // no coordinates in the record: show a hollow ring at the region's anchor, fanned out so rings don't stack
+          const r = GT.REGIONS[e.regions[0]];
+          if (!r || !r.at) continue;
+          const n = (perRegion[e.regions[0]] = (perRegion[e.regions[0]] || 0) + 1) - 1;
+          const ang = n * 2.4, rad = n ? 0.55 + 0.18 * n : 0;
+          pt = [r.at[0] + rad * Math.cos(ang), r.at[1] + rad * Math.sin(ang)];
+          regional = true;
+        }
+        const [x, y] = proj(pt);
         const m = gEvents.append('g').attr('data-x', x).attr('data-y', y);
-        bind(m, e, GT.txt(e.title), GT.upper(GT.label('event-types', e.event_type)));
-        if (!reduce && (pulseAll || e.id === state.selected)) m.append('circle').attr('class', 'mk-pulse').attr('r', 6);
-        m.append('circle').attr('class', 'mk-ev st-' + e.assessment.status + (e._example ? ' is-example' : '')).attr('r', 5.5);
+        bind(m, e, GT.txt(e.title), GT.upper(GT.label('event-types', e.event_type)) + (regional ? ' · ' + GT.t('p.regional') : ''));
+        if (!reduce && !regional && (pulseAll || e.id === state.selected)) m.append('circle').attr('class', 'mk-pulse').attr('r', 6);
+        m.append('circle').attr('class', 'mk-ev st-' + e.assessment.status + (e._example ? ' is-example' : '') + (regional ? ' is-regional' : '')).attr('r', regional ? 5 : 5.5);
       }
     }
     rescale();
