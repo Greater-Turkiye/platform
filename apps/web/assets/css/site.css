@@ -437,6 +437,20 @@ a.ticker-item:hover { color: #fff; }
 .m-concern { fill: rgba(63, 208, 201, .12); stroke: rgba(63, 208, 201, .95); stroke-width: 1.4; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
 .m-concern:hover { fill: rgba(63, 208, 201, .22); }
 .lg i.concern { border-radius: 0; background: rgba(63, 208, 201, .18); outline: 1px dashed rgba(63, 208, 201, .95); }
+/* NATO allies (Art. 5): light-blue outline; light-blue tint where no bilateral tier colours the country */
+.m-land.m-nato { stroke: rgba(140, 190, 240, .7); stroke-width: .7; }
+.m-land.m-nato:not(.m-ally):not(.m-coop):not(.m-kin):not(.m-frame):not(.hl) { fill: rgba(75, 146, 219, .16); }
+.m-land.m-nato:not(.m-ally):not(.m-coop):not(.m-kin):not(.m-frame):hover { fill: rgba(75, 146, 219, .28); }
+/* signed military framework / defence-industry agreements */
+.m-land.m-frame { fill: #1f1014; stroke: rgba(153, 0, 28, .45); stroke-width: .5; stroke-dasharray: 2 2; }
+.m-land.m-frame:hover { fill: #2a141b; }
+/* Türkiye's officially announced operation areas (ADR 0015): green; dashed and lighter once ended */
+.m-ops { fill: rgba(52, 190, 106, .5); stroke: rgba(110, 230, 150, 1); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.m-ops.ended { fill: rgba(52, 190, 106, .36); stroke-dasharray: 4 3; }
+.m-ops:hover { fill: rgba(52, 190, 106, .55); }
+.lg i.frame { border-radius: 0; background: #1f1014; outline: 1px dashed rgba(153, 0, 28, .6); }
+.lg i.nato { border-radius: 0; background: rgba(75, 146, 219, .24); outline: 1px solid rgba(140, 190, 240, .85); }
+.lg i.ops { border-radius: 0; background: rgba(46, 170, 96, .28); outline: 1px dashed rgba(96, 214, 140, .95); }
 .lg i.occupied { border-radius: 0; background: repeating-linear-gradient(45deg, #161313 0 2px, rgba(232, 227, 220, .5) 2px 3px); outline: 1px dashed rgba(232, 227, 220, .6); }
 /* stronger Mavi Vatan */
 .m-blue-area { fill: rgba(38, 120, 220, .4); stroke: rgba(110, 180, 255, .9); stroke-width: 1.1; filter: drop-shadow(0 0 4px rgba(70, 150, 255, .6)); }

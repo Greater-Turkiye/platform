@@ -92,13 +92,15 @@
       ally: ['rgba(153,0,28,0.58)', 'rgba(200,0,42,0.85)'],
       coop: ['#300a13', 'rgba(153,0,28,0.72)'],
       kin: ['#241017', 'rgba(200,0,42,0.45)'],
+      frame: ['#1f1014', 'rgba(153,0,28,0.45)'],
     };
     const group = (world) => {
-      const g = { land: [], watch: [], ally: [], coop: [], kin: [], tr: [], presence: [] };
+      const g = { land: [], watch: [], frame: [], ally: [], coop: [], kin: [], tr: [], presence: [], nato: [] };
       for (const f of world.countries) {
         const a = GT.a3(f);
         g[styleOf(a)].push(f);
         if (GT.PARTNERS[a] && GT.PARTNERS[a].presence) g.presence.push(f);
+        if (GT.NATO.has(a)) g.nato.push(f);
       }
       g.disputed = world.disputed.map((d) => ({ f: d, style: styleOf(d.properties.de_jure) }));
       g.borders = world.borders;
@@ -254,12 +256,24 @@
       const lean = !full && moveDpr < moveCap;
       if (!lean) { c.beginPath(); path(full ? grat : gratMoving); c.strokeStyle = 'rgba(232,227,220,0.06)'; c.lineWidth = 0.6; c.stroke(); }
       yield;
-      for (const k of ['land', 'watch', 'kin', 'coop', 'ally']) {
+      for (const k of ['land', 'watch', 'frame', 'kin', 'coop', 'ally']) {
         if (!g[k].length) continue;
         c.beginPath();
         for (const f of g[k]) path(f);
         c.fillStyle = STYLE[k][0]; c.fill();
         if (!lean || (k !== 'land' && k !== 'watch')) { c.strokeStyle = STYLE[k][1]; c.lineWidth = k === 'ally' ? 0.8 : 0.5; c.stroke(); }
+        yield;
+      }
+      // NATO allies (Art. 5): light-blue tint where no bilateral tier colours the country, light-blue outline on all
+      if (g.nato.length) {
+        c.beginPath();
+        for (const f of g.nato) if (!GT.PARTNERS[GT.a3(f)]) path(f);
+        c.fillStyle = 'rgba(75,146,219,0.16)'; c.fill();
+        if (!lean) {
+          c.beginPath();
+          for (const f of g.nato) path(f);
+          c.strokeStyle = 'rgba(140,190,240,0.7)'; c.lineWidth = 0.6; c.stroke();
+        }
         yield;
       }
       for (const d of g.disputed) {
@@ -288,6 +302,13 @@
           c.fillText([...GT.upper(cr.properties['label_' + GT.lang] || cr.properties.label_tr)].join(' '), lp[0], lp[1]);
           c.restore();
         }
+      }
+      // Türkiye's officially announced operation areas (ADR 0015): green, dashed and lighter once ended
+      for (const op of loWorld.ops || []) {
+        const ended = op.properties.status !== 'active';
+        c.beginPath(); path(op);
+        c.fillStyle = ended ? 'rgba(52,190,106,0.4)' : 'rgba(52,190,106,0.55)'; c.fill();
+        c.setLineDash(ended ? [3, 2] : []); c.strokeStyle = 'rgba(110,230,150,1)'; c.lineWidth = 1.1; c.stroke(); c.setLineDash([]);
       }
       yield;
       // Mavi Vatan (blue): agreed areas solid, schematic areas lighter with dashed edge, notified limits as glowing dashed lines
@@ -634,6 +655,7 @@
       if (d.properties.occupier) svg.append('path').datum(d).attr('d', path).attr('class', 'm-occupied');
     }
     for (const cr of world.concern) svg.append('path').datum(cr).attr('d', path).attr('class', 'm-concern');
+    for (const op of world.ops || []) svg.append('path').datum(op).attr('d', path).attr('class', 'm-ops' + (op.properties.status === 'active' ? '' : ' ended'));
 
     const tr = world.countries.find((f) => GT.a3(f) === 'TUR');
     svg.append('path').datum(world.borders).attr('class', 'm-border').attr('d', path);
