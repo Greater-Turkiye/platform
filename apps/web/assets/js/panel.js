@@ -195,7 +195,9 @@
       if (!r.at || r.countries.length === 1 || code === 'black-sea') continue;
       add('m-rlabel', r.at, 9, GT.upper(GT.label('regions', code)), 14).attr('data-region', code);
     }
-    add('m-tr-label', [35.1, 39.05], 19, GT.upper('Türkiye'), 6);
+    // centred on Türkiye's centroid; letters spaced with thin spaces (CSS letter-spacing would add a trailing gap)
+    const trF = world.countries.find((f) => GT.a3(f) === 'TUR');
+    add('m-tr-label', d3.geoCentroid(trF), 19, [...GT.upper('Türkiye')].join('  '));
     rescale();
   }
 
