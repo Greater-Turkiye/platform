@@ -19,7 +19,9 @@ Processing:
   * land removed: Natural Earth 10m land, grown by LAND_GAP_M and simplified with LAND_TOL_M
     (metric LAEA), so the clipped blocks stay off land while the published sea corners stay exact;
   * 1e-4° grid (4 decimals), exterior rings clockwise (d3-geo convention, as the schematic areas);
-  * merged area: union of `tur-med-schematic` and the seven clipped blocks; slivers narrower than
+  * KKTC territorial sea (schematic, kktc_territorial_sea()): 12 nm from the Natural Earth 10m
+    'N. Cyprus' coast, split from waters nearer the rest of the island by a Voronoi equidistance line;
+  * merged area: union of `tur-med-schematic`, the seven clipped blocks and that territorial sea; slivers narrower than
     2 × MERGE_CLOSE_M between the two (datum offset of the A/74/550 section A line as drawn on the
     site, block B's chord under A/74/550 point 5) are filled near the blocks only, then land removed.
 
@@ -80,6 +82,24 @@ LAND_GAP_M, LAND_TOL_M = 150.0, 100.0
 MERGE_CLOSE_M = 300.0
 MERGE_NEAR_M = 3000.0
 MERGE_VERTEX_BUDGET = 1500
+# KKTC territorial sea (schematic construction for the merged area only)
+TS_M = 12 * 1852.0                    # 12 nm from the KKTC coast
+TS_DENSIFY_M = 200.0                  # coast sampling for the equidistance (Voronoi) split
+TS_LAND_GAP_M, TS_LAND_TOL_M = 50.0, 40.0
+KKTC_A3 = "CYN"                       # Natural Earth 10m admin-0 "N. Cyprus"
+OTHER_CY_A3 = ("CYP", "CNM", "ESB", "WSB")   # Cyprus (GKRY), UN buffer zone, Dhekelia, Akrotiri
+CY_AEQD = "+proj=aeqd +lat_0=35.2 +lon_0=33.4 +ellps=WGS84 +units=m +no_defs"
+_CY_FWD = Transformer.from_crs("EPSG:4326", CY_AEQD, always_xy=True)
+_CY_INV = Transformer.from_crs(CY_AEQD, "EPSG:4326", always_xy=True)
+
+
+def cy_m(g):
+    """WGS84 lon/lat → azimuthal equidistant metres centred on Cyprus (scale error < 1e-4 within 200 km)."""
+    return shapely.transform(g, lambda xy: np.column_stack(_CY_FWD.transform(xy[:, 0], xy[:, 1])))
+
+
+def cy_deg(g):
+    return shapely.transform(g, lambda xy: np.column_stack(_CY_INV.transform(xy[:, 0], xy[:, 1])))
 BLOCKS = "ABCDEFG"
 LOCATION = {  # where each table's polygon lies relative to the island — this project's description, not the gazette's
     "A": ("Kıbrıs'ın kuzeybatısı", "north-west of Cyprus"),
@@ -274,27 +294,97 @@ def licence_features(blocks, t, grid_resid) -> list[dict]:
     return feats
 
 
-def merged_feature(med_geom, block_geoms, land, report) -> dict:
-    """Union of tur-med-schematic and the licence blocks (schematic, dissolved)."""
+def kktc_territorial_sea(cache: Path, land, report: list[str]):
+    """Schematic KKTC territorial sea: 12 nm from the Natural Earth 10m 'N. Cyprus' coast, split from the
+    waters nearer the rest of the island's coast (Cyprus/GKRY, UN buffer zone, SBAs) by an equidistance
+    line (Voronoi over coast points every TS_DENSIFY_M), minus generalised land.
+
+    Returns (kktc_ts, other_ts, info): both in WGS84 degrees; other_ts is the 12-nm belt nearer the
+    non-KKTC coast, used only as a guard (nothing may be added there)."""
+    C = bms.load_countries(cache)
+    cyn = C[KKTC_A3]
+    oth = unary_union([C[k] for k in OTHER_CY_A3])
+    cyn_m, oth_m = cy_m(cyn), cy_m(oth)
+    border = cyn_m.boundary.intersection(oth_m.buffer(50.0))          # Green Line / buffer-zone edge
+    k_coast = cyn_m.boundary.difference(oth_m.buffer(50.0))
+    o_coast = oth_m.boundary.difference(cyn_m.buffer(50.0))
+
+    def pts(line):
+        return np.unique(np.round(shapely.get_coordinates(shapely.segmentize(line, TS_DENSIFY_M)), 1), axis=0)
+
+    kp, op = pts(k_coast), pts(o_coast)
+    allp = np.vstack([kp, op])
+    lab = np.r_[np.ones(len(kp), bool), np.zeros(len(op), bool)]
+    allp, idx = np.unique(allp, axis=0, return_index=True)
+    lab = lab[idx]
+    env = box(*cyn_m.buffer(TS_M + 30000.0).bounds)
+    cells = shapely.voronoi_polygons(shapely.multipoints(allp), extend_to=env, ordered=True)
+    cells = list(cells.geoms)
+    assert len(cells) == len(allp)
+    nearer_k = unary_union([c for c, is_k in zip(cells, lab) if is_k]).intersection(env)
+    ts_m = cyn_m.buffer(TS_M, quad_segs=32).intersection(nearer_k)
+    other_m = oth_m.buffer(TS_M, quad_segs=32).difference(nearer_k)
+
+    all_cy = unary_union([land, cyn, oth])
+    mask = bms.to_deg(bms.to_m(all_cy.intersection(box(31.5, 33.8, 35.5, 36.5)))
+                      .buffer(TS_LAND_GAP_M, quad_segs=4).simplify(TS_LAND_TOL_M))
+    ts = cy_deg(ts_m).difference(mask)
+    ts = unary_union([p for p in bms.parts(ts) if p.geom_type == "Polygon" and geod_km2(p) >= 0.05])
+    other_ts = cy_deg(other_m).difference(all_cy)
+
+    # Coastal termini of the land border and an equidistance spot check along the split line.
+    ends = [Point(c) for c in shapely.get_coordinates(border)
+            if k_coast.distance(Point(c)) < 100 and o_coast.distance(Point(c)) < 100]
+    termini = []
+    for p in sorted(ends, key=lambda q: q.x):
+        if all(p.distance(t) > 5000 for t in termini):
+            termini.append(p)
+    divide = nearer_k.boundary.intersection(cyn_m.buffer(TS_M - 10.0)).difference(unary_union([cyn_m, oth_m]).buffer(500.0))
+    samples = [divide.interpolate(d) for d in np.arange(0.0, divide.length, 1000.0)] if not divide.is_empty else []
+    dmax = max((abs(k_coast.distance(s) - o_coast.distance(s)) for s in samples), default=float("nan"))
+    t_txt = "; ".join(f"{q.y:.4f}N {q.x:.4f}E" for q in (cy_deg(p) for p in termini))
+    info = {"km2": geod_km2(ts), "parts": len(bms.parts(ts)), "termini": t_txt, "divide_km": divide.length / 1000,
+            "dmax": dmax, "n_k": len(kp), "n_o": len(op)}
+    report.append(f"KKTC territorial sea (schematic): 12 nm from NE 10m 'N. Cyprus' coast ({len(kp)} coast points every "
+                  f"{TS_DENSIFY_M:g} m vs {len(op)} on the rest of the island); land-border coastal termini {t_txt}; "
+                  f"equidistance split {divide.length / 1000:.1f} km long, max |d_KKTC − d_other| {dmax:.0f} m at 1-km samples; "
+                  f"{info['parts']} part(s), {info['km2']:,.0f} km² (land set back {TS_LAND_GAP_M:g} m)")
+    return ts, other_ts, info
+
+
+def merged_feature(med_geom, block_geoms, land, report, cache: Path) -> dict:
+    """Union of tur-med-schematic, the licence blocks and the schematic KKTC territorial sea (dissolved)."""
+    ts, other_ts, ts_info = kktc_territorial_sea(cache, land, report)
     blocks_u = unary_union(block_geoms)
-    u = unary_union([med_geom, blocks_u])
+    core = unary_union([blocks_u, ts])
+    u = unary_union([med_geom, core])
     um = bms.to_m(u)
     closed = um.buffer(MERGE_CLOSE_M, quad_segs=8).buffer(-MERGE_CLOSE_M, quad_segs=8)
-    fill = closed.difference(um).intersection(bms.to_m(blocks_u).buffer(MERGE_NEAR_M))
-    fill_deg = bms.to_deg(fill).difference(land)
+    fill = closed.difference(um).intersection(bms.to_m(core).buffer(MERGE_NEAR_M))
+    fill_deg = bms.to_deg(fill).difference(land).difference(other_ts)     # never add GKRY-side 12 nm
     g = unary_union([u, fill_deg]).difference(land)
     # Holes that tur-med-schematic did not have (they are enclosed only because of the merge): the
     # parts of the Cyprus 12-nm territorial-sea cut-out that lie north of the 2011 line off the TRNC
     # coast. Waters off the TRNC coast are not "foreign" to a combined Türkiye + TRNC position, so
     # these are filled; holes that already exist in tur-med-schematic (Greek islands' TS) are kept.
     med_holes = unary_union([Polygon(r) for p in bms.parts(med_geom) for r in p.interiors])
-    kept, filled = [], []
+    kept, filled, refused = [], [], []
     for p in bms.parts(g):
         keep_rings = []
         for r in p.interiors:
-            (keep_rings if med_holes.contains(Polygon(r).representative_point()) else filled).append(r)
+            hp = Polygon(r)
+            if med_holes.contains(hp.representative_point()):
+                keep_rings.append(r)
+            elif hp.intersection(other_ts).area > 0.01 * hp.area:      # would add GKRY-side 12 nm: keep open
+                keep_rings.append(r); refused.append(r)
+            else:
+                filled.append(r)
         kept.append(Polygon(p.exterior, keep_rings))
     g = unary_union(kept).difference(land)
+    added_gk = g.intersection(other_ts).difference(unary_union([med_geom, blocks_u]).buffer(1e-4))
+    assert geod_km2(added_gk) < 0.5 if not added_gk.is_empty else True, f"GKRY-side 12 nm added: {geod_km2(added_gk):.2f} km²"
+    if refused:
+        report.append(f"Merged Türkiye+KKTC: {len(refused)} hole(s) left open because they lie in the GKRY-side 12 nm")
     report.append(f"Merged Türkiye+KKTC: filled {len(filled)} hole(s) created by the merge "
                   f"({', '.join(f'{geod_km2(Polygon(r)):.1f} km² at {Polygon(r).centroid.y:.3f}N {Polygon(r).centroid.x:.3f}E' for r in filled)})")
     g = round_orient(g)
@@ -307,31 +397,45 @@ def merged_feature(med_geom, block_geoms, land, report) -> dict:
     lost = unary_union([med_geom, blocks_u]).difference(g.buffer(2e-4)).area
     assert lost < 1e-9, lost
     holes = sum(len(p.interiors) for p in bms.parts(g))
+    ts_new = ts.difference(unary_union([med_geom, blocks_u]))
     report.append(f"Merged Türkiye+KKTC: {len(bms.parts(g))} parts, {holes} holes, {n} vertices, {geod_km2(g):,.0f} km² "
                   f"(tur-med-schematic {geod_km2(med_geom):,.0f} km² + blocks {geod_km2(blocks_u):,.0f} km², overlap "
-                  f"{geod_km2(med_geom.intersection(blocks_u)):,.1f} km²); slivers filled {fill.area / 1e6:.1f} km²; "
+                  f"{geod_km2(med_geom.intersection(blocks_u)):,.1f} km²; KKTC territorial sea {ts_info['km2']:,.0f} km², of which "
+                  f"{geod_km2(ts_new):,.0f} km² outside the other components); slivers filled {fill.area / 1e6:.1f} km²; "
                   f"overlap with NE 10m land {g.intersection(land).area:.1e} deg²")
     props = {
         "id": "tur-kktc-med-merged",
         "name_tr": "Doğu Akdeniz: Türkiye + KKTC birleşik deniz yetki alanı (şematik)",
         "name_en": "Eastern Mediterranean: combined Türkiye + TRNC maritime area (schematic)",
         "status": "schematic",
-        "basis_tr": ("ŞEMATİK ALAN — Türkiye'nin ve KKTC'nin birlikte tutumunu tek bir dolgu olarak gösterir. İki bileşenin "
+        "basis_tr": ("ŞEMATİK ALAN — Türkiye'nin ve KKTC'nin birlikte tutumunu tek bir dolgu olarak gösterir. Üç bileşenin "
                      "birleşimidir: (1) `tur-med-schematic` (Türkiye'nin A/74/550 ve Türkiye–Libya Mutabakatı'na dayanan "
-                     "şematik alanı; resmî koordinat değildir) ve (2) KKTC'nin TPAO'ya verdiği A–G deniz ruhsat sahaları "
-                     f"(resmî koordinatlar: {GAZETTE_TR}, karar {DECISION}). KKTC'nin kendi ilan ettiği bir MEB veya kıta "
+                     "şematik alanı; resmî koordinat değildir), (2) KKTC'nin TPAO'ya verdiği A–G deniz ruhsat sahaları "
+                     f"(resmî koordinatlar: {GAZETTE_TR}, karar {DECISION}) ve (3) KKTC kıyısından ölçülen 12 deniz millik "
+                     "karasuları (bu projenin yapısı, şematik; resmî koordinat değildir). KKTC'nin kendi ilan ettiği bir MEB veya kıta "
                      "sahanlığı dış sınırı yoktur; ruhsat sahaları KKTC'nin yetki iddiasını gösteren resmî alanlardır. "
                      "Türkiye ve KKTC'nin tutumuna göre Kıbrıs Türkleri adanın doğal kaynakları üzerinde eşit haklara "
                      "sahiptir. GKRY, Yunanistan ve Mısır bu tutuma itiraz etmektedir."),
         "basis_en": ("SCHEMATIC AREA — shows the combined Türkiye + TRNC position as a single fill. It is the union of (1) "
                      "`tur-med-schematic` (Türkiye's schematic area based on A/74/550 and the Türkiye–Libya MoU; not "
-                     "official coordinates) and (2) the TRNC's offshore licence areas A–G granted to TPAO (official "
-                     f"coordinates: {GAZETTE_EN}, decision {DECISION}). The TRNC has not declared an EEZ or continental-shelf "
+                     "official coordinates), (2) the TRNC's offshore licence areas A–G granted to TPAO (official "
+                     f"coordinates: {GAZETTE_EN}, decision {DECISION}) and (3) a 12-nautical-mile territorial sea measured "
+                     "from the TRNC coast (this project's construction, schematic; not official coordinates). The TRNC has "
+                     "not declared an EEZ or continental-shelf "
                      "outer limit of its own; the licence areas are the official areas through which it asserts "
                      "jurisdiction. In Türkiye's and the TRNC's position, Turkish Cypriots have equal rights over the "
                      "island's natural resources. The Greek Cypriot Administration, Greece and Egypt contest this position."),
-        "method_tr": ("İki bileşen birleştirildi (dissolve). Bileşenler arasındaki, 2 × "
-                      f"{MERGE_CLOSE_M:g} m'den dar şeritler yalnızca ruhsat sahalarının {MERGE_NEAR_M / 1000:g} km "
+        "method_tr": ("KKTC karasuları (ŞEMATİK — bu projenin yapısıdır, resmî koordinat değildir): Natural Earth 10m "
+                      "admin-0 'N. Cyprus' poligonunun (Erenköy/Kokkina dahil) kıyısından 12 deniz mili, Kıbrıs merkezli "
+                      "azimut eşit uzaklık izdüşümünde ölçüldü (normal esas hat). Adanın geri kalanının (GKRY, BM ara "
+                      "bölgesi, İngiliz üsleri) kıyısına daha yakın sular, iki kıyı arasındaki eşit uzaklık hattıyla "
+                      f"ayrıldı (kıyılar {TS_DENSIFY_M:g} m aralıkla örneklendi, Voronoi); hat Yeşilırmak/Lefke, Erenköy "
+                      f"ve Mağusa/Derinya yakınındaki kara sınırı uçlarından başlar. Kara {TS_LAND_GAP_M:g} m geri "
+                      f"çekilerek çıkarıldı. KKTC karasuları {ts_info['km2']:,.0f} km²; bunun {geod_km2(ts_new):,.0f} km²'si "
+                      "diğer bileşenlerin dışındaydı. GKRY tarafının 12 dm'si ve Yunan adalarının karasuları delikleri "
+                      "değiştirilmedi; aşağıdaki dolgular oraya hiçbir alan eklemez. Ardından üç bileşen birleştirildi "
+                      "(dissolve). Bileşenler arasındaki, 2 × "
+                      f"{MERGE_CLOSE_M:g} m'den dar şeritler yalnızca ruhsat sahalarının ve KKTC karasularının {MERGE_NEAR_M / 1000:g} km "
                       "yakınında dolduruldu (morfolojik kapama): bunlar ED50 → WGS84 dönüşümü nedeniyle sahaların kuzey "
                       "kenarı ile sitedeki A/74/550 bölüm A çizgisi arasındaki ~100 m'lik fark ve B sahasının kuzey kenarının "
                       "A/74/550 5. noktasının altından geçen kirişidir. Birleşim sonucu kapanan ve `tur-med-schematic`'te "
@@ -339,9 +443,19 @@ def merged_feature(med_geom, block_geoms, land, report) -> dict:
                       "kesiti) dolduruldu: Türkiye + KKTC birleşik tutumunda KKTC kıyısı açığındaki sular 'yabancı' "
                       "değildir. Yunan adalarının karasuları delikleri korundu. Ardından kara (Natural Earth 10m) "
                       "çıkarıldı; 1e-4° ızgara, dış halka saat yönünde."),
-        "method_en": ("The two components are dissolved into one. Slivers narrower than 2 × "
+        "method_en": ("TRNC territorial sea (SCHEMATIC — this project's construction, not official coordinates): 12 "
+                      "nautical miles from the coast of the Natural Earth 10m admin-0 'N. Cyprus' polygon (incl. the "
+                      "Erenköy/Kokkina exclave), measured in an azimuthal equidistant projection centred on Cyprus "
+                      "(normal baseline). Waters nearer the coast of the rest of the island (Greek Cypriot "
+                      "Administration, UN buffer zone, British Sovereign Base Areas) are split off by an equidistance "
+                      f"line between the two coasts (coasts sampled every {TS_DENSIFY_M:g} m, Voronoi); it starts at the "
+                      "coastal ends of the land border near Yeşilırmak/Lefke, Erenköy and Mağusa/Deryneia. Land is "
+                      f"removed with a {TS_LAND_GAP_M:g} m set-back. The territorial sea is {ts_info['km2']:,.0f} km², of "
+                      f"which {geod_km2(ts_new):,.0f} km² lay outside the other components. The Greek Cypriot side's 12 nm "
+                      "and the Greek islands' territorial-sea holes are unchanged; none of the fills below adds area "
+                      "there. The three components are then dissolved into one. Slivers narrower than 2 × "
                       f"{MERGE_CLOSE_M:g} m between them are filled only within {MERGE_NEAR_M / 1000:g} km of the licence "
-                      "areas (morphological closing): they are the ~100 m offset between the blocks' northern edges "
+                      "areas and the territorial sea (morphological closing): they are the ~100 m offset between the blocks' northern edges "
                       "(converted from ED50 to WGS84) and the A/74/550 section A line as drawn on the site, and block B's "
                       "northern edge, a chord that passes under A/74/550 point 5. Holes closed by the merge that "
                       "`tur-med-schematic` does not have (the part of the Cyprus 12-nm territorial-sea cut-out north of "
@@ -354,9 +468,12 @@ def merged_feature(med_geom, block_geoms, land, report) -> dict:
         "contested_by": ["CYP (GKRY)", "Greece", "Egypt"],
         "attribution": ("Marine Regions (VLIZ) — Cypriot 12 NM, IHO Sea Areas — © Flanders Marine Institute, CC BY 4.0; "
                         "coastlines: Natural Earth (public domain)"),
-        "components": ["tur-med-schematic"] + [f"kktc-licence-{b}" for b in BLOCKS],
+        "components": (["tur-med-schematic"] + [f"kktc-licence-{b}" for b in BLOCKS]
+                       + ["KKTC 12-nm territorial sea (schematic construction, not a separate feature)"]),
+        "kktc_territorial_sea_km2": round(ts_info["km2"]),
+        "kktc_territorial_sea_added_km2": round(geod_km2(ts_new)),
         "sources": [bm.UNDOC + "A/74/550", bm.UNDOC + "A/74/757", RG_2011_161, RG_2011_198, RG_2023_219,
-                    bm.MR_LICENCE, bm.NE_LAND],
+                    bm.MR_LICENCE, bm.NE_LAND, bms.NE_COUNTRIES],
     }
     return {"type": "Feature", "properties": props, "geometry": bms.geojson_geom(g)}
 
@@ -371,7 +488,7 @@ def build(cache: Path, land, report: list[str], maritime: list[dict]) -> list[di
     feats = licence_features(blocks, t, resid)
     med = next((f for f in maritime if f["properties"]["id"] == "tur-med-schematic"), None)
     if med is not None:
-        feats.append(merged_feature(shape(med["geometry"]), [shape(f["geometry"]) for f in feats], land, report))
+        feats.append(merged_feature(shape(med["geometry"]), [shape(f["geometry"]) for f in feats], land, report, cache))
     else:
         report.append("Merged Türkiye+KKTC: skipped (no tur-med-schematic feature)")
     return feats
@@ -382,10 +499,47 @@ def is_kktc(f) -> bool:
     return p.get("kind") == "kktc-licence" or p.get("id") == "tur-kktc-med-merged"
 
 
+def preview(png: Path, cache: Path, land, feats: list[dict]):
+    """Cyprus close-up: merged area, licence outlines, the schematic KKTC territorial sea."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import PathPatch
+    from matplotlib.path import Path as MPath
+
+    def patch(ax, g, **kw):
+        for p in bms.parts(g):
+            rings = [p.exterior] + list(p.interiors)
+            verts = [c for r in rings for c in r.coords]
+            codes = [c for r in rings for c in [MPath.MOVETO] + [MPath.LINETO] * (len(r.coords) - 1)]
+            ax.add_patch(PathPatch(MPath(verts, codes), **kw))
+
+    ts, other_ts, _ = kktc_territorial_sea(cache, land, [])
+    fig, ax = plt.subplots(figsize=(11, 7.5), dpi=110)
+    frame = box(31.4, 33.0, 36.4, 36.6)
+    patch(ax, land.intersection(frame), fc="#d9d6cf", ec="#9a968d", lw=0.3)
+    merged = next(shape(f["geometry"]) for f in feats if f["properties"]["id"] == "tur-kktc-med-merged")
+    patch(ax, merged.intersection(frame), fc="#0e7490", alpha=0.25, ec="#0e7490", lw=0.6)
+    patch(ax, ts, fc="none", ec="#0e7490", lw=0.8, hatch="xxx", alpha=0.6)
+    patch(ax, other_ts.intersection(frame), fc="none", ec="#6b7280", lw=0.6, ls=":")
+    for f in feats:
+        if f["properties"].get("kind") == "kktc-licence":
+            g = shape(f["geometry"])
+            ax.plot(*g.exterior.xy, "--", color="#b45309", lw=1.0)
+            c = g.representative_point()
+            ax.annotate(f["properties"]["licence_ref"][-1], (c.x, c.y), color="#b45309", fontsize=9, ha="center")
+    ax.set_xlim(frame.bounds[0], frame.bounds[2]); ax.set_ylim(frame.bounds[1], frame.bounds[3])
+    ax.set_aspect(1 / math.cos(math.radians(35.0))); ax.grid(lw=0.2)
+    ax.set_title("tur-kktc-med-merged (teal) — licence areas A–G (brown dashed, official) — KKTC 12-nm territorial sea "
+                 "(cross-hatched, schematic) — GKRY-side 12 nm (grey dotted, excluded)", fontsize=8)
+    fig.tight_layout(); fig.savefig(png); plt.close(fig)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--cache", type=Path, default=Path(tempfile.gettempdir()) / "gt-geo-cache")
     ap.add_argument("--out", type=Path, default=bm.OUT)
+    ap.add_argument("--preview", type=Path, help="write a Cyprus close-up PNG")
     args = ap.parse_args()
     args.cache.mkdir(parents=True, exist_ok=True)
     path = args.out / "maritime-tur.geojson"
@@ -397,6 +551,8 @@ def main():
     meta = {k: v for k, v in fc.items() if k not in ("type", "features")}
     meta["description"] = bm.META_DESCRIPTION
     bm.write_fc(path, feats, meta)
+    if args.preview:
+        preview(args.preview, args.cache, land, feats)
     print("\n".join(report))
 
 

@@ -530,7 +530,7 @@ def main():
     feats = base + new + lic
     if lic:
         med = next(f for f in new if f["properties"]["id"] == "tur-med-schematic")
-        feats.append(bk.merged_feature(shape(med["geometry"]), [shape(f["geometry"]) for f in lic], land, report))
+        feats.append(bk.merged_feature(shape(med["geometry"]), [shape(f["geometry"]) for f in lic], land, report, args.cache))
     meta = {k: v for k, v in fc.items() if k not in ("type", "features")}
     meta["description"] = bm.META_DESCRIPTION
     bm.write_fc(path, feats, meta)
