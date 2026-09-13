@@ -89,6 +89,7 @@ GRID = (22.0, 33.6, 30.4, 41.3)          # lon0, lat0, lon1, lat1 (Aegean + Dode
 GRID_SYR = (35.2, 35.4, 36.4, 36.6)
 DENSIFY = 0.002                # degrees between coast samples (~200 m)
 FRAME = (18.0, 30.0, 40.0, 44.0)
+CLOSE_LAT = 41.0               # the envelope's closing path runs along this parallel, over land
 MEDIAN_SIMPLIFY_M = 150.0
 MIN_PART_KM2 = 5.0             # drop isolated pockets smaller than this
 VERTEX_BUDGET = 2000           # both schematic features together
@@ -284,7 +285,13 @@ def build(cache: Path, land, report: list[str]) -> list[dict]:
     arc = min(arc1, arc2, key=lambda a: a[:, 1].mean())            # the southern one
     c0 = Point(arc[0])
     crete_arc = [tuple(c) for c in arc[:-1]] + [(j2.x, j2.y)]
-    closure = [(s_term.x + 0.9, s_term.y + 0.1), (37.0, 41.0), (22.0, 41.0), (22.0, 35.6)]
+    # Closing path over land and the Greek side. Note: the metric steps below (to_m/to_deg, LAEA)
+    # treat the 15°-long (37,41)–(22,41) edge as a straight chord, which bulges to 41.23°N at 31°E
+    # and reaches the Black Sea coast off Sakarya (41.09–41.12°N). The resulting Black Sea piece is
+    # removed where parts are selected (outside the IHO Aegean/Eastern Mediterranean basins).
+    # Densifying this edge would also avoid it; the Aegean geometry stays the same, but its ring is
+    # re-ordered, which breaks byte-stability of tur-aegean-schematic, so the selection rule is used.
+    closure = [(s_term.x + 0.9, s_term.y + 0.1), (37.0, CLOSE_LAT), (22.0, CLOSE_LAT), (22.0, 35.6)]
     ring = crete_arc + mou + sec_b + sec_a + [(s_term.x, s_term.y)] + closure
     envelope = Polygon(ring)
     assert envelope.is_valid, shapely.is_valid_reason(envelope)
@@ -343,13 +350,23 @@ def build(cache: Path, land, report: list[str]) -> list[dict]:
         t = t.difference(unary_union([iho["marmara"], dard_cut.buffer(1e-5)]))
         t = unary_union([p for p in parts(t) if p.intersection(mar_zone).area < 0.5 * p.area])
         aeg_mask = iho["aegean"].buffer(0.05).difference(iho["emed"])
+        # Only parts in the IHO Aegean Sea or Eastern Mediterranean basin are kept: this drops
+        # anything the envelope picks up in the Black Sea (see the closure note) or the Marmara.
+        basins = unary_union([iho["aegean"], iho["emed"]])
         out = {}
         for key, g in (("aegean", t.intersection(aeg_mask)), ("med", t.difference(aeg_mask))):
-            keep = [p for p in parts(g) if p.geom_type == "Polygon" and km2(p) >= MIN_PART_KM2]
-            dropped = [p for p in parts(g) if p.geom_type == "Polygon" and km2(p) < MIN_PART_KM2]
+            stray = [p for p in parts(g) if p.geom_type == "Polygon" and not p.intersects(basins)]
+            keep = [p for p in parts(g) if p.geom_type == "Polygon" and km2(p) >= MIN_PART_KM2 and p.intersects(basins)]
+            dropped = [p for p in parts(g) if p.geom_type == "Polygon" and km2(p) < MIN_PART_KM2 and p.intersects(basins)]
+            if stray and gap == GAP_STEPS[0][0]:
+                report.append(f"Schematic {key}: dropped {len(stray)} part(s) outside the IHO Aegean/Eastern Mediterranean "
+                              f"basins, {sum(km2(p) for p in stray):.1f} km² at "
+                              + ", ".join(f"{p.bounds[1]:.2f}–{p.bounds[3]:.2f}N {p.bounds[0]:.2f}–{p.bounds[2]:.2f}E" for p in stray))
             g = shapely.set_precision(MultiPolygon(keep), 1e-4)
             g = unary_union([p for p in parts(g) if p.geom_type == "Polygon"])
             g = shapely.orient_polygons(g, exterior_cw=True)
+            if g.geom_type == "Polygon":
+                g = MultiPolygon([g])      # keep the feature type stable (MultiPolygon) when one part remains
             out[key] = (g, len(dropped), sum(km2(p) for p in dropped))
         total = sum(bm.nverts(g) for g, _, _ in out.values())
         report.append(f"Schematic: gap {gap} m / simplify {tol} m -> {total} vertices")
@@ -358,6 +375,13 @@ def build(cache: Path, land, report: list[str]) -> list[dict]:
 
     for key, (g, nd, ad) in out.items():
         assert g.is_valid, key
+        # Both areas lie south of the closing parallel (no Black Sea), and the Aegean area touches the
+        # Sea of Marmara at most along the Dardanelles closing line (edge contact, < 0.1 km²).
+        assert g.bounds[3] < CLOSE_LAT, (key, g.bounds)
+        mar = g.intersection(iho["marmara"]).area
+        assert mar < 1e-5, (key, mar)
+        report.append(f"Schematic {key}: northernmost point {g.bounds[3]:.4f}N (< {CLOSE_LAT}N); "
+                      f"overlap with IHO Sea of Marmara {km2(g.intersection(iho['marmara'])):.3f} km²")
         bad = g.intersection(all_land).area + g.intersection(gr_ts).area + g.intersection(cyp_ts).area \
             + g.intersection(sy_ts).area
         assert bad < 1e-9, (key, bad)
