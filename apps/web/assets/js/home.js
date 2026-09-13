@@ -181,6 +181,12 @@
         const st = m.properties.status;
         c.beginPath(); path(m);
         c.save();
+        if (st === 'licence') {
+          // KKTC licence blocks sit inside the merged Türkiye + KKTC area: thin outline only (the fill comes from the merged area)
+          c.strokeStyle = 'rgba(150,200,255,0.75)'; c.lineWidth = 0.7; c.stroke();
+          c.restore();
+          continue;
+        }
         c.shadowColor = 'rgba(70,150,255,0.8)'; c.shadowBlur = 8;
         if (/Polygon/.test(m.geometry.type)) {
           c.fillStyle = st === 'schematic' ? 'rgba(38,120,220,0.26)' : 'rgba(38,120,220,0.42)'; c.fill();

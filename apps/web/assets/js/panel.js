@@ -140,9 +140,9 @@
     for (const m of world.maritime) {
       const p = m.properties, area = /Polygon/.test(m.geometry.type);
       gRoot.append('path').datum(m).attr('d', path)
-        .attr('class', (area ? 'm-blue-area' : 'm-blue-line') + (p.status === 'claimed' || p.status === 'schematic' ? ' ' + p.status : ''))
+        .attr('class', (area ? 'm-blue-area' : 'm-blue-line') + (['claimed', 'schematic', 'licence'].includes(p.status) ? ' ' + p.status : ''))
         .on('pointermove', (ev) => showTip(ev, GT.upper(p['name_' + GT.lang] || p.name_tr),
-          GT.t(p.status === 'claimed' ? 'lg.position' : p.status === 'schematic' ? 'lg.schematic' : 'lg.agreed')))
+          GT.t({ claimed: 'lg.position', schematic: 'lg.schematic', licence: 'lg.licence' }[p.status] || 'lg.agreed')))
         .on('pointerleave', hideTip);
     }
     // Turkish islands; Kardak drawn hollow (Türkiye's position, contested)

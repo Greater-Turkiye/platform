@@ -523,7 +523,14 @@ def main():
     fc = json.loads(path.read_text(encoding="utf-8"))
     report: list[str] = []
     land = bm.load_land(args.cache)
-    feats = [f for f in fc["features"] if f["properties"].get("status") != "schematic"] + build(args.cache, land, report)
+    import build_kktc_licences as bk  # keeps the TRNC licence areas and rebuilds the merged area on top
+    base = [f for f in fc["features"] if f["properties"].get("status") != "schematic" and not bk.is_kktc(f)]
+    lic = [f for f in fc["features"] if f["properties"].get("kind") == "kktc-licence"]
+    new = build(args.cache, land, report)
+    feats = base + new + lic
+    if lic:
+        med = next(f for f in new if f["properties"]["id"] == "tur-med-schematic")
+        feats.append(bk.merged_feature(shape(med["geometry"]), [shape(f["geometry"]) for f in lic], land, report))
     meta = {k: v for k, v in fc.items() if k not in ("type", "features")}
     meta["description"] = bm.META_DESCRIPTION
     bm.write_fc(path, feats, meta)

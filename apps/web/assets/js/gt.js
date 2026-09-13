@@ -472,6 +472,8 @@
   Object.assign(I18N.en, { 'p.regional': 'region level only; no precise location', 'lg.regional': 'Event (region level)' });
   Object.assign(I18N.tr, { 'lg.mission': 'Türk dış temsilciliği (şehir düzeyi)', 'p.lyr.missions': 'Temsilcilikler','lg.schematic': "Şematik — Türkiye'nin tutumu esas alınarak çizildi, resmî koordinat değildir" });
   Object.assign(I18N.en, { 'lg.mission': 'Turkish diplomatic mission (city level)', 'p.lyr.missions': 'Missions', 'lg.schematic': "Schematic — based on Türkiye's position, not official coordinates" });
+  Object.assign(I18N.tr, { 'lg.licence': 'KKTC ruhsat sahası (TPAO) · resmî koordinatlar, KKTC Resmî Gazete 161, 22.9.2011' });
+  Object.assign(I18N.en, { 'lg.licence': 'TRNC licence area (TPAO) · official coordinates, TRNC Official Gazette 161, 22 Sep 2011' });
 
   GT.loadWorld = async (url) => {
     const r = await fetch(url);
@@ -483,8 +485,11 @@
     const base = url.replace(/countries-\d+m\.json$/, '');
     const [disputed, maritime, islands, missions, concern] = await Promise.all(
       ['disputed-tur-view', 'maritime-tur', 'islands-tur', 'missions-tur', 'concern-regions'].map((n) => optionalLayer(base + n + '.geojson')));
+    // a merged area (e.g. Türkiye + KKTC) replaces the schematic areas it lists in `components`;
+    // licence blocks it lists stay, drawn as outlines inside it
+    const merged = new Set(maritime.flatMap((m) => m.properties.components || []));
     return {
-      maritime,
+      maritime: maritime.filter((m) => !(merged.has(m.properties.id) && m.properties.status === 'schematic')),
       islands,
       missions,
       concern, // human-rights markers (East Turkestan) — not boundary claims
