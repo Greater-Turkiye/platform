@@ -12,7 +12,7 @@ Tüm varlıklar sitede barındırılır; site üçüncü taraflara istek gönder
 | `fonts/plexmono-*.woff2` | [IBM Plex Mono](https://github.com/IBM/plex) via Fontsource | 400, 500 | SIL Open Font License 1.1 |
 | `data/maritime-tur.geojson` (Black Sea polygon; Cyprus 12 nm cut-out) | [Marine Regions](https://www.marineregions.org) Maritime Boundaries, Flanders Marine Institute (VLIZ) — modified (clipped, simplified) | WFS, accessed 2026-09-13 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) · "Flanders Marine Institute (2026): MarineRegions.org" — see `data/MARITIME-SOURCES.md` |
 | `data/islands-tur.geojson` | [Wikidata](https://www.wikidata.org) coordinates (P625) | accessed 2026-09-13 | CC0 1.0 |
+| `data/disputed-tur-view.geojson`, `data/concern-regions.geojson` | [Natural Earth](https://www.naturalearthdata.com) 1:50m breakaway/disputed areas, admin-0 (Palestine) and admin-1 (Xinjiang) | 5.x | Public domain |
 
 Boundaries shown are Natural Earth's de facto boundaries and do not imply any position of the project on sovereignty.
 Gösterilen sınırlar Natural Earth'ün fiilî sınırlarıdır; projenin egemenlik konusundaki bir tutumunu ifade etmez.
-| `data/disputed-tur-view.geojson`, `data/concern-regions.geojson` | [Natural Earth](https://www.naturalearthdata.com) 1:50m breakaway/disputed areas, admin-0 (Palestine) and admin-1 (Xinjiang) | 5.x | Public domain |
