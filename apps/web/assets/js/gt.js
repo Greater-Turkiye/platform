@@ -349,10 +349,17 @@
   GT.COUNTRY_LABELS = {
     GRC: [21.9, 39.6], BGR: [25.3, 42.75], SYR: [38.4, 35.3], IRQ: [43.6, 33.3], IRN: [54, 32.8], GEO: [43.6, 42.15], ARM: [44.9, 40.25], AZE: [47.9, 40.45],
     UKR: [31.5, 48.8], RUS: [42.5, 49.3], EGY: [29.8, 26.5], LBY: [18, 27.8], JOR: [36.8, 30.7], SAU: [44.5, 24.8], ROU: [24.8, 45.9], SRB: [20.9, 44.1],
-    ISR: [34.9, 31.3], LBN: [35.9, 33.9], CYP: [32.9, 34.82], XNC: [33.62, 35.28], TKM: [58.5, 39.2], KAZ: [66, 48], UZB: [63.5, 41.8], ALB: [20, 41],
+    ISR: [34.85, 30.7], LBN: [35.9, 33.9], CYP: [32.9, 34.82], XNC: [33.62, 35.28], TKM: [58.5, 39.2], KAZ: [66, 48], UZB: [63.5, 41.8], ALB: [20, 41],
     MKD: [21.7, 41.6], ITA: [14.5, 41.8], TUN: [9.5, 34], DZA: [3, 29], SDN: [30, 16], YEM: [47.5, 15.8], OMN: [56.5, 20.8], KWT: [47.7, 29.3],
     PAK: [69.6, 29.6], PSE: [35.3, 31.95],
   };
+  // extra place labels (shown when zoomed in on the dashboard)
+  GT.PLACE_LABELS = [
+    { at: [34.38, 31.42], tr: 'Gazze', en: 'Gaza' },
+    { at: [35.8, 33.05], tr: 'Golan', en: 'Golan' },
+  ];
+  Object.assign(I18N.tr, { 'lg.occupied': 'İşgal altındaki topraklar (Filistin, Golan, Kırım)', 'lg.concern': 'Doğu Türkistan · Uygur Türklerine yönelik ihlaller' });
+  Object.assign(I18N.en, { 'lg.occupied': 'Occupied territory (Palestine, Golan, Crimea)', 'lg.concern': 'East Turkestan · abuses against Uyghur Turks' });
 
   /* Türkiye's defence agreements shown on the map. Every entry carries its sources so the layer stays auditable;
      add a country only with a signed agreement and a primary or reputable source.
@@ -474,12 +481,13 @@
     // Mavi Vatan maritime jurisdiction/claims and Turkish islands (see assets/data/MARITIME-SOURCES.md),
     // and Türkiye's diplomatic missions at city level (see assets/data/MISSIONS-SOURCES.md).
     const base = url.replace(/countries-\d+m\.json$/, '');
-    const [disputed, maritime, islands, missions] = await Promise.all(
-      ['disputed-tur-view', 'maritime-tur', 'islands-tur', 'missions-tur'].map((n) => optionalLayer(base + n + '.geojson')));
+    const [disputed, maritime, islands, missions, concern] = await Promise.all(
+      ['disputed-tur-view', 'maritime-tur', 'islands-tur', 'missions-tur', 'concern-regions'].map((n) => optionalLayer(base + n + '.geojson')));
     return {
       maritime,
       islands,
       missions,
+      concern, // human-rights markers (East Turkestan) — not boundary claims
       countries: topojson.feature(topo, topo.objects.countries).features,
       // no border line between features that map to the same state (e.g. Somaliland is part of Somalia)
       borders: topojson.mesh(topo, topo.objects.countries, (a, b) => a !== b && GT.a3(a) !== GT.a3(b)),
@@ -525,6 +533,11 @@
     tg.append('stop').attr('offset', '100%').attr('stop-color', '#99001c');
     const f = defs.append('filter').attr('id', 'glow').attr('x', '-30%').attr('y', '-30%').attr('width', '160%').attr('height', '160%');
     f.append('feGaussianBlur').attr('stdDeviation', 7);
+    // hatch for territory under occupation (Palestine, Golan, Crimea)
+    const h = defs.append('pattern').attr('id', 'occHatch').attr('width', 6).attr('height', 6)
+      .attr('patternUnits', 'userSpaceOnUse').attr('patternTransform', 'rotate(45)');
+    h.append('rect').attr('width', 6).attr('height', 6).attr('fill', '#161313');
+    h.append('line').attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 6).attr('stroke', 'rgba(232,227,220,0.4)').attr('stroke-width', 1.2);
     return defs;
   };
 })();
