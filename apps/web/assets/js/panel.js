@@ -94,7 +94,9 @@
     proj = d3.geoMercator().fitExtent([[24, 24], [W - 24, H - 24]], { type: 'MultiPoint', coordinates: [[13, 22], [74, 48]] });
     const path = d3.geoPath(proj);
 
-    svg = d3.select(els.map).selectAll('svg').data([0]).join('svg')
+    // the <svg> sits in a plain box that carries the pan/zoom transform while the map moves (see liveZoom)
+    mover = d3.select(els.map).selectAll('div.p-mover').data([0]).join('div').attr('class', 'p-mover');
+    svg = mover.selectAll('svg').data([0]).join('svg')
       .attr('viewBox', `0 0 ${W} ${H}`).attr('aria-label', GT.t('hero.mapAria'));
     svg.selectAll('*').remove();
     GT.mapDefs(svg);
@@ -158,13 +160,17 @@
       m.append('circle').attr('class', 'm-isl' + (p.status === 'tur' ? '' : ' pos')).attr('r', 3.2);
     }
     // Türkiye's diplomatic missions at city level (inviolable under the Vienna Conventions, not Turkish territory)
+    // Each is a zero-length round-capped stroke with vector-effect: non-scaling-stroke (an outline dot under a fill dot,
+    // the same geometry as an r 2.4 circle with a 0.6 outline), so it keeps its on-screen size at any zoom untouched.
+    const gMissions = gRoot.append('g');
     for (const ms of world.missions) {
-      const p = ms.properties, [x, y] = proj(ms.geometry.coordinates);
-      const m = gIslands.append('g').attr('class', 'mk m-mission-g').attr('data-x', x).attr('data-y', y)
+      const p = ms.properties, [x, y] = proj(ms.geometry.coordinates), d = `M${x},${y}h0`;
+      const m = gMissions.append('g').attr('class', 'mk m-mission-g')
         .on('pointermove', (ev) => showTip(ev, GT.upper(p['name_' + GT.lang] || p.name_tr || p.city_tr), (p['city_' + GT.lang] || p.city_tr) + ' · ' + GT.t('lg.mission')))
         .on('pointerleave', hideTip)
         .on('click', () => { if (/^https:\/\//.test(p.url || '')) window.open(p.url, '_blank', 'noopener'); });
-      m.append('circle').attr('class', 'm-mission').attr('r', 2.4);
+      m.append('path').attr('class', 'm-mission-edge').attr('d', d);
+      m.append('path').attr('class', 'm-mission').attr('d', d);
     }
     const lm = document.getElementById('l-missions');
     if (lm) { const sync = () => svg.classed('hide-missions', !lm.checked); lm.onchange = sync; sync(); }
@@ -176,14 +182,61 @@
     gEvents = gRoot.append('g');
     drawLabels();
 
+    // the zoom behaviour lives on the map's container, so its coordinates don't move with the map (see liveZoom)
+    pending.zoom = null; rendered = d3.zoomIdentity; moving = false; clearTimeout(settle);
+    mover.style('transform', null).style('will-change', null);
     zoom = d3.zoom().scaleExtent([1, 16])
       .translateExtent([[-W * 0.3, -H * 0.3], [W * 1.3, H * 1.3]])
-      .on('zoom', (ev) => { gRoot.attr('transform', ev.transform); k = ev.transform.k; rescale(); });
-    svg.call(zoom).on('dblclick.zoom', null);
-    svg.on('pointermove.coords', (ev) => {
-      const ll = proj.invert(d3.pointer(ev, gRoot.node()));
+      .on('zoom', (ev) => {
+        pending.zoom = ev.transform;
+        clearTimeout(settle);
+        if (!moving) { moving = true; hideTip(); mover.style('will-change', 'transform'); }
+        schedule();
+      })
+      // re-render once a gesture has rested for a moment (or right after an animated zoom)
+      .on('end', (ev) => { clearTimeout(settle); settle = setTimeout(() => requestAnimationFrame(commitZoom), ev.sourceEvent ? 150 : 0); });
+    mapSel().property('__zoom', d3.zoomIdentity).call(zoom).on('dblclick.zoom', null);
+    svg.on('pointermove.coords', (ev) => { pending.coords = d3.pointer(ev, els.map); schedule(); });
+  }
+  const mapSel = () => d3.select(els.map);
+
+  /* Input-driven DOM writes (zoom transform, cursor read-out, tooltip) are applied once per animation frame.
+     Several pointer/wheel/touch events can arrive per frame, and a write between two of them makes the next
+     d3.pointer() read force a synchronous layout of the whole map. */
+  const pending = { zoom: null, coords: null, tip: undefined };
+  /* Zooming and panning move the already-drawn map with a CSS transform on its box (compositor work only): re-laying
+     out and repainting the map's text, strokes and markers at every step is what made them stutter. The map is drawn
+     again at the new zoom once the gesture or animation rests (commitZoom). While moving, the map is its own layer
+     (will-change): a pan is a pure offset, a zoom scales the drawn map until it is redrawn sharp at the end. The
+     transform sits on a plain box, not on the <svg> itself: a transform on the SVG root makes Chrome lay the SVG out
+     again, and every SVG label with it, since SVG text follows the on-screen scale. */
+  let rendered = d3.zoomIdentity, moving = false, settle = 0, mover = null;
+  function liveZoom(t) {
+    const s = t.k / rendered.k;
+    mover.style('transform', `translate(${t.x - s * rendered.x}px,${t.y - s * rendered.y}px) scale(${s})`);
+    if (els.scale) els.scale.textContent = t.k.toFixed(1) + '×';
+  }
+  function commitZoom() {
+    if (!svg) return;
+    const t = d3.zoomTransform(els.map);
+    moving = false;
+    rendered = t;
+    gRoot.attr('transform', t);
+    // labels and markers only depend on the zoom level: a pan leaves them untouched
+    if (t.k !== k) { k = t.k; rescale(); }
+    mover.style('transform', null).style('will-change', null);
+  }
+  let frameReq = 0;
+  function schedule() { if (!frameReq) frameReq = requestAnimationFrame(flush); }
+  function flush() {
+    frameReq = 0;
+    if (pending.zoom && svg) { liveZoom(pending.zoom); pending.zoom = null; }
+    if (pending.coords && svg) {
+      const ll = proj.invert(d3.zoomTransform(els.map).invert(pending.coords));
       if (ll) els.coords.textContent = GT.fmtLL(ll);
-    });
+      pending.coords = null;
+    }
+    applyTip();
   }
 
   function drawLabels() {
@@ -191,7 +244,7 @@
     gLabels.selectAll('*').remove();
     const add = (cls, at, fs, text, dy = 0) => {
       const p = proj(at);
-      return gLabels.append('text').attr('class', cls).attr('x', p[0]).attr('y', p[1] + dy).attr('data-fs', fs).text(text);
+      return gLabels.append('text').attr('class', cls).attr('data-x', p[0]).attr('data-y', p[1] + dy).attr('font-size', fs).text(text);
     };
     for (const s of GT.SEAS) add('m-sea', s.at, 11 * s.size, GT.upper(s[GT.lang]));
     for (const [a3, at] of Object.entries(GT.COUNTRY_LABELS)) {
@@ -216,8 +269,11 @@
     if (!gLabels) return;
     svg.classed('zoomed', k >= 1.25); // small-country and region labels only appear once zoomed in
     if (sweepG) sweepG.style('opacity', Math.max(0, 1 - (k - 1) / 1.2)); // the sweep is an overview effect; fade it when zoomed in
+    // labels shrink as the map zooms (by k^0.82) through their transform, so zooming never re-lays out text;
+    // the Türkiye label's outline keeps its width in map units, as before
     const f = Math.pow(k, 0.82);
-    gLabels.selectAll('text').attr('font-size', function () { return +this.dataset.fs / f; });
+    gLabels.selectAll('text').attr('transform', function () { return `translate(${this.dataset.x},${this.dataset.y}) scale(${1 / f})`; });
+    gLabels.selectAll('.m-tr-label').style('stroke-width', 3 * f + 'px');
     const place = function () { return `translate(${this.dataset.x},${this.dataset.y}) scale(${1 / k})`; };
     gSites.selectAll('.mk').attr('transform', place);
     gEvents.selectAll('.mk').attr('transform', place);
@@ -288,7 +344,7 @@
     const x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]);
     const kk = Math.max(1, Math.min(16, 0.82 / Math.max((x1 - x0) / viewW(), (y1 - y0) / H)));
     const t = d3.zoomIdentity.translate(viewW() / 2, H / 2).scale(kk).translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
-    svg.transition().duration(animate && !reduce ? 900 : 0).call(zoom.transform, t);
+    mapSel().transition().duration(animate && !reduce ? 900 : 0).call(zoom.transform, t);
   }
   // Visible map width: the open drawer covers the right side on wide screens.
   const viewW = () => (els.drawer.classList.contains('open') && window.innerWidth > 860 ? Math.max(200, W - els.drawer.offsetWidth) : W);
@@ -300,7 +356,7 @@
     const [x, y] = proj(g.type === 'Point' ? g.coordinates : d3.geoCentroid(g));
     const kk = Math.max(k, rec.id.startsWith('sit_') ? 6 : 4);
     const t = d3.zoomIdentity.translate(viewW() / 2, H / 2).scale(kk).translate(-x, -y);
-    svg.transition().duration(reduce ? 0 : 900).call(zoom.transform, t);
+    mapSel().transition().duration(reduce ? 0 : 900).call(zoom.transform, t);
   }
 
   function setRegion(code) {
@@ -308,7 +364,7 @@
     els.region.value = code;
     render();
     if (code) zoomToRegion(code, true);
-    else if (svg) svg.transition().duration(reduce ? 0 : 700).call(zoom.transform, d3.zoomIdentity);
+    else if (svg) mapSel().transition().duration(reduce ? 0 : 700).call(zoom.transform, d3.zoomIdentity);
   }
 
   /* ---------------- rendering ---------------- */
@@ -491,15 +547,30 @@
   }
 
   /* ---------------- tooltip, url, wiring ---------------- */
+  // the tooltip is written in the next animation frame (see flush); its text only when it changes
+  let tipText = null;
   function showTip(ev, title, sub) {
+    if (moving) return; // no tooltip while the map is being dragged or pinched
+    pending.tip = { x: ev.clientX, y: ev.clientY, title, sub: sub || '' };
+    schedule();
+  }
+  function hideTip() { pending.tip = null; schedule(); }
+  function applyTip() {
+    const s = pending.tip;
+    if (s === undefined) return;
+    pending.tip = undefined;
+    if (!s) { els.tip.hidden = true; return; }
     const r = els.map.getBoundingClientRect();
-    els.tip.replaceChildren(document.createTextNode(title));
-    if (sub) els.tip.append(GT.el('small', null, sub));
-    els.tip.style.left = ev.clientX - r.left + 'px';
-    els.tip.style.top = ev.clientY - r.top + 'px';
+    const text = s.title + '\n' + s.sub;
+    if (text !== tipText) {
+      tipText = text;
+      els.tip.replaceChildren(document.createTextNode(s.title));
+      if (s.sub) els.tip.append(GT.el('small', null, s.sub));
+    }
+    els.tip.style.left = s.x - r.left + 'px';
+    els.tip.style.top = s.y - r.top + 'px';
     els.tip.hidden = false;
   }
-  function hideTip() { els.tip.hidden = true; }
 
   function syncUrl() {
     const p = new URLSearchParams();
@@ -517,8 +588,8 @@
     els.type.addEventListener('change', () => { state.type = els.type.value; render(); });
     els.status.addEventListener('change', () => { state.status = els.status.value; render(); });
     Object.values(lyr).forEach((c) => c.addEventListener('change', render));
-    $('z-in').addEventListener('click', () => svg && svg.transition().duration(reduce ? 0 : 350).call(zoom.scaleBy, 1.7));
-    $('z-out').addEventListener('click', () => svg && svg.transition().duration(reduce ? 0 : 350).call(zoom.scaleBy, 1 / 1.7));
+    $('z-in').addEventListener('click', () => svg && mapSel().transition().duration(reduce ? 0 : 350).call(zoom.scaleBy, 1.7));
+    $('z-out').addEventListener('click', () => svg && mapSel().transition().duration(reduce ? 0 : 350).call(zoom.scaleBy, 1 / 1.7));
     $('z-reset').addEventListener('click', () => setRegion(''));
     els.close.addEventListener('click', closeDrawer);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
