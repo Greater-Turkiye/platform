@@ -152,15 +152,31 @@
         c.beginPath(); path(d.f);
         c.fillStyle = (STYLE[d.style] || STYLE.land)[0]; c.fill();
       }
-      // Mavi Vatan (blue): agreed maritime areas filled; Türkiye's notified limits as dashed lines
+      // Mavi Vatan (blue): agreed areas solid, schematic areas lighter with dashed edge, notified limits as glowing dashed lines
       for (const m of loWorld.maritime) {
+        const st = m.properties.status;
         c.beginPath(); path(m);
+        c.save();
+        c.shadowColor = 'rgba(70,150,255,0.8)'; c.shadowBlur = 8;
         if (/Polygon/.test(m.geometry.type)) {
-          c.fillStyle = 'rgba(38,120,220,0.24)'; c.fill();
-          c.strokeStyle = 'rgba(90,165,255,0.75)'; c.lineWidth = 0.9; c.stroke();
+          c.fillStyle = st === 'schematic' ? 'rgba(38,120,220,0.26)' : 'rgba(38,120,220,0.42)'; c.fill();
+          c.setLineDash(st === 'schematic' ? [4, 3] : []);
+          c.strokeStyle = 'rgba(110,180,255,0.9)'; c.lineWidth = 1.1; c.stroke();
         } else {
-          c.setLineDash(m.properties.status === 'claimed' ? [5, 3] : []);
-          c.strokeStyle = 'rgba(90,165,255,0.95)'; c.lineWidth = 1.4; c.stroke(); c.setLineDash([]);
+          c.setLineDash(st === 'claimed' ? [6, 3] : []);
+          c.strokeStyle = 'rgba(110,180,255,1)'; c.lineWidth = 2.2; c.stroke();
+        }
+        c.restore();
+      }
+      // label once zoomed in on Türkiye
+      if (proj.scale() > sFull * 1.6) {
+        const at = [30.0, 35.55]; // open sea south of Antalya, west of Cyprus
+        const lp = proj(at);
+        if (lp && d3.geoDistance(at, [-proj.rotate()[0], -proj.rotate()[1]]) < Math.PI / 2) {
+          c.save();
+          c.font = '600 10px "Plex Mono", monospace'; c.fillStyle = 'rgba(120,185,255,0.95)'; c.textAlign = 'center';
+          c.fillText([...GT.upper('Mavi Vatan')].join(' '), lp[0], lp[1]);
+          c.restore();
         }
       }
       c.beginPath(); path(g.borders); c.strokeStyle = 'rgba(232,227,220,0.18)'; c.lineWidth = 0.5; c.stroke();

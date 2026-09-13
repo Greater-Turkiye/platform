@@ -400,6 +400,14 @@ a.ticker-item:hover { color: #fff; }
 /* ---------- late overrides ---------- */
 .m-mission { fill: #ff5a6e; stroke: #050505; stroke-width: .6; vector-effect: non-scaling-stroke; cursor: pointer; }
 .hide-missions .m-mission-g { display: none; }
+/* events without coordinates: hollow ring at the region anchor */
+.mk-ev.is-regional { fill: rgba(5, 5, 5, .55); stroke-width: 2; stroke: var(--rb); }
+.mk-ev.is-regional.st-verified { stroke: var(--ok); }
+.mk-ev.is-regional.st-partially_verified, .mk-ev.is-regional.st-disputed { stroke: var(--warn); }
+/* stronger Mavi Vatan */
+.m-blue-area { fill: rgba(38, 120, 220, .4); stroke: rgba(110, 180, 255, .9); stroke-width: 1.1; filter: drop-shadow(0 0 4px rgba(70, 150, 255, .6)); }
+.m-blue-area.schematic { fill: rgba(38, 120, 220, .24); stroke-dasharray: 4 3; }
+.m-blue-line { stroke: rgba(110, 180, 255, 1); stroke-width: 2.2; filter: drop-shadow(0 0 3px rgba(70, 150, 255, .8)); }
 .lg i.mission { width: 7px; height: 7px; border-radius: 50%; background: #ff5a6e; }
 .hero-legend { right: calc(var(--gut) + 290px); } /* keep clear of the bottom-right HUD */
 @media (max-width: 860px) {

@@ -461,8 +461,10 @@
     try { const r = await fetch(u); return r.ok ? (await r.json()).features.map(rewind) : []; } catch (e) { return []; }
   };
 
-  Object.assign(I18N.tr, { 'lg.mission': 'Türk dış temsilciliği (şehir düzeyi)', 'p.lyr.missions': 'Temsilcilikler' });
-  Object.assign(I18N.en, { 'lg.mission': 'Turkish diplomatic mission (city level)', 'p.lyr.missions': 'Missions' });
+  Object.assign(I18N.tr, { 'p.regional': 'bölge düzeyi, kesin konum yok', 'lg.regional': 'Olay (bölge düzeyi)' });
+  Object.assign(I18N.en, { 'p.regional': 'region level, no exact location', 'lg.regional': 'Event (region level)' });
+  Object.assign(I18N.tr, { 'lg.mission': 'Türk dış temsilciliği (şehir düzeyi)', 'p.lyr.missions': 'Temsilcilikler','lg.schematic': "Şematik — Türkiye'nin tutumu esas alınarak çizildi, resmî koordinat değildir" });
+  Object.assign(I18N.en, { 'lg.mission': 'Turkish diplomatic mission (city level)', 'p.lyr.missions': 'Missions', 'lg.schematic': "Schematic — drawn from Türkiye's stated position, not official coordinates" });
 
   GT.loadWorld = async (url) => {
     const r = await fetch(url);
