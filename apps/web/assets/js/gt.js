@@ -299,6 +299,11 @@
     '012': 'DZA', '504': 'MAR', '729': 'SDN', '682': 'SAU', '784': 'ARE', '634': 'QAT', '414': 'KWT', '048': 'BHR', '512': 'OMN', '887': 'YEM',
     '706': 'SOM', '262': 'DJI', '232': 'ERI', '231': 'ETH', '398': 'KAZ', '860': 'UZB', '795': 'TKM', '417': 'KGZ', '762': 'TJK', '004': 'AFG',
     '586': 'PAK', '380': 'ITA', '470': 'MLT', '360': 'IDN', '404': 'KEN', '566': 'NGA', '562': 'NER',
+    // NATO allies and signed framework / defence-industry partners outside the region
+    '056': 'BEL', '124': 'CAN', '203': 'CZE', '208': 'DNK', '233': 'EST', '246': 'FIN', '250': 'FRA', '276': 'DEU', '352': 'ISL', '428': 'LVA',
+    '440': 'LTU', '442': 'LUX', '528': 'NLD', '578': 'NOR', '616': 'POL', '620': 'PRT', '703': 'SVK', '724': 'ESP', '752': 'SWE', '826': 'GBR',
+    '840': 'USA', '076': 'BRA', '170': 'COL', '458': 'MYS', '148': 'TCD', '686': 'SEN', '768': 'TGO', '270': 'GMB', '694': 'SLE', '508': 'MOZ',
+    '024': 'AGO', '180': 'COD', '716': 'ZWE', '800': 'UGA', '834': 'TZA', '226': 'GNQ', '854': 'BFA', '466': 'MLI',
   };
   // Somaliland is not recognised by Türkiye: it is drawn as part of Somalia.
   const NAMELESS = { 'N. Cyprus': 'XNC', Kosovo: 'XKX', Somaliland: 'SOM' };
@@ -315,6 +320,14 @@
     KAZ: ['Kazakistan', 'Kazakhstan'], UZB: ['Özbekistan', 'Uzbekistan'], TKM: ['Türkmenistan', 'Turkmenistan'], KGZ: ['Kırgızistan', 'Kyrgyzstan'],
     TJK: ['Tacikistan', 'Tajikistan'], AFG: ['Afganistan', 'Afghanistan'], PAK: ['Pakistan', 'Pakistan'], ITA: ['İtalya', 'Italy'], MLT: ['Malta', 'Malta'],
     IDN: ['Endonezya', 'Indonesia'], KEN: ['Kenya', 'Kenya'], NGA: ['Nijerya', 'Nigeria'], NER: ['Nijer', 'Niger'],
+    BEL: ['Belçika', 'Belgium'], CAN: ['Kanada', 'Canada'], CZE: ['Çekya', 'Czechia'], DNK: ['Danimarka', 'Denmark'], EST: ['Estonya', 'Estonia'],
+    FIN: ['Finlandiya', 'Finland'], FRA: ['Fransa', 'France'], DEU: ['Almanya', 'Germany'], ISL: ['İzlanda', 'Iceland'], LVA: ['Letonya', 'Latvia'],
+    LTU: ['Litvanya', 'Lithuania'], LUX: ['Lüksemburg', 'Luxembourg'], NLD: ['Hollanda', 'Netherlands'], NOR: ['Norveç', 'Norway'], POL: ['Polonya', 'Poland'],
+    PRT: ['Portekiz', 'Portugal'], SVK: ['Slovakya', 'Slovakia'], ESP: ['İspanya', 'Spain'], SWE: ['İsveç', 'Sweden'], GBR: ['Birleşik Krallık', 'United Kingdom'],
+    USA: ['ABD', 'United States'], BRA: ['Brezilya', 'Brazil'], COL: ['Kolombiya', 'Colombia'], MYS: ['Malezya', 'Malaysia'], TCD: ['Çad', 'Chad'],
+    SEN: ['Senegal', 'Senegal'], TGO: ['Togo', 'Togo'], GMB: ['Gambiya', 'Gambia'], SLE: ['Sierra Leone', 'Sierra Leone'], MOZ: ['Mozambik', 'Mozambique'],
+    AGO: ['Angola', 'Angola'], COD: ['KDC', 'DR Congo'], ZWE: ['Zimbabve', 'Zimbabwe'], UGA: ['Uganda', 'Uganda'], TZA: ['Tanzanya', 'Tanzania'],
+    GNQ: ['Ekvator Ginesi', 'Equatorial Guinea'], BFA: ['Burkina Faso', 'Burkina Faso'], MLI: ['Mali', 'Mali'],
   };
 
   // Editorial watch regions (vocab/regions.yaml is canonical; this adds map geometry hints).
@@ -481,6 +494,102 @@
       sources: ['https://www.trthaber.com/haber/gundem/turkiye-bosna-hersek-arasinda-askeri-mali-isbirligi-anlasmasi-561303.html',
         'https://www.aa.com.tr/tr/dunya/bosna-hersek-savunma-bakani-helez-turkiye-ile-savunma-isbirligini-aaya-degerlendirdi/3435611'],
     },
+    // tier "frame": signed military framework / defence-industry agreements, many still awaiting TBMM approval
+    'kwt-2017': {
+      tr: 'Savunma Sanayi İşbirliği Mutabakat Muhtırası (6781 sayılı Kanun) · + 2019 ortak savunma işbirliği planı · 11 Eki 2018',
+      en: 'Defence Industry Cooperation MoU (Law 6781) · + joint defence cooperation plan for 2019 · 11 Oct 2018',
+      sources: ['https://www.aa.com.tr/tr/turkiye/turkiye-ve-kuveyt-arasinda-askeri-is-birligi/1278848'],
+    },
+    'are-2011': {
+      tr: 'Savunma Sanayi İş Birliği Mutabakat Muhtırası · 6 Eki 2011 · yürürlükte (6992 sayılı Kanun, RG 3 Nis 2017)',
+      en: 'Defence Industry Cooperation MoU · 6 Oct 2011 · in force (Law 6992, Official Gazette 3 Apr 2017)',
+      sources: ['https://www.lexpera.com.tr/resmi-gazete/metin/RG801Y2017N30027K6992',
+        'https://www.iletisim.gov.tr/turkce/haberler/detay/turkiye-ile-birlesik-arap-emirlikleri-arasinda-13-anlasma-imzalandi'],
+    },
+    'bra-2022': {
+      tr: 'Savunma Sanayii İş Birliği Anlaşması · 25 Mar 2022 · yürürlükte (7586 sayılı Kanun, RG 4 Tem 2026)',
+      en: 'Defence Industry Cooperation Agreement · 25 Mar 2022 · in force (Law 7586, Official Gazette 4 Jul 2026)',
+      sources: ['https://www.resmigazete.gov.tr/04.07.2026',
+        'https://www.ahaber.com.tr/gundem/2026/07/04/turkiye-ve-brezilyadan-kritik-anlasma-savunmada-stratejik-is-birligi'],
+    },
+    'col-2026': {
+      tr: 'Savunma sanayii işbirliği anlaşması · Şub 2015 · + SSB–Kolombiya Savunma Bakanlığı mutabakat muhtırası · 21 Oca 2026',
+      en: 'Defence industry cooperation agreement · Feb 2015 · + SSB–Colombian Ministry of Defence MoU · 21 Jan 2026',
+      sources: ['https://www.infodefensa.com/texto-diario/mostrar/5741338/016-colombia-colombia-turquia-firman-acuerdo-entendimiento-defensa',
+        'https://www.defensa.com/colombia/colombia-turquia-firman-acuerdo-cooperacion-defensa'],
+    },
+    'mys-2025': {
+      tr: 'SSB–Malezya savunma sanayii işbirliği anlaşmaları · Şub ve Tem 2025 (IDEF 2025)', en: 'SSB–Malaysia defence-industry cooperation agreements · Feb & Jul 2025 (IDEF 2025)',
+      sources: ['https://www.tskgv.org.tr/savunma-sanayii-gundem/idef-2025te-turkiye-ve-malezya-arasinda-stratejik-is-birligi-anlasmalari-imzalandi',
+        'https://www.malaymail.com/news/malaysia/2025/07/24/malaysia-eyes-defence-tech-transfer-from-turkiye-by-year-end-says-minister/184986'],
+    },
+    'tcd-2019': {
+      tr: 'Askerî İşbirliği Çerçeve Anlaşması · 2019', en: 'Military Cooperation Framework Agreement · 2019',
+      sources: ['https://www.msb.gov.tr/SlaytHaber/2722019-65641'],
+    },
+    'tbmm-mil-frame': {
+      tr: 'Askerî Çerçeve / Askerî İş Birliği Çerçeve Anlaşması (imzalı; TBMM onay sürecinde)',
+      en: 'Military Framework / Military Cooperation Framework Agreement (signed; pending approval by the Turkish parliament)',
+      sources: ['https://www.tbmm.gov.tr/Gundem/GenelKurulGundemi'],
+    },
+    'tbmm-ind': {
+      tr: 'Savunma Sanayii İş Birliği Anlaşması (imzalı; TBMM onay sürecinde)', en: 'Defence Industry Cooperation Agreement (signed; pending approval by the Turkish parliament)',
+      sources: ['https://www.tbmm.gov.tr/Gundem/GenelKurulGundemi'],
+    },
+    'tbmm-edu': {
+      tr: 'Askerî Eğitim İş Birliği (Tamamlayıcı) Anlaşması (imzalı; TBMM onay sürecinde)',
+      en: 'Military Training Cooperation (Supplementary) Agreement (signed; pending approval by the Turkish parliament)',
+      sources: ['https://www.tbmm.gov.tr/Gundem/GenelKurulGundemi'],
+    },
+    'tbmm-sec': {
+      tr: 'Güvenlik İşbirliği Anlaşması (imzalı; TBMM onay sürecinde)', en: 'Security Cooperation Agreement (signed; pending approval by the Turkish parliament)',
+      sources: ['https://www.tbmm.gov.tr/Gundem/GenelKurulGundemi'],
+    },
+    // NATO (drawn as its own light-blue layer, see GT.NATO) and allies' extra bilateral documents
+    nato: {
+      tr: "NATO müttefiki · Kuzey Atlantik Antlaşması md. 5 (md. 6 Türkiye topraklarını açıkça kapsar) · Türkiye 1952'den beri üye",
+      en: 'NATO ally · North Atlantic Treaty Art. 5 (Art. 6 explicitly covers the territory of Turkey) · Türkiye a member since 1952',
+      sources: ['https://www.nato.int/cps/en/natohq/official_texts_17120.htm'],
+    },
+    'gbr-2026': {
+      tr: 'Güvenlik ve Savunma Ortaklığı Belgesi · 8 Tem 2026 · + 20 Eurofighter Typhoon anlaşması · 27 Eki 2025',
+      en: 'Security and Defence Partnership · 8 Jul 2026 · + agreement for 20 Eurofighter Typhoons · 27 Oct 2025',
+      sources: ['https://www.gov.uk/government/news/joint-statement-regarding-the-security-and-defence-partnership-between-the-united-kingdom-of-great-britain-and-northern-ireland-and-the-republic-of-tu',
+        'https://www.iletisim.gov.tr/turkce/haberler/detay/cumhurbaskani-erdoganin-ingiltere-basbakani-starmer-ile-gorusmesine-iliskin-aciklama-08-07-26'],
+    },
+    'esp-hurjet': {
+      tr: "HÜRJET (ITS-C) programı: sözleşme 29 Ara 2025, imza töreni 28 Nis 2026 · İncirlik'te İspanyol Patriot bataryası (NATO, 2015'ten beri) · savunma sanayiinde gizlilik dereceli bilgilerin korunması anlaşması (yürürlükte, 2018)",
+      en: 'HÜRJET (ITS-C) programme: contract 29 Dec 2025, signing ceremony 28 Apr 2026 · Spanish Patriot battery at İncirlik (NATO, since 2015) · defence-industry classified-information agreement (in force, 2018)',
+      sources: ['https://www.trthaber.com/haber/gundem/ssb-baskani-gorgun-hurjet-anlasmasini-bugun-itibariyla-butun-dunyaya-duyuruyoruz-943289.html',
+        'https://emad.defensa.gob.es/en/operaciones/operaciones-en-el-exterior/36_Persistent_Effort/36.5_Support_to_Turkiye/index.html_2063069299.html',
+        'https://www.boe.es/diario_boe/txt.php?id=BOE-A-2018-3856'],
+    },
+    'pol-2025': {
+      tr: 'Savunma Alanında İş Birliği Anlaşması · 15 Ara 2025', en: 'Agreement on Cooperation in the Field of Defence · 15 Dec 2025',
+      sources: ['https://www.dunya.com/gundem/turkiye-ile-polonya-arasinda-savunma-is-birligi-anlasmasi-imzalandi-haberi-807488'],
+    },
+    'hun-2022': {
+      tr: 'Askerî Çerçeve Anlaşması · 24 Eki 2022 (TBMM onay sürecinde) · + ulusal güvenlik ve savunma sanayii çerçeve anlaşmaları · 8 Ara 2025',
+      en: 'Military Framework Agreement · 24 Oct 2022 (pending approval by the Turkish parliament) · + national-security and defence-industry framework agreements · 8 Dec 2025',
+      sources: ['https://www.hurriyet.com.tr/dunya/turkiye-ve-macaristan-arasinda-askeri-cerceve-anlasmasi-imzalandi-42158681',
+        'https://www.aa.com.tr/tr/politika/turkiye-ile-macaristan-arasinda-16-anlasma-imzalandi/3765566'],
+    },
+    'rou-2023': {
+      tr: 'Askerî Çerçeve Anlaşması · 6 Eki 2023 (TBMM onay sürecinde)', en: 'Military Framework Agreement · 6 Oct 2023 (pending approval by the Turkish parliament)',
+      sources: ['https://www.tbmm.gov.tr/Gundem/GenelKurulGundemi'],
+    },
+    'mkd-2024': {
+      tr: 'Askerî Çerçeve Anlaşması · 23 Eki 2024 (TBMM onay sürecinde)', en: 'Military Framework Agreement · 23 Oct 2024 (pending approval by the Turkish parliament)',
+      sources: ['https://www.tbmm.gov.tr/Gundem/GenelKurulGundemi'],
+    },
+    'alb-mil': {
+      tr: 'Askerî Çerçeve Anlaşması (TBMM onay sürecinde)', en: 'Military Framework Agreement (pending approval by the Turkish parliament)',
+      sources: ['https://www.tbmm.gov.tr/Gundem/GenelKurulGundemi'],
+    },
+    'prt-mil': {
+      tr: 'Askerî Alanda İş Birliği Çerçeve Anlaşması (TBMM onay sürecinde)', en: 'Framework Agreement on Cooperation in the Military Field (pending approval by the Turkish parliament)',
+      sources: ['https://www.tbmm.gov.tr/Gundem/GenelKurulGundemi'],
+    },
     ots: {
       tr: 'Türk Devletleri Teşkilatı', en: 'Organization of Turkic States',
       sources: ['https://turkicstates.org/tr/turk-konseyi-hakkinda', 'https://turkicstates.org/tr/gozlemci-ulkeler'],
@@ -510,6 +619,26 @@
     GEO: { tier: 'coop', agreement: 'geo-2019' },
     XKX: { tier: 'coop', agreement: 'xkx-2024' },
     BIH: { tier: 'coop', agreement: 'bih-2021' },
+    KWT: { tier: 'frame', agreement: 'kwt-2017' },
+    ARE: { tier: 'frame', agreement: 'are-2011' },
+    BRA: { tier: 'frame', agreement: 'bra-2022' },
+    COL: { tier: 'frame', agreement: 'col-2026' },
+    MYS: { tier: 'frame', agreement: 'mys-2025' },
+    TCD: { tier: 'frame', agreement: 'tcd-2019' },
+    SEN: { tier: 'frame', agreement: 'tbmm-mil-frame' },
+    TGO: { tier: 'frame', agreement: 'tbmm-mil-frame' },
+    GMB: { tier: 'frame', agreement: 'tbmm-mil-frame' },
+    SLE: { tier: 'frame', agreement: 'tbmm-mil-frame' },
+    MOZ: { tier: 'frame', agreement: 'tbmm-mil-frame' },
+    AGO: { tier: 'frame', agreement: 'tbmm-mil-frame' },
+    COD: { tier: 'frame', agreement: 'tbmm-mil-frame' },
+    ZWE: { tier: 'frame', agreement: 'tbmm-mil-frame' },
+    UGA: { tier: 'frame', agreement: 'tbmm-ind' },
+    TZA: { tier: 'frame', agreement: 'tbmm-ind' },
+    GNQ: { tier: 'frame', agreement: 'tbmm-ind' },
+    BFA: { tier: 'frame', agreement: 'tbmm-ind' },
+    MDA: { tier: 'frame', agreement: 'tbmm-edu' },
+    MLI: { tier: 'frame', agreement: 'tbmm-sec' },
     KAZ: { tier: 'kin', agreement: 'ots' },
     KGZ: { tier: 'kin', agreement: 'ots' },
     UZB: { tier: 'kin', agreement: 'ots' },
@@ -524,21 +653,46 @@
     LBY: ['https://www.aa.com.tr/tr/gundem/turk-askerinin-libyadaki-gorev-suresi-uzatildi/3777943'],
     XNC: ['https://www.mfa.gov.tr/garanti-antlasmasi-_zurich_11-subat-1959_.tr.mfa'],
   };
+  // NATO allies (Art. 5 covers Türkiye): a light-blue layer on top of any bilateral tier. Greece is included
+  // like every ally, with a note on the open disputes.
+  GT.NATO = new Set(['ALB', 'BEL', 'BGR', 'CAN', 'HRV', 'CZE', 'DNK', 'EST', 'FIN', 'FRA', 'DEU', 'GRC', 'HUN', 'ISL', 'ITA', 'LVA', 'LTU',
+    'LUX', 'MNE', 'NLD', 'MKD', 'NOR', 'POL', 'PRT', 'ROU', 'SVK', 'SVN', 'ESP', 'SWE', 'GBR', 'USA']);
+  const NATO_PLUS = { GBR: 'gbr-2026', ESP: 'esp-hurjet', POL: 'pol-2025', HUN: 'hun-2022', ROU: 'rou-2023', MKD: 'mkd-2024', ALB: 'alb-mil', PRT: 'prt-mil' };
+  const NATO_NOTES = {
+    GRC: { tr: 'Ege, Doğu Akdeniz ve Kıbrıs konularında Türkiye ile ihtilaflar sürüyor.', en: 'Disputes with Türkiye over the Aegean, the Eastern Mediterranean and Cyprus continue.' },
+  };
   GT.partnerClass = (a3) => {
     const p = GT.PARTNERS[a3];
-    return p ? ' m-' + p.tier + (p.presence ? ' m-presence' : '') : '';
+    return (p ? ' m-' + p.tier + (p.presence ? ' m-presence' : '') : '') + (GT.NATO.has(a3) ? ' m-nato' : '');
   };
   GT.partnerLabel = (a3) => {
     const p = GT.PARTNERS[a3];
-    if (!p) return '';
-    const bits = [GT.txt(GT.AGREEMENTS[p.agreement])];
-    if (p.kin && p.agreement !== 'ots') bits.push(GT.txt(GT.AGREEMENTS.ots));
-    if (p.observer) bits[bits.length - 1] += GT.lang === 'tr' ? ' (gözlemci)' : ' (observer)';
-    if (p.presence) bits.push(GT.t('lg.presence'));
+    const bits = [];
+    if (p) {
+      bits.push(GT.txt(GT.AGREEMENTS[p.agreement]));
+      if (p.kin && p.agreement !== 'ots') bits.push(GT.txt(GT.AGREEMENTS.ots));
+      if (p.observer) bits[bits.length - 1] += GT.lang === 'tr' ? ' (gözlemci)' : ' (observer)';
+      if (p.presence) bits.push(GT.t('lg.presence'));
+    }
+    if (GT.NATO.has(a3)) {
+      bits.push(GT.txt(GT.AGREEMENTS.nato));
+      if (NATO_PLUS[a3]) bits.push(GT.txt(GT.AGREEMENTS[NATO_PLUS[a3]]));
+      if (NATO_NOTES[a3]) bits.push(GT.txt(NATO_NOTES[a3]));
+    }
     return bits.join(' · ');
   };
   Object.assign(I18N.tr, { 'lg.ally': 'Müttefik · karşılıklı savunma', 'lg.coop': 'Savunma işbirliği anlaşması', 'lg.kin': 'Türk Devletleri Teşkilatı', 'lg.presence': 'Resmî TSK varlığı (ülke düzeyi)' });
   Object.assign(I18N.en, { 'lg.ally': 'Ally · mutual defence', 'lg.coop': 'Defence cooperation agreement', 'lg.kin': 'Organization of Turkic States', 'lg.presence': 'Official Turkish military presence (country level)' });
+  Object.assign(I18N.tr, {
+    'lg.frame': 'Askerî çerçeve / savunma sanayii anlaşması (imzalı)', 'lg.nato': 'NATO müttefiki (md. 5)',
+    'lg.ops': "Türkiye'nin ilan ettiği harekât bölgeleri (kesikli: sona erdi)",
+    'ops.active': 'sürüyor', 'ops.ended': 'sona erdi', 'ops.unclear': 'durumu belirsiz', 'ops.asof': 'itibarıyla',
+  });
+  Object.assign(I18N.en, {
+    'lg.frame': 'Military framework / defence-industry agreement (signed)', 'lg.nato': 'NATO ally (Art. 5)',
+    'lg.ops': "Türkiye's announced operation areas (dashed: ended)",
+    'ops.active': 'ongoing', 'ops.ended': 'ended', 'ops.unclear': 'status unclear', 'ops.asof': 'as of',
+  });
 
   Object.assign(I18N.tr, { 'lg.blue': "Mavi Vatan · deniz yetki alanları (Türkiye'nin tutumu)", 'lg.agreed': 'Anlaşmayla belirlenmiş', 'lg.position': "Türkiye'nin tutumu (itiraz edilen)", 'lg.island': 'Türk adası' });
   Object.assign(I18N.en, { 'lg.blue': "Blue Homeland · maritime jurisdiction (Türkiye's position)", 'lg.agreed': 'Delimited by agreement', 'lg.position': "Türkiye's position (disputed)", 'lg.island': 'Turkish island' });
@@ -579,8 +733,8 @@
     // Mavi Vatan maritime jurisdiction/claims and Turkish islands (see assets/data/MARITIME-SOURCES.md),
     // and Türkiye's diplomatic missions at city level (see assets/data/MISSIONS-SOURCES.md).
     const base = url.replace(/countries-\d+m\.json$/, '');
-    const [disputed, maritime, islands, missions, concern] = await Promise.all(
-      ['disputed-tur-view', 'maritime-tur', 'islands-tur', 'missions-tur', 'concern-regions'].map((n) => optionalLayer(base + n + '.geojson')));
+    const [disputed, maritime, islands, missions, concern, ops] = await Promise.all(
+      ['disputed-tur-view', 'maritime-tur', 'islands-tur', 'missions-tur', 'concern-regions', 'tur-operation-areas'].map((n) => optionalLayer(base + n + '.geojson')));
     // a merged area (e.g. Türkiye + KKTC) replaces the schematic areas it lists in `components`;
     // licence blocks it lists stay, drawn as outlines inside it
     const merged = new Set(maritime.flatMap((m) => m.properties.components || []));
@@ -589,6 +743,7 @@
       islands,
       missions,
       concern, // human-rights markers (East Turkestan) — not boundary claims
+      ops, // Türkiye's officially announced operation areas: whole areas only, with status (ADR 0015)
       countries: topojson.feature(topo, topo.objects.countries).features,
       // no border line between features that map to the same state (e.g. Somaliland is part of Somalia)
       // nor between Syria and Israel: Natural Earth puts Golan inside Israel, so that line is the 1974
