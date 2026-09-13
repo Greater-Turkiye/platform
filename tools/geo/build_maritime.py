@@ -171,6 +171,17 @@ POS_TR = "Türkiye'nin tutumu"
 POS_EN = "Türkiye's position"
 MAX_BLACKSEA_VERTICES = 1600
 
+# Canonical order of the features in maritime-tur.geojson (every build path writes this order,
+# so partial rebuilds stay byte-identical to a full one). Unknown ids keep their relative order at the end.
+FEATURE_ORDER = (["tur-blacksea-eez", "tur-marmara-straits", "tur-med-cs-a74550-a", "tur-med-cs-a74550-b",
+                  "tur-med-cs-a74550-c", "tur-med-libya-mou", "tur-aegean-schematic", "tur-med-schematic"]
+                 + [f"kktc-licence-{b}" for b in "ABCDEFG"] + ["tur-kktc-med-merged"])
+
+
+def ordered(features: list[dict]) -> list[dict]:
+    idx = {k: i for i, k in enumerate(FEATURE_ORDER)}
+    return sorted(features, key=lambda f: idx.get(f["properties"].get("id"), len(idx)))
+
 
 # --------------------------------------------------------------------------------------
 # Helpers
@@ -490,6 +501,8 @@ def main():
                     help="skip the schematic Aegean/Eastern Mediterranean areas (build_maritime_schematic.py)")
     ap.add_argument("--no-kktc", action="store_true",
                     help="skip the TRNC licence areas A–G and the merged Türkiye+TRNC area (build_kktc_licences.py)")
+    ap.add_argument("--no-marmara", action="store_true",
+                    help="skip the Sea of Marmara and Turkish Straits area (build_marmara_straits.py)")
     args = ap.parse_args()
     args.cache.mkdir(parents=True, exist_ok=True)
 
@@ -502,6 +515,10 @@ def main():
     if not args.no_kktc:
         import build_kktc_licences  # licence areas A–G; merged area only if tur-med-schematic was built
         maritime += build_kktc_licences.build(args.cache, land, report, maritime)
+    if not args.no_marmara and not args.no_schematic:
+        import build_marmara_straits  # needs the Black Sea EEZ and the Aegean schematic area
+        maritime += build_marmara_straits.build(args.cache, land, report, maritime)
+    maritime = ordered(maritime)
     isl = islands(land, report)
 
     total = sum(nverts(shape(f["geometry"])) for f in maritime)

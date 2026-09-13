@@ -155,7 +155,7 @@
       gRoot.append('path').datum(m).attr('d', path)
         .attr('class', (area ? 'm-blue-area' : 'm-blue-line') + (['claimed', 'schematic', 'licence'].includes(p.status) ? ' ' + p.status : ''))
         .on('pointermove', (ev) => showTip(ev, GT.upper(p['name_' + GT.lang] || p.name_tr),
-          GT.t({ claimed: 'lg.position', schematic: 'lg.schematic', licence: 'lg.licence' }[p.status] || 'lg.agreed')))
+          GT.t(p.kind === 'internal-waters' ? 'lg.internal' : { claimed: 'lg.position', schematic: 'lg.schematic', licence: 'lg.licence' }[p.status] || 'lg.agreed')))
         .on('pointerleave', hideTip);
     }
     // Turkish islands; Kardak drawn hollow (Türkiye's position, contested)

@@ -555,6 +555,11 @@ def main():
     if lic:
         med = next(f for f in new if f["properties"]["id"] == "tur-med-schematic")
         feats.append(bk.merged_feature(shape(med["geometry"]), [shape(f["geometry"]) for f in lic], land, report, args.cache))
+    import build_marmara_straits as bmm  # depends on the Aegean schematic area: rebuild it as well
+    if any(f["properties"].get("id") == bmm.ID for f in feats):
+        feats = [f for f in feats if f["properties"].get("id") != bmm.ID]
+        feats += bmm.build(args.cache, land, report, feats)
+    feats = bm.ordered(feats)
     meta = {k: v for k, v in fc.items() if k not in ("type", "features")}
     meta["description"] = bm.META_DESCRIPTION
     bm.write_fc(path, feats, meta)

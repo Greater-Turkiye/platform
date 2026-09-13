@@ -723,6 +723,8 @@
   Object.assign(I18N.en, { 'lg.mission': 'Turkish diplomatic mission (city level)', 'p.lyr.missions': 'Missions', 'lg.schematic': "Schematic — based on Türkiye's position, not official coordinates" });
   Object.assign(I18N.tr, { 'lg.licence': 'KKTC ruhsat sahası (TPAO) · resmî koordinatlar, KKTC Resmî Gazete 161, 22.9.2011' });
   Object.assign(I18N.en, { 'lg.licence': 'TRNC licence area (TPAO) · official coordinates, TRNC Official Gazette 161, 22 Sep 2011' });
+  Object.assign(I18N.tr, { 'lg.internal': 'Türk iç suları ve karasuları · Boğazlarda geçiş: Montrö Sözleşmesi (1936)' });
+  Object.assign(I18N.en, { 'lg.internal': 'Turkish internal and territorial waters · passage through the Straits: Montreux Convention (1936)' });
 
   const NO_BORDER = new Set(['ISR-SYR']);
   GT.loadWorld = async (url) => {
