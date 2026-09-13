@@ -170,7 +170,7 @@
       }
       // label once zoomed in on Türkiye
       if (proj.scale() > sFull * 1.6) {
-        const at = [30.0, 35.55]; // open sea south of Antalya, west of Cyprus
+        const at = [34.2, 42.35]; // inside the (agreed) Black Sea EEZ fill, clear of the other labels
         const lp = proj(at);
         if (lp && d3.geoDistance(at, [-proj.rotate()[0], -proj.rotate()[1]]) < Math.PI / 2) {
           c.save();
