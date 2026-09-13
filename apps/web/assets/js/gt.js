@@ -475,6 +475,7 @@
   Object.assign(I18N.tr, { 'lg.licence': 'KKTC ruhsat sahası (TPAO) · resmî koordinatlar, KKTC Resmî Gazete 161, 22.9.2011' });
   Object.assign(I18N.en, { 'lg.licence': 'TRNC licence area (TPAO) · official coordinates, TRNC Official Gazette 161, 22 Sep 2011' });
 
+  const NO_BORDER = new Set(['ISR-SYR']);
   GT.loadWorld = async (url) => {
     const r = await fetch(url);
     if (!r.ok) throw new Error('world: HTTP ' + r.status);
@@ -495,7 +496,10 @@
       concern, // human-rights markers (East Turkestan) — not boundary claims
       countries: topojson.feature(topo, topo.objects.countries).features,
       // no border line between features that map to the same state (e.g. Somaliland is part of Somalia)
-      borders: topojson.mesh(topo, topo.objects.countries, (a, b) => a !== b && GT.a3(a) !== GT.a3(b)),
+      // nor between Syria and Israel: Natural Earth puts Golan inside Israel, so that line is the 1974
+      // ceasefire line; per Türkiye Golan is Syrian (drawn with Syria, hatched as occupied)
+      borders: topojson.mesh(topo, topo.objects.countries, (a, b) => a !== b && GT.a3(a) !== GT.a3(b)
+        && !NO_BORDER.has([GT.a3(a), GT.a3(b)].sort().join('-'))),
       disputed,
     };
   };
@@ -541,7 +545,7 @@
     // hatch for territory under occupation (Palestine, Golan, Crimea)
     const h = defs.append('pattern').attr('id', 'occHatch').attr('width', 6).attr('height', 6)
       .attr('patternUnits', 'userSpaceOnUse').attr('patternTransform', 'rotate(45)');
-    h.append('rect').attr('width', 6).attr('height', 6).attr('fill', '#161313');
+    // lines only (no background) so the de jure state's colour shows through
     h.append('line').attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 6).attr('stroke', 'rgba(232,227,220,0.4)').attr('stroke-width', 1.2);
     return defs;
   };

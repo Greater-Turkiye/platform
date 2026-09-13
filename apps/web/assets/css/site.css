@@ -327,7 +327,14 @@ a.ticker-item:hover { color: #fff; }
 .m-land.m-kin { fill: #1c0c10; stroke: rgba(200, 0, 42, .38); stroke-width: .6; }
 .m-land.m-kin:hover { fill: #26101a; }
 .m-land.m-presence { stroke: rgba(232, 227, 220, .85); stroke-width: 1.1; stroke-dasharray: 3 2; }
-.m-land.m-disputed { stroke: rgba(232, 227, 220, .35); stroke-dasharray: 1.5 2; }
+/* areas drawn with their de jure state (Golan → Syria, Crimea → Ukraine, Palestine): stroked in that state's fill so no line separates them */
+.m-land.m-disputed { stroke: #0a0a0a; stroke-width: 1.4; }
+.m-land.m-disputed.m-watch { stroke: #0f0e0e; }
+.show-regions .m-land.m-disputed.m-watch { stroke: #151112; }
+.m-land.m-disputed.m-coop { stroke: #26070e; }
+.m-land.m-disputed.m-ally { stroke: rgba(153, 0, 28, .52); }
+.m-land.m-disputed.m-kin { stroke: #1c0c10; }
+.m-land.m-disputed.hl { stroke: rgba(153, 0, 28, .3); }
 /* Mavi Vatan: agreed maritime areas (fill) and Türkiye's notified limits (dashed = contested) */
 .m-blue-area { fill: rgba(38, 120, 220, .24); stroke: rgba(90, 165, 255, .75); stroke-width: .9; vector-effect: non-scaling-stroke; }
 .m-blue-line { fill: none; stroke: rgba(90, 165, 255, .95); stroke-width: 1.6; vector-effect: non-scaling-stroke; pointer-events: stroke; }
@@ -406,8 +413,8 @@ a.ticker-item:hover { color: #fff; }
 .mk-ev.is-regional.st-partially_verified, .mk-ev.is-regional.st-disputed { stroke: var(--warn); }
 /* Türkiye label: spacing comes from thin spaces in the text so text-anchor:middle centres exactly */
 .m-tr-label { letter-spacing: 0 !important; dominant-baseline: central; }
-/* territory under occupation (Palestine, Golan, Crimea): hatched fill, dashed edge */
-.m-land.m-disputed.m-occupied { fill: url(#occHatch); stroke: rgba(232, 227, 220, .6); stroke-dasharray: 2 2; stroke-width: .9; }
+/* territory under occupation (Palestine, Golan, Crimea): hatch laid over the de jure state's colour */
+.m-occupied { fill: url(#occHatch); stroke: none; pointer-events: none; }
 /* human-rights marker (East Turkestan) */
 .m-concern { fill: rgba(63, 208, 201, .12); stroke: rgba(63, 208, 201, .95); stroke-width: 1.4; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
 .m-concern:hover { fill: rgba(63, 208, 201, .22); }
@@ -416,8 +423,9 @@ a.ticker-item:hover { color: #fff; }
 /* stronger Mavi Vatan */
 .m-blue-area { fill: rgba(38, 120, 220, .4); stroke: rgba(110, 180, 255, .9); stroke-width: 1.1; filter: drop-shadow(0 0 4px rgba(70, 150, 255, .6)); }
 .m-blue-area.schematic { fill: rgba(38, 120, 220, .24); stroke-dasharray: 4 3; }
-/* KKTC licence blocks: subdivisions inside the merged Türkiye + KKTC area (fill comes from the merged area) */
-.m-blue-area.licence { fill: rgba(38, 120, 220, .06); stroke: rgba(150, 200, 255, .7); stroke-width: .7; filter: none; }
+/* KKTC licence blocks: part of the merged Türkiye + KKTC area — invisible, outlined only on hover */
+.m-blue-area.licence { fill: transparent; stroke: transparent; stroke-width: .8; filter: none; }
+.m-blue-area.licence:hover { stroke: rgba(150, 200, 255, .75); }
 .m-blue-line { stroke: rgba(110, 180, 255, 1); stroke-width: 2.2; filter: drop-shadow(0 0 3px rgba(70, 150, 255, .8)); }
 .lg i.mission { width: 7px; height: 7px; border-radius: 50%; background: #ff5a6e; }
 .hero-legend { right: calc(var(--gut) + 290px); } /* keep clear of the bottom-right HUD */

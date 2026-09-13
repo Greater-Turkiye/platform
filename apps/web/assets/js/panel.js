@@ -119,16 +119,18 @@
       .on('click', (ev, f) => { const r = GT.REGION_OF[GT.a3(f)]; if (r) setRegion(state.region === r ? '' : r); });
 
     const tr = world.countries.find((f) => GT.a3(f) === 'TUR');
-    gRoot.append('path').datum(world.borders).attr('class', 'm-border').attr('d', path);
-    // Crimea and Golan drawn with their de jure state per Türkiye's position
+    // Crimea, Golan and Palestine drawn with their de jure state per Türkiye's position (borders go on top)
     for (const d of world.disputed) {
       const p = d.properties;
       gRoot.append('path').datum(d).attr('d', path)
-        .attr('class', 'm-land m-disputed' + (GT.REGION_OF[p.de_jure] ? ' m-watch' : '') + GT.partnerClass(p.de_jure) + (p.occupier ? ' m-occupied' : ''))
+        .attr('class', 'm-land m-disputed' + (GT.REGION_OF[p.de_jure] ? ' m-watch' : '') + GT.partnerClass(p.de_jure))
         .attr('data-region', GT.REGION_OF[p.de_jure] || null)
         .on('pointermove', (ev) => showTip(ev, GT.upper(GT.countryName(p.de_jure) + ' · ' + p['name_' + GT.lang]), p['note_' + GT.lang]))
         .on('pointerleave', hideTip);
+      // occupied territory: hatch over the de jure state's colour
+      if (p.occupier) gRoot.append('path').datum(d).attr('d', path).attr('class', 'm-occupied');
     }
+    gRoot.append('path').datum(world.borders).attr('class', 'm-border').attr('d', path);
     // human-rights markers (East Turkestan): outlined region with a note — not a boundary claim
     for (const cr of world.concern) {
       const p = cr.properties;
@@ -274,7 +276,8 @@
   function applyRegionClass() {
     if (!svg) return;
     svg.classed('show-regions', lyr.regions.checked || !!state.region);
-    gCountries.selectAll('.m-land').classed('hl', function () { return !!state.region && this.getAttribute('data-region') === state.region; });
+    // countries and the areas drawn with their de jure state (Golan, Palestine, Crimea)
+    gRoot.selectAll('.m-land').classed('hl', function () { return !!state.region && this.getAttribute('data-region') === state.region; });
     gLabels.selectAll('.m-rlabel').style('opacity', function () { return state.region && this.dataset.region === state.region ? 1 : null; });
   }
 

@@ -151,8 +151,9 @@
       }
       for (const d of g.disputed) {
         c.beginPath(); path(d.f);
-        c.fillStyle = (STYLE[d.style] || STYLE.land)[0]; c.fill();
-        if (d.f.properties.occupier) { // territory under occupation: hatch + dashed outline
+        // de jure state's colour, stroked in the same colour so no line separates it from that state
+        c.fillStyle = c.strokeStyle = (STYLE[d.style] || STYLE.land)[0]; c.fill(); c.lineWidth = 1.2; c.stroke();
+        if (d.f.properties.occupier) { // territory under occupation: hatch on top
           if (!drawGlobe.hatch) {
             const t = document.createElement('canvas'); t.width = t.height = 6;
             const x = t.getContext('2d'); x.strokeStyle = 'rgba(232,227,220,0.42)'; x.lineWidth = 1.2;
@@ -160,7 +161,6 @@
             drawGlobe.hatch = c.createPattern(t, 'repeat');
           }
           c.fillStyle = drawGlobe.hatch; c.fill();
-          c.setLineDash([2, 2]); c.strokeStyle = 'rgba(232,227,220,0.55)'; c.lineWidth = 0.8; c.stroke(); c.setLineDash([]);
         }
       }
       // human-rights markers (East Turkestan): turquoise dashed outline + label, visible while orbiting
@@ -179,14 +179,9 @@
       // Mavi Vatan (blue): agreed areas solid, schematic areas lighter with dashed edge, notified limits as glowing dashed lines
       for (const m of loWorld.maritime) {
         const st = m.properties.status;
+        if (st === 'licence') continue; // KKTC licence blocks are part of the merged Türkiye + KKTC area; the panel names them on hover
         c.beginPath(); path(m);
         c.save();
-        if (st === 'licence') {
-          // KKTC licence blocks sit inside the merged Türkiye + KKTC area: thin outline only (the fill comes from the merged area)
-          c.strokeStyle = 'rgba(150,200,255,0.75)'; c.lineWidth = 0.7; c.stroke();
-          c.restore();
-          continue;
-        }
         c.shadowColor = 'rgba(70,150,255,0.8)'; c.shadowBlur = 8;
         if (/Polygon/.test(m.geometry.type)) {
           c.fillStyle = st === 'schematic' ? 'rgba(38,120,220,0.26)' : 'rgba(38,120,220,0.42)'; c.fill();
@@ -423,7 +418,8 @@
     for (const d of world.disputed) {
       const a = d.properties.de_jure;
       svg.append('path').datum(d).attr('d', path)
-        .attr('class', 'm-land m-disputed' + (GT.REGION_OF[a] ? ' m-watch' : '') + GT.partnerClass(a) + (d.properties.occupier ? ' m-occupied' : ''));
+        .attr('class', 'm-land m-disputed' + (GT.REGION_OF[a] ? ' m-watch' : '') + GT.partnerClass(a));
+      if (d.properties.occupier) svg.append('path').datum(d).attr('d', path).attr('class', 'm-occupied');
     }
     for (const cr of world.concern) svg.append('path').datum(cr).attr('d', path).attr('class', 'm-concern');
 
