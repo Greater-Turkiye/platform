@@ -2,7 +2,7 @@
 
 [Türkçe](#türkçe) · [English](#english) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
 
-> Durum: ilk sürüm yayında — ana sayfa + OSINT paneli. / Status: first version live — home page + OSINT panel.
+> Durum: ilk sürüm yayında — ana sayfa + OSINT paneli. / Status: first release is live — home page and OSINT dashboard.
 > https://greater-turkiye.github.io/platform/
 
 ## Türkçe
@@ -15,11 +15,11 @@ Derleme adımı olmayan statik site: düz HTML, CSS ve JavaScript (D3 + TopoJSON
 
 ## English
 
-A static site with no build step: plain HTML, CSS and JavaScript (D3 + TopoJSON). It reads data from the `datasets` GitHub Pages export (the output of `python tools/gt.py build`); both sites share the `greater-turkiye.github.io` origin, so no CORS is needed. No cookies, analytics or third-party requests: fonts, libraries and map data are vendored.
+A static site with no build step: plain HTML, CSS and JavaScript (D3 + TopoJSON). It reads data from the GitHub Pages export of the `datasets` repository (the output of `python tools/gt.py build`). Both sites are served from the `greater-turkiye.github.io` origin, so CORS is not needed. There are no cookies, analytics or third-party requests: fonts, libraries and map data are all vendored in the repository.
 
-- `index.html` — home: Türkiye-centred globe, record ticker, watch regions, method, live counts, red lines, how to join.
-- `panel.html` — OSINT panel: zoomable map, region/type/status filters, search, layers, record feed and detail drawer. Deep links: `panel.html?region=aegean`, `panel.html?id=evt_…`.
-- Fictional example records appear only in the panel, only with the "Example data" layer on, and clearly tagged; the layer defaults to on while there are no real records.
+- `index.html` — home page: Türkiye-centred globe, live record feed, watch regions, method, live counts, red lines and how to join.
+- `panel.html` — OSINT dashboard: zoomable map, region/type/status filters, search, layers, record list and detail drawer. Deep links: `panel.html?region=aegean`, `panel.html?id=evt_…`.
+- Fictional example records appear only in the dashboard, only when the "Example data" layer is on, and are always clearly labelled. The layer is on by default while there are no real records.
 
 ---
 
@@ -36,7 +36,7 @@ python -m http.server 8000 -d /tmp/gt-site
 # http://localhost:8000/platform/
 ```
 
-Farklı bir veri kökü için sayfada `window.GT_DATA_BASE = 'https://…/'` tanımlanabilir. / Set `window.GT_DATA_BASE` to point at another data root.
+Farklı bir veri kökü için sayfada `window.GT_DATA_BASE = 'https://…/'` tanımlanabilir. / Set `window.GT_DATA_BASE` on the page to use a different data root.
 
 ### Dosyalar / Files
 
@@ -51,24 +51,24 @@ Farklı bir veri kökü için sayfada `window.GT_DATA_BASE = 'https://…/'` tan
 
 | Katman / Layer | Kaynak / Source | Not / Note |
 |---|---|---|
-| Ülkeler / Countries | `assets/data/countries-50m.json`, `countries-110m.json` (Natural Earth, kamu malı) | Küre dönerken 110m, Türkiye odağında 50m / 110m while orbiting, 50m on the hold |
+| Ülkeler / Countries | `assets/data/countries-50m.json`, `countries-110m.json` (Natural Earth, kamu malı) | Küre dönerken 110m, Türkiye odağında 50m / 110m while the globe rotates, 50m once it settles on Türkiye |
 | Türkiye'nin tutumuna göre sınırlar / Borders per Türkiye's position | `assets/data/disputed-tur-view.geojson` + `gt.js` (`NAMELESS`) | Kırım→Ukrayna, Golan→Suriye, Somaliland→Somali |
 | Anlaşmalar / Agreements | `GT.AGREEMENTS`, `GT.PARTNERS` in `assets/js/gt.js` | Her giriş kaynaklı; yalnızca imzalı anlaşmalar / sourced, signed agreements only |
-| Resmî TSK varlığı / Official Turkish presence | `GT.PRESENCE_SOURCES` | Yalnızca ülke düzeyi — kırmızı çizgi / country level only — red line |
+| Resmî TSK varlığı / Official Turkish military presence | `GT.PRESENCE_SOURCES` | Yalnızca ülke düzeyi — kırmızı çizgi / country level only — red line |
 | Mavi Vatan | `assets/data/maritime-tur.geojson` — [MARITIME-SOURCES.md](assets/data/MARITIME-SOURCES.md) | `agreed` / `claimed` (Türkiye'nin tutumu) / `schematic` |
 | Adalar / Islands | `assets/data/islands-tur.geojson` | Kardak: Türkiye'nin tutumu / Türkiye's position |
-| Dış temsilcilikler / Missions | `assets/data/missions-tur.geojson` — [MISSIONS-SOURCES.md](assets/data/MISSIONS-SOURCES.md) | Şehir düzeyi; dokunulmaz ama Türk toprağı değil / city level; inviolable, not Turkish territory |
-| Olaylar / Events | `../datasets/*.jsonl` | Koordinatsız olaylar bölge halkası / events without coordinates = region ring |
+| Dış temsilcilikler / Missions | `assets/data/missions-tur.geojson` — [MISSIONS-SOURCES.md](assets/data/MISSIONS-SOURCES.md) | Şehir düzeyi; dokunulmaz ama Türk toprağı değil / city level; inviolable, but not Turkish territory |
+| Olaylar / Events | `../datasets/*.jsonl` | Koordinatsız olaylar bölge halkası / events without coordinates are drawn as a ring on their region |
 
 Kurallar / Rules: [handbook ADR 0013](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0013-map-layers-turkiye-perspective.md).
 
 ### İnceleme / Review
 
-`?globe-t=<saniye>` ana sayfa animasyonunu belirli bir anda başlatır (0–9 odak, ~12–32 dünya turu, ~32–36 yaklaşma). / starts the home animation at a given second.
+`?globe-t=<saniye>` ana sayfa animasyonunu belirli bir anda başlatır (0–9 odak, ~12–32 dünya turu, ~32–36 yaklaşma). / starts the home page animation at a given second.
 
 ### Yayın / Deploy
 
-`.github/workflows/pages.yml` — `main`'e `apps/web/**` değişikliği gelince GitHub Pages'e yayınlar. / Deploys to GitHub Pages on changes under `apps/web/**`.
+`.github/workflows/pages.yml` — `main`'e `apps/web/**` değişikliği gelince GitHub Pages'e yayınlar. / Deploys to GitHub Pages whenever `apps/web/**` changes on `main`.
 
 ### Sonraki adımlar / Next
 
