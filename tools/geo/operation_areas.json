@@ -1,0 +1,222 @@
+{
+  "about": "Inputs for tools/geo/build_operation_areas.py -> apps/web/assets/data/tur-operation-areas.geojson. Area level only (handbook ADR 0015): no bases, posts, checkpoints, units, strengths, positions, movements or point data. Text here is copied into the features; {placeholders} in geometry_method_* are filled by the build. See apps/web/assets/data/OPERATION-AREAS-SOURCES.md.",
+  "description": "Türkiye's officially announced cross-border operation areas, whole areas only (handbook ADR 0015). Every feature has a status and an as-of date; 'ended' means the area no longer exists as a distinct Turkish-controlled area. Features with schematic=true have an approximate extent built from administrative boundaries. No bases, posts, units, positions or movements. See OPERATION-AREAS-SOURCES.md.",
+  "status_as_of": "2026-09-13",
+  "hdx": {
+    "dataset": "https://data.humdata.org/dataset/cod-ab-syr",
+    "resource_url": "https://data.humdata.org/dataset/356a63e9-90aa-4b9c-a938-58ef24469c00/resource/2e69313a-b8a8-46bf-8cc8-fbd132b279bd/download/syr_admin_boundaries.shp.zip",
+    "cache_name": "syr_admin_boundaries.shp.zip",
+    "sha256": "adc38bee9b8865f56c99b10069590430bd25c64d6518a6d577e8e5d490054e7f",
+    "last_modified": "2026-01-26",
+    "license": "CC BY-IGO 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/igo/legalcode",
+    "attribution": "Boundaries: OCHA COD-AB Syria (United Nations Cartographic Section and partners; OCHA / HDX), CC BY-IGO 3.0 — modified (sub-districts dissolved, clipped, simplified). Not an official United Nations boundary; no endorsement implied."
+  },
+  "sources": {
+    "un_s2016_739": {
+      "title": "Letter dated 24 August 2016 from the Permanent Representative of Turkey to the United Nations addressed to the President of the Security Council (S/2016/739)",
+      "publisher": "United Nations Security Council",
+      "url": "https://documents.un.org/api/symbol/access?l=en&t=pdf&s=S/2016/739",
+      "date": "2016-08-24",
+      "accessed": "2026-09-13"
+    },
+    "mgk_2017_03_29": {
+      "title": "29 Mart 2017 Tarihli Toplantı — basın bildirisi (Fırat Kalkanı Harekâtı'nın başarıyla sonuçlandığı)",
+      "publisher": "Millî Güvenlik Kurulu Genel Sekreterliği",
+      "url": "https://www.mgk.gov.tr/index.php/29-mart-2017-tarihli-toplanti",
+      "date": "2017-03-29",
+      "accessed": "2026-09-13"
+    },
+    "un_s2018_53": {
+      "title": "Identical letters dated 20 January 2018 from the Chargé d'affaires a.i. of the Permanent Mission of Turkey to the United Nations addressed to the Secretary-General and the President of the Security Council (S/2018/53)",
+      "publisher": "United Nations Security Council",
+      "url": "https://documents.un.org/api/symbol/access?l=en&t=pdf&s=S/2018/53",
+      "date": "2018-01-20",
+      "accessed": "2026-09-13"
+    },
+    "tccb_2018_03_18": {
+      "title": "“Afrin’de artık terör örgütünün paçavraları değil, huzur ve güvenin sembolü Türk bayrağı dalgalanıyor”",
+      "publisher": "T.C. Cumhurbaşkanlığı",
+      "url": "https://www.tccb.gov.tr/haberler/410/91807/afrinde-artik-teror-orgutunun-pacavralari-degil-huzur-ve-guvenin-sembolu-turk-bayragi-dalgalaniyor",
+      "date": "2018-03-18",
+      "accessed": "2026-09-13"
+    },
+    "un_s2019_804": {
+      "title": "Letter dated 9 October 2019 from the Permanent Representative of Turkey to the United Nations addressed to the President of the Security Council (S/2019/804)",
+      "publisher": "United Nations Security Council",
+      "url": "https://documents.un.org/api/symbol/access?l=en&t=pdf&s=S/2019/804",
+      "date": "2019-10-09",
+      "accessed": "2026-09-13"
+    },
+    "iletisim_2019_10_17": {
+      "title": "Suriye'nin kuzeydoğusuna ilişkin Türkiye-ABD ortak açıklaması",
+      "publisher": "T.C. Cumhurbaşkanlığı İletişim Başkanlığı",
+      "url": "https://www.iletisim.gov.tr/turkce/haberler/detay/suriyenin-kuzeydogusuna-iliskin-turkiye-abd-ortak-aciklamasi",
+      "date": "2019-10-17",
+      "accessed": "2026-09-13"
+    },
+    "aa_soci_2019_10_22": {
+      "title": "Türkiye ile Rusya Federasyonu arasında mutabakat muhtırası imzalandı (muhtıra metni)",
+      "publisher": "Anadolu Ajansı",
+      "url": "https://www.aa.com.tr/tr/dunya/turkiye-ile-rusya-federasyonu-arasinda-mutabakat-muhtirasi-imzalandi/1622980",
+      "date": "2019-10-22",
+      "accessed": "2026-09-13"
+    },
+    "tbmm_2025_10_22": {
+      "title": "Türk askerinin Irak ve Suriye'deki görev süresinin uzatılmasına ilişkin tezkere Genel Kurulda kabul edildi",
+      "publisher": "Türkiye Büyük Millet Meclisi",
+      "url": "https://www.tbmm.gov.tr/Haber/Detay?Id=98232409-71f0-4b95-8244-019a08a2e22e",
+      "date": "2025-10-22",
+      "accessed": "2026-09-13"
+    },
+    "aa_msb_2025_08_14": {
+      "title": "MSB: Suriye'nin siyasi birliğini, toprak bütünlüğünü savunuyoruz (Ortak Eğitim ve Danışmanlık Mutabakat Muhtırası, 13 Ağustos 2025)",
+      "publisher": "Anadolu Ajansı",
+      "url": "https://www.aa.com.tr/tr/gundem/msb-suriyenin-siyasi-birligini-toprak-butunlugunu-savunuyoruz/3659254",
+      "date": "2025-08-14",
+      "accessed": "2026-09-13"
+    },
+    "mfa_2026_01_18": {
+      "title": "No: 9, 18 Ocak 2026, Suriye'de Açıklanan Ateşkes ve Tam Entegrasyon Anlaşması Hk.",
+      "publisher": "T.C. Dışişleri Bakanlığı",
+      "url": "https://sam-be.mfa.gov.tr/Mission/ShowAnnouncement/416329",
+      "date": "2026-01-18",
+      "accessed": "2026-09-13"
+    },
+    "trt_msb_2026_09_03": {
+      "title": "MSB: Suriye'ye yönelik desteğimiz devam edecek (MSB haftalık basın bilgilendirmesi)",
+      "publisher": "TRT Haber",
+      "url": "https://www.trthaber.com/haber/gundem/msb-suriyeye-yonelik-destegimiz-devam-edecek-955777.html",
+      "date": "2026-09-03",
+      "accessed": "2026-09-13"
+    },
+    "dailysabah_2026_02_01": {
+      "title": "Türkiye will only withdraw from Syria after terror threat ends: Report",
+      "publisher": "Daily Sabah",
+      "url": "https://www.dailysabah.com/politics/turkiye-will-only-withdraw-from-syria-after-terror-threat-ends-report/news",
+      "date": "2026-02-01",
+      "accessed": "2026-09-13"
+    },
+    "isw_2025_02_06": {
+      "title": "Iran Update, February 6, 2025",
+      "publisher": "Institute for the Study of War / Critical Threats",
+      "url": "https://www.understandingwar.org/backgrounder/iran-update-february-6-2025",
+      "date": "2025-02-06",
+      "accessed": "2026-09-13"
+    },
+    "lwj_2025_02_06": {
+      "title": "Syrian government forces enter Afrin, signaling a change in control",
+      "publisher": "FDD's Long War Journal",
+      "url": "https://www.longwarjournal.org/archives/2025/02/syrian-government-forces-enter-afrin-signaling-a-change-in-control.php",
+      "date": "2025-02-06",
+      "accessed": "2026-09-13"
+    },
+    "isw_2026_01_21": {
+      "title": "Iran Update, January 21, 2026",
+      "publisher": "Institute for the Study of War / Critical Threats",
+      "url": "https://understandingwar.org/research/middle-east/iran-update-january-21-2026/",
+      "date": "2026-01-21",
+      "accessed": "2026-09-13"
+    },
+    "aljazeera_2026_01_18": {
+      "title": "Syrian government, Kurdish-led SDF agree on ceasefire: What to know",
+      "publisher": "Al Jazeera",
+      "url": "https://www.aljazeera.com/news/2026/1/18/syrian-army-advances-on-sdf-stronghold-of-raqqa-whats-the-latest",
+      "date": "2026-01-18",
+      "accessed": "2026-09-13"
+    },
+    "france24_2026_08_25": {
+      "title": "Syrian Kurdish leader announces SDF dissolution after its integration into army",
+      "publisher": "France 24",
+      "url": "https://www.france24.com/en/middle-east/20260825-syrian-kurdish-leader-dissolves-force-that-spearheaded-jihadist-fight",
+      "date": "2026-08-25",
+      "accessed": "2026-09-13"
+    },
+    "hdx_cod_ab_syr": {
+      "title": "Syrian Arab Republic – Subnational Administrative Boundaries (COD-AB), syr_admin_boundaries.shp.zip",
+      "publisher": "OCHA / HDX (United Nations Cartographic Section and partners)",
+      "url": "https://data.humdata.org/dataset/cod-ab-syr",
+      "date": "2026-01-26",
+      "accessed": "2026-09-13"
+    }
+  },
+  "zones": [
+    {
+      "id": "tur-op-firat-kalkani",
+      "name_tr": "Fırat Kalkanı Harekâtı bölgesi",
+      "name_en": "Operation Euphrates Shield area",
+      "operation_tr": "Fırat Kalkanı Harekâtı",
+      "operation_en": "Operation Euphrates Shield",
+      "announced": "2016-08-24",
+      "status": "ended",
+      "schematic": true,
+      "admin_areas": [
+        {"pcode": "SY020400", "name_en": "A'zaz", "name_tr": "Azez"},
+        {"pcode": "SY020405", "name_en": "Suran", "name_tr": "Suran"},
+        {"pcode": "SY020401", "name_en": "Aghtrin", "name_tr": "Ahterin"},
+        {"pcode": "SY020403", "name_en": "Mare'", "name_tr": "Mare"},
+        {"pcode": "SY020203", "name_en": "Ar-Ra'ee", "name_tr": "er-Rai (Çobanbey)"},
+        {"pcode": "SY020200", "name_en": "Al Bab", "name_tr": "El Bab"},
+        {"pcode": "SY020800", "name_en": "Jarablus", "name_tr": "Cerablus"},
+        {"pcode": "SY020801", "name_en": "Ghandorah", "name_tr": "Gandura"}
+      ],
+      "note_tr": "Türkiye'nin ilan ettiği harekât bölgesi. Fırat Kalkanı Harekâtı 24 Ağustos 2016'da başlatıldı ve BM Güvenlik Konseyi'ne BM Şartı'nın 51. maddesi kapsamında bildirildi (S/2016/739). Bölge Azez, Mare, er-Rai (Çobanbey), El Bab ve Cerablus arasında kalır; Türkiye alanı 2.015 km² olarak açıkladı (S/2018/53). MGK, harekâtın başarıyla sonuçlandığını 29 Mart 2017'de açıkladı.",
+      "note_en": "Türkiye's announced operation area. Operation Euphrates Shield was launched on 24 August 2016 and notified to the UN Security Council under Article 51 of the UN Charter (S/2016/739). The area lies between A'zaz, Mare', al-Rai (Çobanbey), al-Bab and Jarabulus; Türkiye gave its size as 2,015 km² (S/2018/53). The National Security Council announced on 29 March 2017 that the operation had been successfully concluded.",
+      "status_note_tr": "Sona erdi (ayrı bir Türk kontrol alanı olarak). Harekât 29 Mart 2017'de tamamlandı (MGK). Suriye Millî Ordusu (SMO) grupları 2025'te Suriye devlet yapılarına katıldı; ISW'ye göre Suriye geçiş hükümeti, SMO'nun eskiden kontrol ettiği kuzey Halep kırsalının güvenlik ve idari sorumluluğunun tamamını taşıyor (21 Ocak 2026). MSB, Suriye'nin toprak bütünlüğünü ve 'tek devlet, tek ordu' anlayışını desteklediğini (14 Ağustos 2025; 3 Eylül 2026) ve faaliyetlerini Suriye hükümetiyle koordineli yürüttüğünü (1 Şubat 2026) belirtiyor. TSK'nın Suriye'deki görevi TBMM tezkeresine (30 Ekim 2025'ten itibaren üç yıl) dayanır; bu varlık haritada yalnızca ülke düzeyinde gösterilir.",
+      "status_note_en": "Ended (as a distinct Turkish-controlled area). The operation was concluded on 29 March 2017 (National Security Council). Syrian National Army (SNA) factions were absorbed into Syrian state structures in 2025; according to ISW, the Syrian transitional government bears full security and administrative responsibility over the northern Aleppo countryside the SNA formerly controlled (21 January 2026). The Ministry of National Defence says Türkiye supports Syria's territorial integrity and the 'one state, one army' principle (14 August 2025; 3 September 2026) and coordinates its activities with the Syrian government (1 February 2026). The Turkish Armed Forces' mission in Syria rests on the parliamentary mandate (three years from 30 October 2025); that presence is shown at country level only.",
+      "geometry_method_tr": "ŞEMATİK. OCHA COD-AB Suriye (HDX, CC BY-IGO) sınırlarından sekiz nahiyenin birleşimi: Azez, Suran, Ahterin ve Mare (Azez ilçesi), er-Rai ve El Bab (El Bab ilçesi), Cerablus ve Gandura (Cerablus ilçesi) — {area_units_tr} km²; Türkiye'nin açıkladığı alan 2.015 km²'dir. Harekât sınırı nahiye sınırlarını izlemez (ör. Minnağ–Tel Rıfat çevresindeki bazı kenar kesimler bölgenin dışındaydı), bu yüzden şematik alan açıklanan alandan büyüktür. Tel Rıfat, Nubl, Tadef ve Arima nahiyeleri alınmadı. Sitenin Natural Earth 1:50m Suriye sınırına kırpıldı, {tol_tr}° ile sadeleştirildi (Zeytin Dalı bölgesiyle ortak sınır korunarak): {area_tr} km².",
+      "geometry_method_en": "SCHEMATIC. Union of eight sub-districts from the OCHA COD-AB Syria boundaries (HDX, CC BY-IGO): A'zaz, Suran, Aghtrin and Mare' (A'zaz district), Ar-Ra'ee and Al Bab (Al Bab district), Jarablus and Ghandorah (Jarablus district) — {area_units_en} km², against the 2,015 km² Türkiye announced. The operation's limits did not follow sub-district lines (e.g. some edges around Menagh–Tell Rifaat stayed outside the area), so the schematic area is larger than the announced one. Tall Refaat, Nabul, Tadaf and A'rima sub-districts are not included. Clipped to Syria as drawn on the site (Natural Earth 1:50m) and simplified at {tol}°, keeping the edge shared with the Olive Branch area: {area_en} km².",
+      "source_keys": ["un_s2016_739", "mgk_2017_03_29", "un_s2018_53", "tbmm_2025_10_22", "aa_msb_2025_08_14", "trt_msb_2026_09_03", "dailysabah_2026_02_01", "isw_2026_01_21", "hdx_cod_ab_syr"]
+    },
+    {
+      "id": "tur-op-zeytin-dali",
+      "name_tr": "Zeytin Dalı Harekâtı bölgesi (Afrin)",
+      "name_en": "Operation Olive Branch area (Afrin)",
+      "operation_tr": "Zeytin Dalı Harekâtı",
+      "operation_en": "Operation Olive Branch",
+      "announced": "2018-01-20",
+      "status": "ended",
+      "schematic": false,
+      "admin_areas": [
+        {"pcode": "SY020300", "name_en": "Afrin", "name_tr": "Afrin"},
+        {"pcode": "SY020301", "name_en": "Bulbul", "name_tr": "Bülbül"},
+        {"pcode": "SY020302", "name_en": "Jandairis", "name_tr": "Cinderes"},
+        {"pcode": "SY020303", "name_en": "Raju", "name_tr": "Raco"},
+        {"pcode": "SY020304", "name_en": "Sharan", "name_tr": "Şeran"},
+        {"pcode": "SY020305", "name_en": "Sheikh El-Hadid", "name_tr": "Şeyh Hadid"},
+        {"pcode": "SY020306", "name_en": "Ma'btali", "name_tr": "Mabatlı"}
+      ],
+      "note_tr": "Türkiye'nin ilan ettiği harekât bölgesi. Zeytin Dalı Harekâtı 20 Ocak 2018'de Afrin'e yönelik olarak başlatıldı ve BM Güvenlik Konseyi'ne 51. madde kapsamında bildirildi (S/2018/53). Cumhurbaşkanı Erdoğan, Afrin şehir merkezinin 18 Mart 2018'de tamamen kontrol altına alındığını açıkladı.",
+      "note_en": "Türkiye's announced operation area. Operation Olive Branch was launched against Afrin on 20 January 2018 and notified to the UN Security Council under Article 51 (S/2018/53). President Erdoğan announced on 18 March 2018 that Afrin city centre was fully under control.",
+      "status_note_tr": "Sona erdi (ayrı bir Türk kontrol alanı olarak). Suriye geçiş hükümetinin güvenlik güçleri 6 Şubat 2025'te Afrin ve Cinderes'e girdi (ISW; Long War Journal). Güvenlik kaynaklarına göre Türk polisi ve jandarması Afrin'deki güvenlik görevini kademeli olarak Suriye makamlarına devretti (Daily Sabah, 1 Şubat 2026). ISW'ye göre SMO'nun eski kontrol alanının güvenlik ve idari sorumluluğu Suriye hükümetindedir (21 Ocak 2026). Türkiye harekâtın sona erdiğini ayrıca ilan etmedi; durum, bölgenin artık ayrı bir Türk kontrol alanı olmamasına dayanır. TSK varlığı haritada yalnızca ülke düzeyinde gösterilir.",
+      "status_note_en": "Ended (as a distinct Turkish-controlled area). Syrian transitional government security forces entered Afrin and Jandairis on 6 February 2025 (ISW; Long War Journal). According to security sources, Turkish police and gendarmerie gradually handed security in Afrin over to Syrian authorities (Daily Sabah, 1 February 2026). According to ISW, security and administrative responsibility for the area the SNA formerly controlled lies with the Syrian government (21 January 2026). Türkiye has not separately announced an end to the operation; the status reflects that the area no longer exists as a distinct Turkish-controlled area. Turkish military presence is shown at country level only.",
+      "geometry_method_tr": "OCHA COD-AB Suriye (HDX, CC BY-IGO) sınırlarından Afrin ilçesinin tamamı: yedi nahiye (Afrin, Bülbül, Cinderes, Mabatlı, Raco, Şeran, Şeyh Hadid) — {area_units_tr} km². İlan edilen hedef 'Afrin'dir (S/2018/53); bu katmanda ilçenin idari sınırıyla gösterildi. Azez ilçesindeki Tel Rıfat bölgeye dahil değildir. Sitenin Natural Earth 1:50m Suriye sınırına kırpıldı, {tol_tr}° ile sadeleştirildi (Fırat Kalkanı bölgesiyle ortak sınır korunarak): {area_tr} km².",
+      "geometry_method_en": "The whole Afrin district from the OCHA COD-AB Syria boundaries (HDX, CC BY-IGO): seven sub-districts (Afrin, Bulbul, Jandairis, Ma'btali, Raju, Sharan, Sheikh El-Hadid) — {area_units_en} km². The announced target is 'Afrin' (S/2018/53), shown here by the district's administrative boundary. Tell Rifaat (A'zaz district) is not part of the area. Clipped to Syria as drawn on the site (Natural Earth 1:50m) and simplified at {tol}°, keeping the edge shared with the Euphrates Shield area: {area_en} km².",
+      "source_keys": ["un_s2018_53", "tccb_2018_03_18", "tbmm_2025_10_22", "aa_msb_2025_08_14", "trt_msb_2026_09_03", "dailysabah_2026_02_01", "isw_2025_02_06", "lwj_2025_02_06", "isw_2026_01_21", "hdx_cod_ab_syr"]
+    },
+    {
+      "id": "tur-op-baris-pinari",
+      "name_tr": "Barış Pınarı Harekâtı bölgesi (Tel Abyad – Resulayn)",
+      "name_en": "Operation Peace Spring area (Tell Abyad – Ras al-Ayn)",
+      "operation_tr": "Barış Pınarı Harekâtı",
+      "operation_en": "Operation Peace Spring",
+      "announced": "2019-10-09",
+      "status": "ended",
+      "schematic": true,
+      "depth_km": 32,
+      "admin_areas": [
+        {"pcode": "SY110200", "name_en": "Tell Abiad", "name_tr": "Tel Abyad"},
+        {"pcode": "SY110201", "name_en": "Suluk", "name_tr": "Süluk"},
+        {"pcode": "SY110202", "name_en": "Ein Issa", "name_tr": "Ayn İsa"},
+        {"pcode": "SY080400", "name_en": "Ras Al Ain", "name_tr": "Resulayn"}
+      ],
+      "note_tr": "Türkiye'nin ilan ettiği harekât bölgesi. Barış Pınarı Harekâtı 9 Ekim 2019'da başlatıldı ve BM Güvenlik Konseyi'ne 51. madde kapsamında bildirildi (S/2019/804). 17 Ekim 2019 Türkiye–ABD ortak açıklaması harekâtın durdurulmasını düzenledi; 22 Ekim 2019 Türkiye–Rusya Mutabakat Muhtırası mevcut Barış Pınarı Harekâtı alanını Tel Abyad ve Resulayn'ı içine alan, 32 km derinliğinde bir alan olarak tanımlar.",
+      "note_en": "Türkiye's announced operation area. Operation Peace Spring was launched on 9 October 2019 and notified to the UN Security Council under Article 51 (S/2019/804). The Türkiye–US joint statement of 17 October 2019 provided for halting the operation; the Türkiye–Russia Memorandum of Understanding of 22 October 2019 describes the current Operation Peace Spring area as covering Tell Abyad and Ras al-Ayn, with a depth of 32 km.",
+      "status_note_tr": "Sona erdi (ayrı bir Türk kontrol alanı olarak). ISW'ye göre Suriye hükümeti güvenlik birimleri 'Barış Pınarı' bölgesinin genelinde görev yapıyor ve Tel Abyad ile Resulayn sınır kapılarını kontrol ediyor (21 Ocak 2026). Suriye hükümeti ile SDG 18 Ocak 2026'da ateşkes ve entegrasyon anlaşması açıkladı (Dışişleri Bakanlığı açıklaması No: 9); SDG, Suriye ordusuna katılımın tamamlandığını belirterek 25 Ağustos 2026'da kendini feshettiğini açıkladı (France 24). 2019 düzenlemeleri alanı YPG'nin geri çekilmesi üzerine kurmuştu. Türkiye bölgenin sona erdiğini ayrıca ilan etmedi; durum, bölgenin artık ayrı bir Türk kontrol alanı olmamasına dayanır. TSK varlığı haritada yalnızca ülke düzeyinde gösterilir.",
+      "status_note_en": "Ended (as a distinct Turkish-controlled area). According to ISW, Syrian government security services operate across the 'Peace Spring' region and the Syrian government controls the Tell Abyad and Ras al-Ayn border crossings (21 January 2026). The Syrian government and the SDF announced a ceasefire and integration agreement on 18 January 2026 (Turkish MFA statement No. 9); on 25 August 2026 the SDF announced its dissolution after completing its integration into the Syrian army (France 24). The 2019 arrangements defined the area around the YPG's withdrawal. Türkiye has not separately announced an end to the area; the status reflects that it no longer exists as a distinct Turkish-controlled area. Turkish military presence is shown at country level only.",
+      "geometry_method_tr": "ŞEMATİK. OCHA COD-AB Suriye (HDX, CC BY-IGO) sınırlarından Tel Abyad, Süluk ve Ayn İsa (Tel Abyad ilçesi) ile Resulayn (Resulayn ilçesi) nahiyelerinin birleşimi ({area_units_tr} km²); Soçi Mutabakat Muhtırası'ndaki 32 km derinliğe göre Türkiye sınırından (Natural Earth 10m) {depth} km ile sınırlandı (yerel LAEA izdüşümünde tampon). Ayn İsa nahiyesi yalnızca bu kuşağa giren kuzey kesimiyle yer alır; Ayn İsa merkezi kuşağın dışındadır. Doğu ve batı kenarlar nahiye sınırlarıdır ve gerçek harekât sınırıyla örtüşmeyebilir; Derbasiye nahiyesi alınmadı. Sitenin Natural Earth 1:50m Suriye sınırına kırpıldı, {tol_tr}° ile sadeleştirildi: {area_tr} km².",
+      "geometry_method_en": "SCHEMATIC. Union of the Tell Abiad, Suluk and Ein Issa (Tell Abiad district) and Ras Al Ain (Ras Al Ain district) sub-districts from the OCHA COD-AB Syria boundaries (HDX, CC BY-IGO), {area_units_en} km², limited to {depth} km from Türkiye (Natural Earth 10m; buffer in a local LAEA projection) after the 32 km depth in the Sochi memorandum. Ein Issa sub-district enters only with its northern part inside that band; Ein Issa town lies outside it. The eastern and western edges are sub-district boundaries and need not match the operation's actual limits; Darbasiyah sub-district is not included. Clipped to Syria as drawn on the site (Natural Earth 1:50m) and simplified at {tol}°: {area_en} km².",
+      "source_keys": ["un_s2019_804", "iletisim_2019_10_17", "aa_soci_2019_10_22", "tbmm_2025_10_22", "mfa_2026_01_18", "trt_msb_2026_09_03", "dailysabah_2026_02_01", "isw_2026_01_21", "aljazeera_2026_01_18", "france24_2026_08_25", "hdx_cod_ab_syr"]
+    }
+  ]
+}
