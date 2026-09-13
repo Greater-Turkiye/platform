@@ -90,6 +90,7 @@
       return g;
     };
     const G = { lo: group(loWorld), hi: null };
+    const TR_CENTROID = d3.geoCentroid(loWorld.countries.find((f) => GT.a3(f) === 'TUR'));
 
     function resize() {
       const r = host.getBoundingClientRect();
@@ -254,13 +255,13 @@
         const p = proj(at);
         if (inView(p) && facing(at)) spaced(c, GT.upper(GT.countryName(a3)), p[0], p[1], fs * 0.22);
       }
-      // Türkiye
-      const tp = proj([35.1, 39.05]);
+      // Türkiye — centred on the country's area-weighted centroid
+      const tp = proj(TR_CENTROID);
       if (tp) {
         const ts = Math.max(10, R / 26);
         c.font = `300 ${ts}px Montserrat, sans-serif`;
         c.fillStyle = 'rgba(255,255,255,0.94)';
-        spaced(c, GT.upper('Türkiye'), tp[0], tp[1] + fs * 0.9, ts * 0.62);
+        spaced(c, GT.upper('Türkiye'), tp[0], tp[1], ts * 0.62);
       }
       // Turkish islands as dots; Kardak hollow blue (Türkiye's position, contested)
       for (const i of loWorld.islands) {
@@ -415,9 +416,9 @@
       const p = proj(at);
       if (ok(p)) labels.append('text').attr('class', 'm-label').attr('x', p[0]).attr('y', p[1]).attr('font-size', fs).text(GT.upper(GT.countryName(a3)));
     }
-    const tp = proj([35.1, 39.05]);
-    labels.append('text').attr('class', 'm-tr-label').attr('x', tp[0]).attr('y', tp[1] + fs * 0.9)
-      .attr('font-size', Math.max(10, R / 26)).text(GT.upper('Türkiye'));
+    const tp = proj(d3.geoCentroid(tr));
+    labels.append('text').attr('class', 'm-tr-label').attr('x', tp[0]).attr('y', tp[1])
+      .attr('font-size', Math.max(10, R / 26)).text([...GT.upper('Türkiye')].join('  '));
 
     if (data) {
       const mk = svg.append('g');
