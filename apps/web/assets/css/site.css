@@ -406,6 +406,13 @@ a.ticker-item:hover { color: #fff; }
 .mk-ev.is-regional.st-partially_verified, .mk-ev.is-regional.st-disputed { stroke: var(--warn); }
 /* Türkiye label: spacing comes from thin spaces in the text so text-anchor:middle centres exactly */
 .m-tr-label { letter-spacing: 0 !important; dominant-baseline: central; }
+/* territory under occupation (Palestine, Golan, Crimea): hatched fill, dashed edge */
+.m-land.m-disputed.m-occupied { fill: url(#occHatch); stroke: rgba(232, 227, 220, .6); stroke-dasharray: 2 2; stroke-width: .9; }
+/* human-rights marker (East Turkestan) */
+.m-concern { fill: rgba(63, 208, 201, .12); stroke: rgba(63, 208, 201, .95); stroke-width: 1.4; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
+.m-concern:hover { fill: rgba(63, 208, 201, .22); }
+.lg i.concern { border-radius: 0; background: rgba(63, 208, 201, .18); outline: 1px dashed rgba(63, 208, 201, .95); }
+.lg i.occupied { border-radius: 0; background: repeating-linear-gradient(45deg, #161313 0 2px, rgba(232, 227, 220, .5) 2px 3px); outline: 1px dashed rgba(232, 227, 220, .6); }
 /* stronger Mavi Vatan */
 .m-blue-area { fill: rgba(38, 120, 220, .4); stroke: rgba(110, 180, 255, .9); stroke-width: 1.1; filter: drop-shadow(0 0 4px rgba(70, 150, 255, .6)); }
 .m-blue-area.schematic { fill: rgba(38, 120, 220, .24); stroke-dasharray: 4 3; }

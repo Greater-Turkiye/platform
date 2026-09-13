@@ -124,9 +124,16 @@
     for (const d of world.disputed) {
       const p = d.properties;
       gRoot.append('path').datum(d).attr('d', path)
-        .attr('class', 'm-land m-disputed' + (GT.REGION_OF[p.de_jure] ? ' m-watch' : '') + GT.partnerClass(p.de_jure))
+        .attr('class', 'm-land m-disputed' + (GT.REGION_OF[p.de_jure] ? ' m-watch' : '') + GT.partnerClass(p.de_jure) + (p.occupier ? ' m-occupied' : ''))
         .attr('data-region', GT.REGION_OF[p.de_jure] || null)
         .on('pointermove', (ev) => showTip(ev, GT.upper(GT.countryName(p.de_jure) + ' · ' + p['name_' + GT.lang]), p['note_' + GT.lang]))
+        .on('pointerleave', hideTip);
+    }
+    // human-rights markers (East Turkestan): outlined region with a note — not a boundary claim
+    for (const cr of world.concern) {
+      const p = cr.properties;
+      gRoot.append('path').datum(cr).attr('d', path).attr('class', 'm-concern')
+        .on('pointermove', (ev) => showTip(ev, GT.upper(p['name_' + GT.lang] || p.name_tr), p['note_' + GT.lang]))
         .on('pointerleave', hideTip);
     }
     // Mavi Vatan: agreed maritime areas and Türkiye's notified limits (contested → dashed)
@@ -195,6 +202,7 @@
       if (!r.at || r.countries.length === 1 || code === 'black-sea') continue;
       add('m-rlabel', r.at, 9, GT.upper(GT.label('regions', code)), 14).attr('data-region', code);
     }
+    for (const pl of GT.PLACE_LABELS || []) add('m-label sm', pl.at, 7, GT.upper(pl[GT.lang]));
     // centred on Türkiye's centroid; letters spaced with thin spaces (CSS letter-spacing would add a trailing gap)
     const trF = world.countries.find((f) => GT.a3(f) === 'TUR');
     add('m-tr-label', d3.geoCentroid(trF), 19, [...GT.upper('Türkiye')].join('  '));
