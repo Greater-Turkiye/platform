@@ -298,7 +298,7 @@
     '499': 'MNE', '807': 'MKD', '008': 'ALB', '070': 'BIH', '191': 'HRV', '705': 'SVN', '348': 'HUN', '434': 'LBY', '818': 'EGY', '788': 'TUN',
     '012': 'DZA', '504': 'MAR', '729': 'SDN', '682': 'SAU', '784': 'ARE', '634': 'QAT', '414': 'KWT', '048': 'BHR', '512': 'OMN', '887': 'YEM',
     '706': 'SOM', '262': 'DJI', '232': 'ERI', '231': 'ETH', '398': 'KAZ', '860': 'UZB', '795': 'TKM', '417': 'KGZ', '762': 'TJK', '004': 'AFG',
-    '586': 'PAK', '380': 'ITA', '470': 'MLT',
+    '586': 'PAK', '380': 'ITA', '470': 'MLT', '360': 'IDN', '404': 'KEN', '566': 'NGA', '562': 'NER',
   };
   // Somaliland is not recognised by Türkiye: it is drawn as part of Somalia.
   const NAMELESS = { 'N. Cyprus': 'XNC', Kosovo: 'XKX', Somaliland: 'SOM' };
@@ -314,6 +314,7 @@
     SOM: ['Somali', 'Somalia'], SML: ['Somaliland', 'Somaliland'], DJI: ['Cibuti', 'Djibouti'], ERI: ['Eritre', 'Eritrea'], ETH: ['Etiyopya', 'Ethiopia'],
     KAZ: ['Kazakistan', 'Kazakhstan'], UZB: ['Özbekistan', 'Uzbekistan'], TKM: ['Türkmenistan', 'Turkmenistan'], KGZ: ['Kırgızistan', 'Kyrgyzstan'],
     TJK: ['Tacikistan', 'Tajikistan'], AFG: ['Afganistan', 'Afghanistan'], PAK: ['Pakistan', 'Pakistan'], ITA: ['İtalya', 'Italy'], MLT: ['Malta', 'Malta'],
+    IDN: ['Endonezya', 'Indonesia'], KEN: ['Kenya', 'Kenya'], NGA: ['Nijerya', 'Nigeria'], NER: ['Nijer', 'Niger'],
   };
 
   // Editorial watch regions (vocab/regions.yaml is canonical; this adds map geometry hints).
@@ -366,22 +367,29 @@
      tier "ally" = mutual defence commitment, "coop" = defence / military cooperation agreement. */
   GT.AGREEMENTS = {
     mecca: {
-      tr: 'Mekke Ortak Savunma Anlaşması · 7 Ağu 2026', en: 'Mecca Joint Defence Agreement · 7 Aug 2026',
-      sources: ['https://www.aa.com.tr/tr/gundem/turkiye-suudi-arabistan-ve-pakistan-ortak-savunma-anlasmasi-imzaladi/4021014',
-        'https://www.iletisim.gov.tr/turkce/haberler/detay/turkiye-suudi-arabistan-ve-pakistan-arasinda-ortak-savunma-anlasmasi-imzalandi'],
+      tr: 'Mekke Ortak Savunma Anlaşması · 7 Ağu 2026 (imzalandı; TBMM onayı bekleniyor)',
+      en: 'Mecca Joint Defence Agreement · 7 Aug 2026 (signed; awaiting approval by the Turkish parliament)',
+      sources: ['https://www.iletisim.gov.tr/turkce/haberler/detay/turkiye-suudi-arabistan-ve-pakistan-arasinda-ortak-savunma-anlasmasi-imzalandi',
+        'https://www.aa.com.tr/tr/gundem/turkiye-suudi-arabistan-ve-pakistan-ortak-savunma-anlasmasi-imzaladi/4021014',
+        'https://ankahaber.net/haber/tbmm-genel-kurulu-nun-gundemi-mekke-anlasmasi-oldu-ak-partili-zengin-anlasma-meclisimizde-onaylandiktan-sonra-yururluge-girmis-olacak-3420c0d2'],
     },
     'syr-2025': {
-      tr: 'Askerî eğitim ve işbirliği anlaşması · 13 Ağu 2025', en: 'Military training & cooperation agreement · 13 Aug 2025',
-      sources: ['https://english.aawsat.com/arab-world/5175423-t%C3%BCrkiye-equip-train-syrian-army-under-new-defense-pact'],
+      tr: 'Ortak Eğitim ve Danışmanlık Mutabakat Muhtırası · 13 Ağu 2025', en: 'Joint Training and Advisory Memorandum of Understanding · 13 Aug 2025',
+      sources: ['https://www.aa.com.tr/tr/gundem/msb-suriyenin-siyasi-birligini-toprak-butunlugunu-savunuyoruz/3659254',
+        'https://english.aawsat.com/arab-world/5175423-t%C3%BCrkiye-equip-train-syrian-army-under-new-defense-pact'],
     },
     'egy-2026': {
-      tr: 'Askerî işbirliği çerçeve anlaşması ve savunma işbirliği mutabakatı · 2026', en: 'Military cooperation framework agreement & defence cooperation MoU · 2026',
-      sources: ['https://www.dailysabah.com/politics/diplomacy/turkiye-egypt-sign-defense-cooperation-mou',
+      tr: 'Askerî Çerçeve Anlaşması · 4 Şub 2026 (+ savunma ve savunma sanayii iş birliği niyet mektupları · 13–14 Tem 2026)',
+      en: 'Military Framework Agreement · 4 Feb 2026 (+ defence and defence-industry cooperation letters of intent · 13–14 Jul 2026)',
+      sources: ['https://www.aa.com.tr/tr/gundem/turkiye-ile-misir-arasinda-anlasmalar-imzalandi/3820240',
         'https://www.al-monitor.com/originals/2026/07/turkey-egypt-expand-military-ties-cooperation-frameworks-what-know'],
     },
     shusha: {
-      tr: 'Şuşa Beyannamesi (müttefiklik, karşılıklı yardım) · 15 Haz 2021', en: 'Shusha Declaration (alliance and mutual assistance) · 15 Jun 2021',
-      sources: ['https://www.aa.com.tr/tr/analiz/susa-beyannamesi-ve-turkiye-azerbaycan-iliskilerinde-yeni-ufuklar/2275640',
+      tr: 'Şuşa Beyannamesi (müttefiklik, karşılıklı yardım) · 15 Haz 2021 · yürürlükte (7355 sayılı Kanun) · + Karşılıklı Askerî Güvenliğin Güçlendirilmesine İlişkin Mutabakat Muhtırası · 22 Tem 2025',
+      en: 'Shusha Declaration (alliance and mutual assistance) · 15 Jun 2021 · in force (Law 7355) · + MoU on Strengthening Mutual Military Security · 22 Jul 2025',
+      sources: ['https://www.resmigazete.gov.tr/eskiler/2022/03/20220323-1.pdf',
+        'https://www.aa.com.tr/tr/gundem/susa-beyannamesi-ve-milletlerarasi-anlasmalar-resmi-gazetede-yayimlandi/2501946',
+        'https://www.aa.com.tr/tr/gundem/turkiye-ile-azerbaycan-karsilikli-askeri-guvenligin-guclendirilmesine-iliskin-mutabakat-muhtirasi-imzaladi/3638732',
         'https://avim.org.tr/tr/Bulten/ISTE-SUSA-BEYANNAMESI-NIN-TAM-METNI'],
     },
     guarantee: {
@@ -389,22 +397,89 @@
       sources: ['https://www.mfa.gov.tr/garanti-antlasmasi-_zurich_11-subat-1959_.tr.mfa'],
     },
     'qat-2014': {
-      tr: 'Askerî eğitim, savunma sanayii ve TSK konuşlanması işbirliği anlaşması · 19 Ara 2014', en: 'Cooperation agreement on military training, defence industry & stationing of Turkish forces · 19 Dec 2014',
-      sources: ['https://21yyte.org/orta-dogu-ve-afrika-arastirmalari-merkezi/turkiye-katar-askeri-isbirligi-anlasmasinin-bolgesel-ve-kuresel-yansimalari/8228',
-        'https://anlatilaninotesi.com.tr/20150609/1015898130.html'],
+      tr: 'Askerî eğitim, savunma sanayii ve TSK konuşlanması işbirliği anlaşması · 19 Ara 2014 · yürürlükte (6633 sayılı Kanun; uygulama anlaşması 7023 sayılı Kanun)',
+      en: 'Cooperation agreement on military training, defence industry & stationing of Turkish forces · 19 Dec 2014 · in force (Law 6633; implementing agreement Law 7023)',
+      sources: ['https://www5.tbmm.gov.tr/tutanaklar/KANUNLAR_KARARLAR/kanuntbmmc099/kanuntbmmc099/kanuntbmmc09906633.pdf',
+        'https://www5.tbmm.gov.tr/tutanaklar/KANUNLAR_KARARLAR/kanuntbmmc101/kanuntbmmc101/kanuntbmmc10107023.pdf',
+        'https://www.aa.com.tr/tr/gunun-basliklari/katara-turk-askeri-konuslandirilmasi-karari-resmi-gazetede/837770'],
     },
     'lby-2019': {
       tr: 'Güvenlik ve askerî işbirliği mutabakatı (Trablus hükümeti) · 27 Kas 2019', en: 'Security & military cooperation MoU (Tripoli government) · 27 Nov 2019',
       sources: ['https://www.aa.com.tr/tr/libya/turkiye-libya-guvenlik-ve-askeri-is-birligi-mutabakat-muhtirasi-resmi-gazetede/1684355'],
     },
     'som-2024': {
-      tr: 'Savunma ve ekonomik işbirliği çerçeve anlaşması · 8 Şub 2024', en: 'Defence & economic cooperation framework agreement · 8 Feb 2024',
-      sources: ['https://www.tbmm.gov.tr/Haber/Detay?Id=52226928-c750-4ae0-84bf-019f6f6e4618'],
+      tr: 'Savunma ve Ekonomik İşbirliği Çerçeve Anlaşması · 8 Şub 2024', en: 'Defence & Economic Cooperation Framework Agreement · 8 Feb 2024',
+      sources: ['https://www.aa.com.tr/tr/gundem/turkiye-ile-somali-arasinda-savunma-ve-ekonomik-isbirligi-cerceve-anlasmasi-/3131682',
+        'https://www.aa.com.tr/tr/dunya/somali-turkiye-ile-imzaladigi-savunma-isbirligi-anlasmasini-onayladi/3143647'],
     },
     'irq-2024': {
-      tr: 'Askerî, güvenlik işbirliği ve terörle mücadele mutabakatı · 15 Ağu 2024', en: 'Military & security cooperation and counter-terrorism MoU · 15 Aug 2024',
-      sources: ['https://www.iletisim.gov.tr/turkce/dis_basinda_turkiye/detay/turkiye-ve-irak-guvenlik-is-birligi-ve-terorle-mucadeleye-dair-mutabakat-zapti-imzaladi',
+      tr: 'Askerî eğitim iş birliği mutabakatı · 22 Nis 2024 · askerî, güvenlik işbirliği ve terörle mücadele mutabakatı · 15 Ağu 2024',
+      en: 'Military training cooperation MoU · 22 Apr 2024 · military & security cooperation and counter-terrorism MoU · 15 Aug 2024',
+      sources: ['https://www.iletisim.gov.tr/turkce/haberler/detay/turkiye-ile-irak-arasinda-26-anlasma-imzalandi',
+        'https://www.iletisim.gov.tr/turkce/dis_basinda_turkiye/detay/turkiye-ve-irak-guvenlik-is-birligi-ve-terorle-mucadeleye-dair-mutabakat-zapti-imzaladi',
         'https://tr.euronews.com/2024/08/15/turkiye-ve-irak-arasinda-tarihi-askeri-mutabakat-zapti-imzalandi'],
+    },
+    'idn-2022': {
+      tr: 'Savunma Alanında İşbirliğine İlişkin Anlaşma · 14 Kas 2022 · Savunma Sanayii İşbirliği Anlaşması · 12 Şub 2025 · 48 KAAN sözleşmesi · 26 Tem 2025',
+      en: 'Agreement on Cooperation in the Field of Defence · 14 Nov 2022 · Defence Industry Cooperation Agreement · 12 Feb 2025 · contract for 48 KAAN jets · 26 Jul 2025',
+      sources: ['https://www.iletisim.gov.tr/turkce/haberler/detay/turkiye-ile-endonezya-arasinda-13-anlasma-imzalandi',
+        'https://cdn.tbmm.gov.tr/KKBSPublicFile/D27/Y6/T2/WebOnergeMetni/c2ff1932-2b7f-468c-b365-b8392e5de0ca.pdf',
+        'https://www.iletisim.gov.tr/turkce/haberler/detay/cumhurbaskani-erdogan-cumhuriyet-tarihimizin-en-buyuk-savunma-ve-havacilik-ihracati-sozlesmesine-imza-atildi'],
+    },
+    'ken-2026': {
+      tr: 'Savunma İş Birliği Anlaşması · Mayıs 2026 (SAHA 2026, İstanbul)', en: 'Defence Cooperation Agreement · May 2026 (SAHA 2026, Istanbul)',
+      sources: ['https://www.mod.go.ke/news/strengthening-strategic-defence-partnerships-through-international-cooperation/',
+        'https://en.yenisafak.com/turkiye/turkiye-kenya-sign-defense-cooperation-agreement-at-saha-2026-in-istanbul-3717928'],
+    },
+    'nga-2026': {
+      tr: 'Askerî İş Birliği Protokolü · 27 Oca 2026 (+ Savunma Sanayi İş Birliği Anlaşması, TBMM onay sürecinde)',
+      en: 'Military Cooperation Protocol · 27 Jan 2026 (+ Defence Industry Cooperation Agreement, pending approval by the Turkish parliament)',
+      sources: ['https://www.iletisim.gov.tr/turkce/haberler/detay/turkiye-ile-nijerya-arasinda-9-anlasma-imzalandi-27-01-26',
+        'https://fmino.gov.ng/nigeria-and-turkiye-forge-strategic-defence-partnership-at-antalya-diplomacy-forum-2026/'],
+    },
+    'ner-2020': {
+      tr: 'Askerî Eğitim İşbirliği Anlaşması · Tem 2020 · Askerî Mali İşbirliği Anlaşması · 24 Tem 2025',
+      en: 'Military Training Cooperation Agreement · Jul 2020 · Military Financial Cooperation Agreement · 24 Jul 2025',
+      sources: ['https://www.aa.com.tr/tr/gundem/turkiye-ile-nijer-arasinda-askeri-mali-isbirligi-anlasmasi/3640633'],
+    },
+    'eth-2021': {
+      tr: 'Askerî Çerçeve Anlaşması · 18 Ağu 2021 · yürürlükte (7453 sayılı Kanun, RG 10 Nis 2023) · + Askerî Mali İşbirliği Anlaşması · 2021',
+      en: 'Military Framework Agreement · 18 Aug 2021 · in force (Law 7453, Official Gazette 10 Apr 2023) · + Military Financial Cooperation Agreement · 2021',
+      sources: ['https://www.mevzuat.gov.tr/MevzuatMetin/1.5.7453.pdf',
+        'https://www.lexpera.com.tr/resmi-gazete/metin/7453-turkiye-cumhuriyeti-hukumeti-ile-etiyopya-federal-demokratik-cumhuriyeti-hukumeti-arasinda'],
+    },
+    'dji-2024': {
+      tr: 'Askerî Eğitim İş Birliği ve Askerî Mali İş Birliği Anlaşmaları · 19 Şub 2024 · + Askerî Alanda Eğitim, Teknik ve Bilimsel İşbirliği Anlaşması · 24 Oca 2015 (6854 sayılı Kanun)',
+      en: 'Military Training Cooperation & Military Financial Cooperation Agreements · 19 Feb 2024 · + Agreement on Training, Technical and Scientific Cooperation in the Military Field · 24 Jan 2015 (Law 6854)',
+      sources: ['https://www5.tbmm.gov.tr/tutanaklar/KANUNLAR_KARARLAR/kanuntbmmc101/kanuntbmmc101/kanuntbmmc10106854.pdf',
+        'https://defensehere.com/tr/turkiye-ile-cibuti-arasinda-askeri-egitim-is-birligi-anlasmasi-imzalandi/'],
+    },
+    'omn-2025': {
+      tr: 'Askerî İş Birliği Mutabakat Muhtırası ve Savunma Sanayii İş Birliği Mutabakat Zaptı · 23 Eki 2025',
+      en: 'Military Cooperation MoU and Defence Industry Cooperation MoU · 23 Oct 2025',
+      sources: ['https://www.iletisim.gov.tr/turkce/haberler/detay/turkiye-ile-umman-arasinda-16-anlasma-imzalandi',
+        'https://www.aa.com.tr/tr/gundem/turkiye-ile-umman-arasinda-anlasmalar-imzalandi/3724674'],
+    },
+    'ukr-2020': {
+      tr: 'Askerî Çerçeve Anlaşması · 16 Eki 2020', en: 'Military Framework Agreement · 16 Oct 2020',
+      sources: ['https://www.haberturk.com/msb-acikladi-turkiye-ile-ukrayna-arasinda-askeri-cerceve-anlasmasi-imzalandi-2838381'],
+    },
+    'geo-2019': {
+      tr: 'Askerî Mali İşbirliği Anlaşması · 24 Ara 2019 · + Askerî Sağlık Alanında Eğitim ve İşbirliği Protokolü · 9 Eki 2025',
+      en: 'Military Financial Cooperation Agreement · 24 Dec 2019 · + Protocol on Training and Cooperation in Military Healthcare · 9 Oct 2025',
+      sources: ['https://www.parliament.ge/en/media/news/safinanso-sabiujeto-komitetma-sakartvelos-mtavrobasa-da-turketis-respublikis-mtavrobas-shoris-samkhedro-jandatsvis-sferoshi-stsavlebisa-da-tanamshromlobis-shesakheb-okmi-ganikhila',
+        'https://www.azernews.az/region/160078.html'],
+    },
+    'xkx-2024': {
+      tr: 'Askerî Çerçeve Anlaşması · 29 Oca 2024 (TBMM onay sürecinde)', en: 'Military Framework Agreement · 29 Jan 2024 (pending approval by the Turkish parliament)',
+      sources: ['https://tbmm.gov.tr/Gundem/GelenKagitDetay/ffbccb85-7d98-4d6a-9597-019584622dd8',
+        'https://defensehere.com/tr/turkiye-ile-kosova-arasinda-askeri-cerceve-anlasmasi-imzalandi/'],
+    },
+    'bih-2021': {
+      tr: 'Askerî Mali İşbirliği Anlaşması ve Nakdî Yardım Uygulama Protokolü · 3 Mar 2021',
+      en: 'Military Financial Cooperation Agreement and Cash Assistance Implementation Protocol · 3 Mar 2021',
+      sources: ['https://www.trthaber.com/haber/gundem/turkiye-bosna-hersek-arasinda-askeri-mali-isbirligi-anlasmasi-561303.html',
+        'https://www.aa.com.tr/tr/dunya/bosna-hersek-savunma-bakani-helez-turkiye-ile-savunma-isbirligini-aaya-degerlendirdi/3435611'],
     },
     ots: {
       tr: 'Türk Devletleri Teşkilatı', en: 'Organization of Turkic States',
@@ -424,6 +499,17 @@
     LBY: { tier: 'coop', agreement: 'lby-2019', presence: true },
     SOM: { tier: 'coop', agreement: 'som-2024', presence: true },
     IRQ: { tier: 'coop', agreement: 'irq-2024' },
+    IDN: { tier: 'coop', agreement: 'idn-2022' },
+    KEN: { tier: 'coop', agreement: 'ken-2026' },
+    NGA: { tier: 'coop', agreement: 'nga-2026' },
+    NER: { tier: 'coop', agreement: 'ner-2020' },
+    ETH: { tier: 'coop', agreement: 'eth-2021' },
+    DJI: { tier: 'coop', agreement: 'dji-2024' },
+    OMN: { tier: 'coop', agreement: 'omn-2025' },
+    UKR: { tier: 'coop', agreement: 'ukr-2020' },
+    GEO: { tier: 'coop', agreement: 'geo-2019' },
+    XKX: { tier: 'coop', agreement: 'xkx-2024' },
+    BIH: { tier: 'coop', agreement: 'bih-2021' },
     KAZ: { tier: 'kin', agreement: 'ots' },
     KGZ: { tier: 'kin', agreement: 'ots' },
     UZB: { tier: 'kin', agreement: 'ots' },
@@ -431,8 +517,10 @@
     HUN: { tier: 'kin', agreement: 'ots', observer: true },
   };
   GT.PRESENCE_SOURCES = {
-    QAT: ['https://21yyte.org/orta-dogu-ve-afrika-arastirmalari-merkezi/turkiye-katar-askeri-isbirligi-anlasmasinin-bolgesel-ve-kuresel-yansimalari/8228'],
-    SOM: ['https://www.aa.com.tr/tr/politika/turk-silahli-kuvvetlerine-somalide-yeni-gorev/3280005'],
+    QAT: ['https://www5.tbmm.gov.tr/tutanaklar/KANUNLAR_KARARLAR/kanuntbmmc101/kanuntbmmc101/kanuntbmmc10107023.pdf',
+      'https://www.aa.com.tr/tr/gunun-basliklari/katara-turk-askeri-konuslandirilmasi-karari-resmi-gazetede/837770'],
+    SOM: ['https://www.tbmm.gov.tr/Haber/Detay?Id=52226928-c750-4ae0-84bf-019f6f6e4618',
+      'https://www.aa.com.tr/tr/politika/turk-silahli-kuvvetlerine-somalide-yeni-gorev/3280005'],
     LBY: ['https://www.aa.com.tr/tr/gundem/turk-askerinin-libyadaki-gorev-suresi-uzatildi/3777943'],
     XNC: ['https://www.mfa.gov.tr/garanti-antlasmasi-_zurich_11-subat-1959_.tr.mfa'],
   };
