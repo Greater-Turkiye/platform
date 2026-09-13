@@ -465,15 +465,16 @@
       }
     }
 
-    /* Overlay, faded as a whole (opacity) after arrival and before departure. While the camera holds still the labels
-       are drawn once and only the small event canvas changes; during the last tenth of the approach everything moves. */
+    /* Overlay, faded as a whole (opacity) after arrival and before departure. Labels, islands and sites are drawn once
+       for the hold view and kept (hidden by opacity in between), so no text is drawn while the camera moves: in the last
+       tenth of the approach, when they fade in, the globe is within a fraction of a degree of the hold. Only the small
+       event canvas changes each frame. */
     let overA = -1, labelsKey = '', sweepKey = '', evs = [], evBox = null;
     function overlay(cam, a, now) {
       if (a !== overA) {
         overA = a;
         for (const el of [cvOver, cvEv, sweepEl]) el.style.opacity = String(a);
         sweepEl.style.display = a > 0 ? '' : 'none';
-        if (a <= 0) { octx.setTransform(1, 0, 0, 1, 0, 0); octx.clearRect(0, 0, cvOver.width, cvOver.height); cvEv.style.display = 'none'; labelsKey = ''; }
       }
       if (a <= 0) return;
       // sweep: wedge anchored at its centre; sized once so moving it is a compositor-only translate
@@ -487,16 +488,16 @@
       const key = c0[0].toFixed(1) + ',' + c0[1].toFixed(1);
       if (key !== sweepKey) { sweepKey = key; sweepEl.style.translate = `${c0[0]}px ${c0[1] - Number(sweepEl.dataset.h)}px`; }
 
-      const still = cam.phase === 'hold';
-      const lk = still ? [W, H, dpr, GT.lang, !!data].join('|') : '';
-      if (!still || lk !== labelsKey) {
+      const lk = [W, H, dpr, GT.lang, !!data].join('|');
+      if (lk !== labelsKey) {
         labelsKey = lk;
+        setCamera(HOLD_CAM, false);
         octx.setTransform(1, 0, 0, 1, 0, 0);
         octx.clearRect(0, 0, cvOver.width, cvOver.height);
         octx.setTransform(dpr, 0, 0, dpr, 0, 0);
         drawLabels(octx);
         evs = events();
-        if (still && evs.length) { // the event canvas covers just the pulses
+        if (evs.length) { // the event canvas covers just the pulses
           const pad = 16, xs = evs.map((e) => e.p[0]), ys = evs.map((e) => e.p[1]);
           const x0 = Math.floor(Math.min(...xs) - pad), y0 = Math.floor(Math.min(...ys) - pad);
           const w = Math.ceil(Math.max(...xs) + pad) - x0, h = Math.ceil(Math.max(...ys) + pad) - y0;
@@ -504,15 +505,14 @@
           cvEv.width = Math.round(w * dpr); cvEv.height = Math.round(h * dpr);
           Object.assign(cvEv.style, { width: w + 'px', height: h + 'px', transform: `translate(${x0}px,${y0}px)`, display: '' });
         } else cvEv.style.display = 'none';
+        setCamera(cam, true);
       }
-      if (still) {
-        if (evs.length) {
-          ectx.setTransform(1, 0, 0, 1, 0, 0);
-          ectx.clearRect(0, 0, cvEv.width, cvEv.height);
-          ectx.setTransform(dpr, 0, 0, dpr, -evBox.x0 * dpr, -evBox.y0 * dpr);
-          drawEvents(ectx, evs, now);
-        }
-      } else drawEvents(octx, evs, now);
+      if (evs.length) {
+        ectx.setTransform(1, 0, 0, 1, 0, 0);
+        ectx.clearRect(0, 0, cvEv.width, cvEv.height);
+        ectx.setTransform(dpr, 0, 0, dpr, -evBox.x0 * dpr, -evBox.y0 * dpr);
+        drawEvents(ectx, evs, now);
+      }
     }
 
     function frame(now) {

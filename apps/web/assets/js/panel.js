@@ -184,13 +184,13 @@
 
     // the zoom behaviour lives on the map's container, so its coordinates don't move with the map (see liveZoom)
     pending.zoom = null; rendered = d3.zoomIdentity; moving = false; clearTimeout(settle);
-    mover.style('transform', null).style('will-change', null);
+    mover.style('transform', null);
     zoom = d3.zoom().scaleExtent([1, 16])
       .translateExtent([[-W * 0.3, -H * 0.3], [W * 1.3, H * 1.3]])
       .on('zoom', (ev) => {
         pending.zoom = ev.transform;
         clearTimeout(settle);
-        if (!moving) { moving = true; hideTip(); mover.style('will-change', 'transform'); }
+        if (!moving) { moving = true; hideTip(); }
         schedule();
       })
       // re-render once a gesture has rested for a moment (or right after an animated zoom)
@@ -206,8 +206,8 @@
   const pending = { zoom: null, coords: null, tip: undefined };
   /* Zooming and panning move the already-drawn map with a CSS transform on its box (compositor work only): re-laying
      out and repainting the map's text, strokes and markers at every step is what made them stutter. The map is drawn
-     again at the new zoom once the gesture or animation rests (commitZoom). While moving, the map is its own layer
-     (will-change): a pan is a pure offset, a zoom scales the drawn map until it is redrawn sharp at the end. The
+     again at the new zoom once the gesture or animation rests (commitZoom). The map is its own layer (will-change,
+     site.css): a pan is a pure offset, a zoom scales the drawn map until it is redrawn sharp at the end. The
      transform sits on a plain box, not on the <svg> itself: a transform on the SVG root makes Chrome lay the SVG out
      again, and every SVG label with it, since SVG text follows the on-screen scale. */
   let rendered = d3.zoomIdentity, moving = false, settle = 0, mover = null;
@@ -224,7 +224,7 @@
     gRoot.attr('transform', t);
     // labels and markers only depend on the zoom level: a pan leaves them untouched
     if (t.k !== k) { k = t.k; rescale(); }
-    mover.style('transform', null).style('will-change', null);
+    mover.style('transform', null);
   }
   let frameReq = 0;
   function schedule() { if (!frameReq) frameReq = requestAnimationFrame(flush); }
