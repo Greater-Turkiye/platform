@@ -338,7 +338,7 @@
   for (const [code, r] of Object.entries(REGIONS)) for (const a of r.countries) GT.REGION_OF[a] = code;
 
   GT.SEAS = [
-    { at: [24.9, 37.75], tr: 'Ege Denizi', en: 'Aegean Sea', size: 1 },
+    { at: [24.4, 36.95], tr: 'Ege Denizi', en: 'Aegean Sea', size: 1 },
     { at: [30.4, 34.6], tr: 'Akdeniz', en: 'Mediterranean', size: 1.1 },
     { at: [34.6, 43.25], tr: 'Karadeniz', en: 'Black Sea', size: 1.15 },
     { at: [50.6, 41.8], tr: 'Hazar', en: 'Caspian', size: .9 },
@@ -350,7 +350,37 @@
     UKR: [31.5, 48.8], RUS: [42.5, 49.3], EGY: [29.8, 26.5], LBY: [18, 27.8], JOR: [36.8, 30.7], SAU: [44.5, 24.8], ROU: [24.8, 45.9], SRB: [20.9, 44.1],
     ISR: [34.9, 31.3], LBN: [35.9, 33.9], CYP: [32.9, 34.82], XNC: [33.62, 35.28], TKM: [58.5, 39.2], KAZ: [66, 48], UZB: [63.5, 41.8], ALB: [20, 41],
     MKD: [21.7, 41.6], ITA: [14.5, 41.8], TUN: [9.5, 34], DZA: [3, 29], SDN: [30, 16], YEM: [47.5, 15.8], OMN: [56.5, 20.8], KWT: [47.7, 29.3],
+    PAK: [69.6, 29.6],
   };
+
+  /* Türkiye's defence agreements shown on the map. Every entry carries its sources so the layer stays auditable;
+     add a country only with a signed agreement and a primary or reputable source.
+     tier "ally" = mutual defence commitment, "coop" = defence / military cooperation agreement. */
+  GT.AGREEMENTS = {
+    mecca: {
+      tr: 'Mekke Ortak Savunma Anlaşması · 7 Ağu 2026', en: 'Mecca Joint Defence Agreement · 7 Aug 2026',
+      sources: ['https://www.aa.com.tr/tr/gundem/turkiye-suudi-arabistan-ve-pakistan-ortak-savunma-anlasmasi-imzaladi/4021014',
+        'https://www.iletisim.gov.tr/turkce/haberler/detay/turkiye-suudi-arabistan-ve-pakistan-arasinda-ortak-savunma-anlasmasi-imzalandi'],
+    },
+    'syr-2025': {
+      tr: 'Askerî eğitim ve işbirliği anlaşması · 13 Ağu 2025', en: 'Military training & cooperation agreement · 13 Aug 2025',
+      sources: ['https://english.aawsat.com/arab-world/5175423-t%C3%BCrkiye-equip-train-syrian-army-under-new-defense-pact'],
+    },
+    'egy-2026': {
+      tr: 'Askerî işbirliği çerçeve anlaşması ve savunma işbirliği mutabakatı · 2026', en: 'Military cooperation framework & defence cooperation MoU · 2026',
+      sources: ['https://www.dailysabah.com/politics/diplomacy/turkiye-egypt-sign-defense-cooperation-mou',
+        'https://www.al-monitor.com/originals/2026/07/turkey-egypt-expand-military-ties-cooperation-frameworks-what-know'],
+    },
+  };
+  GT.PARTNERS = {
+    SAU: { tier: 'ally', agreement: 'mecca' },
+    PAK: { tier: 'ally', agreement: 'mecca' },
+    SYR: { tier: 'coop', agreement: 'syr-2025' },
+    EGY: { tier: 'coop', agreement: 'egy-2026' },
+  };
+  GT.partnerLabel = (a3) => (GT.PARTNERS[a3] ? GT.txt(GT.AGREEMENTS[GT.PARTNERS[a3].agreement]) : '');
+  Object.assign(I18N.tr, { 'lg.ally': 'Mekke Savunma Anlaşması', 'lg.coop': 'Savunma işbirliği anlaşması' });
+  Object.assign(I18N.en, { 'lg.ally': 'Mecca Defence Agreement', 'lg.coop': 'Defence cooperation agreement' });
 
   GT.loadWorld = async (url) => {
     const r = await fetch(url);

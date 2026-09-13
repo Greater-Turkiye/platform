@@ -32,7 +32,8 @@
     const R = narrow ? Math.min(w * 0.7, h * 0.36) : Math.min(h * 0.5, w * 0.36);
     const cx = narrow ? w * 0.5 : w * 0.63;
     const cy = narrow ? h * 0.36 : h * 0.53;
-    const proj = d3.geoOrthographic().rotate([-35, -39]).scale(R / Math.sin((21 * Math.PI) / 180))
+    // wide enough to take in partners from the Balkans to Pakistan and the Gulf
+    const proj = d3.geoOrthographic().rotate([-41, -35]).scale(R / Math.sin((31 * Math.PI) / 180))
       .translate([cx, cy]).clipAngle(90).precision(0.35);
     const path = d3.geoPath(proj);
 
@@ -47,7 +48,8 @@
     land.selectAll('path').data(world.countries).join('path')
       .attr('class', (f) => {
         const a = GT.a3(f);
-        return 'm-land' + (a === 'TUR' ? ' m-tr' : GT.REGION_OF[a] ? ' m-watch' : '');
+        if (a === 'TUR') return 'm-land m-tr';
+        return 'm-land' + (GT.REGION_OF[a] ? ' m-watch' : '') + (GT.PARTNERS[a] ? ' m-' + GT.PARTNERS[a].tier : '');
       })
       .attr('data-region', (f) => GT.REGION_OF[GT.a3(f)] || null)
       .attr('d', path)
@@ -73,7 +75,7 @@
     }
     for (const [a3, at] of Object.entries(GT.COUNTRY_LABELS)) {
       if (narrow && !['GRC', 'SYR', 'IRQ', 'IRN', 'BGR', 'EGY', 'GEO'].includes(a3)) continue;
-      if (['CYP', 'XNC', 'MKD', 'ALB', 'KWT'].includes(a3)) continue; // too small to label at this scale
+      if (['CYP', 'XNC', 'MKD', 'ALB', 'KWT', 'ARM', 'LBN', 'ISR'].includes(a3)) continue; // too small to label at this scale
       const p = proj(at);
       if (!p || !inView(p, w, h)) continue;
       if (!narrow && p[0] < w * 0.46) continue; // keep the text column clean
@@ -82,7 +84,7 @@
     }
     const tp = proj([35.1, 39.05]);
     labels.append('text').attr('class', 'm-tr-label').attr('x', tp[0]).attr('y', tp[1] + fs * 0.9)
-      .attr('font-size', Math.max(15, R / 13)).text(GT.upper('Türkiye'));
+      .attr('font-size', Math.max(10, R / 26)).text(GT.upper('Türkiye'));
 
     // markers: real sites and events only (examples are never shown on the home page)
     if (data) {
