@@ -34,10 +34,14 @@ def test_repository_feeds_file_is_valid() -> None:
         assert f.kind == "rss"
         assert f.cadence_minutes >= 15
         assert set(f.regions) <= REGION_CODES
-        assert f.country and f.name and f.notes
-        # Nothing is switched on before a maintainer confirms terms and registers the source.
+        assert f.name and f.notes
+        # country is ISO 3166-1 alpha-3, so international publishers (UN, IAEA) leave it unset.
+        assert f.country is None or len(f.country) == 3
+        # Nothing is sent to ingest before a maintainer confirms terms and registers the source.
         assert f.enabled is False
         assert not f.secrets
+        # A feed only enters the human review queue with the source's terms on record.
+        assert not f.queue or f.terms
 
 
 def test_minimal_valid_config() -> None:
@@ -59,6 +63,7 @@ def test_minimal_valid_config() -> None:
         ("country", "TR"),
         ("regions", "aegean"),
         ("secrets", ["lowercase"]),
+        ("queue", "true"),
         ("surprise", 1),
     ],
 )
@@ -82,3 +87,18 @@ def test_missing_key_and_duplicates() -> None:
         parse_feeds({"feeds": [], "extra": 1})
     with pytest.raises(ConfigError):
         parse_feeds(["not", "a", "mapping"])
+
+
+def test_queue_requires_recorded_terms() -> None:
+    doc = copy.deepcopy(VALID)
+    doc["feeds"][0]["queue"] = True
+    with pytest.raises(ConfigError, match="terms"):
+        parse_feeds(doc)
+    doc["feeds"][0]["terms"] = "https://example.org/copyright"
+    (feed,) = parse_feeds(doc)
+    assert feed.queue is True and feed.enabled is False  # the two gates are independent
+
+
+def test_queue_defaults_to_false() -> None:
+    (feed,) = parse_feeds(VALID)
+    assert feed.queue is False

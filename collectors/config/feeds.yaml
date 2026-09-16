@@ -141,3 +141,106 @@ feeds:
       Valid RSS, ~2-3/day, sends Last-Modified. Resets the connection for our descriptive
       User-Agent and answers only a browser User-Agent. Stays off (no spoofing). The English feed
       (/en/rss.xml) is low volume (10 items span Mar-Jul 2026).
+
+  # --- United Nations ---------------------------------------------------------------------
+  # Checked on 2026-09-16 (fetched and parsed). These are the first feeds with `queue: true`:
+  # un.org's copyright page allows news-related material to be used with credit, and the review
+  # queue stores nothing but a link, a title and a <=500-character excerpt. They still have no
+  # `source_id`, so they are `enabled: false` and are never sent to ingest.
+  - id: un-news-en
+    kind: rss
+    name: UN News — all news (English)
+    source_id: null
+    url: https://news.un.org/feed/subscribe/en/news/all/rss.xml
+    cadence_minutes: 120
+    lang: en
+    regions: [global]
+    enabled: false
+    queue: true
+    secrets: []
+    terms: https://www.un.org/en/about-us/copyright
+    notes: >-
+      RSS 2.0, 30 items (~34 kB), ~15-20/day. No ETag/Last-Modified, so keep the cadence low.
+      The per-region feeds (/region/middle-east/, /region/europe/) answer HTTP 200 with an empty
+      body, so the all-news feed is the only usable one.
+
+  - id: un-news-ar
+    kind: rss
+    name: أخبار الأمم المتحدة — UN News (Arabic)
+    source_id: null
+    url: https://news.un.org/feed/subscribe/ar/news/all/rss.xml
+    cadence_minutes: 120
+    lang: ar
+    regions: [global]
+    enabled: false
+    queue: false
+    secrets: []
+    terms: https://www.un.org/en/about-us/copyright
+    notes: >-
+      RSS 2.0, 30 items (~42 kB). Arabic edition of the all-news feed, same terms. Off until the
+      review queue has reviewers for it: English alone already fills most of the 40-item cap, and
+      the same story in two languages is not caught as a duplicate (SimHash is per language).
+
+  - id: un-news-ru
+    kind: rss
+    name: Новости ООН — UN News (Russian)
+    source_id: null
+    url: https://news.un.org/feed/subscribe/ru/news/all/rss.xml
+    cadence_minutes: 120
+    lang: ru
+    regions: [global]
+    enabled: false
+    queue: false
+    secrets: []
+    terms: https://www.un.org/en/about-us/copyright
+    notes: RSS 2.0, 30 items (~48 kB). Russian edition of the all-news feed; same terms, same reason.
+
+  - id: un-press-en
+    kind: rss
+    name: UN Meetings Coverage and Press Releases (English)
+    source_id: null
+    url: https://press.un.org/en/rss.xml
+    cadence_minutes: 120
+    lang: en
+    regions: [global]
+    enabled: false
+    queue: true
+    secrets: []
+    terms: https://www.un.org/en/about-us/copyright
+    notes: >-
+      RSS 2.0, 10 items (~7 kB), sends an ETag. Security Council and General Assembly meetings
+      coverage and Secretariat press releases — the closest thing to a UN document feed that
+      parses. press.un.org/en/content/security-council/press-release/feed is not well-formed XML.
+
+  - id: un-sg-en
+    kind: rss
+    name: UN Secretary-General — statements and messages (English)
+    source_id: null
+    url: https://www.un.org/sg/en/rss.xml
+    cadence_minutes: 180
+    lang: en
+    regions: [global]
+    enabled: false
+    queue: true
+    secrets: []
+    terms: https://www.un.org/en/about-us/copyright
+    notes: >-
+      RSS 2.0, 10 items (~52 kB), sends an ETag. Low volume; the 10-item window can span months,
+      so items may be older than the run that first sees them.
+
+  # --- Leads: parse, but the terms could not be read ----------------------------------------
+  - id: iaea-news-en
+    kind: rss
+    name: IAEA — news (English)
+    source_id: null
+    url: https://www.iaea.org/feeds/news
+    cadence_minutes: 180
+    lang: en
+    regions: [global]
+    enabled: false
+    queue: false
+    secrets: []
+    notes: >-
+      RSS 2.0, 150 items (~133 kB), sends an ETag, but no <pubDate> on any item. iaea.org/terms-of-use
+      returns 403 to every User-Agent we tried, so the licence is unconfirmed: lead only until a
+      maintainer reads the terms. Relevant for nuclear safeguards news in the region.
