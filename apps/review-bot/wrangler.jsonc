@@ -32,13 +32,13 @@
     {
       "binding": "OPS_DB",
       "database_name": "gt-ops",
-      "database_id": "414b8a8b-f28a-40b5-8de3-fba47ec9d784",
+      "database_id": "7cb22146-fca6-4193-b9a1-7bfa923dd783",
       "migrations_dir": "../../db/migrations/ops"
     },
     {
       "binding": "SIGNALS_DB",
       "database_name": "gt-signals",
-      "database_id": "4185c945-18b6-4fe6-9531-f0d99a858554",
+      "database_id": "c7e4f26e-c0c8-4120-a00f-fb88abdf8ed6",
       "migrations_dir": "../../db/migrations/signals"
     }
   ],

@@ -95,8 +95,8 @@ Handbook [02-red-lines](https://github.com/Greater-Turkiye/handbook/blob/main/tr
 
 | Bağlama / Binding | D1 | `database_id` |
 |---|---|---|
-| `OPS_DB` | `gt-ops` | `414b8a8b-f28a-40b5-8de3-fba47ec9d784` |
-| `SIGNALS_DB` | `gt-signals` | `4185c945-18b6-4fe6-9531-f0d99a858554` |
+| `OPS_DB` | `gt-ops` | `7cb22146-fca6-4193-b9a1-7bfa923dd783` |
+| `SIGNALS_DB` | `gt-signals` | `c7e4f26e-c0c8-4120-a00f-fb88abdf8ed6` |
 
 Veritabanı kimlikleri sır değildir; erişim Cloudflare hesap yetkisiyle olur ([db/README.md](../../db/README.md)). Bu Worker şemaya tablo veya sütun eklemez. / Database ids are not secrets; the Worker adds no table and no column.
 
