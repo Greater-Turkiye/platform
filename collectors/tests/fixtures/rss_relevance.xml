@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic RSS 2.0 fixture for the relevance filter (platform issue #42): two items about a
+     watch region and a recorded event type, one that is only about a watch region, one that is
+     only about an event type, and one world-news item that is neither. -->
+<rss version="2.0">
+  <channel>
+    <title>Example world news</title>
+    <link>https://news.example.org/</link>
+    <description>Mixed feed</description>
+    <language>en</language>
+    <item>
+      <title>Naval exercise announced off Cyprus</title>
+      <link>https://news.example.org/news/1</link>
+      <description>Two frigates will take part, the ministry said.</description>
+      <pubDate>Wed, 16 Sep 2026 09:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Airstrike reported in northern Syria</title>
+      <link>https://news.example.org/news/2</link>
+      <description>Damage was reported near Aleppo.</description>
+      <pubDate>Wed, 16 Sep 2026 08:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Wedding traditions of Yemen</title>
+      <link>https://news.example.org/news/3</link>
+      <description>A photo essay from Sanaa.</description>
+      <pubDate>Wed, 16 Sep 2026 07:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Naval exercise off Peru begins</title>
+      <link>https://news.example.org/news/4</link>
+      <description>Three frigates took part.</description>
+      <pubDate>Wed, 16 Sep 2026 06:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Back to school in Haiti</title>
+      <link>https://news.example.org/news/5</link>
+      <description>Classrooms reopened after the summer.</description>
+      <pubDate>Wed, 16 Sep 2026 05:00:00 +0000</pubDate>
+    </item>
+  </channel>
+</rss>

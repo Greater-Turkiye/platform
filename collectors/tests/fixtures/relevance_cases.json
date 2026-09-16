@@ -1,0 +1,164 @@
+{
+  "_comment": [
+    "Relevance-filter fixtures (platform issue #42).",
+    "Most cases are the real batch the first scheduled run collected on 2026-09-16 (issue #41):",
+    "the headline and the excerpt exactly as the collector normalized them, which is all the",
+    "review queue ever stores of a source (a link, a title and a <=500-character excerpt).",
+    "The `tr-*` and `borderline-*` cases are synthetic, written to cover Turkish spellings and",
+    "the uncertainty band, which the English UN feeds do not exercise on their own.",
+    "`expect` is `queued` or `off-topic`; `region` is the region guess the filter must produce,",
+    "`null` when the item names no watch region at all."
+  ],
+  "cases": [
+    {
+      "id": "sc-live-yemen-red-sea",
+      "note": "the item issue #42 names as one that must survive: Yemen, Bab el-Mandeb shipping",
+      "title": "Security Council LIVE: Rising violence triggers emergency meeting on Yemen",
+      "text": "Amid rising violence in Yemen, the Security Council met in emergency session on Tuesday to discuss the situation surrounding the critical Bab el-Mandeb Strait shipping route as UN agencies warn of rising displacement, including thousands of Yemenis fleeing to Djibouti. UN News app users can follow…",
+      "expect": "queued",
+      "region": "gulf-red-sea"
+    },
+    {
+      "id": "houthi-red-sea-chokepoint",
+      "title": "Houthi Advance towards Key Red Sea Chokepoint Raises Risk of Wider Conflict, Assistant Secretary-General Warns",
+      "text": "International efforts are urgently needed to prevent further escalation of the conflict in Yemen and safeguard freedom of navigation in the Bab al-Mandab Strait, the Security Council heard today in an emergency meeting following recent Houthi advances towards the critical global chokepoint.",
+      "expect": "queued",
+      "region": "gulf-red-sea"
+    },
+    {
+      "id": "sc-meeting-yemen",
+      "title": "Security Council, 10222nd Meeting (PM) Yemen",
+      "text": "The Security Council will meet at 3 p.m. today on the Middle East amid growing concern over the Houthis’ advance along Yemen’s Red Sea coast. The group seized the port of Mokha and Mayyun Island last week and reportedly moved onto the Greater and Lesser Hanish islands, tightening its grip on the…",
+      "expect": "queued",
+      "region": "gulf-red-sea"
+    },
+    {
+      "id": "yemen-conflict-displacement",
+      "title": "Escalating conflict drives new displacement in Yemen",
+      "text": "The escalating conflict in Yemen is choking off aid shipments and driving fresh displacement, including to nearby Djibouti, with UN agencies reporting on Tuesday that nearly 100,000 people have been displaced since fighting intensified earlier this month.",
+      "expect": "queued",
+      "region": "gulf-red-sea"
+    },
+    {
+      "id": "us-strikes-iran",
+      "title": "Civilians bear the brunt, with deadly US strikes in Iran and thousands displaced in Yemen",
+      "text": "Independent UN human rights investigators called for an immediate cessation of hostilities on Monday following a series of United States airstrikes on Iran in recent weeks that have killed civilians as tensions ripple through the region.",
+      "expect": "queued",
+      "region": "iran"
+    },
+    {
+      "id": "gaza-school-strike",
+      "title": "Six UN staff killed in Gaza school strike; Lebanon violations mount",
+      "text": "Israeli strikes killed six UN workers and civilians at a school sheltering displaced families in Gaza as needs grow, according to the UN agency for Palestine refugees, UNRWA.",
+      "expect": "queued",
+      "region": "levant"
+    },
+    {
+      "id": "ukraine-chornobyl-drone",
+      "title": "Ukraine: Drone attacks on Chornobyl are ‘gambling with the safety of millions of people’",
+      "text": "A drone strike on the protective structure at the Chornobyl Nuclear Power Plant could have endangered the safety of millions of people, UN Development Programme (UNDP) Administrator Alexander De Croo told reporters via video link from Kyiv on Thursday.",
+      "expect": "queued",
+      "region": "black-sea"
+    },
+    {
+      "id": "haiti-gangs",
+      "note": "issue #42 names this one as noise: no watch region, no recorded event type",
+      "title": "Back to school in Haiti: ‘Madame, can you stop what the gangs are doing to us?’",
+      "text": "When UNICEF’s Representative in Haiti Geetanjali Narayan stepped into a classroom in Port-au-Prince at the start of the new school year, she asked the children a simple question: What did they most need from the UN children’s agency?",
+      "expect": "off-topic",
+      "region": null
+    },
+    {
+      "id": "south-sudan-el-nino",
+      "note": "'South Sudan' must not be read as Sudan: that is what the `exclude` list is for",
+      "title": "‘Super El Niño’ deepens hunger crisis in South Sudan – WFP",
+      "text": "The already dire hunger crisis in South Sudan is becoming increasingly critical as violence, extreme weather and dwindling aid leave millions without enough food, the UN World Food Programme (WFP) warned on Tuesday.",
+      "expect": "off-topic",
+      "region": null
+    },
+    {
+      "id": "sg-appoints-asg-africa",
+      "note": "issue #42 names this one as noise",
+      "title": "Secretary-General Appoints Martin Kimani of Kenya Assistant Secretary-General for Africa",
+      "text": "United Nations Secretary-General António Guterres announced today the appointment of Martin Kimani of Kenya as the new Assistant Secretary-General for Africa in the Departments of Political and Peacebuilding Affairs and Peace Operations (DPPA-DPO).",
+      "expect": "off-topic",
+      "region": null
+    },
+    {
+      "id": "nepal-floods",
+      "title": "UNICEF says thousands of children require mental health support after Nepal floods",
+      "text": "Three weeks after the devastating flash floods in Nepal, about 17,000 children require urgent mental health and psychosocial support in the country, the UN Children’s Fund (UNICEF) said on Tuesday.",
+      "expect": "off-topic",
+      "region": null
+    },
+    {
+      "id": "ebola-dr-congo",
+      "title": "Ebola responders grapple with widening outbreak in DR Congo",
+      "text": "The deadly Ebola virus outbreak in DR Congo continues to spread across the vast country despite some success in containing it, aid officials said on Tuesday, in a renewed call for international support to help responders on the ground.",
+      "expect": "off-topic",
+      "region": null
+    },
+    {
+      "id": "world-fears-major-war",
+      "title": "World fears major war more than any other global risk, UN survey finds",
+      "text": "Two years ago, the idea of a large-scale war breaking out felt like a distant hypothetical to the experts who help chart the world’s dangers. Today it tops their list of fears, according to a new UN Global Risk Report.",
+      "expect": "off-topic",
+      "region": null
+    },
+    {
+      "id": "sg-activities-india",
+      "title": "Activities of Secretary-General in India, 11-13 September",
+      "text": "On Friday, 11 September, the Secretary-General arrived in New Delhi, India, to attend the 18th BRICS summit.",
+      "expect": "off-topic",
+      "region": null
+    },
+    {
+      "id": "haiti-sanctions-panel",
+      "title": "Security Council Committee Established Pursuant to Resolution 2653 (2022) concerning Haiti Discusses Final Report of Panel of Experts",
+      "text": "On 3 September 2026, members of the Security Council Committee established pursuant to resolution 2653 (2022) concerning Haiti held informal consultations to discuss the Panel of Experts' final report, submitted in pursuance of paragraph 13 of resolution 2794 (2025).",
+      "expect": "off-topic",
+      "region": null
+    },
+    {
+      "id": "yemen-child-brides",
+      "note": "a watch-region country with no recorded event type: the region signal alone is not enough",
+      "title": "Married at 13, pregnant and starving: Child brides of Yemen",
+      "text": "Fatimah* was 13 when she was married off to an older man. Two years later, she gave birth to twin daughters.",
+      "expect": "off-topic",
+      "region": "gulf-red-sea"
+    },
+    {
+      "id": "counter-terrorism-ai-drones",
+      "note": "a recorded event type with no watch region: the topic signal alone is not enough either",
+      "title": "Security Council LIVE: Ambassadors mark 9/11 with counter-terrorism push on AI and drones",
+      "text": "The Security Council met to mark 25 years since the 9/11 attacks with a briefing on counter-terrorism as ambassadors take stock of a threat that has morphed dramatically since resolution 1373 built the council's counter-terrorism architecture.",
+      "expect": "off-topic",
+      "region": null
+    },
+    {
+      "id": "tr-syria-airstrike",
+      "note": "synthetic: Turkish spelling, diacritics and suffixes must score like the English one",
+      "title": "Suriye'nin kuzeyinde hava saldırısı bildirildi",
+      "text": "Halep yakınlarındaki bir mevziye düzenlendiği bildirilen saldırıda hasar oluştuğu belirtildi.",
+      "expect": "queued",
+      "region": "syria"
+    },
+    {
+      "id": "tr-caucasus-exercise",
+      "note": "synthetic: Azerbaijani place names and a Turkish event word",
+      "title": "Azerbaycan'da askeri tatbikat duyuruldu",
+      "text": "Bakü, tatbikatın planlı olduğunu açıkladı.",
+      "expect": "queued",
+      "region": "caucasus"
+    },
+    {
+      "id": "borderline-cyprus-coast-guard",
+      "note": "synthetic: one region phrase and one event phrase, both only in the excerpt -> just under the threshold, so it is queued with the borderline marker instead of being dropped",
+      "title": "Weekly bulletin, 12 September",
+      "text": "The bulletin notes a coast guard vessel reported near Cyprus during the week.",
+      "expect": "queued",
+      "borderline": true,
+      "region": "cyprus"
+    }
+  ]
+}

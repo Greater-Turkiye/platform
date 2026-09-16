@@ -1,8 +1,8 @@
 # collectors
 
-[Türkçe](#türkçe) · [English](#english) · [İnceleme kuyruğu / Review queue](#i̇nceleme-kuyruğu--review-queue) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
+[Türkçe](#türkçe) · [English](#english) · [İnceleme kuyruğu / Review queue](#i̇nceleme-kuyruğu--review-queue) · [İlgi süzgeci / Relevance filter](#i̇lgi-süzgeci--relevance-filter) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
 
-> Durum: RSS/Atom toplayıcı, güvenlik filtresi ve **günlük zamanlanmış çalışma** hazır; çalışma, BM akışlarından gelen adayları bir GitHub konusunda insan incelemesine sunar. Hiçbir akış ingest'e **gönderilmiyor** (henüz `api` Worker'ı ve `source_id` yok). / Status: the RSS/Atom collector, the safety filter and a **daily scheduled run** work; the run puts candidates from the UN feeds in front of a human in a GitHub issue. Nothing is **sent** to ingest yet (no `api` Worker, no `source_id`).
+> Durum: RSS/Atom toplayıcı, güvenlik filtresi, ilgi süzgeci ve **günlük zamanlanmış çalışma** hazır; çalışma, BM akışlarından gelen ve izleme bölgeleriyle ilgili adayları bir GitHub konusunda insan incelemesine sunar. Hiçbir akış ingest'e **gönderilmiyor** (henüz `api` Worker'ı ve `source_id` yok). / Status: the RSS/Atom collector, the safety filter, the relevance filter and a **daily scheduled run** work; the run puts the candidates that concern the watch regions in front of a human in a GitHub issue. Nothing is **sent** to ingest yet (no `api` Worker, no `source_id`).
 >
 > Paket / Package: `gt_collectors` (`src/`), yapılandırma / config: [`config/feeds.yaml`](config/feeds.yaml), kaynaklar / sources: [`sources.md`](sources.md), iş akışı / workflow: [`.github/workflows/collect.yml`](../.github/workflows/collect.yml), durum / state: [`state/`](state/).
 
@@ -17,6 +17,7 @@ Kurallar:
 - Her toplayıcı yalnızca **herkese açık** kaynaklara, giriş yapmadan ve kaynağın kullanım koşullarına uyarak erişir. Kullanıcı hesabı, çerez hilesi veya ödeme duvarı aşma yok.
 - Kaynağa saygılı davranılır: `ETag` / `If-Modified-Since`, makul bekleme süreleri, tanımlayıcı bir `User-Agent`.
 - **Türk kuvvetleri güvenlik filtresi** ayrıştırmadan hemen sonra, bellekte ve diske veya ağa hiçbir şey yazılmadan önce çalışır. Atılan kayıtlar günlüğe yazılmaz; yalnızca atılan öğe **sayısı** raporlanır.
+- **İlgi süzgeci** (`relevance.py`) yalnızca gürültü içindir ve güvenlik süzgecinden **sonra** çalışır: izleme bölgeleriyle ve kaydettiğimiz olay türleriyle eşleşmeyen adaylar kuyruğa girmez, silinmez ve sayılır. Güvenlik süzgecinin yerine geçmez, onu zayıflatamaz.
 - Tam metin yeniden yayımlanmaz; sinyal yalnızca iç inceleme içindir ve 90 gün sonra silinir.
 - **Hiçbir şey yayımlanmaz.** Kuyruğa giren her öğe *doğrulanmamış adaydır*; kararı insan verir ([ADR 0007](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0007-human-in-the-loop-publishing.md)).
 
@@ -29,6 +30,7 @@ Rules:
 - Every collector accesses **public** sources only, without logging in and within the source's terms of use. No user accounts, cookie tricks or paywall circumvention.
 - Be polite to sources: `ETag` / `If-Modified-Since`, sensible back-off, a descriptive `User-Agent`.
 - The **Turkish-forces safety filter** runs right after parsing, in memory, before anything is written to disk or the network. Dropped records are never logged; only the **count** of dropped items is reported.
+- The **relevance filter** (`relevance.py`) is for noise only and runs **after** the safety filter: candidates that match neither a watch region nor a recorded event type do not enter the queue. They are kept and counted, never deleted, and the filter can never stand in for or weaken the safety filter.
 - Full text is never republished; signals are for internal review only and are deleted after 90 days.
 - **Nothing is published.** Everything that reaches the queue is an *unverified candidate*; a human decides (ADR 0007).
 
@@ -41,22 +43,77 @@ Rules:
 1. `queue: true` işaretli akışları çeker, ayrıştırır ve normalleştirir;
 2. **güvenlik süzgeci ve coğrafi çit** bellekte, hiçbir şey yazılmadan önce çalışır;
 3. simhash ile yakın kopyaları ve tekilleştirme defterindeki (`state/seen.jsonl`, `collector-state` dalı) öğeleri eler;
-4. kalan adayları JSONL yapıtı olarak yükler ve `inceleme-kuyrugu` etiketli, tarihli **tek bir konu** açar (aynı gün ikinci çalışma aynı konuya yorum bırakır);
-5. konu açıldıktan **sonra** defteri bot commit'iyle `collector-state` dalına iter — konu açılamazsa öğeler görülmemiş sayılır ve sonraki çalışmada yine sunulur.
+4. kalanları **ilgi süzgecinden** geçirir: izleme bölgeleriyle ve kaydettiğimiz olay türleriyle eşleşmeyenler kuyruğa girmez ([aşağıda](#i̇lgi-süzgeci--relevance-filter));
+5. **bütün** partiyi (kuyruğa girenler, ertelenenler ve ilgisiz bulunanlar) JSONL yapıtı olarak yükler ve kuyruğa girenlerle `inceleme-kuyrugu` etiketli, tarihli **tek bir konu** açar (aynı gün ikinci çalışma aynı konuya yorum bırakır);
+6. konu açıldıktan **sonra** defteri bot commit'iyle `collector-state` dalına iter — konu açılamazsa öğeler görülmemiş sayılır ve sonraki çalışmada yine sunulur.
 
-Konudaki her satır: başlık, kaynak bağlantısı, varsa Wayback arşiv bağlantısı, bölge tahmini, akış kimliği ve tekilleştirme kimliği. Çalışma başına en çok 40 aday; gerisi bir sonraki çalışmaya kalır. Konunun başındaki uyarı, öğelerin **doğrulanmamış aday** olduğunu söyler.
+Konudaki her satır: başlık, kaynak bağlantısı, varsa Wayback arşiv bağlantısı, bölge tahmini, ilgi puanı, akış kimliği ve tekilleştirme kimliği. Çalışma başına en çok 40 aday; gerisi bir sonraki çalışmaya kalır. Konunun başındaki uyarı, öğelerin **doğrulanmamış aday** olduğunu söyler.
 
 `.github/workflows/collect.yml` runs every day at 05:23 UTC, and on demand through `workflow_dispatch`:
 
 1. fetch, parse and normalize the feeds marked `queue: true`;
 2. the **safety filter and the geofence** run in memory, before anything is written;
 3. near-duplicates (simhash) and anything already in the dedup ledger (`state/seen.jsonl` on the `collector-state` branch) are dropped;
-4. what is left is uploaded as a JSONL artifact and written into **one dated issue** labelled `inceleme-kuyrugu` (a second run on the same day comments on the same issue);
-5. **after** the issue exists, the ledger is pushed to `collector-state` as a bot commit — if the issue could not be opened, the items stay unseen and the next run offers them again.
+4. the **relevance filter** scores what is left: an item that matches neither a watch region nor a recorded event type does not enter the queue ([below](#i̇lgi-süzgeci--relevance-filter));
+5. the **whole** batch (queued, deferred and off-topic) is uploaded as a JSONL artifact, and the queued items are written into **one dated issue** labelled `inceleme-kuyrugu` (a second run on the same day comments on the same issue);
+6. **after** the issue exists, the ledger is pushed to `collector-state` as a bot commit — if the issue could not be opened, the items stay unseen and the next run offers them again.
 
-Each line carries the title, the source link, a Wayback archive link when one exists, the region guess, the feed id and the dedup id. At most 40 candidates per run; the rest wait for the next run. The banner at the top of the issue says that the items are **unverified candidates**.
+Each line carries the title, the source link, a Wayback archive link when one exists, the region guess, the relevance score, the feed id and the dedup id. At most 40 candidates per run; the rest wait for the next run. The banner at the top of the issue says that the items are **unverified candidates**.
 
 Ne gerekmez / What it does not need: sır, hesap, ödeme yöntemi — hiçbiri. Yalnızca `GITHUB_TOKEN` (`contents: write` ile yalnızca `collector-state` dalı, `issues: write`). / No secrets, no accounts, no payment method: only `GITHUB_TOKEN`.
+
+---
+
+## İlgi süzgeci / Relevance filter
+
+> **Bu süzgeç yalnızca gürültü içindir.** Türk kuvvetleri güvenlik süzgeci (`safety.py`) ve coğrafi çit (`geo.py`) ondan **önce** çalışır, değişmemiştir ve bu tablolardan etkilenmez: yüksek puan almak, güvenlik süzgecinin attığı bir kaydı geri getirmez. / **This filter is for noise only.** The Turkish-forces safety filter and the geofence run **before** it, unchanged, and no table here can weaken them: scoring well is not a way back in for a record the safety filter dropped.
+
+İlk gerçek çalışmada (konu #41) kuyruğa giren 10 maddenin çoğu izleme bölgeleriyle ilgisiz BM dünya haberiydi (Haiti, Güney Sudan, El Niño) ve bölge tahmini hepsine `global` diyordu. Süzgeç her adaya iki soru sorar. / In the first real run (issue #41) most of the ten queued items were UN world news with no bearing on the watch regions, and every region guess was `global`. The filter asks two questions about each candidate:
+
+| | |
+|---|---|
+| **Bölge sinyali / region signal** | Ülke, başkent ve büyük yer adları, sıfatlar ve halk adları (TR + EN), `datasets/vocab/regions.yaml` bölge kodlarına göre. Başlıkta geçen ifade `weights.title`, yalnızca özette geçen `weights.text` eder; ayrı ifadeler toplanır, 1.0'da sınırlanır. Metin hiçbir bölge adı vermezse akışın kendi bölgesi `weights.feed_region` eder. `global` eşleşmez: hiçbir şey tutmadığında kalan değerdir. / Place names, adjectives and demonyms per region code; a title match weighs more than an excerpt match; `global` is the fallback, never a signal. |
+| **Konu sinyali / topic signal** | `datasets/vocab/event-types.yaml` kodlarına göre gruplanmış anahtar sözcükler: askerî faaliyet, konuşlanma, tatbikat, tedarik ve savunma sanayii, hava sahası ve deniz olayları, üs anlaşmaları, savunma ticaretine yaptırım. Eşleşen her grup bir kez katkı verir, 1.0'da sınırlanır. / Keyword groups keyed by event-type code: military activity, deployments, exercises, procurement, airspace and maritime incidents, basing, sanctions on defence trade. |
+
+```text
+score = weights.region * region_score + weights.topic * topic_score
+score = 0                                       if region_score == 0 or topic_score == 0
+```
+
+İki sinyal de gerekir. Olaysız bir bölge ("Yemen'in çocuk gelinleri") insan hikâyesidir; bölgesiz bir olay ("Haiti yaptırım komitesi") başkasının mahallesidir. / Both signals are required: a watch-region country with no security event is a human-interest story, and a security event with no watch region is somebody else's neighbourhood.
+
+Eşik **0.5**, belirsizlik payı **0.1** (`data/relevance.yaml`). / The threshold is **0.5** and the uncertainty margin **0.1**:
+
+| Puan / Score | Ne olur / What happens |
+|---|---|
+| `>= 0.50` | Kuyruğa girer / queued |
+| `0.40 – 0.50` | Kuyruğa girer, satırda ❓ `sınırda / borderline` işaretiyle / queued, with a `borderline` marker |
+| `< 0.40` | Kuyruğa **girmez** / not queued |
+
+Eşik neden 0.5: iki sinyalin payı eşit olduğundan 0.5, "iki taraftan da en az orta güçte bir kanıt" demektir — başlıkta bir bölge adı ve özette bir olay sözcüğü (0.70) rahatça geçer, yalnız özette birer kez geçen zayıf bir çift (0.40) geçmez ama sessizce de atılmaz. Pay neden 0.1: eşiğin hemen altı çoğunlukla tabloda eksik bir sözcüktür, gerçekten ilgisiz bir madde değil; o yüzden süzgeç "emin değilim" der ve kararı insana bırakır. / Why 0.5: with the two signals weighted equally it means "at least moderate evidence on both sides". Why a margin: a near miss is more often a gap in the tables than a genuinely irrelevant item, so the filter says so instead of dropping it quietly.
+
+**Hiçbir şey kaybolmaz / nothing is lost.** Eşiğin altındaki maddeler çalışma yapıtında `candidates.jsonl` içinde `status: "off-topic"` ile durur, konudaki sayaç tablosunda `İlgisiz / off-topic` satırında sayılır ve **tekilleştirme defterine yazılmaz** — daha iyi bir tablo onları sonraki çalışmada yeniden değerlendirir. / Below-threshold items stay in `candidates.jsonl` with `status: "off-topic"`, are counted in the issue's table, and are never written to the dedup ledger, so a better table picks them up later. `status` üç değer alır / takes three values: `queued`, `deferred`, `off-topic`.
+
+### Tabloları genişletmek / Extending the tables
+
+Tablolar koddan ayrıdır: yeni bir yer adı ya da olay sözcüğü eklemek için **yalnızca** [`src/gt_collectors/data/relevance.yaml`](src/gt_collectors/data/relevance.yaml) düzenlenir. / The tables are data, not code: adding a place name or an event keyword means editing only that one file.
+
+- `regions:` — anahtar `datasets/vocab/regions.yaml`'daki bölge kodudur; altına Türkçe ve İngilizce ifadeleri yazın. `global` buraya yazılamaz. / the key is a region code from the canonical vocabulary; add Turkish and English phrases under it. `global` is rejected.
+- `topics:` — anahtar `datasets/vocab/event-types.yaml`'daki olay türü kodudur. / the key is an event-type code.
+- `exclude:` — bölge eşleşmesinden önce metinden silinen yanlış arkadaşlar (`south sudan`, Sudan değildir). / false friends blanked out before region matching.
+- `weights:`, `threshold:`, `margin:` — puanı ve eşiği ayarlar. / tune the score and the threshold.
+- Eşleşme aksan ve büyük/küçük harf duyarsızdır (`İran` = `iran` = `IRAN`) ve sözcük sınırlarına uyar. Sonuna `*` konan ifade ön ek eşleşmesidir: `konuşlan*` → *konuşlandırıldı*. / Matching folds case and diacritics and respects word boundaries; a trailing `*` is a prefix match, which is how Turkish suffixes are handled.
+
+```bash
+# Bir tabloyu denemek, hiçbir şey yazmadan / try a table without touching the packaged one
+gt-collect --queue-dir queue --relevance my-tables.yaml
+# Süzgeci geçici olarak kapatmak (her şey kuyruğa girer) / see everything again
+gt-collect --queue-dir queue --min-relevance 0
+```
+
+Bir madde yanlış elendiğinde / when an item is filtered out wrongly: `candidates.jsonl` içindeki satırında `relevance.score`, `relevance.region`, `relevance.topics` ve eşleşen ifadeler (`relevance.terms`) yazar; eksik olan sözcüğü tabloya ekleyin ve `tests/fixtures/relevance_cases.json`'a bir örnek koyun. / its artifact line records the score, the region, the matched topic codes and the matched phrases; add the missing word to the table and a case to the fixture file.
+
+Bilerek dışarıda bırakılanlar / deliberately out of scope: Türkiye'nin kendisi bir izleme bölgesi kodu değildir, bu yüzden yalnızca "Türkiye" geçen bir madde bölge sinyali almaz; kanonik listede karşılığı olmayan ülkeler (Afganistan, Pakistan, Hindistan, Çin) de bölge tablosunda yoktur. / Türkiye itself is not a watch-region code, and countries with no home in the canonical region list are not in the table.
 
 ---
 
@@ -81,6 +138,8 @@ gt-collect --feed rss-aze-mod --dry-run --input saved-feed.xml   # çevrimdış�
 # İnceleme kuyruğunu yerelde üret (iş akışının yaptığının aynısı, konu açmadan)
 # Build the review queue locally (what the workflow does, without opening an issue)
 gt-collect --queue-dir queue --state state/seen.jsonl --max-items 40
+gt-collect --queue-dir queue --relevance my-tables.yaml     # başka ilgi tablosu / other tables
+gt-collect --queue-dir queue --min-relevance 0              # süzgeçsiz / filter off
 ```
 
 İki ayrı kapı vardır ve biri diğerini gerektirmez: `enabled: true` + `source_id` → ingest'e gönderilebilir (`INGEST_URL`, `INGEST_HMAC_KEY` gerekir); `queue: true` + kayıtlı `terms` → insan inceleme kuyruğuna girebilir (sır gerekmez, hiçbir şey gönderilmez). / Two independent gates: `enabled: true` with a `source_id` means a feed may be **sent to ingest** (needs `INGEST_URL` and `INGEST_HMAC_KEY`); `queue: true` with its `terms` on record means it may enter the **human review queue** (no secrets, nothing is sent).
@@ -95,6 +154,7 @@ gt-collect --queue-dir queue --state state/seen.jsonl --max-items 40
 | `fetch.py` | `urllib` tabanlı küçük HTTP yardımcısı (zaman aşımı, UA, koşullu GET, yeniden deneme) / small HTTP helper |
 | `state.py` | Tekilleştirme defteri (`{id, simhash, seen}`, budamalı) / dedup ledger, pruned |
 | `review.py` | İnceleme kuyruğu: aday modeli, konu metni, Wayback araması, `redline_check` işareti / review queue: candidate model, issue body, Wayback lookup, `redline_check` marker |
+| `relevance.py`, `data/relevance.yaml` | İlgi süzgeci: bölge ve konu tabloları, puan, eşik / relevance filter: region and topic tables, score, threshold |
 | `rss.py`, `config.py`, `cli.py` | RSS/Atom toplayıcı, YAML yapılandırma, `gt-collect` / collector, config, CLI |
 
 Bağımlılıklar / Dependencies: yalnızca / only `PyYAML` at runtime. We use `urllib` rather than `httpx` and `xml.etree` rather than `feedparser`: the few features we need are small to write, and every extra package is supply-chain surface in a job that holds the ingest HMAC key (ADR 0011). XML entity declarations are rejected, so entity-expansion attacks cannot work.
@@ -157,6 +217,7 @@ Uygulama notları / Implementation notes:
 - `source_id` may be `null` only while a source awaits registry (dry-run only); `send` refuses it.
 - `raw_hash` for RSS is the SHA-256 of the item element's XML serialization.
 - `text` is an excerpt of at most 500 characters; the model rejects more than 1000.
+- `geo.region` in queue mode is the relevance filter's guess from the item's own title and excerpt, falling back to the feed's configured region. Only `geo` changes, so `content_hash`, `simhash` and the dedup id are unaffected.
 - `content_hash` = `"sha256:" + hex(SHA-256(UTF-8(normalize_url(url) + "\n" + normalize_text(text))))`. The exact rules are in the `normalize.py` docstring; they are written so a JavaScript port (ingest Worker) gives identical bytes: raw query parts are sorted without re-encoding, the whitespace class is explicit, Unicode is NFC.
 - Ingest batch envelope (`gt-ingest/1`): `{"schema", "collector_id", "sent_at", "signals": [ {…contract…, "content_hash", "simhash"} ]}`. `simhash` is a 16-character hex string (JSON numbers cannot carry 64-bit integers into JS); the Worker should recompute `content_hash` and reject a mismatch.
 

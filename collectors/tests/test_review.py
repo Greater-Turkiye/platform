@@ -147,13 +147,22 @@ def test_select_takes_the_newest_and_defers_the_rest() -> None:
     ]
     chosen, deferred = select([candidate(signal=s) for s in signals], 2)
     assert [c.signal.title for c in chosen] == ["Item 0", "Item 1"]  # newest first
-    assert deferred == 3
-    assert select([candidate(signal=s) for s in signals], 10)[1] == 0
+    assert [c.signal.title for c in deferred] == ["Item 2", "Item 3", "Item 4"]
+    assert select([candidate(signal=s) for s in signals], 10)[1] == []
 
 
 def test_candidate_json_keeps_the_signal_contract() -> None:
     line = json.loads(candidate(3, archive_url=None, redline_check=True).to_json())
-    assert set(line) == {"queue_id", "feed", "archive_url", "redline_check", "signal"}
+    assert set(line) == {
+        "queue_id",
+        "feed",
+        "status",
+        "archive_url",
+        "redline_check",
+        "relevance",
+        "signal",
+    }
+    assert line["status"] == "queued" and line["relevance"] is None
     assert Signal.from_dict(line["signal"]).url == make_signal(3).url
 
 

@@ -1,0 +1,799 @@
+# İlgi süzgeci tabloları / relevance filter tables — gt-relevance/1
+#
+# Bu dosya VERİDİR, kod değildir: yeni bir yer adı veya olay sözcüğü eklemek için kodu
+# değiştirmenize gerek yoktur. / This file is DATA, not code: adding a place name or an event
+# keyword needs no code change. See collectors/README.md, "İlgi süzgeci / Relevance filter".
+#
+# Nasıl puanlanır / How it scores (gt_collectors/relevance.py):
+#   region_score = her bölge için eşleşen ayrı ifadelerin ağırlık toplamı, 1.0'da sınırlı
+#                  (başlıkta geçen `weights.title`, yalnız özette geçen `weights.text` eder);
+#                  metin hiçbir bölge adı vermezse akışın kendi bölgesi `weights.feed_region` eder
+#   topic_score  = eşleşen her olay türü grubunun ağırlığı, 1.0'da sınırlı
+#   score        = weights.region * region_score + weights.topic * topic_score
+#                  ve iki sinyalden biri sıfırsa score = 0 (ikisi de gerekir)
+#   score >= threshold - margin  -> kuyruğa girer / enters the queue
+#   score <  threshold           -> "sınırda / borderline" işaretiyle girer / marked borderline
+#   score <  threshold - margin  -> kuyruğa girmez, yapıtta kalır / stays in the artifact only
+#
+# Eşleşme / matching: Unicode NFKC + casefold + aksan kaldırma ("İran" = "iran", "Irak" = "ırak"),
+# sözcük sınırlarıyla. Sonuna `*` konan ifade ön ek eşleşmesidir ("konuşlan*" -> "konuşlandırıldı"),
+# Türkçe'nin ekleri için. / A trailing `*` makes the entry a prefix match, for Turkish suffixes.
+#
+# UYARI / WARNING: bu süzgeç yalnızca GÜRÜLTÜ içindir. Güvenlik süzgeci (safety.py) ve coğrafi
+# çit (geo.py) ondan önce ve bu dosyadan bağımsız çalışır; buraya yazılan hiçbir şey onları
+# gevşetemez. / This filter is for NOISE only. The safety filter and the geofence run before it
+# and are not configurable from here.
+schema: gt-relevance/1
+
+# Eşik ve belirsizlik payı / threshold and uncertainty margin. Gerekçe README'de.
+threshold: 0.5
+margin: 0.1
+
+weights:
+  region: 0.5 # bileşik puandaki payı / share of the combined score
+  topic: 0.5
+  title: 1.0 # başlıkta geçen ifade / a phrase found in the title
+  text: 0.4 # yalnızca özette geçen ifade / a phrase found only in the excerpt
+  feed_region: 0.5 # metin bölge adı vermediğinde akışın kendi bölgesi / the feed's own region
+
+# Bölge eşleşmesinden ÖNCE metinden silinen ifadeler: yanlış arkadaşlar.
+# Phrases blanked out before region matching only (false friends).
+exclude:
+  - south sudan
+  - güney sudan
+  - south korea
+  - north korea
+  - güney kore
+  - kuzey kore
+  - west georgia
+  - georgia state
+
+# İzleme bölgeleri — kodlar datasets/vocab/regions.yaml'dan gelir ve orası kanonik kaynaktır.
+# `global` burada YOKTUR: o, hiçbir bölge eşleşmediğinde kalan değerdir, bir sinyal değil.
+# Watch regions — codes come from datasets/vocab/regions.yaml, which stays canonical.
+# `global` is deliberately absent: it is the fallback when nothing matches, not a signal.
+# Beraberlikte YAML'daki ilk bölge kazanır. / The first region listed wins a tie.
+regions:
+  syria:
+    - suriye
+    - suriyeli
+    - syria
+    - syrian
+    - damascus
+    - dimashq
+    - aleppo
+    - halep
+    - idlib
+    - idlıb
+    - latakia
+    - lazkiye
+    - tartus
+    - homs
+    - hama
+    - deir ez-zor
+    - deyrizor
+    - raqqa
+    - rakka
+    - hasakah
+    - haseke
+    - qamishli
+    - kamışlı
+    - afrin
+    - afrın
+    - manbij
+    - membic
+    - tell abyad
+    - tel abyad
+    - ras al-ayn
+    - resulayn
+    - golan
+    - golan heights
+    - golan tepeleri
+    - ypg
+    - syrian democratic forces
+    - suriye demokratik güçleri
+
+  iraq:
+    - irak
+    - iraqi
+    - iraq
+    - baghdad
+    - bağdat
+    - mosul
+    - musul
+    - erbil
+    - irbil
+    - kirkuk
+    - kerkük
+    - basra
+    - sulaymaniyah
+    - süleymaniye
+    - duhok
+    - dohuk
+    - sinjar
+    - sincar
+    - anbar
+    - najaf
+    - necef
+    - karbala
+    - kerbela
+    - kurdistan region
+    - kürdistan bölgesel yönetimi
+    - kandil
+    - qandil
+    - mahmur
+    - makhmour
+
+  iran:
+    - iran
+    - iranian
+    - iranlı
+    - tehran
+    - tahran
+    - isfahan
+    - isfahan
+    - natanz
+    - fordow
+    - bushehr
+    - buşehr
+    - arak
+    - tabriz
+    - tebriz
+    - bandar abbas
+    - chabahar
+    - çabahar
+    - irgc
+    - revolutionary guard
+    - devrim muhafızları
+    - basij
+
+  levant:
+    - israel
+    - israeli
+    - israil
+    - gaza
+    - gazze
+    - rafah
+    - refah sınır kapısı
+    - khan younis
+    - han yunus
+    - west bank
+    - batı şeria
+    - palestine
+    - palestinian
+    - filistin
+    - jerusalem
+    - kudüs
+    - tel aviv
+    - hamas
+    - idf
+    - lebanon
+    - lebanese
+    - lübnan
+    - beirut
+    - beyrut
+    - hezbollah
+    - hizbullah
+    - hizballah
+    - unifil
+    - litani
+    - jordan
+    - jordanian
+    - ürdün
+    - amman
+
+  caucasus:
+    - caucasus
+    - kafkas*
+    - azerbaijan
+    - azerbaijani
+    - azerbaycan
+    - baku
+    - bakü
+    - nagorno-karabakh
+    - karabakh
+    - karabağ
+    - qarabag
+    - khankendi
+    - hankendi
+    - stepanakert
+    - lachin
+    - laçin
+    - nakhchivan
+    - nahçıvan
+    - zangezur
+    - zengezur
+    - armenia
+    - armenian
+    - ermenistan
+    - yerevan
+    - erivan
+    - georgia
+    - georgian
+    - gürcistan
+    - tbilisi
+    - tiflis
+    - batumi
+    - abkhazia
+    - abhazya
+    - south ossetia
+    - güney osetya
+    - dagestan
+    - dağıstan
+    - chechnya
+    - çeçenistan
+
+  aegean:
+    - aegean
+    - ege
+    - ege denizi
+    - greece
+    - greek
+    - yunanistan
+    - yunan
+    - athens
+    - atina
+    - rhodes
+    - rodos
+    - lesbos
+    - midilli
+    - chios
+    - samos
+    - sisam
+    - limnos
+    - limni
+    - kastellorizo
+    - meis
+    - dodecanese
+    - on iki ada
+    - imia
+    - kardak
+    - thrace
+    - trakya
+    - evros
+    - meriç
+    - alexandroupoli
+    - dedeağaç
+
+  east-med:
+    - eastern mediterranean
+    - doğu akdeniz
+    - east med
+    - eastmed
+    - levantine basin
+    - mavi vatan
+    - blue homeland
+    - exclusive economic zone delimitation
+    - leviathan gas field
+    - aphrodite gas field
+    - zohr gas field
+    - east mediterranean gas forum
+
+  cyprus:
+    - cyprus
+    - cypriot
+    - kıbrıs
+    - northern cyprus
+    - kuzey kıbrıs
+    - trnc
+    - kktc
+    - nicosia
+    - lefkoşa
+    - famagusta
+    - gazimağusa
+    - kyrenia
+    - girne
+    - larnaca
+    - larnaka
+    - limassol
+    - limasol
+    - paphos
+    - akrotiri
+    - dhekelia
+    - varosha
+    - kapalı maraş
+
+  black-sea:
+    - black sea
+    - karadeniz
+    - ukraine
+    - ukrainian
+    - ukrayna
+    - kyiv
+    - kiev
+    - odesa
+    - odessa
+    - crimea
+    - kırım
+    - sevastopol
+    - mariupol
+    - kherson
+    - chornobyl
+    - chernobyl
+    - çernobil
+    - russia
+    - russian
+    - rusya
+    - moscow
+    - moskova
+    - kremlin
+    - novorossiysk
+    - constanta
+    - köstence
+    - varna
+    - burgas
+    - montreux
+    - danube
+    - tuna nehri
+
+  libya-north-africa:
+    - libya
+    - libyan
+    - libyalı
+    - tripoli
+    - trablus
+    - benghazi
+    - bingazi
+    - misrata
+    - misurata
+    - sirte
+    - tobruk
+    - tobruk
+    - derna
+    - derne
+    - cyrenaica
+    - fezzan
+    - tripolitania
+    - haftar
+    - hafter
+    - unsmil
+    - egypt
+    - egyptian
+    - mısır
+    - cairo
+    - kahire
+    - sinai
+    - sina
+    - suez
+    - süveyş
+    - tunisia
+    - tunisian
+    - tunus
+    - algeria
+    - algerian
+    - cezayir
+    - morocco
+    - moroccan
+    - fas
+    - rabat
+
+  gulf-red-sea:
+    - red sea
+    - kızıldeniz
+    - persian gulf
+    - basra körfezi
+    - arabian gulf
+    - gulf of aden
+    - aden körfezi
+    - bab el-mandeb
+    - bab al-mandab
+    - babülmendep
+    - babul mendep
+    - strait of hormuz
+    - hürmüz boğazı
+    - yemen
+    - yemeni
+    - houthi
+    - husi
+    - ansar allah
+    - sanaa
+    - sana'a
+    - hudaydah
+    - hodeidah
+    - hudeyde
+    - aden
+    - mokha
+    - muha
+    - mayyun
+    - perim
+    - socotra
+    - sokotra
+    - saudi arabia
+    - saudi
+    - suudi arabistan
+    - riyadh
+    - riyad
+    - jeddah
+    - cidde
+    - united arab emirates
+    - birleşik arap emirlikleri
+    - abu dhabi
+    - dubai
+    - qatar
+    - katar
+    - doha
+    - kuwait
+    - kuveyt
+    - bahrain
+    - bahreyn
+    - oman
+    - umman
+    - muscat
+    - maskat
+    - somalia
+    - somali
+    - mogadishu
+    - mogadişu
+    - djibouti
+    - cibuti
+    - eritrea
+    - eritre
+    - ethiopia
+    - etiyopya
+    - sudan
+    - port sudan
+    - suakin
+    - sevakin
+    - horn of africa
+    - afrika boynuzu
+
+  balkans:
+    - balkans
+    - balkanlar
+    - serbia
+    - serbian
+    - sırbistan
+    - belgrade
+    - belgrad
+    - kosovo
+    - kosova
+    - pristina
+    - priştine
+    - bosnia
+    - bosna
+    - herzegovina
+    - hersek
+    - sarajevo
+    - saraybosna
+    - republika srpska
+    - montenegro
+    - karadağ
+    - podgorica
+    - north macedonia
+    - kuzey makedonya
+    - skopje
+    - üsküp
+    - albania
+    - albanian
+    - arnavutluk
+    - tirana
+    - tiran
+    - kfor
+    - eufor althea
+    - bulgaria
+    - bulgarian
+    - bulgaristan
+    - sofya
+    - romania
+    - romanian
+    - romanya
+    - bucharest
+    - bükreş
+
+  central-asia:
+    - central asia
+    - orta asya
+    - kazakhstan
+    - kazakistan
+    - astana
+    - almaty
+    - uzbekistan
+    - özbekistan
+    - tashkent
+    - taşkent
+    - turkmenistan
+    - türkmenistan
+    - ashgabat
+    - aşkabat
+    - kyrgyzstan
+    - kırgızistan
+    - bishkek
+    - bişkek
+    - tajikistan
+    - tacikistan
+    - dushanbe
+    - duşanbe
+    - caspian
+    - hazar denizi
+    - organization of turkic states
+    - türk devletleri teşkilatı
+
+# Konu sinyali — anahtarlar datasets/vocab/event-types.yaml kodlarıdır. Bir grup eşleşirse
+# ağırlığını bir kez katar; puan 1.0'da sınırlanır. Yeni bir olay türü eklemek için oradaki
+# kodu buraya bir satır olarak ekleyin.
+# Topic signal — the keys are datasets/vocab/event-types.yaml codes. A group that matches
+# contributes its weight once; the score is capped at 1.0.
+topics:
+  exercise.military:
+    - exercise
+    - exercises
+    - drill
+    - drills
+    - live-fire
+    - live fire
+    - wargame
+    - war game
+    - war games
+    - manoeuvre*
+    - maneuver*
+    - tatbikat*
+    - manevra*
+    - atışlı eğitim
+
+  deployment.announced:
+    - deploy*
+    - redeploy*
+    - troop*
+    - reinforcement*
+    - withdraw*
+    - pull-out
+    - peacekeep*
+    - konuşlan*
+    - takviye
+    - çekil*
+    - barış gücü
+    - asker gönder*
+
+  basing.agreement:
+    - military base
+    - air base
+    - airbase
+    - naval base
+    - army base
+    - basing agreement
+    - garrison
+    - askeri üs
+    - hava üssü
+    - deniz üssü
+    - üs anlaşması
+    - garnizon
+
+  procurement.contract:
+    - procurement
+    - arms deal
+    - arms sale
+    - weapons sale
+    - defence contract
+    - defense contract
+    - defence deal
+    - defense deal
+    - defence industry
+    - defense industry
+    - arms export*
+    - export licence
+    - export license
+    - tedarik
+    - ihale
+    - silah anlaşma*
+    - silah satış*
+    - savunma sanayi*
+    - savunma sözleşme*
+    - ihracat izni
+
+  procurement.delivery:
+    - delivery of
+    - delivered to
+    - handover ceremony
+    - commissioned
+    - teslim*
+    - envantere gir*
+
+  test.missile:
+    - missile test
+    - test launch
+    - test-fired
+    - test fired
+    - füze test*
+    - deneme atış*
+
+  kinetic.airstrike:
+    - airstrike*
+    - air strike*
+    - air raid*
+    - bombardment
+    - bombing
+    - bombed
+    - hava saldırı*
+    - bombardıman
+    - bombalad*
+
+  kinetic.drone-strike:
+    - drone*
+    - uav
+    - ucav
+    - loitering munition
+    - insansız hava aracı
+    - iha
+    - siha
+
+  kinetic.missile-strike:
+    - missile*
+    - rocket*
+    - ballistic
+    - cruise missile
+    - füze*
+    - roket*
+
+  kinetic.shelling:
+    - shelling
+    - shelled
+    - artillery
+    - mortar*
+    - topçu
+    - havan
+
+  kinetic.clash:
+    - clash*
+    - fighting
+    - firefight
+    - offensive
+    - front line
+    - frontline
+    - violence
+    - escalation
+    - escalating
+    - çatış*
+    - muharebe
+    - cephe hattı
+    - şiddet olayları
+    - tırman*
+
+  kinetic.attack:
+    - strike
+    - strikes
+    - struck
+    - attack*
+    - ambush
+    - improvised explosive
+    - car bomb
+    - saldır*
+    - pusu
+    - bombalı saldırı
+
+  air.airspace-incident:
+    - airspace
+    - air space
+    - flight information region
+    - hava sahası
+    - hava sahasını ihlal
+    - notam
+
+  air.intercept:
+    - intercept*
+    - scrambled
+    - dogfight
+    - önle*
+    - it dalaşı
+
+  air.activity:
+    - reconnaissance
+    - surveillance flight
+    - patrol flight
+    - sortie*
+    - keşif uçuşu
+    - devriye uçuşu
+
+  maritime.incident:
+    - territorial waters
+    - exclusive economic zone
+    - continental shelf
+    - blockade
+    - chokepoint
+    - shipping lane
+    - shipping route
+    - sea lane
+    - strait
+    - straits
+    - freedom of navigation
+    - maritime security
+    - karasuları
+    - münhasır ekonomik bölge
+    - kıta sahanlığı
+    - abluka
+    - boğaz*
+    - deniz güvenliği
+    - seyrüsefer serbestisi
+
+  maritime.activity:
+    - navy
+    - naval
+    - warship*
+    - frigate*
+    - corvette*
+    - destroyer*
+    - submarine*
+    - aircraft carrier
+    - coast guard
+    - seismic vessel
+    - survey ship
+    - port of
+    - seaport
+    - donanma
+    - savaş gemisi
+    - fırkateyn
+    - korvet
+    - denizaltı
+    - sahil güvenlik
+    - sismik araştırma
+    - liman*
+
+  maritime.navtex:
+    - navtex
+    - firing notice
+    - atış duyurusu
+
+  cyber.incident:
+    - cyberattack
+    - cyber attack
+    - cyber operation
+    - siber saldırı
+    - siber operasyon
+
+  diplomatic.agreement:
+    - defence agreement
+    - defense agreement
+    - security agreement
+    - military agreement
+    - defence pact
+    - memorandum of understanding
+    - savunma anlaşma*
+    - güvenlik anlaşma*
+    - askeri anlaşma
+    - mutabakat muhtırası
+
+  policy.defense:
+    - military
+    - militia
+    - armed forces
+    - armed group*
+    - army
+    - soldier*
+    - defence ministry
+    - defense ministry
+    - ministry of defence
+    - ministry of defense
+    - defence budget
+    - defense budget
+    - general staff
+    - conscription
+    - nato
+    - askeri
+    - ordu
+    - silahlı kuvvetler
+    - silahlı grup*
+    - savunma bakanlığı
+    - savunma bütçesi
+    - genelkurmay
+    - zorunlu askerlik
+
+  other:
+    # Savunma ticaretine ve nükleer programlara dair yaptırım/denetim dili.
+    # Sanctions and control language around defence trade and nuclear programmes.
+    - sanction*
+    - embargo
+    - arms embargo
+    - export control*
+    - nuclear weapon*
+    - enrichment
+    - safeguards agreement
+    - cluster munition*
+    - landmine*
+    - anti-personnel mine*
+    - yaptırım*
+    - ambargo
+    - silah ambargosu
+    - ihracat denetim*
+    - nükleer silah*
+    - zenginleştirme
+    - misket bombası
+    - kara mayını
