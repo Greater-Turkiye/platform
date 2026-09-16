@@ -48,24 +48,44 @@ class MigrationFiles(unittest.TestCase):
                 self.assertNotIn("BEGIN TRANSACTION", sql)
                 self.assertNotIn("PRAGMA", sql)
 
-    def test_signals_glob_patterns_are_simple_enough_for_d1(self) -> None:
+    def test_glob_patterns_are_simple_enough_for_d1(self) -> None:
         """D1 refuses a LIKE/GLOB pattern with more than ten wildcards or character classes.
 
         Local SQLite evaluates such a pattern happily, so only the remote database says
         ``LIKE or GLOB pattern too complex: SQLITE_ERROR [code: 7500]`` — and it says it on every
-        INSERT, not on CREATE TABLE. The one-line timestamp check of `signals` 0001 hit exactly
-        that and was rewritten in 0002. The `ops` tables still carry the long pattern in their own
-        timestamp checks; they need the same rebuild before anything writes to them, which is why
-        this test names the database it covers.
+        INSERT, not on CREATE TABLE. The one-line timestamp checks of both `0001_init` files hit
+        exactly that, which made every table holding a timestamp unwritable remotely; each
+        database's `0002` rebuilds them with two shorter patterns. This test covers both, so the
+        defect cannot come back through a new migration.
         """
-        conn = apply("signals")
-        self.addCleanup(conn.close)
-        schema = "\n".join(
-            sql for (sql,) in conn.execute("SELECT sql FROM sqlite_schema WHERE sql IS NOT NULL")
-        )
-        for pattern in re.findall(r"(?:GLOB|LIKE)\s+'([^']*)'", schema):
-            with self.subTest(pattern=pattern):
-                self.assertLessEqual(len(re.findall(r"\[[^\]]*\]|[*?]", pattern)), D1_PATTERN_LIMIT)
+        for database in ("ops", "signals"):
+            conn = apply(database)
+            self.addCleanup(conn.close)
+            schema = "\n".join(
+                sql for (sql,) in conn.execute("SELECT sql FROM sqlite_schema WHERE sql IS NOT NULL")
+            )
+            for pattern in re.findall(r"(?:GLOB|LIKE)\s+'([^']*)'", schema):
+                with self.subTest(database=database, pattern=pattern):
+                    self.assertLessEqual(
+                        len(re.findall(r"\[[^\]]*\]|[*?]", pattern)), D1_PATTERN_LIMIT
+                    )
+
+    def test_a_rebuild_leaves_no_scaffolding_behind(self) -> None:
+        """A table rebuild copies into `<name>_v2` and renames; nothing may keep that name.
+
+        SQLite rewrites the references in the other tables as each one is renamed, so a leftover
+        `_v2` anywhere in the final schema means a rename was missed and a foreign key now points
+        at a table that does not exist.
+        """
+        for database in ("ops", "signals"):
+            conn = apply(database)
+            self.addCleanup(conn.close)
+            schema = "\n".join(
+                sql for (sql,) in conn.execute("SELECT sql FROM sqlite_schema WHERE sql IS NOT NULL")
+            )
+            with self.subTest(database=database):
+                self.assertNotIn("_v2", schema)
+                self.assertEqual(conn.execute("PRAGMA foreign_key_check").fetchall(), [])
 
     def test_all_tables_are_strict(self) -> None:
         for db in ("ops", "signals"):

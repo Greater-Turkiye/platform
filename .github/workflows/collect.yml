@@ -3,16 +3,19 @@ name: collect
 # Daily signal collection into a human review queue.
 #
 #   fetch -> parse -> normalize -> SAFETY FILTER + geofence -> dedup ledger
-#     -> issue + artifact -> D1 signal store
+#     -> issue + artifact -> D1 signal store -> D1 review queue
 #
 # Nothing here publishes anything: the run opens one issue of **unverified candidates** for a
 # human to triage (ADR 0007). The safety filter and the geofence run in memory, before anything
 # is written to a file, an artifact, an issue or the database.
 #
-# The last step copies the batch into the `gt-signals` D1 database (db/README.md) so the run has
-# a history a Worker can read. It is additive: it runs after the issue and the ledger, and it is
-# skipped with a log line when the repository has no `CLOUDFLARE_API_TOKEN` secret, which is the
-# only secret this workflow can use. Deduplication still comes from the git ledger.
+# The last step writes to D1 (db/README.md): the whole batch into `gt-signals`, so the run has a
+# history a Worker can read, and then the candidates this run offered to a human into
+# `gt-ops.reviews`, which is the queue the Telegram review bot reads (apps/review-bot). The two
+# surfaces show the same items under the same identity: the dedup id in the issue is the first 12
+# characters of `reviews.content_hash`. It is additive: it runs after the issue and the ledger,
+# and it is skipped with a log line when the repository has no `CLOUDFLARE_API_TOKEN` secret,
+# which is the only secret this workflow can use. Deduplication still comes from the git ledger.
 #
 # Keeping the schedule alive: GitHub disables `schedule:` in a public repository after 60 days
 # without repository activity. Every run that queues at least one item pushes a ledger commit to
@@ -157,12 +160,16 @@ jobs:
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git push origin "$commit:refs/heads/$STATE_BRANCH"
 
-      - name: Write the signals into D1
-        # Last, after the issue and the ledger: the store is additive, so a database problem must
-        # never keep the queue from a human or the ledger from being recorded. Queued, deferred
-        # and off-topic items all go in with their triage status; the safety filter and the
+      - name: Write the signals into D1 and fill the review queue
+        # Last, after the issue and the ledger: both writes are additive, so a database problem
+        # must never keep the queue from a human or the ledger from being recorded. Queued,
+        # deferred and off-topic items all go into `gt-signals` with their triage status; only the
+        # items this run actually put in front of a human become `gt-ops.reviews` rows, and the
+        # signals are written first so a review always has its signal. The safety filter and the
         # geofence have already removed everything that may not be stored, and the writer applies
-        # them again. Without the secret the step logs why it did nothing and the run is green.
+        # them again. Both inserts are ON CONFLICT DO NOTHING, so a re-run adds nothing and cannot
+        # reopen an item a reviewer has already decided.
+        # Without the secret the step logs why it did nothing and the run is green.
         if: ${{ github.event.inputs.dry_run != 'true' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -171,8 +178,9 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
-            echo "d1: no CLOUDFLARE_API_TOKEN secret in this repository — skipping the signal store."
-            echo "d1: the review queue, the artifact and the dedup ledger are unaffected."
+            echo "d1: no CLOUDFLARE_API_TOKEN secret in this repository — skipping the signal store"
+            echo "d1: and the gt-ops review queue (the Telegram bot will show nothing new)."
+            echo "d1: the GitHub issue, the artifact and the dedup ledger are unaffected."
             exit 0
           fi
           if [ -n "${CF_ACCOUNT_ID:-}" ]; then

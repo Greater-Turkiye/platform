@@ -2,7 +2,7 @@
 
 [Türkçe](#türkçe) · [English](#english) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
 
-> Durum: `0001_init` migration'ları 2026-09-16'da uzak D1 veritabanlarına uygulandı; aynı gün `signals` için `0002` de uygulandı ve günlük toplayıcı çalışması artık `gt-signals`'a yazıyor. Henüz hiçbir Worker bağlı değil ve `ops` boş. / Status: the `0001_init` migrations were applied to the remote D1 databases on 2026-09-16, `signals` `0002` the same day, and the daily collector run now writes into `gt-signals`. No Worker is bound yet and `ops` is empty.
+> Durum: her iki veritabanının `0001_init` ve `0002` migration'ları 2026-09-16'da uzak D1'e uygulandı; günlük toplayıcı çalışması `gt-signals`'a ve `gt-ops.reviews` inceleme kuyruğuna yazıyor. Henüz hiçbir Worker bağlı değil. / Status: `0001_init` and `0002` were applied to both remote D1 databases on 2026-09-16, and the daily collector run writes into `gt-signals` and into the `gt-ops.reviews` queue. No Worker is bound yet.
 
 ## Türkçe
 
@@ -71,7 +71,7 @@ Created in the Cloudflare account on 2026-09-16. Database IDs are not secrets; a
 | Ad / Name | `database_id` | Migration |
 |---|---|---|
 | `gt-signals` | `4185c945-18b6-4fe6-9531-f0d99a858554` | `migrations/signals/0001_init.sql` — 1 tablo / table, `0002_timestamp_checks_for_d1.sql` |
-| `gt-ops` | `414b8a8b-f28a-40b5-8de3-fba47ec9d784` | `migrations/ops/0001_init.sql` — 6 tablo / tables |
+| `gt-ops` | `414b8a8b-f28a-40b5-8de3-fba47ec9d784` | `migrations/ops/0001_init.sql` — 6 tablo / tables, `0002_timestamp_checks_for_d1.sql` |
 
 ```bash
 # migration uygulama / applying a migration
@@ -86,16 +86,18 @@ Writing from GitHub Actions needs a `CLOUDFLARE_API_TOKEN` repository secret; lo
 
 ### Kim yazıyor / Who writes
 
-`signals` tablosuna bugün yazan tek şey, günlük `collect` iş akışının son adımıdır
+Her iki veritabanına bugün yazan tek şey, günlük `collect` iş akışının son adımıdır
 ([`.github/workflows/collect.yml`](../.github/workflows/collect.yml)): inceleme konusu açıldıktan sonra
-`gt-collect --write-d1 queue` çalışır ve çalışmanın tamamını yazar. `ops` veritabanına henüz hiçbir şey yazmaz.
+`gt-collect --write-d1 queue` çalışır, çalışmanın tamamını `signals`'a, insana sunulan adayları da `reviews`'a
+yazar. `ops`'un diğer tablolarına henüz hiçbir şey yazmaz.
 
-Today the only writer of the `signals` table is the last step of the daily `collect` workflow: after the review
-issue exists, `gt-collect --write-d1 queue` writes the whole run. Nothing writes to `ops` yet.
+Today the only writer of both databases is the last step of the daily `collect` workflow: after the review
+issue exists, `gt-collect --write-d1 queue` writes the whole run into `signals` and then the candidates it
+offered to a human into `reviews`. Nothing writes to the other `ops` tables yet.
 
 - **Ne yazılır / What is written**: kuyruğa giren (`triage_status = 'queued'`), sonraki çalışmaya kalan
   (`pending`) ve ilgi eşiğinin altında kalan (`scored`) her aday. Sütun eşlemesinin tamamı
-  [collectors/README.md](../collectors/README.md#sinyal-deposu--signal-store) içindedir. / Every candidate the run
+  [collectors/README.md](../collectors/README.md#sinyal-deposu-ve-inceleme-kuyruğu--signal-store-and-review-queue) içindedir. / Every candidate the run
   produced, with its triage status; the full column mapping is in the collectors README.
 - **Ne yazılmaz / What is never written**: Türk kuvvetleri güvenlik süzgecinin veya coğrafi çitin elediği hiçbir
   kayıt — ne burada ne başka bir yerde (ADR 0013). / Nothing the Turkish-forces safety filter or the geofence
@@ -112,18 +114,30 @@ issue exists, `gt-collect --write-d1 queue` writes the whole run. Nothing writes
   `content_hash` UNIQUE olduğu için `INSERT … ON CONFLICT DO NOTHING` aynı partinin iki kez yazılmasını zararsız
   kılar. / Still the git ledger; D1 is additive, and the UNIQUE `content_hash` makes a replayed batch harmless.
 
+**`reviews` — inceleme kuyruğu / the review queue.** Sıra önemlidir: önce `signals`, sonra `reviews`; sinyali
+olmayan bir inceleme satırı, botta kaynak bağlantısı olmayan bir aday olarak görünür. / Order matters: signals
+first, reviews second, because a review without its signal renders in the bot as a candidate with no source link.
+
+| | |
+|---|---|
+| Hangi adaylar / which candidates | Yalnızca konuya giren, yani `triage_status = 'queued'` olanlar. Ertelenenler ve konu dışı bulunanlar hiçbir insana sunulmadı; kuyruğa girmezler. / Only the ones the run put in the issue; deferred and off-topic items were offered to nobody. |
+| Yazılan sütunlar / columns written | Yalnızca `content_hash`. `status` öntanımlı `queued`, `created_at`'i veritabanı damgalar; `summary_tr`/`summary_en` boş kalır (bot adayı `signals` satırından üretir ve gösterirken kırmızı çizgi süzgecinden geçirir), `note`, `decided_by`, `decided_at`, `telegram_message_id` gözden geçiricinin ve botundur. / Only `content_hash`; everything else is a default, the bot's or the reviewer's. |
+| Yeniden çalıştırma / re-runs | `ON CONFLICT(content_hash) DO NOTHING`: yeni satır yok, verilmiş bir karar geri alınmaz. / No new row, and a decision already made is never undone. |
+| Yazma bütçesi / write budget | Satır + `content_hash` UNIQUE + `(status, created_at)` ≈ 3 yazma; kopya ekleme 0. / Row plus two index entries; a duplicate costs nothing. |
+| Geriye dönük doldurma yok / no backfill | Defterde URL ve metin tutulmadığı için eski çalışmaların adayları yeniden kurulamaz; kuyruk bu adımın ilk çalıştığı günden itibaren dolar. / The ledger keeps no URL and no text, so earlier candidates cannot be reconstructed; the queue fills from the first run that includes this step. |
+
 ### Uygulama notları / Implementation notes
 
 - **LIKE/GLOB karmaşıklığı / pattern complexity**: D1, on joker karakter veya karakter sınıfından fazlasını
   içeren bir `LIKE`/`GLOB` desenini reddeder (`LIKE or GLOB pattern too complex`, `SQLITE_ERROR 7500`) — ve bunu
   `CREATE TABLE` sırasında değil, her `INSERT` sırasında yapar. Yerel SQLite aynı deseni sorunsuz çalıştırdığı
-  için sorun ancak uzak veritabanında görülür. `signals` zaman damgası kontrolleri bu yüzden `0002` ile iki kısa
-  desene bölündü. **`ops` tabloları hâlâ uzun deseni taşıyor**: oraya bir şey yazılmadan önce aynı düzeltme
-  gerekir. / D1 refuses a `LIKE`/`GLOB` pattern with more than ten wildcards or character classes, on every
+  için sorun ancak uzak veritabanında görülür. `signals` ve `ops` zaman damgası kontrolleri bu yüzden her iki
+  veritabanının `0002` migration'ıyla iki kısa desene bölündü; `ops` düzeltilmeden inceleme kuyruğuna tek satır
+  bile yazılamıyordu. / D1 refuses a `LIKE`/`GLOB` pattern with more than ten wildcards or character classes, on every
   `INSERT` rather than at `CREATE TABLE`; local SQLite runs the same pattern happily, so only the remote database
-  shows it. The `signals` timestamp checks were therefore split into two short patterns in `0002`. **The `ops`
-  tables still carry the long pattern** and need the same fix before anything writes to them.
-  `db/tests` fails if a `signals` pattern grows past the limit again.
+  shows it. The timestamp checks of both databases were therefore split into two short
+  patterns, each in its own `0002`; until `ops` was rebuilt the review queue could not take a single row.
+  `db/tests` fails if a pattern in either database grows past the limit again.
 - **STRICT** tables everywhere (column types are enforced). `CHECK` constraints enforce the enums, `sha256:` hashes, TypeID prefixes, JSON validity (`json_valid`), the ≤300/≤1000-character title/text limits (excerpts, never full text), and the timestamp format. Timestamps are exactly `YYYY-MM-DDTHH:MM:SSZ`, so they sort as text.
 - `simhash` is a signed 64-bit INTEGER. On the wire, collectors send it as 16 hex characters (JS numbers cannot hold 64 bits).
 - `reviews.content_hash` is UNIQUE: one review per signal, so replayed triage results are harmless. A decision (`status <> 'queued'`) must record `decided_by` and `decided_at`.

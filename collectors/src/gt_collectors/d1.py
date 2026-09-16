@@ -1,4 +1,9 @@
-"""Write a run's signals into the Cloudflare D1 ``gt-signals`` database (``db/README.md``).
+"""Write a run's signals into ``gt-signals`` and its queued candidates into ``gt-ops``.
+
+Two databases, both described in ``db/README.md``: the signal store is the history of everything
+collected, and ``ops.reviews`` is the queue the Telegram review bot (``apps/review-bot``) reads.
+D1 cannot JOIN across databases, so a review points at its signal by ``content_hash`` and nothing
+else; the bot joins the two itself. Signals are written first, so a review always has its signal.
 
 The review queue issue is what a human reads; this store is the **history**. Everything the run
 collected goes in with the triage status it ended the run with — queued, waiting for the next run,
@@ -36,11 +41,18 @@ Row mapping — ``collectors`` field → ``signals`` column (``db/migrations/sig
 say and it did not reach the threshold", ``queued`` is "a human has it in front of them".
 ``dropped`` and ``duplicate`` stay free for the triage Worker; the collector never writes them.
 
-Idempotence: every batch is a single ``INSERT … ON CONFLICT(content_hash) DO NOTHING`` — never
-``DO UPDATE`` — so running the same batch twice writes nothing the second time, changes no
-triage status and moves no counter. A duplicate insert costs zero rows of the daily write
-budget; a new row costs about three (the row plus its two index entries), which is why batches
-are small and the writer reports exactly how many rows it offered.
+Promotion into ``ops.reviews`` (:func:`review_rows`, :func:`write_reviews`): the candidates this
+run put in front of a human — ``triage_status = 'queued'`` and nothing else — become one review
+row each, carrying only ``content_hash``. The GitHub issue and the review row are two views of
+the same queue, keyed by the same hash (the issue shows its first 12 characters as the dedup id),
+so an item cannot be counted twice or appear in one surface and not the other.
+
+Idempotence: every batch, in both databases, is a single
+``INSERT … ON CONFLICT(content_hash) DO NOTHING`` — never ``DO UPDATE`` — so running the same
+batch twice writes nothing the second time, changes no triage status, resurrects no review a
+reviewer has already decided and moves no counter. A duplicate insert costs zero rows of the
+daily write budget; a new row costs about three (the row plus its two index entries), which is
+why batches are small and the writer reports exactly how many rows it offered.
 
 Parameter binding: ``wrangler d1 execute`` takes SQL text, not bound parameters, so values are
 rendered as SQLite literals by :func:`sql_literal`. SQLite has no backslash escape inside a
@@ -69,6 +81,8 @@ from gt_collectors.signal import Signal
 
 DATABASE = "gt-signals"
 TABLE = "signals"
+OPS_DATABASE = "gt-ops"
+REVIEWS_TABLE = "reviews"
 #: Rows per ``INSERT``. Small on purpose: D1 caps the size of one SQL statement, and a short
 #: statement keeps a failed batch small enough to read in a workflow log.
 MAX_BATCH = 25
@@ -251,6 +265,41 @@ def insert_sql(rows: Sequence[Mapping[str, Any]]) -> str:
     )
 
 
+def review_rows(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    """The ``ops.reviews`` rows for a prepared batch: one per candidate offered to a human.
+
+    Derived from the rows that go into ``signals``, never from the raw batch, so two properties
+    hold by construction: nothing the safety filter or the geofence dropped can become a review,
+    and no review can point at a signal the same run did not store.
+
+    Only ``triage_status = 'queued'`` is promoted. Deferred items were never shown to anybody and
+    are offered again by a later run; off-topic items did not reach the relevance threshold. If
+    either became a review row the bot's queue would hold items no human was ever offered.
+    """
+    return [{"content_hash": r["content_hash"]} for r in rows if r["triage_status"] == "queued"]
+
+
+def insert_reviews_sql(rows: Sequence[Mapping[str, Any]]) -> str:
+    """One idempotent multi-row INSERT into ``ops.reviews``.
+
+    Only ``content_hash`` is written. ``status`` defaults to ``queued`` and ``created_at`` is
+    stamped by D1; ``summary_tr``/``summary_en`` stay NULL because the bot renders a candidate
+    from the ``signals`` row it joins on ``content_hash`` (apps/review-bot/src/messages.js) and
+    screens that text for the red line as it renders — copying an excerpt into a second table
+    would duplicate the very text that screening exists for. ``note``, ``decided_by``,
+    ``decided_at`` and ``telegram_message_id`` belong to the reviewer and to the bot.
+    """
+    if not rows:
+        raise ValueError("an INSERT needs at least one row")
+    if len(rows) > BATCH_LIMIT:
+        raise ValueError(f"at most {BATCH_LIMIT} rows in one statement")
+    values = ",\n  ".join("(" + sql_literal(r["content_hash"]) + ")" for r in rows)
+    return (
+        f"INSERT INTO {REVIEWS_TABLE} (content_hash)\nVALUES\n  {values}\n"
+        "ON CONFLICT(content_hash) DO NOTHING;"
+    )
+
+
 def iter_batches(rows: Sequence[Any], size: int = MAX_BATCH) -> Iterator[Sequence[Any]]:
     if not 1 <= size <= BATCH_LIMIT:
         raise ValueError(f"batch size must be 1..{BATCH_LIMIT}")
@@ -320,6 +369,43 @@ def write(
     rows, report = prepare(items, geofence=geofence)
     for batch in iter_batches(rows, batch_size):
         execute(insert_sql(batch))
+        report.batches += 1
+    return report
+
+
+@dataclass
+class ReviewReport:
+    """What the promotion step offered to ``ops.reviews``. Counts only, like every summary here."""
+
+    queued: int = 0
+    rows: int = 0
+    batches: int = 0
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "queued_candidates": self.queued,
+            "rows": self.rows,
+            "batches": self.batches,
+            # Row + UNIQUE(content_hash) + (status, created_at): about three writes per new review.
+            "rows_written_estimate": self.rows * 3,
+        }
+
+
+def write_reviews(
+    rows: Sequence[Mapping[str, Any]],
+    execute: Callable[[str], None],
+    *,
+    batch_size: int = MAX_BATCH,
+) -> ReviewReport:
+    """Promote the queued rows of a prepared batch into ``ops.reviews``.
+
+    Runs **after** the signals write, never before: a review whose signal is missing renders in
+    the bot as a candidate with no source link, so the store is always written first.
+    """
+    reviews = review_rows(rows)
+    report = ReviewReport(queued=len(reviews), rows=len(reviews))
+    for batch in iter_batches(reviews, batch_size):
+        execute(insert_reviews_sql(batch))
         report.batches += 1
     return report
 

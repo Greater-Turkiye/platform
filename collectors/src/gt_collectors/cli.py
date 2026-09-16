@@ -23,16 +23,19 @@ Four modes, none of which ever writes a record that the safety filter dropped:
     ledger, so the other two are offered again by a later run.
 
 ``--write-d1``
-    Write a batch that ``--queue-dir`` already produced into the Cloudflare D1 ``gt-signals``
-    database (:mod:`gt_collectors.d1`). It reads ``DIR/candidates.jsonl`` and collects nothing
-    itself, so the workflow can run it **after** the review queue issue exists::
+    Write a batch that ``--queue-dir`` already produced into Cloudflare D1
+    (:mod:`gt_collectors.d1`). It reads ``DIR/candidates.jsonl`` and collects nothing itself, so
+    the workflow can run it **after** the review queue issue exists::
 
         gt-collect --write-d1 queue                  # CLOUDFLARE_API_TOKEN or `wrangler login`
         gt-collect --write-d1 queue --d1-dry-run     # print the SQL, touch nothing
+        gt-collect --write-d1 queue --no-reviews     # the signal store only
 
-    Queued, deferred and off-topic items are all stored, each with its triage status: the store
-    is the history, the issue is only the human's view. Items the safety filter or the geofence
-    dropped are not in the batch, and the writer filters again before mapping a row.
+    Two writes, in this order: every collected item goes into ``gt-signals`` with its triage
+    status (the store is the history, the issue is only the human's view), and then the items
+    this run actually offered to a human — and only those — become ``gt-ops.reviews`` rows for
+    the Telegram review bot. Items the safety filter or the geofence dropped are not in the
+    batch, and the writer filters again before mapping a row.
 
 ``(neither)``
     A real ingest run: needs ``INGEST_URL`` and ``INGEST_HMAC_KEY``, and sends only enabled
@@ -134,6 +137,17 @@ def _parser() -> argparse.ArgumentParser:
     )
     store.add_argument(
         "--d1-dry-run", action="store_true", help="print the SQL instead of executing it (no token needed)"
+    )
+    store.add_argument(
+        "--ops-database",
+        default=d1.OPS_DATABASE,
+        metavar="NAME",
+        help="D1 database holding the review queue (default: %(default)s)",
+    )
+    store.add_argument(
+        "--no-reviews",
+        action="store_true",
+        help="write the signals only; do not promote queued candidates into ops.reviews",
     )
     return p
 
@@ -320,21 +334,35 @@ def _run_queue(feeds: list[FeedConfig], args: argparse.Namespace, now: datetime)
 
 
 def _run_write_d1(args: argparse.Namespace) -> int:
-    """Write an existing queue batch into the D1 signals database. Collects nothing."""
+    """Write an existing queue batch into D1: the signals first, then the review queue."""
     path = args.write_d1 / CANDIDATES_FILE if args.write_d1.is_dir() else args.write_d1
     items = d1.read_batch(path)
+    rows, report = d1.prepare(items)
+    reviews = None
     if args.d1_dry_run:
-        rows, report = d1.prepare(items)
         for batch in d1.iter_batches(rows, args.d1_batch):
             print(d1.insert_sql(batch))
             report.batches += 1
+        if not args.no_reviews:
+            promoted = d1.review_rows(rows)
+            reviews = d1.ReviewReport(queued=len(promoted), rows=len(promoted))
+            for batch in d1.iter_batches(promoted, args.d1_batch):
+                print(d1.insert_reviews_sql(batch))
+                reviews.batches += 1
     else:
         if not d1.has_token():
             # Not an error: a developer machine authenticates with `wrangler login` instead.
             # In the workflow the step is skipped before this point when the secret is absent.
             print(f"note: {d1.TOKEN_ENV} is not set; wrangler will use a local login", file=sys.stderr)
         report = d1.write(items, d1.wrangler_executor(args.d1_database), batch_size=args.d1_batch)
-    summary = {"d1": args.d1_database, "dry_run": args.d1_dry_run, **report.to_dict()}
+        # Only after the signals are stored: a review without its signal shows the reviewer a
+        # candidate with no source link.
+        if not args.no_reviews:
+            reviews = d1.write_reviews(
+                rows, d1.wrangler_executor(args.ops_database), batch_size=args.d1_batch
+            )
+    summary: dict[str, object] = {"d1": args.d1_database, "dry_run": args.d1_dry_run, **report.to_dict()}
+    summary["reviews"] = {"d1": args.ops_database, **reviews.to_dict()} if reviews is not None else "skipped"
     print(json.dumps(summary, ensure_ascii=False), file=sys.stderr)
     return 0
 
