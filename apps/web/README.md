@@ -2,7 +2,7 @@
 
 [Türkçe](#türkçe) · [English](#english) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
 
-> Durum: ilk sürüm yayında — ana sayfa + OSINT paneli. / Status: first release is live — home page and OSINT dashboard.
+> Durum: ilk sürüm yayında — ana sayfa + OSINT paneli + yöntem sayfası. / Status: first release is live — home page, OSINT dashboard and methodology page.
 > https://greater-turkiye.github.io/platform/
 
 ## Türkçe
@@ -11,6 +11,7 @@ Derleme adımı olmayan statik site: düz HTML, CSS ve JavaScript (D3 + TopoJSON
 
 - `index.html` — ana sayfa: Türkiye merkezli küre haritası, kayıt akışı, izleme bölgeleri, yöntem, canlı sayılar, kırmızı çizgiler, katılım.
 - `panel.html` — OSINT paneli: yakınlaştırılabilir harita, bölge/tür/durum filtreleri, arama, katmanlar, kayıt listesi ve ayrıntı çekmecesi. Derin bağlantı: `panel.html?region=aegean`, `panel.html?id=evt_…`.
+- `method.html` — yöntem sayfası: projenin ne iddia edip etmediği, bir kaydın oluşma akışı (öneri → triyaj → kaynak ve arşiv → doğrulama ölçeği → insan onayı), durum değerlerinin anlamı, sade dille kırmızı çizgiler, harita katmanlarının kaynakları ve "şematik" etiketi, lisans ve düzeltme yolları. Her bölüm El Kitabı'ndaki kaynağına bağlanır; el kitabı bağlantıları seçilen dile göre `tr/` veya `en/` sürümüne gider.
 - Örnek (kurgusal) kayıtlar yalnızca panelde, "Örnek veriler" katmanı açıkken ve açıkça etiketlenmiş olarak gösterilir; gerçek kayıt yokken bu katman varsayılan olarak açıktır.
 
 ## English
@@ -19,6 +20,7 @@ A static site with no build step: plain HTML, CSS and JavaScript (D3 + TopoJSON)
 
 - `index.html` — home page: Türkiye-centred globe, live record feed, watch regions, method, live counts, red lines and how to join.
 - `panel.html` — OSINT dashboard: zoomable map, region/type/status filters, search, layers, record list and detail drawer. Deep links: `panel.html?region=aegean`, `panel.html?id=evt_…`.
+- `method.html` — the methodology page: what the project does and does not claim to be, how a record is made (proposal → triage → sources and archive → verification scale → human approval), what the status values mean, the red lines in plain language, where the map layers come from and what "schematic" means, licensing, and how to report an error. Each section links to its handbook source, and handbook links follow the chosen language (`tr/` or `en/`).
 - Fictional example records appear only in the dashboard, only when the "Example data" layer is on, and are always clearly labelled. The layer is on by default while there are no real records.
 
 ---
@@ -44,7 +46,7 @@ Farklı bir veri kökü için sayfada `window.GT_DATA_BASE = 'https://…/'` tan
 |---|---|
 | `assets/css/site.css` | Tasarım belirteçleri ve tüm stiller / design tokens and all styles |
 | `assets/js/gt.js` | Ortak: i18n (TR/EN), veri yükleme, coğrafya, harita yardımcıları / shared helpers |
-| `assets/js/home.js`, `assets/js/panel.js` | Sayfa mantığı / page logic |
+| `assets/js/home.js`, `assets/js/panel.js`, `assets/js/method.js` | Sayfa mantığı / page logic |
 | `assets/vendor/`, `assets/fonts/`, `assets/data/` | Barındırılan üçüncü taraf varlıklar — [LICENSES.md](assets/LICENSES.md) |
 
 ### Harita katmanları / Map layers

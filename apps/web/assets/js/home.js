@@ -16,7 +16,7 @@
   let data = null;
   let dataFailed = false;
 
-  initReveal();
+  GT.initReveal();
 
   let globe = null;
   if (!reduce && document.createElement('canvas').getContext) {
@@ -791,14 +791,5 @@
       a.setAttribute('aria-label', GT.label('regions', code) + ' — ' + GT.t('regions.open'));
       grid.append(a);
     });
-  }
-
-  function initReveal() {
-    const els = document.querySelectorAll('.rv');
-    if (reduce || !('IntersectionObserver' in window)) { els.forEach((e) => e.classList.add('in')); return; }
-    const io = new IntersectionObserver((entries) => {
-      for (const en of entries) if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
-    }, { rootMargin: '0px 0px -8% 0px' });
-    els.forEach((e) => io.observe(e));
   }
 })();

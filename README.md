@@ -15,7 +15,7 @@ The code of the open-source intelligence community: the live map and dashboard, 
 
 | Bölüm | Durum | Açıklama |
 |---|---|---|
-| [`apps/web`](apps/web) | **Yayında** | Statik site: ana sayfadaki dünya küresi ve OSINT paneli. Derleme adımı yok; D3 ve topojson-client depoda barındırılır. Katman listesi: [apps/web/README.md](apps/web/README.md) |
+| [`apps/web`](apps/web) | **Yayında** | Statik site: ana sayfadaki dünya küresi, OSINT paneli ve yöntem sayfası. Derleme adımı yok; D3 ve topojson-client depoda barındırılır. Katman listesi: [apps/web/README.md](apps/web/README.md) |
 | [`tools/geo`](tools/geo) | **Çalışıyor** | Harita katmanlarını resmî kaynaklardan yeniden üretilebilir şekilde kuran Python betikleri (Mavi Vatan, KKTC ruhsat sahaları, Marmara ve Boğazlar, temsilcilikler, harekât bölgeleri) |
 | [`collectors`](collectors) | **Geliştiriliyor** | GitHub Actions üzerinde çalışan Python toplayıcılar: RSS alımı, normalleştirme, tekrar eleme (simhash), güvenlik süzgeci ve coğrafi çit |
 | [`db`](db) | **Taslak** | Cloudflare D1 şeması ve migration'lar (`signals`, `ops`) |
@@ -36,8 +36,9 @@ Doğrulanmış kayıtlar bu depoda değil, [datasets](https://github.com/Greater
 ```bash
 # platform/apps/web ile datasets/dist aynı kökten servis edilir
 python -m http.server 8765
-# http://127.0.0.1:8765/platform/          → ana sayfa
-# http://127.0.0.1:8765/platform/panel.html → panel
+# http://127.0.0.1:8765/platform/            → ana sayfa
+# http://127.0.0.1:8765/platform/panel.html   → panel
+# http://127.0.0.1:8765/platform/method.html  → yöntem
 ```
 
 Panel, veri kayıtlarını `/datasets/` altındaki JSONL dosyalarından okur; bunlar `datasets` deposunda `python tools/gt.py build` ile üretilir.
@@ -103,7 +104,7 @@ Kod [MIT](LICENSE). Üretilen veriler `datasets` deposunda CC BY 4.0 ile yayıml
 
 | Part | Status | Description |
 |---|---|---|
-| [`apps/web`](apps/web) | **Live** | The static site: the globe on the home page and the OSINT dashboard. No build step; D3 and topojson-client are vendored. Layer list: [apps/web/README.md](apps/web/README.md) |
+| [`apps/web`](apps/web) | **Live** | The static site: the globe on the home page, the OSINT dashboard and the methodology page. No build step; D3 and topojson-client are vendored. Layer list: [apps/web/README.md](apps/web/README.md) |
 | [`tools/geo`](tools/geo) | **Working** | Python builders that construct the map layers reproducibly from official sources (Blue Homeland, TRNC licence areas, the Sea of Marmara and the Straits, diplomatic missions, announced operation areas) |
 | [`collectors`](collectors) | **In progress** | Python collectors that run in GitHub Actions: RSS ingest, normalisation, near-duplicate removal (simhash), the safety filter and the geofence |
 | [`db`](db) | **Draft** | Cloudflare D1 schema and migrations (`signals`, `ops`) |
@@ -124,8 +125,9 @@ Verified records do not live here; they live in the [datasets](https://github.co
 ```bash
 # serve platform/apps/web and datasets/dist from one root
 python -m http.server 8765
-# http://127.0.0.1:8765/platform/          → home
-# http://127.0.0.1:8765/platform/panel.html → dashboard
+# http://127.0.0.1:8765/platform/            → home
+# http://127.0.0.1:8765/platform/panel.html   → dashboard
+# http://127.0.0.1:8765/platform/method.html  → method
 ```
 
 The dashboard reads records from the JSONL files under `/datasets/`, produced in the `datasets` repository with `python tools/gt.py build`.

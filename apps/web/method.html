@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yöntem / Method — Greater Türkiye</title>
+<meta name="description" content="Bir kayıt nasıl oluşur, doğrulama ölçeği ne anlama gelir, kırmızı çizgiler nelerdir, harita katmanları nereden gelir ve hata nasıl bildirilir. / How a record is made, what the verification scale means, the red lines, where the map layers come from and how to report an error.">
+<meta name="theme-color" content="#050505">
+<meta name="color-scheme" content="dark">
+<meta property="og:title" content="Yöntem / Method — Greater Türkiye">
+<meta property="og:description" content="Kaydın nasıl oluştuğu, doğrulama ölçeği, kırmızı çizgiler, harita kaynakları ve lisans · How records are made, the verification scale, the red lines, map sources and licensing">
+<meta property="og:type" content="article">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/montserrat-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body class="page-doc">
+<a class="skip" href="#main" data-i18n="a11y.skip">İçeriğe geç</a>
+
+<header class="site-header scrolled">
+  <a class="brand" href="./" aria-label="Greater Türkiye">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13.5" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/><circle cx="16" cy="16" r="7.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M16 .5v6M16 25.5v6M.5 16h6M25.5 16h6" stroke="currentColor" stroke-width="1.2"/><circle cx="16" cy="16" r="2.6" fill="#c8002a"/></svg>
+    <span class="brand-word">GREATER<b>TÜRKİYE</b></span>
+  </a>
+  <nav class="site-nav" aria-label="Ana menü / Main menu">
+    <a href="panel.html" data-i18n="nav.panel">Panel</a>
+    <a href="./#bolgeler" data-i18n="nav.data">Veri</a>
+    <a href="method.html" aria-current="page" data-i18n="nav.method">Yöntem</a>
+    <a href="https://github.com/Greater-Turkiye/handbook" data-i18n="nav.handbook">El Kitabı</a>
+    <a href="./#katil" data-i18n="nav.join">Katıl</a>
+  </nav>
+  <div class="nav-tools">
+    <div class="lang" role="group" data-i18n-aria="a11y.lang" aria-label="Dil"><button type="button" data-lang="tr">TR</button><button type="button" data-lang="en">EN</button></div>
+    <a class="btn btn-sm btn-red" href="panel.html" data-i18n="nav.open">Paneli aç</a>
+    <button class="nav-burger" type="button" aria-expanded="false" data-i18n-aria="a11y.menu" aria-label="Menü"><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="main">
+  <section class="sec doc-hero" aria-labelledby="h-doc">
+    <div class="doc-hero-in">
+      <p class="eyebrow" data-i18n="m.eyebrow">Yöntem</p>
+      <h1 class="sec-title" id="h-doc"><span data-i18n="m.title1">Bu veriye ne kadar</span> <b data-i18n="m.title2">güvenmeli?</b></h1>
+      <p class="doc-lead" data-i18n="m.lead"></p>
+      <nav class="doc-toc" aria-labelledby="toc-h">
+        <p class="doc-toc-h" id="toc-h" data-i18n="m.jump">Bölümler</p>
+        <ol>
+          <li><a href="#kapsam"><b aria-hidden="true">01</b><span data-i18n="m.s1.t">Ne iddia ediyoruz, ne iddia etmiyoruz</span></a></li>
+          <li><a href="#kayit"><b aria-hidden="true">02</b><span data-i18n="m.s2.t">Bir kayıt nasıl oluşur</span></a></li>
+          <li><a href="#dogrulama"><b aria-hidden="true">03</b><span data-i18n="m.s3.t">Doğrulama ölçeği</span></a></li>
+          <li><a href="#kirmizi-cizgiler"><b aria-hidden="true">04</b><span data-i18n="m.s4.t">Sade dille kırmızı çizgiler</span></a></li>
+          <li><a href="#harita"><b aria-hidden="true">05</b><span data-i18n="m.s5.t">Harita katmanları nereden geliyor?</span></a></li>
+          <li><a href="#lisans"><b aria-hidden="true">06</b><span data-i18n="m.s6.t">Lisans ve telif</span></a></li>
+          <li><a href="#duzeltme"><b aria-hidden="true">07</b><span data-i18n="m.s7.t">Hata bulursanız</span></a></li>
+        </ol>
+      </nav>
+    </div>
+  </section>
+
+  <section class="sec" id="kapsam" aria-labelledby="h-s1">
+    <span class="sec-num" aria-hidden="true">01 / 07</span>
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="m.s1.k">Kapsam</p>
+        <h2 class="sec-title" id="h-s1" data-i18n="m.s1.t">Ne iddia ediyoruz, ne iddia etmiyoruz</h2>
+      </div>
+      <p class="sec-lead" data-i18n="m.s1.lead"></p>
+    </div>
+    <div class="claim-cols rv">
+      <div class="claim">
+        <h3 data-i18n="m.s1.yes">Bu proje şudur</h3>
+        <ul class="tick">
+          <li data-i18n="m.s1.y1"></li>
+          <li data-i18n="m.s1.y2"></li>
+          <li data-i18n="m.s1.y3"></li>
+          <li data-i18n="m.s1.y4"></li>
+        </ul>
+      </div>
+      <div class="claim claim-no">
+        <h3 data-i18n="m.s1.no">Bu proje şu değildir</h3>
+        <ul class="tick">
+          <li data-i18n="m.s1.n1"></li>
+          <li data-i18n="m.s1.n2"></li>
+          <li data-i18n="m.s1.n3"></li>
+          <li data-i18n="m.s1.n4"></li>
+        </ul>
+      </div>
+    </div>
+    <p class="doc-note rv" data-i18n="m.s1.note"></p>
+    <p class="doc-src"><span data-i18n="m.src">Kaynak</span><a data-doc="01-mission-scope.md" href="https://github.com/Greater-Turkiye/handbook/blob/main/tr/01-mission-scope.md" data-i18n="m.lnk.hb01">El Kitabı 01 · Görev ve kapsam</a><a data-doc="03-legal-ethics.md" href="https://github.com/Greater-Turkiye/handbook/blob/main/tr/03-legal-ethics.md" data-i18n="m.lnk.hb03">El Kitabı 03 · Hukuk ve etik</a><a href="https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0006-verification-scale.md" data-i18n="m.lnk.adr06">ADR 0006 · Doğrulama ölçeği</a></p>
+  </section>
+
+  <section class="sec" id="kayit" aria-labelledby="h-s2">
+    <span class="sec-num" aria-hidden="true">02 / 07</span>
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="m.s2.k">Akış</p>
+        <h2 class="sec-title" id="h-s2" data-i18n="m.s2.t">Bir kayıt nasıl oluşur</h2>
+      </div>
+      <p class="sec-lead" data-i18n="m.s2.lead"></p>
+    </div>
+    <ol class="flow rv">
+      <li><span class="flow-n" aria-hidden="true">01</span><div class="flow-b"><h3 data-i18n="m.s2.1.t">Öneri</h3><p data-i18n="m.s2.1.d"></p></div></li>
+      <li><span class="flow-n" aria-hidden="true">02</span><div class="flow-b"><h3 data-i18n="m.s2.2.t">Triyaj (Kapı 1)</h3><p data-i18n="m.s2.2.d"></p></div></li>
+      <li><span class="flow-n" aria-hidden="true">03</span><div class="flow-b"><h3 data-i18n="m.s2.3.t">Kaynak ve arşiv</h3><p data-i18n="m.s2.3.d"></p></div></li>
+      <li><span class="flow-n" aria-hidden="true">04</span><div class="flow-b"><h3 data-i18n="m.s2.4.t">Ölçek ve otomatik kapılar</h3><p data-i18n="m.s2.4.d"></p></div></li>
+      <li><span class="flow-n" aria-hidden="true">05</span><div class="flow-b"><h3 data-i18n="m.s2.5.t">İnsan onayı (Kapı 2)</h3><p data-i18n="m.s2.5.d"></p></div></li>
+    </ol>
+    <p class="doc-note rv" data-i18n="m.s2.note"></p>
+    <p class="doc-src"><span data-i18n="m.src">Kaynak</span><a href="https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0007-human-in-the-loop-publishing.md" data-i18n="m.lnk.adr07">ADR 0007 · İnsan onaylı yayın</a><a href="https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0010-content-safety-gates.md" data-i18n="m.lnk.adr10">ADR 0010 · İçerik güvenliği kapıları</a><a data-doc="06-sourcing-archiving.md" href="https://github.com/Greater-Turkiye/handbook/blob/main/tr/06-sourcing-archiving.md" data-i18n="m.lnk.hb06">El Kitabı 06 · Kaynak ve arşivleme</a></p>
+  </section>
+
+  <section class="sec" id="dogrulama" aria-labelledby="h-s3">
+    <span class="sec-num" aria-hidden="true">03 / 07</span>
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="m.s3.k">Doğrulama</p>
+        <h2 class="sec-title" id="h-s3" data-i18n="m.s3.t">Doğrulama ölçeği</h2>
+      </div>
+      <p class="sec-lead" data-i18n="m.s3.lead"></p>
+    </div>
+
+    <div class="scale-cols rv">
+      <div>
+        <h3 class="doc-h3" data-i18n="m.s3.q1">Kaynak ne kadar güvenilir? A–F</h3>
+        <p class="doc-p" data-i18n="m.s3.q1d"></p>
+        <dl class="scale">
+          <div><dt>A</dt><dd data-i18n="m.s3.a"></dd></div>
+          <div><dt>B</dt><dd data-i18n="m.s3.b"></dd></div>
+          <div><dt>C</dt><dd data-i18n="m.s3.c"></dd></div>
+          <div><dt>D</dt><dd data-i18n="m.s3.d"></dd></div>
+          <div><dt>E</dt><dd data-i18n="m.s3.e"></dd></div>
+          <div><dt>F</dt><dd data-i18n="m.s3.f"></dd></div>
+        </dl>
+      </div>
+      <div>
+        <h3 class="doc-h3" data-i18n="m.s3.q2">Bu bilgi ne kadar inandırıcı? 1–6</h3>
+        <p class="doc-p" data-i18n="m.s3.q2d"></p>
+        <dl class="scale">
+          <div><dt>1</dt><dd data-i18n="m.s3.c1"></dd></div>
+          <div><dt>2</dt><dd data-i18n="m.s3.c2"></dd></div>
+          <div><dt>3</dt><dd data-i18n="m.s3.c3"></dd></div>
+          <div><dt>4</dt><dd data-i18n="m.s3.c4"></dd></div>
+          <div><dt>5</dt><dd data-i18n="m.s3.c5"></dd></div>
+          <div><dt>6</dt><dd data-i18n="m.s3.c6"></dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <h3 class="doc-h3 rv" data-i18n="m.s3.st">Durum ne anlama geliyor?</h3>
+    <dl class="statuses rv">
+      <div><dt><span class="badge st-unverified" data-i18n="m.st.u">Doğrulanmamış</span></dt><dd data-i18n="m.s3.u"></dd></div>
+      <div><dt><span class="badge st-partially_verified" data-i18n="m.st.p">Kısmen doğrulanmış</span></dt><dd data-i18n="m.s3.p"></dd></div>
+      <div><dt><span class="badge st-verified" data-i18n="m.st.v">Doğrulanmış</span></dt><dd data-i18n="m.s3.v"></dd></div>
+      <div><dt><span class="badge st-disputed" data-i18n="m.st.d">İhtilaflı</span></dt><dd data-i18n="m.s3.d2"></dd></div>
+      <div><dt><span class="badge st-false" data-i18n="m.st.f">Yanlış</span></dt><dd data-i18n="m.s3.f2"></dd></div>
+    </dl>
+
+    <div class="rule-cols rv">
+      <div>
+        <h3 class="doc-h3" data-i18n="m.s3.rt">“Doğrulanmış” için beş koşul</h3>
+        <ol class="rules">
+          <li data-i18n="m.s3.r1"></li>
+          <li data-i18n="m.s3.r2"></li>
+          <li data-i18n="m.s3.r3"></li>
+          <li data-i18n="m.s3.r4"></li>
+          <li data-i18n="m.s3.r5"></li>
+        </ol>
+      </div>
+      <div>
+        <h3 class="doc-h3" data-i18n="m.s3.it">Bağımsız kaynak nedir?</h3>
+        <p class="doc-p" data-i18n="m.s3.id"></p>
+      </div>
+    </div>
+    <p class="doc-src"><span data-i18n="m.src">Kaynak</span><a data-doc="05-verification.md" href="https://github.com/Greater-Turkiye/handbook/blob/main/tr/05-verification.md" data-i18n="m.lnk.hb05">El Kitabı 05 · Doğrulama</a><a href="https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0006-verification-scale.md" data-i18n="m.lnk.adr06">ADR 0006 · Doğrulama ölçeği</a></p>
+  </section>
+
+  <section class="sec sec-red" id="kirmizi-cizgiler" aria-labelledby="h-s4">
+    <span class="sec-num" aria-hidden="true">04 / 07</span>
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="m.s4.k">Kırmızı çizgiler</p>
+        <h2 class="sec-title" id="h-s4" data-i18n="m.s4.t">Sade dille kırmızı çizgiler</h2>
+      </div>
+      <p class="sec-lead" data-i18n="m.s4.lead"></p>
+    </div>
+    <div class="rv">
+      <h3 class="doc-h3" data-i18n="m.s4.tt">Türk kuvvetlerinin konumu neden hiç gösterilmiyor?</h3>
+      <p class="doc-p" data-i18n="m.s4.t1"></p>
+      <p class="doc-p" data-i18n="m.s4.t2"></p>
+      <p class="doc-p" data-i18n="m.s4.t3"></p>
+      <h3 class="doc-h3" data-i18n="m.s4.ot">Harekât bölgeleri neden yalnızca bütün alan olarak çiziliyor?</h3>
+      <p class="doc-p" data-i18n="m.s4.o1"></p>
+      <p class="doc-p" data-i18n="m.s4.o2"></p>
+      <h3 class="doc-h3" data-i18n="m.s4.ol">Geri kalan çizgiler</h3>
+    </div>
+    <ol class="red-list rv">
+      <li data-i18n="m.s4.l1"></li>
+      <li data-i18n="m.s4.l2"></li>
+      <li data-i18n="m.s4.l3"></li>
+      <li data-i18n="m.s4.l4"></li>
+      <li data-i18n="m.s4.l5"></li>
+      <li data-i18n="m.s4.l6"></li>
+    </ol>
+    <p class="doc-note rv" data-i18n="m.s4.note"></p>
+    <p class="doc-src"><span data-i18n="m.src">Kaynak</span><a data-doc="02-red-lines.md" href="https://github.com/Greater-Turkiye/handbook/blob/main/tr/02-red-lines.md" data-i18n="m.lnk.hb02">El Kitabı 02 · Kırmızı çizgiler</a><a href="https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0010-content-safety-gates.md" data-i18n="m.lnk.adr10">ADR 0010 · İçerik güvenliği kapıları</a><a href="https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0015-announced-operation-areas.md" data-i18n="m.lnk.adr15">ADR 0015 · Harekât bölgeleri</a></p>
+  </section>
+
+  <section class="sec" id="harita" aria-labelledby="h-s5">
+    <span class="sec-num" aria-hidden="true">05 / 07</span>
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="m.s5.k">Harita</p>
+        <h2 class="sec-title" id="h-s5" data-i18n="m.s5.t">Harita katmanları nereden geliyor?</h2>
+      </div>
+      <p class="sec-lead" data-i18n="m.s5.lead"></p>
+    </div>
+    <ul class="tick tick-wide rv">
+      <li data-i18n="m.s5.l1"></li>
+      <li data-i18n="m.s5.l2"></li>
+      <li data-i18n="m.s5.l3"></li>
+      <li data-i18n="m.s5.l4"></li>
+      <li data-i18n="m.s5.l5"></li>
+      <li data-i18n="m.s5.l6"></li>
+    </ul>
+    <div class="callout rv">
+      <h3 class="doc-h3" data-i18n="m.s5.st">“Şematik” ne demek?</h3>
+      <p class="doc-p" data-i18n="m.s5.s1"></p>
+      <p class="doc-p" data-i18n="m.s5.s2"></p>
+    </div>
+    <p class="doc-src"><span data-i18n="m.src">Kaynak</span><a href="https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0013-map-layers-turkiye-perspective.md" data-i18n="m.lnk.adr13">ADR 0013 · Harita katmanları</a><a href="https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0015-announced-operation-areas.md" data-i18n="m.lnk.adr15">ADR 0015 · Harekât bölgeleri</a><a href="https://github.com/Greater-Turkiye/platform/blob/main/apps/web/assets/data/MARITIME-SOURCES.md" data-i18n="m.lnk.maritime">Deniz alanları kaynakları</a><a href="https://github.com/Greater-Turkiye/platform/blob/main/apps/web/assets/data/OPERATION-AREAS-SOURCES.md" data-i18n="m.lnk.ops">Harekât bölgeleri kaynakları</a><a href="https://github.com/Greater-Turkiye/platform/blob/main/apps/web/assets/data/MISSIONS-SOURCES.md" data-i18n="m.lnk.missions">Temsilcilik kaynakları</a><a href="https://github.com/Greater-Turkiye/platform/blob/main/apps/web/README.md" data-i18n="m.lnk.layers">Katman tablosu</a></p>
+  </section>
+
+  <section class="sec" id="lisans" aria-labelledby="h-s6">
+    <span class="sec-num" aria-hidden="true">06 / 07</span>
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="m.s6.k">Lisans</p>
+        <h2 class="sec-title" id="h-s6" data-i18n="m.s6.t">Lisans ve telif</h2>
+      </div>
+      <p class="sec-lead" data-i18n="m.s6.lead"></p>
+    </div>
+    <div class="lic-cards rv">
+      <div class="lic"><span class="k">CC BY 4.0</span><h3 data-i18n="m.s6.dataT">Veri ve içerik</h3><p data-i18n="m.s6.dataD"></p></div>
+      <div class="lic"><span class="k">MIT</span><h3 data-i18n="m.s6.codeT">Kod</h3><p data-i18n="m.s6.codeD"></p></div>
+    </div>
+    <div class="doc-body rv">
+      <p class="doc-p" data-i18n="m.s6.p1"></p>
+      <p class="doc-p" data-i18n="m.s6.p2"></p>
+      <p class="doc-p" data-i18n="m.s6.p3"></p>
+      <p class="doc-p" data-i18n="m.s6.p4"></p>
+      <p class="doc-p" data-i18n="m.s6.p5"></p>
+    </div>
+    <p class="doc-src"><span data-i18n="m.src">Kaynak</span><a href="https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0009-licensing.md" data-i18n="m.lnk.adr09">ADR 0009 · Lisanslama</a><a href="https://github.com/Greater-Turkiye/platform/blob/main/apps/web/assets/LICENSES.md" data-i18n="m.lnk.licenses">Üçüncü taraf varlıklar</a><a href="https://github.com/Greater-Turkiye/datasets/blob/main/CITATION.cff" data-i18n="foot.cite">Atıf</a></p>
+  </section>
+
+  <section class="sec" id="duzeltme" aria-labelledby="h-s7">
+    <span class="sec-num" aria-hidden="true">07 / 07</span>
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="m.s7.k">Düzeltme</p>
+        <h2 class="sec-title" id="h-s7" data-i18n="m.s7.t">Hata bulursanız</h2>
+      </div>
+      <p class="sec-lead" data-i18n="m.s7.lead"></p>
+    </div>
+    <div class="join-grid rv">
+      <a class="join-card" href="https://github.com/Greater-Turkiye/datasets/issues/new?template=03-correction.yml"><span class="k" data-i18n="m.s7.k">Düzeltme</span><h3 data-i18n="m.s7.c1.t">Düzeltme bildir</h3><p data-i18n="m.s7.c1.d"></p><span class="go" data-i18n="m.s7.c1.a">Formu aç</span></a>
+      <a class="join-card" href="https://github.com/Greater-Turkiye/datasets/issues/new?template=01-data-submission.yml"><span class="k" data-i18n="foot.data">Veri</span><h3 data-i18n="m.s7.c2.t">Olay öner</h3><p data-i18n="m.s7.c2.d"></p><span class="go" data-i18n="m.s7.c2.a">Formu aç</span></a>
+      <a class="join-card" href="https://github.com/Greater-Turkiye/datasets/issues/new?template=02-source-suggestion.yml"><span class="k" data-i18n="d.sources">Kaynaklar</span><h3 data-i18n="m.s7.c3.t">Kaynak öner</h3><p data-i18n="m.s7.c3.d"></p><span class="go" data-i18n="m.s7.c3.a">Formu aç</span></a>
+      <a class="join-card" href="https://github.com/Greater-Turkiye/.github/blob/main/SECURITY.md"><span class="k" data-i18n="foot.security">Güvenlik ve kaldırma</span><h3 data-i18n="m.s7.c4.t">Hassas içerik</h3><p data-i18n="m.s7.c4.d"></p><span class="go" data-i18n="m.s7.c4.a">Politikayı oku</span></a>
+    </div>
+    <p class="doc-note rv" data-i18n="m.s7.note"></p>
+    <p class="doc-src"><span data-i18n="m.src">Kaynak</span><a href="https://github.com/Greater-Turkiye/.github/blob/main/SECURITY.md" data-i18n="foot.security">Güvenlik ve kaldırma</a><a data-doc="10-contributing.md" href="https://github.com/Greater-Turkiye/handbook/blob/main/tr/10-contributing.md" data-i18n="m.lnk.hb10">El Kitabı 10 · Katkı</a></p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="foot-inner">
+    <div class="foot-brand">
+      <a class="brand" href="./" aria-label="Greater Türkiye">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13.5" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/><circle cx="16" cy="16" r="7.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M16 .5v6M16 25.5v6M.5 16h6M25.5 16h6" stroke="currentColor" stroke-width="1.2"/><circle cx="16" cy="16" r="2.6" fill="#c8002a"/></svg>
+        <span class="brand-word">GREATER<b>TÜRKİYE</b></span>
+      </a>
+      <p data-i18n="foot.tag"></p>
+    </div>
+    <div class="foot-col">
+      <h4 data-i18n="foot.community">Topluluk</h4>
+      <a href="method.html" data-i18n="nav.method">Yöntem</a>
+      <a href="https://github.com/Greater-Turkiye/handbook/blob/main/tr/02-red-lines.md" data-i18n="foot.redlines">Kırmızı çizgiler</a>
+      <a href="https://github.com/Greater-Turkiye/handbook/blob/main/tr/04-opsec.md" data-i18n="foot.opsec">OPSEC</a>
+      <a href="https://github.com/Greater-Turkiye/.github/blob/main/CODE_OF_CONDUCT.md" data-i18n="foot.coc">Davranış kuralları</a>
+      <a href="https://github.com/Greater-Turkiye/.github/blob/main/SECURITY.md" data-i18n="foot.security">Güvenlik ve kaldırma</a>
+    </div>
+    <div class="foot-col">
+      <h4 data-i18n="foot.data">Veri</h4>
+      <a href="https://github.com/Greater-Turkiye/datasets" data-i18n="foot.dataset">Veri seti</a>
+      <a href="https://github.com/Greater-Turkiye/datasets/tree/main/schemas/v1" data-i18n="foot.schemas">Şemalar</a>
+      <a href="https://github.com/Greater-Turkiye/datasets/releases" data-i18n="foot.releases">Sürümler</a>
+      <a href="https://github.com/Greater-Turkiye/datasets/blob/main/CITATION.cff" data-i18n="foot.cite">Atıf</a>
+    </div>
+    <div class="foot-col">
+      <h4 data-i18n="foot.project">Proje</h4>
+      <a href="./" data-i18n="nav.home">Ana sayfa</a>
+      <a href="panel.html" data-i18n="nav.panel">Panel</a>
+      <a href="https://github.com/Greater-Turkiye/platform/blob/main/ROADMAP.md" data-i18n="foot.roadmap">Yol haritası</a>
+      <a href="https://github.com/Greater-Turkiye">GitHub</a>
+    </div>
+  </div>
+  <div class="foot-base"><span data-i18n="foot.license">İçerik ve veri CC BY 4.0 · Kod MIT</span><span data-i18n="foot.disclaimer"></span></div>
+</footer>
+
+<script src="assets/js/gt.js"></script>
+<script src="assets/js/method.js"></script>
+</body>
+</html>
