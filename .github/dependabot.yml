@@ -15,3 +15,11 @@ updates:
     groups:
       python:
         patterns: ["*"]
+  # The scheduler Worker's toolchain (wrangler, vitest); nothing here ships to the Worker.
+  - package-ecosystem: npm
+    directory: /apps/scheduler
+    schedule:
+      interval: weekly
+    groups:
+      scheduler:
+        patterns: ["*"]

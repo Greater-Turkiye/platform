@@ -1,0 +1,43 @@
+name: scheduler-ci
+
+# Test the scheduler Worker. Everything here runs locally in workerd: no Cloudflare credential,
+# no GitHub token, and nothing is deployed — `wrangler deploy --dry-run` only builds the Worker
+# and checks wrangler.jsonc.
+on:
+  pull_request:
+    paths:
+      - "apps/scheduler/**"
+      - ".github/workflows/scheduler-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scheduler-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  WRANGLER_SEND_METRICS: "false"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/scheduler
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: apps/scheduler/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Tests
+        run: npm test
+      - name: The Worker builds and the configuration parses
+        run: npx wrangler deploy --dry-run --outdir "$RUNNER_TEMP/scheduler-build"
