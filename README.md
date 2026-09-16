@@ -19,7 +19,8 @@ The code of the open-source intelligence community: the live map and dashboard, 
 | [`tools/geo`](tools/geo) | **Çalışıyor** | Harita katmanlarını resmî kaynaklardan yeniden üretilebilir şekilde kuran Python betikleri (Mavi Vatan, KKTC ruhsat sahaları, Marmara ve Boğazlar, temsilcilikler, harekât bölgeleri) |
 | [`collectors`](collectors) | **Çalışıyor** | GitHub Actions'ta **her gün çalışan** Python toplayıcılar: RSS alımı, normalleştirme, tekrar eleme (simhash), güvenlik süzgeci ve coğrafi çit, ardından izleme bölgelerine ve olay türlerine göre **ilgi süzgeci**. Kalan adaylar `inceleme-kuyrugu` etiketli bir konuda insan incelemesine sunulur ([collect.yml](.github/workflows/collect.yml)); ingest'e gönderim `api` Worker'ı gelene kadar kapalı |
 | [`db`](db) | **Kurulu** | Cloudflare D1 şeması ve migration'lar (`signals`, `ops`); iki veritabanı oluşturuldu ve `0001_init` uygulandı, henüz Worker bağlı değil |
-| [`apps/api`](apps/api), [`apps/review-bot`](apps/review-bot), [`apps/scheduler`](apps/scheduler) | **Planlandı** | Cloudflare Worker'lar: alım ucu, Telegram inceleme botu, cron tetikleyici. Şimdilik yalnızca tasarım notları |
+| [`apps/scheduler`](apps/scheduler) | **Devam ediyor** | Cron tetikleyicisiyle çalışan, `collect.yml` iş akışını `workflow_dispatch` ile başlatan Cloudflare Worker'ı: kod ve testleri hazır ([scheduler-ci](.github/workflows/scheduler-ci.yml)), **henüz dağıtılmadı**. Toplayıcı tetikleyicisi, Worker dağıtılıp [ADR 0016](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0016-collector-schedule-until-worker.md)'yı geçersiz kılan bir karar yazılana kadar `schedule:` üzerinde kalır |
+| [`apps/api`](apps/api), [`apps/review-bot`](apps/review-bot) | **Planlandı** | Cloudflare Worker'lar: alım ucu ve Telegram inceleme botu. Şimdilik yalnızca tasarım notları |
 | [`publishers`](publishers) | **Taslak** | Yayın kanallarının tasarımı ve **çalışan ama hiçbir şey göndermeyen** iskeleti (Telegram, Bluesky, RSS rölesi): mesaj sözleşmesi, içerik denetimleri, hız sınırları, insan onayı kapısı. Ağ istemcisi yok, kimlik bilgisi yok, açık kanal yok. Kamu akışı ise `datasets` deposunda üretilir |
 
 Doğrulanmış kayıtlar bu depoda değil, [datasets](https://github.com/Greater-Turkiye/datasets) deposunda tutulur; panel onların yayımlanmış çıktısını okur.
@@ -76,6 +77,17 @@ Sonra **ilgi süzgeci** (`relevance.py`) gelir: her adaya bir izleme bölgesi si
 
 [`.github/workflows/collect.yml`](.github/workflows/collect.yml) her gün 05:23 UTC'de (ve elle tetiklenerek) çalışır: koşulları kayda geçmiş akışları toplar, güvenlik süzgecinden geçirir, tekrarları eler, ilgi süzgecini uygular ve kalan adayları tarihli tek bir konuya yazar. Konudaki hiçbir öğe doğrulanmış değildir; kararı insan verir. Tekilleştirme defteri `collector-state` dalında tutulur ([collectors/state](collectors/state)). Sır, hesap veya ödeme yöntemi gerekmez.
 
+### Zamanlayıcı (henüz dağıtılmadı)
+
+```bash
+cd apps/scheduler
+npm ci
+npm test                       # workerd içinde çalışan testler; kimlik bilgisi gerekmez
+npx wrangler deploy --dry-run  # derleme ve yapılandırma denetimi; dağıtım yok
+```
+
+[`apps/scheduler`](apps/scheduler), cron tetikleyicisiyle `collect.yml` iş akışını `workflow_dispatch` üzerinden başlatan Cloudflare Worker'ıdır; amacı GitHub'ın kendi `schedule:` tetikleyicisinin yerini almaktır (o, 60 gün sessizlikten sonra devre dışı kalır). Dağıtım tek bir sır ister: `GITHUB_DISPATCH_TOKEN` — yalnızca bu depoda `Actions: write` yetkisi olan ince ayarlı bir token. Sır yoksa Worker günlüğe yüksek sesle hata yazar ve hiçbir şey tetiklemez; kimliksiz çağrı denemez. Tetikleyicinin `schedule:`'dan Worker'a taşınması ayrı bir karar ve ayrı bir PR'dır: [apps/scheduler/README.md](apps/scheduler/README.md).
+
 ### Yayıncılar (yalnızca taslak)
 
 ```bash
@@ -115,7 +127,8 @@ Kod [MIT](LICENSE). Üretilen veriler `datasets` deposunda CC BY 4.0 ile yayıml
 | [`tools/geo`](tools/geo) | **Working** | Python builders that construct the map layers reproducibly from official sources (Blue Homeland, TRNC licence areas, the Sea of Marmara and the Straits, diplomatic missions, announced operation areas) |
 | [`collectors`](collectors) | **Working** | Python collectors that run in GitHub Actions **every day**: RSS ingest, normalisation, near-duplicate removal (simhash), the safety filter and the geofence, then a **relevance filter** over the watch regions and the recorded event types. What is left goes to a human in an issue labelled `inceleme-kuyrugu` ([collect.yml](.github/workflows/collect.yml)); sending to ingest stays off until the `api` Worker exists |
 | [`db`](db) | **Provisioned** | Cloudflare D1 schema and migrations (`signals`, `ops`); both databases created and `0001_init` applied, no Worker bound yet |
-| [`apps/api`](apps/api), [`apps/review-bot`](apps/review-bot), [`apps/scheduler`](apps/scheduler) | **Planned** | Cloudflare Workers: the ingest endpoint, the Telegram review bot, the cron trigger. Design notes only for now |
+| [`apps/scheduler`](apps/scheduler) | **In progress** | The Cloudflare Worker whose cron trigger starts the `collect.yml` workflow with `workflow_dispatch`: the code and its tests are here ([scheduler-ci](.github/workflows/scheduler-ci.yml)), but it is **not deployed yet**. The collector trigger stays on `schedule:` until the Worker runs and a decision superseding [ADR 0016](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0016-collector-schedule-until-worker.md) is written |
+| [`apps/api`](apps/api), [`apps/review-bot`](apps/review-bot) | **Planned** | Cloudflare Workers: the ingest endpoint and the Telegram review bot. Design notes only for now |
 | [`publishers`](publishers) | **Draft** | The design and a **runnable but inert** skeleton of the publishing channels (Telegram, Bluesky, RSS relay): message contract, content checks, rate limits and the human-approval gate. No network client, no credential, no channel switched on. The public feed itself is built in `datasets` |
 
 Verified records do not live here; they live in the [datasets](https://github.com/Greater-Turkiye/datasets) repository, and the dashboard reads their published export.
@@ -171,6 +184,17 @@ The safety filter (`safety.py`) and the geofence (`geo.py`) run before anything 
 The **relevance filter** (`relevance.py`) runs after them: it gives each candidate a watch-region signal (country and place names, Turkish and English) and a topic signal (military activity, exercises, procurement, airspace, maritime incidents, basing, sanctions), and combines them as `0.5 × region + 0.5 × topic`, scoring zero when either signal is zero. The threshold is **0.5**; a score of 0.40–0.50 still enters the queue, marked ❓ `borderline`. Anything below is **not deleted**: it stays in the run artifact with `status: off-topic`, is counted in the issue's table, and is never written to the dedup ledger. The region and keyword tables are data, not code ([`collectors/src/gt_collectors/data/relevance.yaml`](collectors/src/gt_collectors/data/relevance.yaml)); [collectors/README.md](collectors/README.md#i̇lgi-süzgeci--relevance-filter) says how to extend them. The filter is for noise only: it never stands in for, or weakens, the safety filter.
 
 [`.github/workflows/collect.yml`](.github/workflows/collect.yml) runs every day at 05:23 UTC and on demand: it collects the feeds whose terms are on record, applies the safety filter, drops repeats, applies the relevance filter and writes what is left into a single dated issue. Nothing in that issue is verified; a human decides. The deduplication ledger lives on the `collector-state` branch ([collectors/state](collectors/state)). No secrets, no accounts, no payment method.
+
+### Scheduler (not deployed yet)
+
+```bash
+cd apps/scheduler
+npm ci
+npm test                       # the tests run inside workerd; no credentials needed
+npx wrangler deploy --dry-run  # build and configuration check; nothing is deployed
+```
+
+[`apps/scheduler`](apps/scheduler) is the Cloudflare Worker whose cron trigger starts the `collect.yml` workflow through `workflow_dispatch`; it exists to replace GitHub's own `schedule:` trigger, which is disabled after 60 quiet days. Deploying it needs exactly one secret: `GITHUB_DISPATCH_TOKEN`, a fine-grained token with `Actions: write` on this repository and nothing else. Without the secret the Worker logs a loud error and dispatches nothing; it never falls back to an unauthenticated call. Moving the trigger from `schedule:` to the Worker is a separate decision and a separate pull request: [apps/scheduler/README.md](apps/scheduler/README.md).
 
 ### Publishers (drafts only)
 

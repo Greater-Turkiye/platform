@@ -1,0 +1,34 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "gt-scheduler",
+  "main": "src/index.js",
+  // Kept at a date the test runtime (workerd, through @cloudflare/vitest-pool-workers) also
+  // supports, so the tests run against the same runtime behaviour as production.
+  "compatibility_date": "2026-08-22",
+
+  // No route and no *.workers.dev subdomain: the cron tick is the only way in. The status
+  // handler is for `wrangler dev` and for the day a route is genuinely wanted.
+  "workers_dev": false,
+
+  // 05:23 UTC daily — the same minute `.github/workflows/collect.yml` uses today, so moving the
+  // trigger over changes who starts the run, not when. Off the hour on purpose: Actions queues
+  // are longest on the hour. One trigger of the few the free plan allows (5 at the time of
+  // writing); api, review-bot and publisher still need theirs.
+  "triggers": {
+    "crons": ["23 5 * * *"]
+  },
+
+  // Public configuration only. The dispatch token is a secret:
+  //   wrangler secret put GITHUB_DISPATCH_TOKEN
+  "vars": {
+    "TARGET_REPOSITORY": "Greater-Turkiye/platform",
+    "TARGET_WORKFLOW": "collect.yml",
+    "TARGET_REF": "main",
+    "MAX_ITEMS": "40",
+    "DRY_RUN": "false"
+  },
+
+  "observability": {
+    "enabled": true
+  }
+}
