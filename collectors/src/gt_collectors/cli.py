@@ -1,6 +1,6 @@
 """Command line: ``gt-collect`` (or ``python -m gt_collectors``).
 
-Three modes, none of which ever writes a record that the safety filter dropped:
+Four modes, none of which ever writes a record that the safety filter dropped:
 
 ``--dry-run``
     Print signals as JSON lines, send nothing (no secrets needed)::
@@ -21,6 +21,18 @@ Three modes, none of which ever writes a record that the safety filter dropped:
     (in the issue and in the ledger), ``deferred`` (did not fit under ``--max-items``) or
     ``off-topic`` (below the relevance threshold). Only ``queued`` items are written to the
     ledger, so the other two are offered again by a later run.
+
+``--write-d1``
+    Write a batch that ``--queue-dir`` already produced into the Cloudflare D1 ``gt-signals``
+    database (:mod:`gt_collectors.d1`). It reads ``DIR/candidates.jsonl`` and collects nothing
+    itself, so the workflow can run it **after** the review queue issue exists::
+
+        gt-collect --write-d1 queue                  # CLOUDFLARE_API_TOKEN or `wrangler login`
+        gt-collect --write-d1 queue --d1-dry-run     # print the SQL, touch nothing
+
+    Queued, deferred and off-topic items are all stored, each with its triage status: the store
+    is the history, the issue is only the human's view. Items the safety filter or the geofence
+    dropped are not in the batch, and the writer filters again before mapping a row.
 
 ``(neither)``
     A real ingest run: needs ``INGEST_URL`` and ``INGEST_HMAC_KEY``, and sends only enabled
@@ -44,7 +56,7 @@ from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 
-from gt_collectors import fetch, relevance, review, rss, safety, state
+from gt_collectors import d1, fetch, relevance, review, rss, safety, state
 from gt_collectors.config import ConfigError, FeedConfig, load_feeds
 from gt_collectors.ingest import IngestClient
 from gt_collectors.signal import Geo, Signal
@@ -101,6 +113,27 @@ def _parser() -> argparse.ArgumentParser:
         type=float,
         metavar="SCORE",
         help="override the table's relevance threshold (0 queues everything the tables scored)",
+    )
+    store = p.add_argument_group("signal store (Cloudflare D1)")
+    store.add_argument(
+        "--write-d1",
+        type=Path,
+        metavar="DIR",
+        help=f"write the batch in DIR/{CANDIDATES_FILE} into the D1 signals database "
+        f"(collects nothing; authenticates with {d1.TOKEN_ENV} or a local wrangler login)",
+    )
+    store.add_argument(
+        "--d1-database", default=d1.DATABASE, metavar="NAME", help="D1 database (default: %(default)s)"
+    )
+    store.add_argument(
+        "--d1-batch",
+        type=int,
+        default=d1.MAX_BATCH,
+        metavar="N",
+        help="rows per INSERT (default: %(default)s)",
+    )
+    store.add_argument(
+        "--d1-dry-run", action="store_true", help="print the SQL instead of executing it (no token needed)"
     )
     return p
 
@@ -286,6 +319,26 @@ def _run_queue(feeds: list[FeedConfig], args: argparse.Namespace, now: datetime)
     return 1 if feeds and totals["errors"] == len(feeds) else 0
 
 
+def _run_write_d1(args: argparse.Namespace) -> int:
+    """Write an existing queue batch into the D1 signals database. Collects nothing."""
+    path = args.write_d1 / CANDIDATES_FILE if args.write_d1.is_dir() else args.write_d1
+    items = d1.read_batch(path)
+    if args.d1_dry_run:
+        rows, report = d1.prepare(items)
+        for batch in d1.iter_batches(rows, args.d1_batch):
+            print(d1.insert_sql(batch))
+            report.batches += 1
+    else:
+        if not d1.has_token():
+            # Not an error: a developer machine authenticates with `wrangler login` instead.
+            # In the workflow the step is skipped before this point when the secret is absent.
+            print(f"note: {d1.TOKEN_ENV} is not set; wrangler will use a local login", file=sys.stderr)
+        report = d1.write(items, d1.wrangler_executor(args.d1_database), batch_size=args.d1_batch)
+    summary = {"d1": args.d1_database, "dry_run": args.d1_dry_run, **report.to_dict()}
+    print(json.dumps(summary, ensure_ascii=False), file=sys.stderr)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
@@ -298,6 +351,18 @@ def main(argv: list[str] | None = None) -> int:
             raise ConfigError("--max-items must be zero or more")
         if args.min_relevance is not None and not 0 <= args.min_relevance <= 1:
             raise ConfigError("--min-relevance must be between 0 and 1")
+        if not 1 <= args.d1_batch <= d1.BATCH_LIMIT:
+            raise ConfigError(f"--d1-batch must be between 1 and {d1.BATCH_LIMIT}")
+        if args.write_d1:
+            if args.queue_dir or args.dry_run or args.input or args.feed:
+                raise ConfigError(
+                    "--write-d1 is its own mode: it writes a batch that --queue-dir already produced"
+                )
+            try:
+                return _run_write_d1(args)
+            except (ValueError, OSError, d1.D1Error) as exc:
+                print(f"d1 error: {type(exc).__name__}: {exc}", file=sys.stderr)
+                return 2
         feeds = _select(load_feeds(args.config), args)
         if args.input and len(feeds) != 1:
             raise ConfigError("--input needs exactly one --feed")
