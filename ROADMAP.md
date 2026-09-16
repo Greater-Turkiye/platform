@@ -45,9 +45,10 @@ Phases proceed in order; publishing parts of a phase are not switched on before 
 
 ### Aşama 3 — İnceleme / Phase 3 — Review
 
-- [ ] `review-bot` Worker: Telegram webhook, gizli token doğrulaması, gözden geçirici izin listesi — Telegram webhook, secret token check, reviewer allowlist
-- [ ] Reddet / taslağa yükselt / bülten gönder işlemleri — Dismiss / promote to draft / send as bulletin
-- [ ] Taslaktan `datasets` PR'ı (GitHub App) — Draft → `datasets` PR via GitHub App
+- [x] `review-bot` Worker: Telegram webhook, gizli token doğrulaması, sohbet + kullanıcı izin listesi, testler ([apps/review-bot](apps/review-bot); **dağıtılmadı**, bot hesabı ve sırlar bir insanı bekliyor) — Telegram webhook, secret token check, chat + user allowlist, tests (not deployed; the bot account and the secrets are a human step)
+- [x] `onayla` / `reddet` / `sonra` ve kararın `gt-ops.reviews`'a gözden geçirici + zaman damgasıyla yazılması — Approve / dismiss / skip, written to `gt-ops.reviews` with the reviewer and a timestamp
+- [ ] Bülten gönderme işlemi (yayın kuyruğu geldiğinde) — Send as bulletin (once the publish queue exists)
+- [ ] Taslaktan `datasets` PR'ı (GitHub App) — bugün onay yalnızca `status = 'drafted'` işaretidir, PR'ı insan açar; dikiş: `onApproved` — Draft → `datasets` PR via GitHub App; today approval is only the `drafted` mark and a human opens the PR (seam: `onApproved`)
 - [ ] Anahtar sözcük triyaj kuralları — Keyword triage rules
 - [ ] Dil başına anahtar sözcük listeleri (ar, el, fa, ru, hy, az, ...) **(good first issue)** — Per-language keyword lists
 - [ ] Özel bildirim formu (`/v1/intake`, Turnstile, IP kaydı yok) — Private intake form (Turnstile, no IP logging)

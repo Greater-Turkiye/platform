@@ -101,7 +101,7 @@ flowchart LR
 ### 4. İki insan kapısı
 
 - **Kapı 1 — bugün: `platform` deposunda bir konu.** Telegram botu (ve Worker) gelene kadar günlük `collect` işi, adayları `inceleme-kuyrugu` etiketli tarihli tek bir konuya onay kutusu listesi olarak yazar. Konuya yalnızca **ilgi süzgecini** geçen adaylar yazılır (izleme bölgesi + olay türü); eşiğin altındakiler silinmez, çalışma yapıtında kalır ve sayaç tablosunda görünür ([collectors/README.md](collectors/README.md#i̇lgi-süzgeci--relevance-filter)). Konudaki hiçbir satır yayımlanmış iddia değildir; gözden geçirici satırı işaretler ve kararını yorumda yazar. Sır gerekmez.
-- **Kapı 1 — hedef: özel Telegram inceleyici grubu:** `review-bot` Worker'ı webhook ile çalışır; Telegram'ın gizli token başlığı doğrulanır, yalnızca izin listesindeki gözden geçiriciler işlem yapabilir. Her öğe için: **reddet**, **taslağa yükselt** veya **bülten olarak gönder**.
+- **Kapı 1 — hedef: özel Telegram inceleyici grubu:** `review-bot` Worker'ı webhook ile çalışır; Telegram'ın gizli token başlığı doğrulanır, yalnızca izin listesindeki gözden geçiriciler işlem yapabilir. Her öğe için: **reddet**, **taslağa yükselt** veya **bülten olarak gönder**. İlk sürümü depoda ([apps/review-bot](apps/review-bot)): `onayla` / `reddet` / `sonra` ve kararın `gt-ops.reviews`'a yazılması hazır, **dağıtılmadı**; bülten yolu ve GitHub App çağrısı henüz yok. Onay yalnızca `status = 'drafted'` işaretidir, yayın değildir.
 - **Kapı 2 — herkese açık:** Taslağa yükseltilen öğe için bir **GitHub App** `datasets` deposunda PR açar; gözden geçiriciler olağan kurallarla inceler ve birleştirir. Kişisel erişim token'ı (PAT) kullanılmaz; `GITHUB_TOKEN` ile açılan bot PR'ları CI'yi tetiklemediği için App gereklidir.
 
 ### 5. Yayıncılar
@@ -196,7 +196,7 @@ flowchart LR
 ### 4. Two human gates
 
 - **Gate 1 — today: an issue in the `platform` repository.** Until the Telegram bot (and its Worker) exist, the daily `collect` job writes the candidates into one dated issue labelled `inceleme-kuyrugu` as a checklist. Only candidates that pass the **relevance filter** (a watch region and a recorded event type) become lines; the rest are kept in the run artifact and counted, never deleted ([collectors/README.md](collectors/README.md#i̇lgi-süzgeci--relevance-filter)). No line in it is a published claim; a reviewer ticks a line and records the decision in a comment. No secrets are needed.
-- **Gate 1 — target: private Telegram reviewer group:** the `review-bot` Worker runs on a webhook; Telegram's secret token header is verified and only allowlisted reviewers can act. For each item: **dismiss**, **promote to draft**, or **send as bulletin**.
+- **Gate 1 — target: private Telegram reviewer group:** the `review-bot` Worker runs on a webhook; Telegram's secret token header is verified and only allowlisted reviewers can act. For each item: **dismiss**, **promote to draft**, or **send as bulletin**. Its first version is in the repository ([apps/review-bot](apps/review-bot)): `onayla` / `reddet` / `sonra` and the decision write to `gt-ops.reviews` are there, but it is **not deployed**, and the bulletin path and the GitHub App call do not exist yet. Approval only sets `status = 'drafted'`; it publishes nothing.
 - **Gate 2 — public:** for an item promoted to draft, a **GitHub App** opens a PR in the `datasets` repository; reviewers review and merge under the usual rules. No personal access token (PAT) is used, and the App is required because bot PRs opened with `GITHUB_TOKEN` do not trigger CI.
 
 ### 5. Publishers

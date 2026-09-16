@@ -23,3 +23,11 @@ updates:
     groups:
       scheduler:
         patterns: ["*"]
+  # The review bot's toolchain (wrangler, vitest); nothing here ships to the Worker.
+  - package-ecosystem: npm
+    directory: /apps/review-bot
+    schedule:
+      interval: weekly
+    groups:
+      review-bot:
+        patterns: ["*"]
