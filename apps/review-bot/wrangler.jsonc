@@ -1,0 +1,49 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "gt-review-bot",
+  "main": "src/index.js",
+  // Kept at a date the test runtime (workerd, through @cloudflare/vitest-pool-workers) also
+  // supports, so the tests run against the same runtime behaviour as production.
+  "compatibility_date": "2026-08-22",
+
+  // Telegram has to be able to reach the webhook, so this Worker does need a public URL. The
+  // *.workers.dev subdomain is that URL; everything behind it is closed:
+  // `/telegram/webhook` accepts only a request carrying the right secret token header, from the
+  // review chat, from an allow-listed user. Every other path is a 404.
+  "workers_dev": true,
+
+  // No cron trigger: the bot only ever answers a webhook.
+
+  // Secrets are NOT in this file and are never committed. A human sets each of them with
+  // `wrangler secret put <name>`, and the Worker refuses every request until all four exist:
+  //
+  //   TELEGRAM_BOT_TOKEN         BotFather token
+  //   TELEGRAM_WEBHOOK_SECRET    echoed by Telegram in X-Telegram-Bot-Api-Secret-Token
+  //   TELEGRAM_REVIEW_CHAT_ID    the one private chat the bot reads from and posts to
+  //   TELEGRAM_ALLOWED_USER_IDS  comma-separated numeric Telegram user ids
+  //
+  // There is no `vars` block: every value the bot needs is a secret, because each one is either
+  // a credential or the identity of a private chat.
+
+  // The database ids are public configuration (db/README.md): access is controlled by Cloudflare
+  // account permissions. `migrations_dir` points at the schema this Worker reads; the Worker
+  // never applies a migration and adds no table or column of its own.
+  "d1_databases": [
+    {
+      "binding": "OPS_DB",
+      "database_name": "gt-ops",
+      "database_id": "414b8a8b-f28a-40b5-8de3-fba47ec9d784",
+      "migrations_dir": "../../db/migrations/ops"
+    },
+    {
+      "binding": "SIGNALS_DB",
+      "database_name": "gt-signals",
+      "database_id": "4185c945-18b6-4fe6-9531-f0d99a858554",
+      "migrations_dir": "../../db/migrations/signals"
+    }
+  ],
+
+  "observability": {
+    "enabled": true
+  }
+}

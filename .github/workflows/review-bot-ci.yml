@@ -1,0 +1,55 @@
+name: review-bot-ci
+
+# Test the Telegram review bot. Everything here runs locally in workerd: no Cloudflare
+# credential, no bot token, no network. D1 and the Telegram API are in-memory stand-ins, and
+# `wrangler deploy --dry-run` only builds the Worker and checks wrangler.jsonc — nothing is
+# deployed and no webhook is registered.
+on:
+  pull_request:
+    paths:
+      - "apps/review-bot/**"
+      - ".github/workflows/review-bot-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: review-bot-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  WRANGLER_SEND_METRICS: "false"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/review-bot
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: apps/review-bot/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Tests
+        run: npm test
+      - name: The Worker builds and the configuration parses
+        run: npx wrangler deploy --dry-run --outdir "$RUNNER_TEMP/review-bot-build"
+      - name: No credential-shaped literal in the Worker
+        # Every secret is read from the environment by name. A BotFather token or a private
+        # invite link committed here would be caught by this grep.
+        run: |
+          set -euo pipefail
+          if grep -rnE '[0-9]{8,10}:[A-Za-z0-9_-]{35}|t\.me/joinchat|t\.me/\+' \
+              --include='*.js' --include='*.jsonc' --include='*.json' --include='*.md' \
+              src test wrangler.jsonc README.md; then
+            echo "::error::a credential-shaped literal is present"
+            exit 1
+          fi

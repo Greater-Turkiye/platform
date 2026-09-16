@@ -20,7 +20,8 @@ The code of the open-source intelligence community: the live map and dashboard, 
 | [`collectors`](collectors) | **Çalışıyor** | GitHub Actions'ta **her gün çalışan** Python toplayıcılar: RSS alımı, normalleştirme, tekrar eleme (simhash), güvenlik süzgeci ve coğrafi çit, ardından izleme bölgelerine ve olay türlerine göre **ilgi süzgeci**. Kalan adaylar `inceleme-kuyrugu` etiketli bir konuda insan incelemesine sunulur ([collect.yml](.github/workflows/collect.yml)); ingest'e gönderim `api` Worker'ı gelene kadar kapalı |
 | [`db`](db) | **Kurulu** | Cloudflare D1 şeması ve migration'lar (`signals`, `ops`); iki veritabanı oluşturuldu ve `0001_init` uygulandı, henüz Worker bağlı değil |
 | [`apps/scheduler`](apps/scheduler) | **Devam ediyor** | Cron tetikleyicisiyle çalışan, `collect.yml` iş akışını `workflow_dispatch` ile başlatan Cloudflare Worker'ı: kod ve testleri hazır ([scheduler-ci](.github/workflows/scheduler-ci.yml)), **henüz dağıtılmadı**. Toplayıcı tetikleyicisi, Worker dağıtılıp [ADR 0016](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0016-collector-schedule-until-worker.md)'yı geçersiz kılan bir karar yazılana kadar `schedule:` üzerinde kalır |
-| [`apps/api`](apps/api), [`apps/review-bot`](apps/review-bot) | **Planlandı** | Cloudflare Worker'lar: alım ucu ve Telegram inceleme botu. Şimdilik yalnızca tasarım notları |
+| [`apps/review-bot`](apps/review-bot) | **Devam ediyor** | Özel Telegram inceleme botu (Cloudflare Worker): bekleyen adayları telefonda gösterir, `onayla` / `reddet` / `sonra` kararını `gt-ops` veritabanına yazar. Hiçbir yere yayın yapmaz, PR açmaz; onay yalnızca "taslağa uygun" işaretidir. Kod ve testleri hazır ([review-bot-ci](.github/workflows/review-bot-ci.yml)), **henüz dağıtılmadı**: bot hesabı ve sırlar yok |
+| [`apps/api`](apps/api) | **Planlandı** | Cloudflare Worker: alım ucu (`/v1/ingest`). Şimdilik yalnızca tasarım notları |
 | [`publishers`](publishers) | **Taslak** | Yayın kanallarının tasarımı ve **çalışan ama hiçbir şey göndermeyen** iskeleti (Telegram, Bluesky, RSS rölesi): mesaj sözleşmesi, içerik denetimleri, hız sınırları, insan onayı kapısı. Ağ istemcisi yok, kimlik bilgisi yok, açık kanal yok. Kamu akışı ise `datasets` deposunda üretilir |
 
 Doğrulanmış kayıtlar bu depoda değil, [datasets](https://github.com/Greater-Turkiye/datasets) deposunda tutulur; panel onların yayımlanmış çıktısını okur.
@@ -88,6 +89,17 @@ npx wrangler deploy --dry-run  # derleme ve yapılandırma denetimi; dağıtım 
 
 [`apps/scheduler`](apps/scheduler), cron tetikleyicisiyle `collect.yml` iş akışını `workflow_dispatch` üzerinden başlatan Cloudflare Worker'ıdır; amacı GitHub'ın kendi `schedule:` tetikleyicisinin yerini almaktır (o, 60 gün sessizlikten sonra devre dışı kalır). Dağıtım tek bir sır ister: `GITHUB_DISPATCH_TOKEN` — yalnızca bu depoda `Actions: write` yetkisi olan ince ayarlı bir token. Sır yoksa Worker günlüğe yüksek sesle hata yazar ve hiçbir şey tetiklemez; kimliksiz çağrı denemez. Tetikleyicinin `schedule:`'dan Worker'a taşınması ayrı bir karar ve ayrı bir PR'dır: [apps/scheduler/README.md](apps/scheduler/README.md).
 
+### İnceleme botu (dağıtılmadı)
+
+```bash
+cd apps/review-bot
+npm ci
+npm test                       # workerd içinde çalışan testler; kimlik bilgisi gerekmez
+npx wrangler deploy --dry-run  # derleme ve yapılandırma denetimi; dağıtım yok
+```
+
+Özel bir Telegram sohbetinde çalışan Cloudflare Worker'ı: `/kuyruk`, `/sonraki`, `/goster <id>`, `/durum` komutları ve her adayın altında `✅ Onayla` · `🚫 Reddet` · `⏭ Sonra` düğmeleri. Karar, gözden geçirici ve zaman damgasıyla `gt-ops.reviews` tablosuna yazılır. **Onay yayın değildir:** yalnızca `status = 'drafted'` işaretidir; kayıt hâlâ `datasets` deposunda `kayda-gec` etiketiyle bir insan tarafından açılır. Türk kuvvetlerinden söz eden aday metni hiç aktarılmaz, yalnızca bağlantı gösterilir. Sırların adları, botun BotFather ile oluşturulması, webhook'un kurulması ve iptali: [apps/review-bot/README.md](apps/review-bot/README.md). Sırlar konmadan Worker her isteği reddeder.
+
 ### Yayıncılar (yalnızca taslak)
 
 ```bash
@@ -103,7 +115,7 @@ Standart kütüphane dışında bağımlılık yok ve gönderim yolu yok: bir mo
 
 `main` dalına giren her değişiklik [`.github/workflows/pages.yml`](.github/workflows/pages.yml) ile GitHub Pages'e yayımlanır. Değişiklikler dal + PR ile gelir; `main` korumalıdır.
 
-Sosyal kanallara (Telegram, Bluesky) **hiçbir şey gönderilmez**: [`publishers`](publishers) yalnızca taslak üretir, ağ istemcisi yoktur ve [`publishers-draft.yml`](.github/workflows/publishers-draft.yml) yalnızca elle, zorunlu bir onay girdisiyle çalışır. Kanalları açmak için gereken adımlar: [publishers/README.md](publishers/README.md).
+Sosyal kanallara (Telegram, Bluesky) **hiçbir şey gönderilmez**: [`publishers`](publishers) yalnızca taslak üretir, ağ istemcisi yoktur ve [`publishers-draft.yml`](.github/workflows/publishers-draft.yml) yalnızca elle, zorunlu bir onay girdisiyle çalışır. Kanalları açmak için gereken adımlar: [publishers/README.md](publishers/README.md). [`apps/review-bot`](apps/review-bot) da dağıtılmamıştır; dağıtıldığında yalnızca tek bir **özel** inceleme sohbetine yazar, herkese açık hiçbir kanala göndermez.
 
 Hesap gerektirmeyen kamu akışı `datasets` deposundadır: `feed.xml` (RSS), `feed.json` (JSON Feed) ve 7 günlük `feed.md` özeti, <https://greater-turkiye.github.io/datasets/> altında.
 
@@ -128,7 +140,8 @@ Kod [MIT](LICENSE). Üretilen veriler `datasets` deposunda CC BY 4.0 ile yayıml
 | [`collectors`](collectors) | **Working** | Python collectors that run in GitHub Actions **every day**: RSS ingest, normalisation, near-duplicate removal (simhash), the safety filter and the geofence, then a **relevance filter** over the watch regions and the recorded event types. What is left goes to a human in an issue labelled `inceleme-kuyrugu` ([collect.yml](.github/workflows/collect.yml)); sending to ingest stays off until the `api` Worker exists |
 | [`db`](db) | **Provisioned** | Cloudflare D1 schema and migrations (`signals`, `ops`); both databases created and `0001_init` applied, no Worker bound yet |
 | [`apps/scheduler`](apps/scheduler) | **In progress** | The Cloudflare Worker whose cron trigger starts the `collect.yml` workflow with `workflow_dispatch`: the code and its tests are here ([scheduler-ci](.github/workflows/scheduler-ci.yml)), but it is **not deployed yet**. The collector trigger stays on `schedule:` until the Worker runs and a decision superseding [ADR 0016](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0016-collector-schedule-until-worker.md) is written |
-| [`apps/api`](apps/api), [`apps/review-bot`](apps/review-bot) | **Planned** | Cloudflare Workers: the ingest endpoint and the Telegram review bot. Design notes only for now |
+| [`apps/review-bot`](apps/review-bot) | **In progress** | The private Telegram review bot (a Cloudflare Worker): it shows the waiting candidates on a phone and writes the `onayla` / `reddet` / `sonra` decision to the `gt-ops` database. It posts nothing anywhere and opens no pull request; approval is only a mark that the item is fit for a draft record. The code and its tests are here ([review-bot-ci](.github/workflows/review-bot-ci.yml)), but it is **not deployed**: there is no bot account and no secret yet |
+| [`apps/api`](apps/api) | **Planned** | A Cloudflare Worker: the ingest endpoint (`/v1/ingest`). Design notes only for now |
 | [`publishers`](publishers) | **Draft** | The design and a **runnable but inert** skeleton of the publishing channels (Telegram, Bluesky, RSS relay): message contract, content checks, rate limits and the human-approval gate. No network client, no credential, no channel switched on. The public feed itself is built in `datasets` |
 
 Verified records do not live here; they live in the [datasets](https://github.com/Greater-Turkiye/datasets) repository, and the dashboard reads their published export.
@@ -196,6 +209,17 @@ npx wrangler deploy --dry-run  # build and configuration check; nothing is deplo
 
 [`apps/scheduler`](apps/scheduler) is the Cloudflare Worker whose cron trigger starts the `collect.yml` workflow through `workflow_dispatch`; it exists to replace GitHub's own `schedule:` trigger, which is disabled after 60 quiet days. Deploying it needs exactly one secret: `GITHUB_DISPATCH_TOKEN`, a fine-grained token with `Actions: write` on this repository and nothing else. Without the secret the Worker logs a loud error and dispatches nothing; it never falls back to an unauthenticated call. Moving the trigger from `schedule:` to the Worker is a separate decision and a separate pull request: [apps/scheduler/README.md](apps/scheduler/README.md).
 
+### Review bot (not deployed)
+
+```bash
+cd apps/review-bot
+npm ci
+npm test                       # the tests run inside workerd; no credentials needed
+npx wrangler deploy --dry-run  # build and configuration check; nothing is deployed
+```
+
+A Cloudflare Worker that works in one private Telegram chat: the commands `/kuyruk`, `/sonraki`, `/goster <id>` and `/durum`, and `✅ Onayla` · `🚫 Reddet` · `⏭ Sonra` buttons under each candidate. The decision is written to `gt-ops.reviews` with the reviewer and a timestamp. **Approval is not publication:** it only sets `status = 'drafted'`; the record is still opened by a human in the `datasets` repository through the `kayda-gec` label. Candidate text that names Turkish forces is never relayed — the bot shows the link only. Secret names, how to create the bot with BotFather, and how to set and revoke the webhook: [apps/review-bot/README.md](apps/review-bot/README.md). Without its secrets the Worker refuses every request.
+
 ### Publishers (drafts only)
 
 ```bash
@@ -211,7 +235,7 @@ No dependency beyond the standard library, and no way to post: a test fails if a
 
 Every change that lands on `main` is published to GitHub Pages by [`.github/workflows/pages.yml`](.github/workflows/pages.yml). Changes arrive by branch and pull request; `main` is protected.
 
-**Nothing is posted to the social channels** (Telegram, Bluesky): [`publishers`](publishers) only drafts, it has no network client, and [`publishers-draft.yml`](.github/workflows/publishers-draft.yml) runs by hand only, behind a required confirmation input. The steps needed to switch a channel on are in [publishers/README.md](publishers/README.md).
+**Nothing is posted to the social channels** (Telegram, Bluesky): [`publishers`](publishers) only drafts, it has no network client, and [`publishers-draft.yml`](.github/workflows/publishers-draft.yml) runs by hand only, behind a required confirmation input. The steps needed to switch a channel on are in [publishers/README.md](publishers/README.md). [`apps/review-bot`](apps/review-bot) is not deployed either, and when it is, it writes to one **private** review chat and to no public channel at all.
 
 The account-free public feed lives in the `datasets` repository: `feed.xml` (RSS), `feed.json` (JSON Feed) and a 7-day `feed.md` digest, under <https://greater-turkiye.github.io/datasets/>.
 
