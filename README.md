@@ -20,7 +20,7 @@ The code of the open-source intelligence community: the live map and dashboard, 
 | [`collectors`](collectors) | **Geliştiriliyor** | GitHub Actions üzerinde çalışan Python toplayıcılar: RSS alımı, normalleştirme, tekrar eleme (simhash), güvenlik süzgeci ve coğrafi çit |
 | [`db`](db) | **Taslak** | Cloudflare D1 şeması ve migration'lar (`signals`, `ops`) |
 | [`apps/api`](apps/api), [`apps/review-bot`](apps/review-bot), [`apps/scheduler`](apps/scheduler) | **Planlandı** | Cloudflare Worker'lar: alım ucu, Telegram inceleme botu, cron tetikleyici. Şimdilik yalnızca tasarım notları |
-| [`publishers`](publishers) | **Planlandı** | Yayın kuyruğu tüketicisi (Telegram, Bluesky, RSS) |
+| [`publishers`](publishers) | **Taslak** | Yayın kanallarının tasarımı ve **çalışan ama hiçbir şey göndermeyen** iskeleti (Telegram, Bluesky, RSS rölesi): mesaj sözleşmesi, içerik denetimleri, hız sınırları, insan onayı kapısı. Ağ istemcisi yok, kimlik bilgisi yok, açık kanal yok. Kamu akışı ise `datasets` deposunda üretilir |
 
 Doğrulanmış kayıtlar bu depoda değil, [datasets](https://github.com/Greater-Turkiye/datasets) deposunda tutulur; panel onların yayımlanmış çıktısını okur.
 
@@ -68,9 +68,24 @@ uv run gt-collect --help
 
 Güvenlik süzgeci (`safety.py`) ve coğrafi çit (`geo.py`), veri diske yazılmadan önce çalışır.
 
+### Yayıncılar (yalnızca taslak)
+
+```bash
+cd publishers
+python -m gt_publishers channels                                    # kanallar, sır adları, hız sınırları
+python -m gt_publishers draft --message examples/bulletin.example.json
+python -m pip install "pytest>=9,<10" && python -m pytest -q tests
+```
+
+Standart kütüphane dışında bağımlılık yok ve gönderim yolu yok: bir modül ağ kütüphanesi içe aktarırsa test kırılır.
+
 ### Yayın
 
 `main` dalına giren her değişiklik [`.github/workflows/pages.yml`](.github/workflows/pages.yml) ile GitHub Pages'e yayımlanır. Değişiklikler dal + PR ile gelir; `main` korumalıdır.
+
+Sosyal kanallara (Telegram, Bluesky) **hiçbir şey gönderilmez**: [`publishers`](publishers) yalnızca taslak üretir, ağ istemcisi yoktur ve [`publishers-draft.yml`](.github/workflows/publishers-draft.yml) yalnızca elle, zorunlu bir onay girdisiyle çalışır. Kanalları açmak için gereken adımlar: [publishers/README.md](publishers/README.md).
+
+Hesap gerektirmeyen kamu akışı `datasets` deposundadır: `feed.xml` (RSS), `feed.json` (JSON Feed) ve 7 günlük `feed.md` özeti, <https://greater-turkiye.github.io/datasets/> altında.
 
 ### Katkı
 
@@ -93,7 +108,7 @@ Kod [MIT](LICENSE). Üretilen veriler `datasets` deposunda CC BY 4.0 ile yayıml
 | [`collectors`](collectors) | **In progress** | Python collectors that run in GitHub Actions: RSS ingest, normalisation, near-duplicate removal (simhash), the safety filter and the geofence |
 | [`db`](db) | **Draft** | Cloudflare D1 schema and migrations (`signals`, `ops`) |
 | [`apps/api`](apps/api), [`apps/review-bot`](apps/review-bot), [`apps/scheduler`](apps/scheduler) | **Planned** | Cloudflare Workers: the ingest endpoint, the Telegram review bot, the cron trigger. Design notes only for now |
-| [`publishers`](publishers) | **Planned** | The publish-queue consumer (Telegram, Bluesky, RSS) |
+| [`publishers`](publishers) | **Draft** | The design and a **runnable but inert** skeleton of the publishing channels (Telegram, Bluesky, RSS relay): message contract, content checks, rate limits and the human-approval gate. No network client, no credential, no channel switched on. The public feed itself is built in `datasets` |
 
 Verified records do not live here; they live in the [datasets](https://github.com/Greater-Turkiye/datasets) repository, and the dashboard reads their published export.
 
@@ -141,9 +156,24 @@ uv run gt-collect --help
 
 The safety filter (`safety.py`) and the geofence (`geo.py`) run before anything is written to storage.
 
+### Publishers (drafts only)
+
+```bash
+cd publishers
+python -m gt_publishers channels                                    # channels, secret names, rate limits
+python -m gt_publishers draft --message examples/bulletin.example.json
+python -m pip install "pytest>=9,<10" && python -m pytest -q tests
+```
+
+No dependency beyond the standard library, and no way to post: a test fails if any module there imports a networking library.
+
 ### Deployment
 
 Every change that lands on `main` is published to GitHub Pages by [`.github/workflows/pages.yml`](.github/workflows/pages.yml). Changes arrive by branch and pull request; `main` is protected.
+
+**Nothing is posted to the social channels** (Telegram, Bluesky): [`publishers`](publishers) only drafts, it has no network client, and [`publishers-draft.yml`](.github/workflows/publishers-draft.yml) runs by hand only, behind a required confirmation input. The steps needed to switch a channel on are in [publishers/README.md](publishers/README.md).
+
+The account-free public feed lives in the `datasets` repository: `feed.xml` (RSS), `feed.json` (JSON Feed) and a 7-day `feed.md` digest, under <https://greater-turkiye.github.io/datasets/>.
 
 ### Contributing
 

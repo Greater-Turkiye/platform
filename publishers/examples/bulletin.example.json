@@ -1,0 +1,20 @@
+{
+  "_note": "Synthetic example for the skeleton and its tests. Not a record and not a real report: the outlet, the URLs and the claim are invented. Never post this.",
+  "type": "bulletin",
+  "publication_id": "pub_example_0001",
+  "record_id": null,
+  "corrects_publication_id": null,
+  "channels": ["telegram-tr", "bluesky-en"],
+  "text_tr": "[DOĞRULANMAMIŞ] Example Wire, 1 Ocak 2026'da (UTC) kurgusal bir bölgede kurgusal bir tatbikatın başladığını bildirdi. Bu iddia kaynağa aittir ve Greater Türkiye tarafından bağımsız olarak doğrulanmamıştır.",
+  "text_en": "[UNVERIFIED] Example Wire reported that a fictional exercise began in a fictional area on 1 January 2026 (UTC). This claim is the source's and has not been independently verified.",
+  "sources": [
+    {
+      "name": "Example Wire",
+      "url": "https://example.org/wire/1",
+      "archive_url": "https://web.archive.org/web/2026/https://example.org/wire/1",
+      "rating": "B"
+    }
+  ],
+  "approved_by": "example-reviewer",
+  "idempotency_key": "pub_example_0001:v1"
+}

@@ -1,0 +1,72 @@
+name: publishers-draft
+
+# Renders a publish message as a draft for a human to read and send by hand. It cannot post:
+# gt_publishers has no network client, and its publish step refuses and says why.
+#
+# Manual only — there is no schedule, no push trigger and no `pull_request` trigger — and the
+# `confirm` input has no default, so pressing "Run workflow" and leaving the form alone does nothing.
+# The channel secrets are wired in already but do not exist: an absent secret resolves to an empty
+# string, every channel reports `skipped:no-secret`, and the job still ends green.
+#
+# Before this workflow may ever post, a separate reviewed pull request has to add a channel client
+# (ADR 0007, publishers/README.md). Until then this file is the confirmation gate, not the switch.
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "Publish message (JSON) in this repository"
+        required: true
+        default: "publishers/examples/bulletin.example.json"
+      confirm:
+        description: "Type DRAFT to render a draft, or the full approval phrase from publishers/README.md"
+        required: true
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publishers-draft
+  cancel-in-progress: false
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      MESSAGE: ${{ inputs.message }}
+      CONFIRM: ${{ inputs.confirm }}
+      PYTHONPATH: publishers
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: Require the confirmation input
+        run: |
+          phrase="I HAVE READ THIS DRAFT AND APPROVE POSTING"
+          if [ "$CONFIRM" != "DRAFT" ] && [ "$CONFIRM" != "$phrase" ]; then
+            echo "::error::confirm must be exactly DRAFT or the full approval phrase; nothing was done"
+            exit 1
+          fi
+      - name: Check the message against the contract
+        run: python -m gt_publishers check --message "$MESSAGE"
+      - name: Render the draft
+        run: |
+          python -m gt_publishers draft --message "$MESSAGE" | tee "$RUNNER_TEMP/draft.txt"
+          {
+            echo '## Draft — not posted'
+            echo '```text'
+            cat "$RUNNER_TEMP/draft.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish step (refuses; no client, and the secrets do not exist)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          PUBLISH_PAUSED: ${{ vars.PUBLISH_PAUSED }}
+        run: python -m gt_publishers publish --message "$MESSAGE" --confirm "$CONFIRM"
