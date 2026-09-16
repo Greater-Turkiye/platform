@@ -70,8 +70,8 @@ Created in the Cloudflare account on 2026-09-16. Database IDs are not secrets; a
 
 | Ad / Name | `database_id` | Migration |
 |---|---|---|
-| `gt-signals` | `4185c945-18b6-4fe6-9531-f0d99a858554` | `migrations/signals/0001_init.sql` — 1 tablo / table, `0002_timestamp_checks_for_d1.sql` |
-| `gt-ops` | `414b8a8b-f28a-40b5-8de3-fba47ec9d784` | `migrations/ops/0001_init.sql` — 6 tablo / tables, `0002_timestamp_checks_for_d1.sql` |
+| `gt-signals` | `c7e4f26e-c0c8-4120-a00f-fb88abdf8ed6` | `migrations/signals/0001_init.sql` — 1 tablo / table, `0002_timestamp_checks_for_d1.sql` |
+| `gt-ops` | `7cb22146-fca6-4193-b9a1-7bfa923dd783` | `migrations/ops/0001_init.sql` — 6 tablo / tables, `0002_timestamp_checks_for_d1.sql` |
 
 ```bash
 # migration uygulama / applying a migration
