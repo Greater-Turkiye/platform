@@ -18,7 +18,7 @@ The code of the open-source intelligence community: the live map and dashboard, 
 | [`apps/web`](apps/web) | **Yayında** | Statik site: ana sayfadaki dünya küresi, OSINT paneli ve yöntem sayfası. Derleme adımı yok; D3 ve topojson-client depoda barındırılır. Katman listesi: [apps/web/README.md](apps/web/README.md) |
 | [`tools/geo`](tools/geo) | **Çalışıyor** | Harita katmanlarını resmî kaynaklardan yeniden üretilebilir şekilde kuran Python betikleri (Mavi Vatan, KKTC ruhsat sahaları, Marmara ve Boğazlar, temsilcilikler, harekât bölgeleri) |
 | [`collectors`](collectors) | **Çalışıyor** | GitHub Actions'ta **her gün çalışan** Python toplayıcılar: RSS alımı, normalleştirme, tekrar eleme (simhash), güvenlik süzgeci ve coğrafi çit. Adaylar `inceleme-kuyrugu` etiketli bir konuda insan incelemesine sunulur ([collect.yml](.github/workflows/collect.yml)); ingest'e gönderim `api` Worker'ı gelene kadar kapalı |
-| [`db`](db) | **Taslak** | Cloudflare D1 şeması ve migration'lar (`signals`, `ops`) |
+| [`db`](db) | **Kurulu** | Cloudflare D1 şeması ve migration'lar (`signals`, `ops`); iki veritabanı oluşturuldu ve `0001_init` uygulandı, henüz Worker bağlı değil |
 | [`apps/api`](apps/api), [`apps/review-bot`](apps/review-bot), [`apps/scheduler`](apps/scheduler) | **Planlandı** | Cloudflare Worker'lar: alım ucu, Telegram inceleme botu, cron tetikleyici. Şimdilik yalnızca tasarım notları |
 | [`publishers`](publishers) | **Taslak** | Yayın kanallarının tasarımı ve **çalışan ama hiçbir şey göndermeyen** iskeleti (Telegram, Bluesky, RSS rölesi): mesaj sözleşmesi, içerik denetimleri, hız sınırları, insan onayı kapısı. Ağ istemcisi yok, kimlik bilgisi yok, açık kanal yok. Kamu akışı ise `datasets` deposunda üretilir |
 
@@ -112,7 +112,7 @@ Kod [MIT](LICENSE). Üretilen veriler `datasets` deposunda CC BY 4.0 ile yayıml
 | [`apps/web`](apps/web) | **Live** | The static site: the globe on the home page, the OSINT dashboard and the methodology page. No build step; D3 and topojson-client are vendored. Layer list: [apps/web/README.md](apps/web/README.md) |
 | [`tools/geo`](tools/geo) | **Working** | Python builders that construct the map layers reproducibly from official sources (Blue Homeland, TRNC licence areas, the Sea of Marmara and the Straits, diplomatic missions, announced operation areas) |
 | [`collectors`](collectors) | **Working** | Python collectors that run in GitHub Actions **every day**: RSS ingest, normalisation, near-duplicate removal (simhash), the safety filter and the geofence. Candidates go to a human in an issue labelled `inceleme-kuyrugu` ([collect.yml](.github/workflows/collect.yml)); sending to ingest stays off until the `api` Worker exists |
-| [`db`](db) | **Draft** | Cloudflare D1 schema and migrations (`signals`, `ops`) |
+| [`db`](db) | **Provisioned** | Cloudflare D1 schema and migrations (`signals`, `ops`); both databases created and `0001_init` applied, no Worker bound yet |
 | [`apps/api`](apps/api), [`apps/review-bot`](apps/review-bot), [`apps/scheduler`](apps/scheduler) | **Planned** | Cloudflare Workers: the ingest endpoint, the Telegram review bot, the cron trigger. Design notes only for now |
 | [`publishers`](publishers) | **Draft** | The design and a **runnable but inert** skeleton of the publishing channels (Telegram, Bluesky, RSS relay): message contract, content checks, rate limits and the human-approval gate. No network client, no credential, no channel switched on. The public feed itself is built in `datasets` |
 
