@@ -10,11 +10,17 @@ Three modes, none of which ever writes a record that the safety filter dropped:
 
 ``--queue-dir``
     Build the **human review queue**: collect the feeds marked ``queue: true``, drop everything
-    already in the dedup ledger (:mod:`gt_collectors.state`) and write the batch, the issue body
-    and a summary into a directory. No secrets, nothing is published. This is what the scheduled
+    already in the dedup ledger (:mod:`gt_collectors.state`), score what is left with the
+    relevance filter (:mod:`gt_collectors.relevance`) and write the batch, the issue body and a
+    summary into a directory. No secrets, nothing is published. This is what the scheduled
     workflow runs (``.github/workflows/collect.yml``)::
 
         gt-collect --queue-dir queue --state collectors/state/seen.jsonl --archive
+
+    ``candidates.jsonl`` holds the **whole** batch, each line with a ``status``: ``queued``
+    (in the issue and in the ledger), ``deferred`` (did not fit under ``--max-items``) or
+    ``off-topic`` (below the relevance threshold). Only ``queued`` items are written to the
+    ledger, so the other two are offered again by a later run.
 
 ``(neither)``
     A real ingest run: needs ``INGEST_URL`` and ``INGEST_HMAC_KEY``, and sends only enabled
@@ -33,13 +39,15 @@ import json
 import os
 import sys
 from collections import Counter
-from dataclasses import replace
+from collections.abc import Callable
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 
-from gt_collectors import fetch, review, rss, safety, state
+from gt_collectors import fetch, relevance, review, rss, safety, state
 from gt_collectors.config import ConfigError, FeedConfig, load_feeds
 from gt_collectors.ingest import IngestClient
+from gt_collectors.signal import Geo, Signal
 
 DEFAULT_CONFIG = Path(__file__).resolve().parents[2] / "config" / "feeds.yaml"
 CANDIDATES_FILE = "candidates.jsonl"
@@ -82,6 +90,18 @@ def _parser() -> argparse.ArgumentParser:
         "--archive", action="store_true", help="look up a Wayback Machine snapshot for each candidate"
     )
     queue.add_argument("--run-url", metavar="URL", help="link to the workflow run, shown in the issue")
+    queue.add_argument(
+        "--relevance",
+        type=Path,
+        metavar="PATH",
+        help="relevance tables to use instead of the packaged data/relevance.yaml",
+    )
+    queue.add_argument(
+        "--min-relevance",
+        type=float,
+        metavar="SCORE",
+        help="override the table's relevance threshold (0 queues everything the tables scored)",
+    )
     return p
 
 
@@ -111,49 +131,102 @@ def _collect(feed: FeedConfig, args: argparse.Namespace) -> rss.CollectResult:
     return rss.collect(feed, body=body)
 
 
-def _run_queue(feeds: list[FeedConfig], args: argparse.Namespace, now: datetime) -> int:
-    """Collect into the review queue: ledger-deduplicated candidates, an issue body, a summary."""
-    day = state.today_utc(now)
-    ledger = state.Ledger.load(args.state) if args.state else state.Ledger()
-    ledger_before = len(ledger)
-    pending = state.Ledger()  # items already picked in this run, so feeds cannot repeat each other
-    totals: Counter[str] = Counter()
-    fresh: list[review.Candidate] = []
+def _relevance_table(args: argparse.Namespace) -> relevance.Table:
+    table = relevance.Table.load(args.relevance) if args.relevance else relevance.default_table()
+    return table.with_threshold(args.min_relevance) if args.min_relevance is not None else table
 
+
+def _with_region(signal: Signal, guess: str | None) -> Signal:
+    """Replace the feed's region guess with the one the item's own text supports.
+
+    Only ``geo`` changes, so ``content_hash``, ``simhash`` and the dedup id stay the same.
+    """
+    if guess is None or guess == signal.geo.region:
+        return signal
+    geo = signal.geo
+    return replace(signal, geo=Geo(guess, geo.place, geo.lat, geo.lon, geo.precision or "region"))
+
+
+@dataclass(slots=True)
+class _Batch:
+    """Everything one queue run collected, split by what happens to it next."""
+
+    relevant: list[review.Candidate] = field(default_factory=list)
+    off_topic: list[review.Candidate] = field(default_factory=list)
+    totals: Counter[str] = field(default_factory=Counter)
+
+
+def _collect_feeds(
+    feeds: list[FeedConfig],
+    args: argparse.Namespace,
+    *,
+    table: relevance.Table,
+    seen: Callable[[Signal], bool],
+) -> _Batch:
+    """Fetch every feed, filter it and turn what is left into candidates. Never raises."""
+    batch = _Batch()
     for feed in feeds:
         summary: dict[str, object] = {"feed": feed.id}
         try:
             result = _collect(feed, args)
             summary = result.summary()
-            totals["items"] += result.items
-            totals["duplicates"] += result.duplicates
-            totals["dropped"] += result.dropped
+            batch.totals["items"] += result.items
+            batch.totals["duplicates"] += result.duplicates
+            batch.totals["dropped"] += result.dropped
             # The safety filter ran inside rss.collect, in memory, right after parsing. Run it once
             # more here: nothing reaches a file or an issue without passing it (red line, ADR 0013).
             guarded = safety.filter_signals(result.signals)
-            totals["dropped"] += guarded.dropped
-            new = 0
+            batch.totals["dropped"] += guarded.dropped
+            new = off_topic = 0
             for signal in guarded.kept:
-                if ledger.contains(signal) or pending.contains(signal):
-                    totals["known"] += 1
+                if seen(signal):
+                    batch.totals["known"] += 1
                     continue
-                pending.add(signal, day=day)
                 new += 1
-                fresh.append(
-                    review.Candidate(
-                        feed_id=feed.id,
-                        queue_id=state.queue_id(signal),
-                        signal=signal,
-                        redline_check=review.redline_check(signal),
-                    )
+                # Relevance is noise triage only, and runs last: the safety filter and the
+                # geofence have already had their say, unchanged, on every signal here.
+                score = table.assess(signal)
+                candidate = review.Candidate(
+                    feed_id=feed.id,
+                    queue_id=state.queue_id(signal),
+                    signal=_with_region(signal, score.region),
+                    redline_check=review.redline_check(signal),
+                    relevance=score,
+                    status="queued" if score.relevant else "off-topic",
                 )
+                if score.relevant:
+                    batch.relevant.append(candidate)
+                else:
+                    off_topic += 1
+                    batch.off_topic.append(candidate)
+            batch.totals["off_topic"] += off_topic
             summary["new"] = new
+            summary["off_topic"] = off_topic
         except (fetch.FetchError, rss.FeedError, ValueError, OSError) as exc:
-            totals["errors"] += 1
+            batch.totals["errors"] += 1
             summary["error"] = f"{type(exc).__name__}: {exc}"
         print(json.dumps(summary, ensure_ascii=False), file=sys.stderr)
+    return batch
 
-    selected, deferred = review.select(fresh, args.max_items)
+
+def _run_queue(feeds: list[FeedConfig], args: argparse.Namespace, now: datetime) -> int:
+    """Collect into the review queue: ledger-deduplicated candidates, an issue body, a summary."""
+    day = state.today_utc(now)
+    table = _relevance_table(args)
+    ledger = state.Ledger.load(args.state) if args.state else state.Ledger()
+    ledger_before = len(ledger)
+    pending = state.Ledger()  # items already picked in this run, so feeds cannot repeat each other
+
+    def seen(signal: Signal) -> bool:
+        if ledger.contains(signal) or pending.contains(signal):
+            return True
+        pending.add(signal, day=day)
+        return False
+
+    batch = _collect_feeds(feeds, args, table=table, seen=seen)
+    totals, off_topic = batch.totals, batch.off_topic
+    selected, deferred_items = review.select(batch.relevant, args.max_items)
+    deferred = len(deferred_items)
     if args.archive:
         selected = [
             replace(candidate, archive_url=review.archive_lookup(candidate.signal.url))
@@ -166,12 +239,20 @@ def _run_queue(feeds: list[FeedConfig], args: argparse.Namespace, now: datetime)
         "dropped": totals["dropped"],
         "duplicates": totals["duplicates"],
         "known": totals["known"],
+        "off_topic": totals["off_topic"],
         "errors": totals["errors"],
     }
     out = args.queue_dir
     out.mkdir(parents=True, exist_ok=True)
+    # The artifact is the whole batch: what was queued, what waits for the next run and what the
+    # relevance filter set aside. Nothing collected is thrown away; only `queued` reaches a human.
+    artifact = [
+        *selected,
+        *(replace(c, status="deferred") for c in deferred_items),
+        *off_topic,
+    ]
     (out / CANDIDATES_FILE).write_text(
-        "".join(f"{c.to_json()}\n" for c in selected), encoding="utf-8", newline="\n"
+        "".join(f"{c.to_json()}\n" for c in artifact), encoding="utf-8", newline="\n"
     )
     (out / ISSUE_TITLE_FILE).write_text(review.issue_title(day) + "\n", encoding="utf-8", newline="\n")
     (out / ISSUE_BODY_FILE).write_text(
@@ -192,6 +273,8 @@ def _run_queue(feeds: list[FeedConfig], args: argparse.Namespace, now: datetime)
         "queued": len(selected),
         "deferred": deferred,
         "redline_check": sum(1 for c in selected if c.redline_check),
+        "borderline": sum(1 for c in selected if c.relevance is not None and c.relevance.borderline),
+        "relevance_threshold": table.threshold,
         "ledger_before": ledger_before,
         "ledger_after": len(ledger),
         "ledger_pruned": pruned,
@@ -213,6 +296,8 @@ def main(argv: list[str] | None = None) -> int:
             raise ConfigError("--queue-dir and --dry-run are different modes; pick one")
         if args.max_items < 0:
             raise ConfigError("--max-items must be zero or more")
+        if args.min_relevance is not None and not 0 <= args.min_relevance <= 1:
+            raise ConfigError("--min-relevance must be between 0 and 1")
         feeds = _select(load_feeds(args.config), args)
         if args.input and len(feeds) != 1:
             raise ConfigError("--input needs exactly one --feed")
@@ -225,7 +310,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.queue_dir:
         try:
             return _run_queue(feeds, args, datetime.now(UTC))
-        except (state.LedgerError, OSError) as exc:
+        except (state.LedgerError, relevance.RelevanceError, OSError) as exc:
             print(f"queue error: {type(exc).__name__}: {exc}", file=sys.stderr)
             return 2
 

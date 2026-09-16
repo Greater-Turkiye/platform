@@ -8,6 +8,14 @@ the dedup id from :mod:`gt_collectors.state`.
 **Nothing in the issue is a published claim.** The items are unverified candidates: automation
 only suggests, a human decides (ADR 0007). :func:`render_issue` always writes that banner first.
 
+Before an item becomes a line here it passes the relevance filter
+(:mod:`gt_collectors.relevance`), which keeps items about the watch regions and the event types
+this project records. That filter is for **noise only**: the Turkish-forces safety filter and the
+geofence run before it and are unaffected by it. Items below the relevance threshold are not
+listed; they stay in the run artifact with ``status: off-topic``, are counted in the table at the
+top of the issue, and are never written to the dedup ledger. Items that land just under the
+threshold are listed with a ``borderline`` marker rather than dropped silently.
+
 The body is kept under :data:`BODY_LIMIT` characters (GitHub refuses an issue body over 65,536)
 by listing at most ``max_items`` candidates and saying how many were left for the next run.
 """
@@ -24,12 +32,16 @@ from urllib.parse import quote, urlencode
 
 from gt_collectors import fetch
 from gt_collectors.normalize import normalize_text
+from gt_collectors.relevance import Relevance
 from gt_collectors.signal import Signal
 
 MAX_ITEMS = 40
 BODY_LIMIT = 60_000
 LABEL = "inceleme-kuyrugu"
 WAYBACK_API = "https://archive.org/wayback/available"
+# What this run did with a candidate. Only ``queued`` items reach the issue and the dedup ledger;
+# the other two stay in the artifact so nothing collected is ever lost.
+STATUSES = ("queued", "deferred", "off-topic")
 
 # A hint for the reviewer, never a filter: items that talk about Turkish forces are the ones the
 # red line covers (handbook 02-red-lines, ADR 0013). They are queued like any other candidate and
@@ -69,6 +81,12 @@ class Candidate:
     signal: Signal
     archive_url: str | None = None
     redline_check: bool = False
+    relevance: Relevance | None = None
+    status: str = "queued"
+
+    def __post_init__(self) -> None:
+        if self.status not in STATUSES:
+            raise ValueError(f"status must be one of {STATUSES}, got {self.status!r}")
 
     @property
     def when(self) -> datetime:
@@ -79,8 +97,10 @@ class Candidate:
         return {
             "queue_id": self.queue_id,
             "feed": self.feed_id,
+            "status": self.status,
             "archive_url": self.archive_url,
             "redline_check": self.redline_check,
+            "relevance": self.relevance.to_dict() if self.relevance else None,
             "signal": self.signal.to_dict(),
         }
 
@@ -137,27 +157,36 @@ def _line(candidate: Candidate) -> str:
     parts.append(f"`{candidate.feed_id}`")
     if signal.geo.region:
         parts.append(f"bölge / region: `{signal.geo.region}`")
+    if candidate.relevance is not None:
+        parts.append(f"ilgi / relevance: `{candidate.relevance.score:.2f}`")
     when = signal.published_at or signal.fetched_at
     parts.append(f"{when:%Y-%m-%d %H:%M} UTC")
     parts.append(f"`{candidate.queue_id}`")
-    flag = " ⚠️ `redline_check`" if candidate.redline_check else ""
-    return f"- [ ] **{title}** — " + " · ".join(parts) + flag
+    flags = ""
+    if candidate.relevance is not None and candidate.relevance.borderline:
+        flags += " ❓ `sınırda / borderline`"
+    if candidate.redline_check:
+        flags += " ⚠️ `redline_check`"
+    return f"- [ ] **{title}** — " + " · ".join(parts) + flags
 
 
 def _order(candidate: Candidate) -> tuple[datetime, str, str]:
     return (candidate.when, candidate.feed_id, candidate.queue_id)
 
 
-def select(candidates: Iterable[Candidate], max_items: int = MAX_ITEMS) -> tuple[list[Candidate], int]:
-    """The newest ``max_items`` candidates, and how many were left over.
+def select(
+    candidates: Iterable[Candidate], max_items: int = MAX_ITEMS
+) -> tuple[list[Candidate], list[Candidate]]:
+    """The newest ``max_items`` candidates, and the ones left over.
 
     Leftovers are **deferred, not dropped**: they are not written to the ledger, so the next run
-    offers them again (as long as they are still in the source's feed window).
+    offers them again (as long as they are still in the source's feed window), and they go into
+    the run artifact with ``status: deferred``.
     """
     ordered = sorted(candidates, key=_order, reverse=True)
     if max_items < 0:
-        return ordered, 0
-    return ordered[:max_items], max(0, len(ordered) - max_items)
+        return ordered, []
+    return ordered[:max_items], ordered[max_items:]
 
 
 def render_issue(
@@ -197,6 +226,7 @@ def render_issue(
         f"| Güvenlik süzgeci + geofence eledi / dropped by the safety filter | {stats.get('dropped', 0)} |",
         f"| Kopya / duplicates within the run | {stats.get('duplicates', 0)} |",
         f"| Daha önce kuyruğa girmiş / already in the ledger | {stats.get('known', 0)} |",
+        f"| İlgisiz / off-topic (ilgi süzgeci / relevance filter) | {stats.get('off_topic', 0)} |",
         f"| Kuyruğa alınan / queued here | {len(candidates)} |",
         f"| Sonraki çalışmaya ertelenen / deferred to the next run | {deferred} |",
         f"| Hatalı akış / feed errors | {stats.get('errors', 0)} |",
@@ -204,6 +234,8 @@ def render_issue(
         f"## Adaylar / Candidates ({len(candidates)})",
         "",
     ]
+    off_topic = int(stats.get("off_topic", 0) or 0)
+    borderline = sum(1 for c in candidates if c.relevance is not None and c.relevance.borderline)
     footer_lines = [
         "",
         "Her satır için / for each line: **kutuyu işaretle** = incelendi (`x`), yorumda kararını yaz",
@@ -216,6 +248,30 @@ def render_issue(
         "(`candidates.jsonl`). Source text is never republished: link, title and a ≤500-character",
         "excerpt only.",
     ]
+    note: list[str] = []
+    if off_topic:
+        note += [
+            f"**İlgi süzgeci / relevance filter:** {off_topic} aday bir izleme bölgesi **ve** bir "
+            "olay türüyle birden eşleşmediği için kuyruğa girmedi. Silinmediler: hepsi çalışma "
+            "yapıtında `status: off-topic` olarak durur ve kayıt defterine **yazılmadılar**, "
+            "böylece daha iyi bir tablo onları sonraki çalışmada yeniden değerlendirebilir.",
+            "",
+            f"{off_topic} candidates matched no watch region **or** no recorded event type, so "
+            "they are not listed here. Nothing was deleted: they are in the run artifact with "
+            "`status: off-topic` and were **not** written to the dedup ledger, so a better table "
+            "can pick them up on a later run. The tables, the threshold and how to extend them: "
+            "`collectors/src/gt_collectors/data/relevance.yaml`, `collectors/README.md`.",
+            "",
+        ]
+    if borderline:
+        note += [
+            f"❓ `sınırda / borderline` işaretli {borderline} satır eşiğin hemen altında kaldı: "
+            "süzgeç emin değil, atmak yerine size soruyor. / "
+            f"{borderline} line(s) marked ❓ `sınırda / borderline` scored just below the "
+            "threshold: the filter is unsure and asks you rather than dropping them quietly.",
+            "",
+        ]
+    footer_lines[1:1] = note
     if deferred:
         footer_lines[1:1] = [
             f"{deferred} aday bu çalışmaya sığmadı; kayıt defterine yazılmadılar ve **bir sonraki "

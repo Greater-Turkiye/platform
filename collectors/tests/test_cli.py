@@ -27,6 +27,13 @@ feeds:
     cadence_minutes: 30
     lang: en
     enabled: true
+  - id: rss-world
+    kind: rss
+    source_id: null
+    url: https://news.example.org/feed.xml
+    cadence_minutes: 120
+    lang: en
+    enabled: false
 """
 
 
@@ -90,8 +97,10 @@ def test_fetch_failures_are_reported_without_network(
     assert code == 1 and "error" in summary
 
 
-def _queue_run(config: Path, out: Path, *extra: str, feed: str = "rss-disabled") -> list[str]:
-    """Run the review-queue mode offline, on the RSS fixture."""
+def _queue_run(
+    config: Path, out: Path, *extra: str, feed: str = "rss-disabled", fixture: str = "rss2.xml"
+) -> list[str]:
+    """Run the review-queue mode offline, on an RSS fixture."""
     argv = [
         "--config",
         str(config),
@@ -100,7 +109,7 @@ def _queue_run(config: Path, out: Path, *extra: str, feed: str = "rss-disabled")
         "--queue-dir",
         str(out),
         "--input",
-        str(FIXTURES / "rss2.xml"),
+        str(FIXTURES / fixture),
         *extra,
     ]
     assert main(argv) == 0
@@ -214,3 +223,76 @@ def test_queue_mode_reports_a_broken_ledger(config: Path, tmp_path: Path) -> Non
         ]
     )
     assert code == 2
+
+
+def test_relevance_filter_keeps_the_off_topic_items_out_of_the_queue(config: Path, tmp_path: Path) -> None:
+    """Off-topic items are counted and kept, never queued and never remembered (issue #42)."""
+    ledger = tmp_path / "seen.jsonl"
+    out = tmp_path / "queue"
+    _queue_run(config, out, "--state", str(ledger), feed="rss-world", fixture="rss_relevance.xml")
+
+    summary = json.loads((out / "summary.json").read_text("utf-8"))
+    assert summary["items"] == 5
+    assert summary["queued"] == 2 and summary["off_topic"] == 3
+    assert summary["dropped"] == 0  # the safety filter is a different gate and dropped nothing
+    assert summary["relevance_threshold"] == 0.5
+
+    # Nothing is lost: the whole batch is in the artifact, labelled with what happened to it.
+    batch = [json.loads(line) for line in (out / "candidates.jsonl").read_text("utf-8").splitlines()]
+    assert len(batch) == 5
+    assert sorted(c["status"] for c in batch) == ["off-topic", "off-topic", "off-topic", "queued", "queued"]
+    assert all(c["relevance"]["score"] >= 0.4 for c in batch if c["status"] == "queued")
+    assert all(c["relevance"]["score"] < 0.4 for c in batch if c["status"] == "off-topic")
+
+    # Only the queued items are remembered, so a better table can pick the others up later.
+    assert ledger.read_text("utf-8").count("\n") == 2
+
+    body = (out / "issue.md").read_text("utf-8")
+    assert body.count("- [ ] ") == 2
+    assert "| İlgisiz / off-topic (ilgi süzgeci / relevance filter) | 3 |" in body
+    assert "status: off-topic" in body
+    for candidate in batch:
+        assert (candidate["queue_id"] in body) is (candidate["status"] == "queued")
+
+
+def test_relevance_filter_improves_the_region_guess(config: Path, tmp_path: Path) -> None:
+    """The feed says `aegean`; the items say Cyprus and Syria, and the queue shows that."""
+    out = tmp_path / "queue"
+    _queue_run(config, out, feed="rss-world", fixture="rss_relevance.xml")
+    batch = [json.loads(line) for line in (out / "candidates.jsonl").read_text("utf-8").splitlines()]
+    queued = {c["signal"]["title"]: c["signal"]["geo"]["region"] for c in batch if c["status"] == "queued"}
+    assert queued == {
+        "Naval exercise announced off Cyprus": "cyprus",
+        "Airstrike reported in northern Syria": "syria",
+    }
+
+
+def test_min_relevance_zero_queues_everything_the_tables_scored(config: Path, tmp_path: Path) -> None:
+    out = tmp_path / "queue"
+    _queue_run(config, out, "--min-relevance", "0", feed="rss-world", fixture="rss_relevance.xml")
+    summary = json.loads((out / "summary.json").read_text("utf-8"))
+    assert summary["queued"] == 5 and summary["off_topic"] == 0
+
+
+def test_a_broken_relevance_table_stops_the_run(config: Path, tmp_path: Path) -> None:
+    table = tmp_path / "relevance.yaml"
+    table.write_text("schema: nope\n", encoding="utf-8")
+    code = main(
+        [
+            "--config",
+            str(config),
+            "--feed",
+            "rss-disabled",
+            "--queue-dir",
+            str(tmp_path / "q"),
+            "--input",
+            str(FIXTURES / "rss2.xml"),
+            "--relevance",
+            str(table),
+        ]
+    )
+    assert code == 2
+
+
+def test_min_relevance_is_validated(config: Path, tmp_path: Path) -> None:
+    assert main(["--config", str(config), "--queue-dir", str(tmp_path / "q"), "--min-relevance", "3"]) == 2
