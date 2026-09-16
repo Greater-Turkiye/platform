@@ -53,13 +53,16 @@ Phases proceed in order; publishing parts of a phase are not switched on before 
 
 ### Aşama 4 — Yayıncılar / Phase 4 — Publishers
 
+- [x] Yayıncı iskeleti: mesaj sözleşmesi, içerik denetimleri, kanal tanımları, taslak üretimi — Publisher skeleton: message contract, content checks, channel definitions, draft rendering ([publishers](publishers); hiçbir şey göndermez / it cannot post)
+- [x] İnsan onayı kapısı ve acil durdurma (`PUBLISH_PAUSED`) — Human-approval gate and kill switch
+- [x] Hız sınırları (saatte ≤4, günde ≤30) — Rate limits, as pure functions with tests
+- [x] Gönderi şablonları için testler **(good first issue)** — Tests for the post templates (`publishers/tests`)
+- [x] RSS / JSON Feed: hesap gerektirmeyen kamu akışı — Account-free public feed (`feed.xml`, `feed.json`, `feed.md`, built in [datasets](https://github.com/Greater-Turkiye/datasets))
 - [ ] Yayın kuyruğu ve `publisher` Worker — Publish queue and publisher Worker
-- [ ] Telegram (TR) kanalı — Telegram (TR) channel
-- [ ] Bluesky (EN) — Bluesky (EN)
-- [ ] RSS / JSON Feed — RSS / JSON Feed
-- [ ] Hız sınırları (saatte ≤4, günde ≤30) ve acil durdurma — Rate limits and kill switch
+- [ ] Telegram (TR): bot hesabı + sırlar (insan) ve istemciyi ekleyen PR — Telegram (TR): bot account + secrets (human) and the pull request that adds the client
+- [ ] Bluesky (EN): hesap + uygulama parolası (insan) ve AT Protocol istemcisi — Bluesky (EN): account + app password (human) and the AT Protocol client
+- [ ] Bülten rölesinin akışa yazması — The bulletin relay writing into the feed
 - [ ] Otomatik düzeltme gönderileri — Automatic correction posts
-- [ ] Gönderi şablonları için örnek çıktı testleri **(good first issue)** — Snapshot tests for post templates
 - [ ] X ve Instagram için elle paylaşıma hazır metin — Copy-ready text for manual X and Instagram posting
 
 ### Aşama 5 — Web / Phase 5 — Web
