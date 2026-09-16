@@ -1,8 +1,8 @@
 # collectors
 
-[Türkçe](#türkçe) · [English](#english) · [İnceleme kuyruğu / Review queue](#i̇nceleme-kuyruğu--review-queue) · [İlgi süzgeci / Relevance filter](#i̇lgi-süzgeci--relevance-filter) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
+[Türkçe](#türkçe) · [English](#english) · [İnceleme kuyruğu / Review queue](#i̇nceleme-kuyruğu--review-queue) · [İlgi süzgeci / Relevance filter](#i̇lgi-süzgeci--relevance-filter) · [Sinyal deposu / Signal store](#sinyal-deposu--signal-store) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
 
-> Durum: RSS/Atom toplayıcı, güvenlik filtresi, ilgi süzgeci ve **günlük zamanlanmış çalışma** hazır; çalışma, BM akışlarından gelen ve izleme bölgeleriyle ilgili adayları bir GitHub konusunda insan incelemesine sunar. Hiçbir akış ingest'e **gönderilmiyor** (henüz `api` Worker'ı ve `source_id` yok). / Status: the RSS/Atom collector, the safety filter, the relevance filter and a **daily scheduled run** work; the run puts the candidates that concern the watch regions in front of a human in a GitHub issue. Nothing is **sent** to ingest yet (no `api` Worker, no `source_id`).
+> Durum: RSS/Atom toplayıcı, güvenlik filtresi, ilgi süzgeci ve **günlük zamanlanmış çalışma** hazır; çalışma, BM akışlarından gelen ve izleme bölgeleriyle ilgili adayları bir GitHub konusunda insan incelemesine sunar. Çalışmanın tamamı ayrıca `gt-signals` D1 veritabanına yazılır. Hiçbir akış ingest'e **gönderilmiyor** (henüz `api` Worker'ı ve `source_id` yok). / Status: the RSS/Atom collector, the safety filter, the relevance filter and a **daily scheduled run** work; the run puts the candidates that concern the watch regions in front of a human in a GitHub issue and writes the whole run into the `gt-signals` D1 database. Nothing is **sent** to ingest yet (no `api` Worker, no `source_id`).
 >
 > Paket / Package: `gt_collectors` (`src/`), yapılandırma / config: [`config/feeds.yaml`](config/feeds.yaml), kaynaklar / sources: [`sources.md`](sources.md), iş akışı / workflow: [`.github/workflows/collect.yml`](../.github/workflows/collect.yml), durum / state: [`state/`](state/).
 
@@ -45,7 +45,8 @@ Rules:
 3. simhash ile yakın kopyaları ve tekilleştirme defterindeki (`state/seen.jsonl`, `collector-state` dalı) öğeleri eler;
 4. kalanları **ilgi süzgecinden** geçirir: izleme bölgeleriyle ve kaydettiğimiz olay türleriyle eşleşmeyenler kuyruğa girmez ([aşağıda](#i̇lgi-süzgeci--relevance-filter));
 5. **bütün** partiyi (kuyruğa girenler, ertelenenler ve ilgisiz bulunanlar) JSONL yapıtı olarak yükler ve kuyruğa girenlerle `inceleme-kuyrugu` etiketli, tarihli **tek bir konu** açar (aynı gün ikinci çalışma aynı konuya yorum bırakır);
-6. konu açıldıktan **sonra** defteri bot commit'iyle `collector-state` dalına iter — konu açılamazsa öğeler görülmemiş sayılır ve sonraki çalışmada yine sunulur.
+6. konu açıldıktan **sonra** defteri bot commit'iyle `collector-state` dalına iter — konu açılamazsa öğeler görülmemiş sayılır ve sonraki çalışmada yine sunulur;
+7. en son, partinin tamamını `gt-signals` D1 veritabanına yazar ([aşağıda](#sinyal-deposu--signal-store)); `CLOUDFLARE_API_TOKEN` yoksa bu adım gerekçesiyle atlanır.
 
 Konudaki her satır: başlık, kaynak bağlantısı, varsa Wayback arşiv bağlantısı, bölge tahmini, ilgi puanı, akış kimliği ve tekilleştirme kimliği. Çalışma başına en çok 40 aday; gerisi bir sonraki çalışmaya kalır. Konunun başındaki uyarı, öğelerin **doğrulanmamış aday** olduğunu söyler.
 
@@ -56,11 +57,12 @@ Konudaki her satır: başlık, kaynak bağlantısı, varsa Wayback arşiv bağla
 3. near-duplicates (simhash) and anything already in the dedup ledger (`state/seen.jsonl` on the `collector-state` branch) are dropped;
 4. the **relevance filter** scores what is left: an item that matches neither a watch region nor a recorded event type does not enter the queue ([below](#i̇lgi-süzgeci--relevance-filter));
 5. the **whole** batch (queued, deferred and off-topic) is uploaded as a JSONL artifact, and the queued items are written into **one dated issue** labelled `inceleme-kuyrugu` (a second run on the same day comments on the same issue);
-6. **after** the issue exists, the ledger is pushed to `collector-state` as a bot commit — if the issue could not be opened, the items stay unseen and the next run offers them again.
+6. **after** the issue exists, the ledger is pushed to `collector-state` as a bot commit — if the issue could not be opened, the items stay unseen and the next run offers them again;
+7. last, the whole batch is written into the `gt-signals` D1 database ([below](#sinyal-deposu--signal-store)); without `CLOUDFLARE_API_TOKEN` that step says so and is skipped.
 
 Each line carries the title, the source link, a Wayback archive link when one exists, the region guess, the relevance score, the feed id and the dedup id. At most 40 candidates per run; the rest wait for the next run. The banner at the top of the issue says that the items are **unverified candidates**.
 
-Ne gerekmez / What it does not need: sır, hesap, ödeme yöntemi — hiçbiri. Yalnızca `GITHUB_TOKEN` (`contents: write` ile yalnızca `collector-state` dalı, `issues: write`). / No secrets, no accounts, no payment method: only `GITHUB_TOKEN`.
+Ne gerekmez / What it does not need: hesap veya ödeme yöntemi gerekmez; 1-6 arası adımlar yalnızca `GITHUB_TOKEN` ister (`contents: write` ile yalnızca `collector-state` dalı, `issues: write`). Tek isteğe bağlı sır, 7. adımdaki `CLOUDFLARE_API_TOKEN`'dır. / No accounts and no payment method; steps 1-6 need only `GITHUB_TOKEN`. The one optional secret is `CLOUDFLARE_API_TOKEN`, used by step 7.
 
 ---
 
@@ -117,6 +119,46 @@ Bilerek dışarıda bırakılanlar / deliberately out of scope: Türkiye'nin ken
 
 ---
 
+## Sinyal deposu / Signal store
+
+Konu açıldıktan sonra çalışmanın tamamı Cloudflare D1'deki `gt-signals` veritabanına yazılır ([db/README.md](../db/README.md), şema: `db/migrations/signals/`). Konu insanın gördüğü listedir, veritabanı ise geçmiştir: kuyruğa girenler, sonraki çalışmaya kalanlar ve konu dışı bulunanlar hep birlikte, her biri kendi triyaj durumuyla saklanır. Güvenlik süzgecinin veya coğrafi çitin elediği hiçbir kayıt buraya ulaşmaz; yazıcı, satırları oluşturmadan önce süzgeci bir kez daha uygular.
+
+After the issue exists, the whole run is written into the `gt-signals` database on Cloudflare D1 ([db/README.md](../db/README.md), schema in `db/migrations/signals/`). The issue is the human's view; the database is the history, so queued, deferred and off-topic items are all stored, each with its own triage status. Nothing the safety filter or the geofence dropped can reach it: the writer applies the filter again before it maps a single row.
+
+| Toplayıcı / Collector | `signals` sütunu / column | Not |
+|---|---|---|
+| `content_hash` | `content_hash` | `sha256:…`, UNIQUE anahtar / the UNIQUE key |
+| `simhash` | `simhash` | işaretli 64-bit / signed 64-bit |
+| `raw_hash`, `source_id`, `url`, `lang`, `title`, `text` | aynı adla / same name | `text` alıntıdır, tam metin değil / an excerpt, never full text |
+| `feed` | `collector_id` | |
+| `geo.region` | `region` | |
+| `geo` | `geo_json` | yalnızca yer adı veya koordinat varsa / only when there is a place or coordinates |
+| `published_at`, `fetched_at` | aynı adla / same name | UTC, `YYYY-MM-DDTHH:MM:SSZ` |
+| `status: queued` | `triage_status = 'queued'` | insanın önünde / in front of a human |
+| `status: deferred` | `triage_status = 'pending'` | henüz karar yok / nobody has decided yet |
+| `status: off-topic` | `triage_status = 'scored'` | ilgi süzgeci eşiği geçmedi / below the relevance threshold |
+| `relevance.score` | `triage_score` | |
+| akış, kuyruk kimliği, konular, `redline_check` | `triage_labels` | JSON |
+| — | `created_at` | veritabanı damgalar / stamped by the database |
+
+`duplicate` ve `dropped` durumlarını toplayıcı hiç yazmaz; onlar triyaj Worker'ınındır. / The collector never writes the `duplicate` and `dropped` statuses; they belong to the triage Worker.
+
+Yazma `INSERT … ON CONFLICT(content_hash) DO NOTHING` biçiminde ve partiler hâlindedir (öntanımlı 25 satır). Aynı parti iki kez yazılırsa ikinci seferde hiçbir satır yazılmaz, hiçbir triyaj durumu değişmez ve günlük yazma bütçesinden hiçbir şey harcanmaz. / The write is `INSERT … ON CONFLICT(content_hash) DO NOTHING`, in batches (25 rows by default). Writing the same batch twice writes nothing the second time, changes no triage status and costs nothing from the daily write budget.
+
+Tekilleştirme hâlâ git defterindedir (`state/seen.jsonl`); D1 şimdilik yalnızca eklemedir. / Deduplication still lives in the git ledger (`state/seen.jsonl`); D1 is additive for now.
+
+```bash
+# İş akışının yaptığı: önce kuyruk, sonra depo / what the workflow does: queue first, store after
+gt-collect --queue-dir queue --state state/seen.jsonl
+gt-collect --write-d1 queue                  # CLOUDFLARE_API_TOKEN ister / needs the token
+gt-collect --write-d1 queue --d1-dry-run     # SQL'i yazdırır, hiçbir şeye dokunmaz / prints the SQL
+gt-collect --write-d1 queue --d1-database gt-signals-dev --d1-batch 10
+```
+
+Tek sır `CLOUDFLARE_API_TOKEN`'dır ve yalnızca ortamdan okunur; depoda hiçbir belirteç tutulmaz. Yerelde `wrangler login` de yeterlidir. İş akışında sır yoksa adım atlanır ve sebebi günlüğe yazılır; boru hattının geri kalanı etkilenmez. / The one secret is `CLOUDFLARE_API_TOKEN`, read from the environment only; no token is ever stored in the repository, and locally `wrangler login` is enough. In the workflow, a missing secret skips the step with a log line and changes nothing else.
+
+---
+
 ## Teknik başvuru / Technical reference
 
 ### Geliştirme / Development
@@ -140,6 +182,9 @@ gt-collect --feed rss-aze-mod --dry-run --input saved-feed.xml   # çevrimdış�
 gt-collect --queue-dir queue --state state/seen.jsonl --max-items 40
 gt-collect --queue-dir queue --relevance my-tables.yaml     # başka ilgi tablosu / other tables
 gt-collect --queue-dir queue --min-relevance 0              # süzgeçsiz / filter off
+
+# Partiyi D1'e yaz (SQL'i görmek için --d1-dry-run) / write the batch to D1 (--d1-dry-run prints SQL)
+gt-collect --write-d1 queue --d1-dry-run
 ```
 
 İki ayrı kapı vardır ve biri diğerini gerektirmez: `enabled: true` + `source_id` → ingest'e gönderilebilir (`INGEST_URL`, `INGEST_HMAC_KEY` gerekir); `queue: true` + kayıtlı `terms` → insan inceleme kuyruğuna girebilir (sır gerekmez, hiçbir şey gönderilmez). / Two independent gates: `enabled: true` with a `source_id` means a feed may be **sent to ingest** (needs `INGEST_URL` and `INGEST_HMAC_KEY`); `queue: true` with its `terms` on record means it may enter the **human review queue** (no secrets, nothing is sent).
@@ -155,6 +200,7 @@ gt-collect --queue-dir queue --min-relevance 0              # süzgeçsiz / filt
 | `state.py` | Tekilleştirme defteri (`{id, simhash, seen}`, budamalı) / dedup ledger, pruned |
 | `review.py` | İnceleme kuyruğu: aday modeli, konu metni, Wayback araması, `redline_check` işareti / review queue: candidate model, issue body, Wayback lookup, `redline_check` marker |
 | `relevance.py`, `data/relevance.yaml` | İlgi süzgeci: bölge ve konu tabloları, puan, eşik / relevance filter: region and topic tables, score, threshold |
+| `d1.py` | Sinyal deposu: satır eşlemesi, partiler, `ON CONFLICT DO NOTHING`, wrangler yürütücüsü / signal store: row mapping, batching, `ON CONFLICT DO NOTHING`, the wrangler executor |
 | `rss.py`, `config.py`, `cli.py` | RSS/Atom toplayıcı, YAML yapılandırma, `gt-collect` / collector, config, CLI |
 
 Bağımlılıklar / Dependencies: yalnızca / only `PyYAML` at runtime. We use `urllib` rather than `httpx` and `xml.etree` rather than `feedparser`: the few features we need are small to write, and every extra package is supply-chain surface in a job that holds the ingest HMAC key (ADR 0011). XML entity declarations are rejected, so entity-expansion attacks cannot work.

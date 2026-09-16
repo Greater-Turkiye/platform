@@ -17,8 +17,8 @@ The code of the open-source intelligence community: the live map and dashboard, 
 |---|---|---|
 | [`apps/web`](apps/web) | **Yayında** | Statik site: ana sayfadaki dünya küresi, OSINT paneli ve yöntem sayfası. Derleme adımı yok; D3 ve topojson-client depoda barındırılır. Katman listesi: [apps/web/README.md](apps/web/README.md) |
 | [`tools/geo`](tools/geo) | **Çalışıyor** | Harita katmanlarını resmî kaynaklardan yeniden üretilebilir şekilde kuran Python betikleri (Mavi Vatan, KKTC ruhsat sahaları, Marmara ve Boğazlar, temsilcilikler, harekât bölgeleri) |
-| [`collectors`](collectors) | **Çalışıyor** | GitHub Actions'ta **her gün çalışan** Python toplayıcılar: RSS alımı, normalleştirme, tekrar eleme (simhash), güvenlik süzgeci ve coğrafi çit, ardından izleme bölgelerine ve olay türlerine göre **ilgi süzgeci**. Kalan adaylar `inceleme-kuyrugu` etiketli bir konuda insan incelemesine sunulur ([collect.yml](.github/workflows/collect.yml)); ingest'e gönderim `api` Worker'ı gelene kadar kapalı |
-| [`db`](db) | **Kurulu** | Cloudflare D1 şeması ve migration'lar (`signals`, `ops`); iki veritabanı oluşturuldu ve `0001_init` uygulandı, henüz Worker bağlı değil |
+| [`collectors`](collectors) | **Çalışıyor** | GitHub Actions'ta **her gün çalışan** Python toplayıcılar: RSS alımı, normalleştirme, tekrar eleme (simhash), güvenlik süzgeci ve coğrafi çit, ardından izleme bölgelerine ve olay türlerine göre **ilgi süzgeci**. Kalan adaylar `inceleme-kuyrugu` etiketli bir konuda insan incelemesine sunulur ([collect.yml](.github/workflows/collect.yml)) ve çalışmanın tamamı `gt-signals` D1 veritabanına yazılır; ingest'e gönderim `api` Worker'ı gelene kadar kapalı |
+| [`db`](db) | **Kurulu** | Cloudflare D1 şeması ve migration'lar (`signals`, `ops`); iki veritabanı oluşturuldu, `signals` migration'ları uygulandı ve günlük toplama artık oraya yazıyor; `ops` henüz boş, hiçbir Worker bağlı değil |
 | [`apps/scheduler`](apps/scheduler) | **Devam ediyor** | Cron tetikleyicisiyle çalışan, `collect.yml` iş akışını `workflow_dispatch` ile başlatan Cloudflare Worker'ı: kod ve testleri hazır ([scheduler-ci](.github/workflows/scheduler-ci.yml)), **henüz dağıtılmadı**. Toplayıcı tetikleyicisi, Worker dağıtılıp [ADR 0016](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0016-collector-schedule-until-worker.md)'yı geçersiz kılan bir karar yazılana kadar `schedule:` üzerinde kalır |
 | [`apps/api`](apps/api), [`apps/review-bot`](apps/review-bot) | **Planlandı** | Cloudflare Worker'lar: alım ucu ve Telegram inceleme botu. Şimdilik yalnızca tasarım notları |
 | [`publishers`](publishers) | **Taslak** | Yayın kanallarının tasarımı ve **çalışan ama hiçbir şey göndermeyen** iskeleti (Telegram, Bluesky, RSS rölesi): mesaj sözleşmesi, içerik denetimleri, hız sınırları, insan onayı kapısı. Ağ istemcisi yok, kimlik bilgisi yok, açık kanal yok. Kamu akışı ise `datasets` deposunda üretilir |
@@ -69,13 +69,18 @@ uv run gt-collect --help
 
 # İnceleme kuyruğunu yerelde üret: aday listesi + konu metni, hiçbir şey gönderilmez
 uv run gt-collect --queue-dir queue --state state/seen.jsonl
+
+# Aynı çalışmayı `gt-signals` D1 veritabanına yaz (SQL'i görmek için --d1-dry-run)
+uv run gt-collect --write-d1 queue --d1-dry-run
 ```
 
 Güvenlik süzgeci (`safety.py`) ve coğrafi çit (`geo.py`), veri diske yazılmadan önce çalışır.
 
 Sonra **ilgi süzgeci** (`relevance.py`) gelir: her adaya bir izleme bölgesi sinyali (ülke ve yer adları, TR + EN) ile bir konu sinyali (askerî faaliyet, tatbikat, tedarik, hava sahası, deniz olayı, üs anlaşması, yaptırım) verir ve ikisini `0.5 × bölge + 0.5 × konu` olarak birleştirir; iki sinyalden biri sıfırsa puan sıfırdır. Eşik **0.5**; 0.40–0.50 arası satırlar ❓ `sınırda` işaretiyle yine kuyruğa girer. Eşiğin altındakiler **silinmez**: çalışma yapıtında `status: off-topic` olarak kalır, konudaki sayaç tablosunda görünür ve tekilleştirme defterine yazılmaz. Bölge ve anahtar sözcük tabloları koddan ayrıdır ([`collectors/src/gt_collectors/data/relevance.yaml`](collectors/src/gt_collectors/data/relevance.yaml)); nasıl genişletileceği [collectors/README.md](collectors/README.md#i̇lgi-süzgeci--relevance-filter) içindedir. Bu süzgeç yalnızca gürültü içindir: güvenlik süzgecinin yerine geçmez, onu zayıflatamaz.
 
-[`.github/workflows/collect.yml`](.github/workflows/collect.yml) her gün 05:23 UTC'de (ve elle tetiklenerek) çalışır: koşulları kayda geçmiş akışları toplar, güvenlik süzgecinden geçirir, tekrarları eler, ilgi süzgecini uygular ve kalan adayları tarihli tek bir konuya yazar. Konudaki hiçbir öğe doğrulanmış değildir; kararı insan verir. Tekilleştirme defteri `collector-state` dalında tutulur ([collectors/state](collectors/state)). Sır, hesap veya ödeme yöntemi gerekmez.
+[`.github/workflows/collect.yml`](.github/workflows/collect.yml) her gün 05:23 UTC'de (ve elle tetiklenerek) çalışır: koşulları kayda geçmiş akışları toplar, güvenlik süzgecinden geçirir, tekrarları eler, ilgi süzgecini uygular ve kalan adayları tarihli tek bir konuya yazar. Konudaki hiçbir öğe doğrulanmış değildir; kararı insan verir. Tekilleştirme defteri `collector-state` dalında tutulur ([collectors/state](collectors/state)).
+
+Konu açıldıktan sonra son bir adım, çalışmanın **tamamını** — kuyruğa girenleri, sonraki çalışmaya kalanları ve konu dışı bulunanları — kendi triyaj durumlarıyla `gt-signals` D1 veritabanına yazar ([db/README.md](db/README.md)): konu insanın gördüğü liste, veritabanı ise geçmiştir. Yazma `INSERT … ON CONFLICT(content_hash) DO NOTHING` olduğu için aynı parti iki kez çalıştırılsa da ne satır çoğalır ne bir sayaç kayar. Güvenlik süzgecinin veya coğrafi çitin elediği hiçbir kayıt veritabanına ulaşmaz. Tekilleştirme hâlâ git defterinden gelir; D1 eklemedir. Bu adım tek bir sır ister, `CLOUDFLARE_API_TOKEN`; sır yoksa adım gerekçesini günlüğe yazıp atlanır ve boru hattının geri kalanı bugünkü gibi sırsız, hesapsız ve ödeme yöntemsiz çalışır.
 
 ### Zamanlayıcı (henüz dağıtılmadı)
 
@@ -125,8 +130,8 @@ Kod [MIT](LICENSE). Üretilen veriler `datasets` deposunda CC BY 4.0 ile yayıml
 |---|---|---|
 | [`apps/web`](apps/web) | **Live** | The static site: the globe on the home page, the OSINT dashboard and the methodology page. No build step; D3 and topojson-client are vendored. Layer list: [apps/web/README.md](apps/web/README.md) |
 | [`tools/geo`](tools/geo) | **Working** | Python builders that construct the map layers reproducibly from official sources (Blue Homeland, TRNC licence areas, the Sea of Marmara and the Straits, diplomatic missions, announced operation areas) |
-| [`collectors`](collectors) | **Working** | Python collectors that run in GitHub Actions **every day**: RSS ingest, normalisation, near-duplicate removal (simhash), the safety filter and the geofence, then a **relevance filter** over the watch regions and the recorded event types. What is left goes to a human in an issue labelled `inceleme-kuyrugu` ([collect.yml](.github/workflows/collect.yml)); sending to ingest stays off until the `api` Worker exists |
-| [`db`](db) | **Provisioned** | Cloudflare D1 schema and migrations (`signals`, `ops`); both databases created and `0001_init` applied, no Worker bound yet |
+| [`collectors`](collectors) | **Working** | Python collectors that run in GitHub Actions **every day**: RSS ingest, normalisation, near-duplicate removal (simhash), the safety filter and the geofence, then a **relevance filter** over the watch regions and the recorded event types. What is left goes to a human in an issue labelled `inceleme-kuyrugu` ([collect.yml](.github/workflows/collect.yml)) and the whole run is written into the `gt-signals` D1 database; sending to ingest stays off until the `api` Worker exists |
+| [`db`](db) | **Provisioned** | Cloudflare D1 schema and migrations (`signals`, `ops`); both databases created, the `signals` migrations applied and the daily collection now writes there; `ops` is still empty and no Worker is bound |
 | [`apps/scheduler`](apps/scheduler) | **In progress** | The Cloudflare Worker whose cron trigger starts the `collect.yml` workflow with `workflow_dispatch`: the code and its tests are here ([scheduler-ci](.github/workflows/scheduler-ci.yml)), but it is **not deployed yet**. The collector trigger stays on `schedule:` until the Worker runs and a decision superseding [ADR 0016](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0016-collector-schedule-until-worker.md) is written |
 | [`apps/api`](apps/api), [`apps/review-bot`](apps/review-bot) | **Planned** | Cloudflare Workers: the ingest endpoint and the Telegram review bot. Design notes only for now |
 | [`publishers`](publishers) | **Draft** | The design and a **runnable but inert** skeleton of the publishing channels (Telegram, Bluesky, RSS relay): message contract, content checks, rate limits and the human-approval gate. No network client, no credential, no channel switched on. The public feed itself is built in `datasets` |
@@ -177,13 +182,18 @@ uv run gt-collect --help
 
 # build the review queue locally: candidate list + issue body, nothing is sent
 uv run gt-collect --queue-dir queue --state state/seen.jsonl
+
+# write the same run into the `gt-signals` D1 database (--d1-dry-run prints the SQL instead)
+uv run gt-collect --write-d1 queue --d1-dry-run
 ```
 
 The safety filter (`safety.py`) and the geofence (`geo.py`) run before anything is written to storage.
 
 The **relevance filter** (`relevance.py`) runs after them: it gives each candidate a watch-region signal (country and place names, Turkish and English) and a topic signal (military activity, exercises, procurement, airspace, maritime incidents, basing, sanctions), and combines them as `0.5 × region + 0.5 × topic`, scoring zero when either signal is zero. The threshold is **0.5**; a score of 0.40–0.50 still enters the queue, marked ❓ `borderline`. Anything below is **not deleted**: it stays in the run artifact with `status: off-topic`, is counted in the issue's table, and is never written to the dedup ledger. The region and keyword tables are data, not code ([`collectors/src/gt_collectors/data/relevance.yaml`](collectors/src/gt_collectors/data/relevance.yaml)); [collectors/README.md](collectors/README.md#i̇lgi-süzgeci--relevance-filter) says how to extend them. The filter is for noise only: it never stands in for, or weakens, the safety filter.
 
-[`.github/workflows/collect.yml`](.github/workflows/collect.yml) runs every day at 05:23 UTC and on demand: it collects the feeds whose terms are on record, applies the safety filter, drops repeats, applies the relevance filter and writes what is left into a single dated issue. Nothing in that issue is verified; a human decides. The deduplication ledger lives on the `collector-state` branch ([collectors/state](collectors/state)). No secrets, no accounts, no payment method.
+[`.github/workflows/collect.yml`](.github/workflows/collect.yml) runs every day at 05:23 UTC and on demand: it collects the feeds whose terms are on record, applies the safety filter, drops repeats, applies the relevance filter and writes what is left into a single dated issue. Nothing in that issue is verified; a human decides. The deduplication ledger lives on the `collector-state` branch ([collectors/state](collectors/state)).
+
+After the issue exists, one last step writes the **whole** run — queued, deferred and off-topic items alike, each with its triage status — into the `gt-signals` D1 database ([db/README.md](db/README.md)): the issue is the human's view, the database is the history. The write is `INSERT … ON CONFLICT(content_hash) DO NOTHING`, so running the same batch twice adds no row and moves no counter. Nothing the safety filter or the geofence dropped ever reaches the database. Deduplication still comes from the git ledger; D1 is additive. This step needs exactly one secret, `CLOUDFLARE_API_TOKEN`; without it the step says so in the log and is skipped, and the rest of the pipeline runs as it does today, with no secrets, no accounts and no payment method.
 
 ### Scheduler (not deployed yet)
 

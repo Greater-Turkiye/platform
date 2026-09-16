@@ -5,6 +5,7 @@ Standard library only:  python -m unittest discover -s db/tests -v
 
 from __future__ import annotations
 
+import re
 import sqlite3
 import unittest
 from pathlib import Path
@@ -13,6 +14,8 @@ MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations"
 H1 = "sha256:" + "a" * 64
 H2 = "sha256:" + "b" * 64
 TS = "2026-09-12T10:15:00Z"
+# Wildcards and character classes allowed in one LIKE/GLOB pattern on D1 (measured remotely).
+D1_PATTERN_LIMIT = 10
 
 
 def apply(database: str) -> sqlite3.Connection:
@@ -44,6 +47,25 @@ class MigrationFiles(unittest.TestCase):
                 # D1 applies each migration file itself; explicit transactions/PRAGMAs are not allowed.
                 self.assertNotIn("BEGIN TRANSACTION", sql)
                 self.assertNotIn("PRAGMA", sql)
+
+    def test_signals_glob_patterns_are_simple_enough_for_d1(self) -> None:
+        """D1 refuses a LIKE/GLOB pattern with more than ten wildcards or character classes.
+
+        Local SQLite evaluates such a pattern happily, so only the remote database says
+        ``LIKE or GLOB pattern too complex: SQLITE_ERROR [code: 7500]`` — and it says it on every
+        INSERT, not on CREATE TABLE. The one-line timestamp check of `signals` 0001 hit exactly
+        that and was rewritten in 0002. The `ops` tables still carry the long pattern in their own
+        timestamp checks; they need the same rebuild before anything writes to them, which is why
+        this test names the database it covers.
+        """
+        conn = apply("signals")
+        self.addCleanup(conn.close)
+        schema = "\n".join(
+            sql for (sql,) in conn.execute("SELECT sql FROM sqlite_schema WHERE sql IS NOT NULL")
+        )
+        for pattern in re.findall(r"(?:GLOB|LIKE)\s+'([^']*)'", schema):
+            with self.subTest(pattern=pattern):
+                self.assertLessEqual(len(re.findall(r"\[[^\]]*\]|[*?]", pattern)), D1_PATTERN_LIMIT)
 
     def test_all_tables_are_strict(self) -> None:
         for db in ("ops", "signals"):

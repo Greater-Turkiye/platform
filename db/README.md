@@ -2,7 +2,7 @@
 
 [Türkçe](#türkçe) · [English](#english) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
 
-> Durum: `0001_init` migration'ları 2026-09-16'da uzak D1 veritabanlarına uygulandı; henüz hiçbir Worker bağlı değil. / Status: the `0001_init` migrations were applied to the remote D1 databases on 2026-09-16; no Worker is bound to them yet.
+> Durum: `0001_init` migration'ları 2026-09-16'da uzak D1 veritabanlarına uygulandı; aynı gün `signals` için `0002` de uygulandı ve günlük toplayıcı çalışması artık `gt-signals`'a yazıyor. Henüz hiçbir Worker bağlı değil ve `ops` boş. / Status: the `0001_init` migrations were applied to the remote D1 databases on 2026-09-16, `signals` `0002` the same day, and the daily collector run now writes into `gt-signals`. No Worker is bound yet and `ops` is empty.
 
 ## Türkçe
 
@@ -70,7 +70,7 @@ Created in the Cloudflare account on 2026-09-16. Database IDs are not secrets; a
 
 | Ad / Name | `database_id` | Migration |
 |---|---|---|
-| `gt-signals` | `4185c945-18b6-4fe6-9531-f0d99a858554` | `migrations/signals/0001_init.sql` — 1 tablo / table |
+| `gt-signals` | `4185c945-18b6-4fe6-9531-f0d99a858554` | `migrations/signals/0001_init.sql` — 1 tablo / table, `0002_timestamp_checks_for_d1.sql` |
 | `gt-ops` | `414b8a8b-f28a-40b5-8de3-fba47ec9d784` | `migrations/ops/0001_init.sql` — 6 tablo / tables |
 
 ```bash
@@ -84,8 +84,46 @@ npx wrangler d1 execute gt-ops --remote --command "SELECT name FROM sqlite_maste
 GitHub Actions'tan yazmak için depoya `CLOUDFLARE_API_TOKEN` secret'ı gerekir; yerelden `wrangler login` yeterlidir.
 Writing from GitHub Actions needs a `CLOUDFLARE_API_TOKEN` repository secret; locally `wrangler login` is enough.
 
+### Kim yazıyor / Who writes
+
+`signals` tablosuna bugün yazan tek şey, günlük `collect` iş akışının son adımıdır
+([`.github/workflows/collect.yml`](../.github/workflows/collect.yml)): inceleme konusu açıldıktan sonra
+`gt-collect --write-d1 queue` çalışır ve çalışmanın tamamını yazar. `ops` veritabanına henüz hiçbir şey yazmaz.
+
+Today the only writer of the `signals` table is the last step of the daily `collect` workflow: after the review
+issue exists, `gt-collect --write-d1 queue` writes the whole run. Nothing writes to `ops` yet.
+
+- **Ne yazılır / What is written**: kuyruğa giren (`triage_status = 'queued'`), sonraki çalışmaya kalan
+  (`pending`) ve ilgi eşiğinin altında kalan (`scored`) her aday. Sütun eşlemesinin tamamı
+  [collectors/README.md](../collectors/README.md#sinyal-deposu--signal-store) içindedir. / Every candidate the run
+  produced, with its triage status; the full column mapping is in the collectors README.
+- **Ne yazılmaz / What is never written**: Türk kuvvetleri güvenlik süzgecinin veya coğrafi çitin elediği hiçbir
+  kayıt — ne burada ne başka bir yerde (ADR 0013). / Nothing the Turkish-forces safety filter or the geofence
+  dropped, here or anywhere else.
+- **Ne zaman / When**: her gün 05:23 UTC, konudan ve defter commit'inden sonra. / Daily at 05:23 UTC, after the
+  issue and the ledger commit.
+- **Gereken tek sır / The one secret**: `CLOUDFLARE_API_TOKEN` (yalnızca ortamdan; yerelde `wrangler login`
+  yeterlidir). Sır yoksa adım gerekçesini günlüğe yazıp atlanır ve boru hattı bugünkü gibi çalışır. Belirtecin
+  birden çok hesabı görmesi hâlinde `CLOUDFLARE_ACCOUNT_ID` deposu değişkeni gerekir (sır değildir). /
+  `CLOUDFLARE_API_TOKEN`, from the environment only; without it the step is skipped with a log line and the
+  pipeline works exactly as before. If the token can see more than one account, add the repository variable
+  `CLOUDFLARE_ACCOUNT_ID` (not a secret).
+- **Tekilleştirme / Deduplication**: hâlâ `collector-state` dalındaki git defterinden gelir; D1 eklemedir.
+  `content_hash` UNIQUE olduğu için `INSERT … ON CONFLICT DO NOTHING` aynı partinin iki kez yazılmasını zararsız
+  kılar. / Still the git ledger; D1 is additive, and the UNIQUE `content_hash` makes a replayed batch harmless.
+
 ### Uygulama notları / Implementation notes
 
+- **LIKE/GLOB karmaşıklığı / pattern complexity**: D1, on joker karakter veya karakter sınıfından fazlasını
+  içeren bir `LIKE`/`GLOB` desenini reddeder (`LIKE or GLOB pattern too complex`, `SQLITE_ERROR 7500`) — ve bunu
+  `CREATE TABLE` sırasında değil, her `INSERT` sırasında yapar. Yerel SQLite aynı deseni sorunsuz çalıştırdığı
+  için sorun ancak uzak veritabanında görülür. `signals` zaman damgası kontrolleri bu yüzden `0002` ile iki kısa
+  desene bölündü. **`ops` tabloları hâlâ uzun deseni taşıyor**: oraya bir şey yazılmadan önce aynı düzeltme
+  gerekir. / D1 refuses a `LIKE`/`GLOB` pattern with more than ten wildcards or character classes, on every
+  `INSERT` rather than at `CREATE TABLE`; local SQLite runs the same pattern happily, so only the remote database
+  shows it. The `signals` timestamp checks were therefore split into two short patterns in `0002`. **The `ops`
+  tables still carry the long pattern** and need the same fix before anything writes to them.
+  `db/tests` fails if a `signals` pattern grows past the limit again.
 - **STRICT** tables everywhere (column types are enforced). `CHECK` constraints enforce the enums, `sha256:` hashes, TypeID prefixes, JSON validity (`json_valid`), the ≤300/≤1000-character title/text limits (excerpts, never full text), and the timestamp format. Timestamps are exactly `YYYY-MM-DDTHH:MM:SSZ`, so they sort as text.
 - `simhash` is a signed 64-bit INTEGER. On the wire, collectors send it as 16 hex characters (JS numbers cannot hold 64 bits).
 - `reviews.content_hash` is UNIQUE: one review per signal, so replayed triage results are harmless. A decision (`status <> 'queued'`) must record `decided_by` and `decided_at`.

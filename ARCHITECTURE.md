@@ -90,6 +90,7 @@ flowchart LR
 - Tekrar önleme: `content_hash` (normalleştirilmiş URL + metnin SHA-256'sı) üzerinde **UNIQUE** kısıt, yakın kopyalar için **simhash**.
 - Supabase bilinçli olarak **kullanılmıyor**: ücretsiz projeler 7 gün hareketsizlikten sonra duraklatılıyor ve ücretsiz planda yedek yok.
 - Tablo taslakları: [db/README.md](db/README.md).
+- **Bugünkü geçici yol:** `api` Worker'ı yokken `signals`'a yazan tek şey günlük toplama iş akışıdır; inceleme konusu açıldıktan sonra `gt-collect --write-d1` ile `wrangler` üzerinden yazar. Şema ve `content_hash` UNIQUE kısıtı hedeftekiyle aynıdır, yalnızca yol kısadır; `api` gelince yazma oraya taşınır. Tekilleştirme hâlâ `collector-state` dalındaki git defterindedir.
 
 ### 3. Triyaj
 
@@ -185,6 +186,7 @@ flowchart LR
 - Deduplication: a **UNIQUE** constraint on `content_hash` (SHA-256 of normalized URL + text), plus **simhash** for near-duplicates.
 - Supabase is deliberately **not** used: free projects are paused after 7 days of inactivity and the free plan has no backups.
 - Table sketches: [db/README.md](db/README.md).
+- **Today's interim path:** until the `api` Worker exists, the only writer of `signals` is the daily collection workflow, which writes through `wrangler` with `gt-collect --write-d1` after the review issue is created. The schema and the UNIQUE `content_hash` are the target ones; only the route is shorter, and the write moves behind `api` when that Worker lands. Deduplication still lives in the git ledger on the `collector-state` branch.
 
 ### 3. Triage
 
