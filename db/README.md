@@ -2,7 +2,7 @@
 
 [Türkçe](#türkçe) · [English](#english) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
 
-> Durum: ilk migration'lar hazır (`migrations/ops/0001_init.sql`, `migrations/signals/0001_init.sql`); henüz uzak veritabanına uygulanmadı. / Status: initial migrations in place; not yet applied to a remote database.
+> Durum: `0001_init` migration'ları 2026-09-16'da uzak D1 veritabanlarına uygulandı; henüz hiçbir Worker bağlı değil. / Status: the `0001_init` migrations were applied to the remote D1 databases on 2026-09-16; no Worker is bound to them yet.
 
 ## Türkçe
 
@@ -62,6 +62,27 @@ Dizinler / Indexes: `content_hash` (UNIQUE), `(triage_status, created_at)`.
 
 **collector_state**
 `collector_id` (PK), `enabled`, `last_run_at`, `last_success_at`, `next_due_at`, `cursor` (ETag / Last-Modified / son kimlik / last id), `consecutive_failures`, `last_error`
+
+### Uzak veritabanları / Remote databases
+
+Cloudflare hesabında oluşturuldu (2026-09-16). Veritabanı kimlikleri gizli değildir; erişim hesap yetkisiyle olur.
+Created in the Cloudflare account on 2026-09-16. Database IDs are not secrets; access is controlled by account permissions.
+
+| Ad / Name | `database_id` | Migration |
+|---|---|---|
+| `gt-signals` | `4185c945-18b6-4fe6-9531-f0d99a858554` | `migrations/signals/0001_init.sql` — 1 tablo / table |
+| `gt-ops` | `414b8a8b-f28a-40b5-8de3-fba47ec9d784` | `migrations/ops/0001_init.sql` — 6 tablo / tables |
+
+```bash
+# migration uygulama / applying a migration
+npx wrangler d1 execute gt-signals --remote --file db/migrations/signals/0001_init.sql
+npx wrangler d1 execute gt-ops     --remote --file db/migrations/ops/0001_init.sql
+# okuma / reading
+npx wrangler d1 execute gt-ops --remote --command "SELECT name FROM sqlite_master WHERE type='table'"
+```
+
+GitHub Actions'tan yazmak için depoya `CLOUDFLARE_API_TOKEN` secret'ı gerekir; yerelden `wrangler login` yeterlidir.
+Writing from GitHub Actions needs a `CLOUDFLARE_API_TOKEN` repository secret; locally `wrangler login` is enough.
 
 ### Uygulama notları / Implementation notes
 
