@@ -67,7 +67,7 @@ flowchart LR
 ### 1. Toplayıcılar (collectors)
 
 - Python ile yazılır, bağımlılıklar `uv` ile yönetilir; bu depoda **GitHub Actions işleri** olarak çalışır.
-- İşler `schedule:` ile değil, **scheduler Worker'ın `workflow_dispatch` çağrısıyla** tetiklenir. Neden: herkese açık depolarda zamanlanmış iş akışları 60 gün depo etkinliği olmazsa otomatik devre dışı kalır ve yoğun saatlerde gecikmeli çalışır.
+- Hedef tetikleme **scheduler Worker'ın `workflow_dispatch` çağrısıdır** (15 dakikalık sıklık için). Neden: herkese açık depolarda zamanlanmış iş akışları 60 gün depo etkinliği olmazsa otomatik devre dışı kalır ve yoğun saatlerde gecikmeli çalışır. O Worker (ve Cloudflare hesabı) gelene kadar [`.github/workflows/collect.yml`](.github/workflows/collect.yml) günlük bir `schedule:` + `workflow_dispatch` ile çalışır; her çalışma tekilleştirme defterini `collector-state` dalına iterek 60 günlük sayacı diri tutar. Bu geçici sapma bir ADR ile kayda geçirilmelidir.
 - Sıklık en az **15 dakikadır**.
 - Her çalıştırma: kaynağı çeker → normalleştirir → **güvenlik filtresini** uygular → en fazla **100 öğelik** partiler hâlinde **HMAC imzalı** olarak `api` Worker'ının ingest uç noktasına gönderir.
 - Aday kaynaklar (kullanımdan önce her birinin lisans ve kullanım koşulları teyit edilecek):
@@ -100,7 +100,8 @@ flowchart LR
 
 ### 4. İki insan kapısı
 
-- **Kapı 1 — özel Telegram inceleyici grubu:** `review-bot` Worker'ı webhook ile çalışır; Telegram'ın gizli token başlığı doğrulanır, yalnızca izin listesindeki gözden geçiriciler işlem yapabilir. Her öğe için: **reddet**, **taslağa yükselt** veya **bülten olarak gönder**.
+- **Kapı 1 — bugün: `platform` deposunda bir konu.** Telegram botu (ve Worker) gelene kadar günlük `collect` işi, adayları `inceleme-kuyrugu` etiketli tarihli tek bir konuya onay kutusu listesi olarak yazar. Konudaki hiçbir satır yayımlanmış iddia değildir; gözden geçirici satırı işaretler ve kararını yorumda yazar. Sır gerekmez.
+- **Kapı 1 — hedef: özel Telegram inceleyici grubu:** `review-bot` Worker'ı webhook ile çalışır; Telegram'ın gizli token başlığı doğrulanır, yalnızca izin listesindeki gözden geçiriciler işlem yapabilir. Her öğe için: **reddet**, **taslağa yükselt** veya **bülten olarak gönder**.
 - **Kapı 2 — herkese açık:** Taslağa yükseltilen öğe için bir **GitHub App** `datasets` deposunda PR açar; gözden geçiriciler olağan kurallarla inceler ve birleştirir. Kişisel erişim token'ı (PAT) kullanılmaz; `GITHUB_TOKEN` ile açılan bot PR'ları CI'yi tetiklemediği için App gereklidir.
 
 ### 5. Yayıncılar
@@ -161,7 +162,7 @@ flowchart LR
 ### 1. Collectors
 
 - Written in Python, dependencies managed with `uv`, run as **GitHub Actions jobs** in this repository.
-- Jobs are triggered not by `schedule:` but by the **scheduler Worker calling `workflow_dispatch`**. Why: scheduled workflows in public repositories are disabled automatically after 60 days without repository activity and run late at busy times.
+- The target trigger is the **scheduler Worker calling `workflow_dispatch`** (for a 15-minute cadence). Why: scheduled workflows in public repositories are disabled automatically after 60 days without repository activity and run late at busy times. Until that Worker (and a Cloudflare account) exists, [`.github/workflows/collect.yml`](.github/workflows/collect.yml) runs daily on `schedule:` plus `workflow_dispatch`, and each run pushes the dedup ledger to the `collector-state` branch, which keeps the 60-day counter alive. This temporary deviation should be recorded in an ADR.
 - Cadence is at least **15 minutes**.
 - Each run: fetch the source → normalize → apply the **safety filter** → post batches of at most **100 items**, **HMAC-signed**, to the ingest endpoint of the `api` Worker.
 - Candidate sources (licence and terms of use to be confirmed for each before use):
@@ -194,7 +195,8 @@ flowchart LR
 
 ### 4. Two human gates
 
-- **Gate 1 — private Telegram reviewer group:** the `review-bot` Worker runs on a webhook; Telegram's secret token header is verified and only allowlisted reviewers can act. For each item: **dismiss**, **promote to draft**, or **send as bulletin**.
+- **Gate 1 — today: an issue in the `platform` repository.** Until the Telegram bot (and its Worker) exist, the daily `collect` job writes the candidates into one dated issue labelled `inceleme-kuyrugu` as a checklist. No line in it is a published claim; a reviewer ticks a line and records the decision in a comment. No secrets are needed.
+- **Gate 1 — target: private Telegram reviewer group:** the `review-bot` Worker runs on a webhook; Telegram's secret token header is verified and only allowlisted reviewers can act. For each item: **dismiss**, **promote to draft**, or **send as bulletin**.
 - **Gate 2 — public:** for an item promoted to draft, a **GitHub App** opens a PR in the `datasets` repository; reviewers review and merge under the usual rules. No personal access token (PAT) is used, and the App is required because bot PRs opened with `GITHUB_TOKEN` do not trigger CI.
 
 ### 5. Publishers

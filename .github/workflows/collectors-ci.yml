@@ -8,6 +8,7 @@ on:
       - "collectors/**"
       - "apps/web/assets/data/countries-50m.json" # geofence source
       - ".github/workflows/collectors-ci.yml"
+      - ".github/workflows/collect.yml"
 
 permissions:
   contents: read

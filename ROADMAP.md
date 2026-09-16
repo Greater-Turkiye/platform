@@ -33,10 +33,12 @@ Phases proceed in order; publishing parts of a phase are not switched on before 
 - [x] Türk kuvvetleri güvenlik filtresi ve testleri (ICAO bloğu, MMSI MID, geofence) — Turkish-forces safety filter and tests
 - [x] Güvenlik filtresi için test örnekleri (sentetik veri) **(good first issue)** — Test fixtures for the safety filter (synthetic data)
 - [x] RSS toplayıcı — RSS collector
-- [x] RSS kaynak listesi: resmî bakanlık/hükümet akışlarını bulup koşullarını not etmek **(good first issue)** — RSS source list: find official feeds and note their terms ([collectors/sources.md](collectors/sources.md); koşulların bakımcı onayı bekleniyor / terms await maintainer confirmation)
+- [x] RSS kaynak listesi: resmî bakanlık/hükümet akışlarını bulup koşullarını not etmek **(good first issue)** — RSS source list: find official feeds and note their terms ([collectors/sources.md](collectors/sources.md); bölge devletlerinin koşulları bakımcı onayı bekliyor, BM akışları kuyrukta / regional states' terms await maintainer confirmation, the UN feeds are in the queue)
+- [x] Zamanlanmış toplama işi: `schedule:` + `workflow_dispatch`, tekilleştirme defteri (`collector-state` dalı), yapıt — Scheduled collection job with a dedup ledger and an artifact ([.github/workflows/collect.yml](.github/workflows/collect.yml))
+- [x] İnsan inceleme kuyruğu: çalışma başına tek konu, `inceleme-kuyrugu` etiketi, doğrulanmamış adaylar — Human review queue: one issue per run, unverified candidates only
 - [ ] NASA FIRMS toplayıcı — NASA FIRMS collector
 - [ ] `api` Worker: `/v1/ingest` (HMAC, parti ≤100, `content_hash` tekilleştirme) — ingest endpoint
-- [ ] `scheduler` Worker: cron → `workflow_dispatch` — scheduler Worker
+- [ ] `scheduler` Worker: cron → `workflow_dispatch` (15 dakikalık sıklık için; günlük `schedule:` bunun yerine çalışıyor) — scheduler Worker (for a 15-minute cadence; the daily `schedule:` stands in for it)
 - [ ] GitHub App kaydı ve en az yetkili kurulumlar — GitHub App registration and least-privilege installations
 - [x] CI: lint, test, SHA'ya sabitlenmiş Actions, Dependabot — CI: lint, tests, SHA-pinned Actions, Dependabot (`collectors-ci.yml`, `.github/dependabot.yml`)
 - [ ] Belgelerdeki kırık bağlantıları denetleyen iş akışı **(good first issue)** — Workflow that checks docs for broken links

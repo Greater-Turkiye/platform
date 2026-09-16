@@ -5,3 +5,8 @@ __pycache__/
 .ruff_cache/
 build/
 dist/
+
+# Local review-queue runs: the batch is a build product and the ledger belongs on the
+# collector-state branch, never on main (see state/README.md).
+queue/
+state/seen.jsonl

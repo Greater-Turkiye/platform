@@ -12,10 +12,22 @@
         cadence_minutes: 60          # >= 15
         lang: en
         regions: [aegean]            # datasets vocab/regions.yaml codes
-        enabled: false               # stays false until the source's terms are confirmed
+        enabled: false               # ingest: stays false until the source has a source_id
+        queue: false                 # review queue: true when the terms allow link + excerpt
         secrets: []
-        terms: https://example.org/terms   # optional
+        terms: https://example.org/terms   # optional; required when queue is true
         notes: free text             # optional
+
+``enabled`` and ``queue`` are two different gates and neither implies the other:
+
+``enabled``
+    The feed may be **sent to the ingest Worker**. It also needs a ``source_id`` from the
+    datasets source registry, which is why every feed is still false.
+``queue``
+    The feed may be collected into the **human review queue** (one GitHub issue per scheduled
+    run, ``.github/workflows/collect.yml``), which stores nothing but a link, a title and a
+    ≤500-character excerpt and publishes nothing. A maintainer sets it to true only after
+    reading the source's terms, so ``terms`` is required with it.
 """
 
 from __future__ import annotations
@@ -35,7 +47,7 @@ ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{2,63}$")
 COUNTRY_RE = re.compile(r"^[A-Z]{3}$")
 SECRET_RE = re.compile(r"^[A-Z][A-Z0-9_]{1,63}$")
 REQUIRED = ("id", "kind", "url", "cadence_minutes", "lang", "enabled")
-OPTIONAL = ("name", "country", "source_id", "regions", "secrets", "terms", "notes")
+OPTIONAL = ("name", "country", "source_id", "regions", "queue", "secrets", "terms", "notes")
 
 
 class ConfigError(ValueError):
@@ -50,6 +62,7 @@ class FeedConfig:
     cadence_minutes: int
     lang: str
     enabled: bool
+    queue: bool = False
     name: str | None = None
     country: str | None = None
     source_id: str | None = None
@@ -84,6 +97,11 @@ def _feed(raw: Any, where: str) -> FeedConfig:
         raise ConfigError(f"{where}: lang must be a BCP 47 tag")
     if not isinstance(raw["enabled"], bool):
         raise ConfigError(f"{where}: enabled must be true or false")
+    queue = raw.get("queue", False)
+    if not isinstance(queue, bool):
+        raise ConfigError(f"{where}: queue must be true or false")
+    if queue and not raw.get("terms"):
+        raise ConfigError(f"{where}: queue feeds must record the source's terms URL")
     source_id = raw.get("source_id")
     if source_id is not None and (not isinstance(source_id, str) or not SOURCE_ID_RE.match(source_id)):
         raise ConfigError(f"{where}: source_id must be null or src_<26 chars>")
@@ -106,6 +124,7 @@ def _feed(raw: Any, where: str) -> FeedConfig:
         cadence_minutes=cadence,
         lang=raw["lang"],
         enabled=raw["enabled"],
+        queue=queue,
         name=raw.get("name"),
         country=country,
         source_id=source_id,

@@ -1,16 +1,16 @@
 # collectors
 
-[Türkçe](#türkçe) · [English](#english) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
+[Türkçe](#türkçe) · [English](#english) · [İnceleme kuyruğu / Review queue](#i̇nceleme-kuyruğu--review-queue) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
 
-> Durum: çatı, güvenlik filtresi ve RSS/Atom toplayıcı hazır; hiçbir akış henüz açık değil. / Status: framework, safety filter and RSS/Atom collector in place; no feed is enabled yet.
+> Durum: RSS/Atom toplayıcı, güvenlik filtresi ve **günlük zamanlanmış çalışma** hazır; çalışma, BM akışlarından gelen adayları bir GitHub konusunda insan incelemesine sunar. Hiçbir akış ingest'e **gönderilmiyor** (henüz `api` Worker'ı ve `source_id` yok). / Status: the RSS/Atom collector, the safety filter and a **daily scheduled run** work; the run puts candidates from the UN feeds in front of a human in a GitHub issue. Nothing is **sent** to ingest yet (no `api` Worker, no `source_id`).
 >
-> Paket / Package: `gt_collectors` (`src/`), yapılandırma / config: [`config/feeds.yaml`](config/feeds.yaml), kaynaklar / sources: [`sources.md`](sources.md).
+> Paket / Package: `gt_collectors` (`src/`), yapılandırma / config: [`config/feeds.yaml`](config/feeds.yaml), kaynaklar / sources: [`sources.md`](sources.md), iş akışı / workflow: [`.github/workflows/collect.yml`](../.github/workflows/collect.yml), durum / state: [`state/`](state/).
 
 ---
 
 ## Türkçe
 
-Toplayıcılar açık kaynaklardan veri çeken, normalleştiren ve `api` Worker'ına gönderen küçük Python programlarıdır. Bağımlılıklar `uv` ile yönetilir, her toplayıcı GitHub Actions'ta `scheduler` Worker'ının `workflow_dispatch` çağrısıyla çalışır (en sık 15 dakikada bir).
+Toplayıcılar açık kaynaklardan veri çeken, normalleştiren ve insan incelemesine sunan küçük Python programlarıdır. Bağımlılıklar `uv` ile yönetilir. Bugün çalışan yol GitHub Actions'taki günlük `collect` iş akışıdır (`schedule:` + `workflow_dispatch`); `api` Worker'ı ve `scheduler` Worker'ı devreye girince aynı toplayıcılar HMAC imzalı partileri ingest'e gönderecek.
 
 Kurallar:
 
@@ -18,10 +18,11 @@ Kurallar:
 - Kaynağa saygılı davranılır: `ETag` / `If-Modified-Since`, makul bekleme süreleri, tanımlayıcı bir `User-Agent`.
 - **Türk kuvvetleri güvenlik filtresi** ayrıştırmadan hemen sonra, bellekte ve diske veya ağa hiçbir şey yazılmadan önce çalışır. Atılan kayıtlar günlüğe yazılmaz; yalnızca atılan öğe **sayısı** raporlanır.
 - Tam metin yeniden yayımlanmaz; sinyal yalnızca iç inceleme içindir ve 90 gün sonra silinir.
+- **Hiçbir şey yayımlanmaz.** Kuyruğa giren her öğe *doğrulanmamış adaydır*; kararı insan verir ([ADR 0007](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0007-human-in-the-loop-publishing.md)).
 
 ## English
 
-Collectors are small Python programs that fetch data from public sources, normalize it and post it to the `api` Worker. Dependencies are managed with `uv`; each collector runs in GitHub Actions when the `scheduler` Worker calls `workflow_dispatch` (at most every 15 minutes).
+Collectors are small Python programs that fetch data from public sources, normalize it and put it in front of a human. Dependencies are managed with `uv`. The path that works today is the daily `collect` workflow in GitHub Actions (`schedule:` plus `workflow_dispatch`); once the `api` and `scheduler` Workers exist, the same collectors will also send HMAC-signed batches to ingest.
 
 Rules:
 
@@ -29,6 +30,33 @@ Rules:
 - Be polite to sources: `ETag` / `If-Modified-Since`, sensible back-off, a descriptive `User-Agent`.
 - The **Turkish-forces safety filter** runs right after parsing, in memory, before anything is written to disk or the network. Dropped records are never logged; only the **count** of dropped items is reported.
 - Full text is never republished; signals are for internal review only and are deleted after 90 days.
+- **Nothing is published.** Everything that reaches the queue is an *unverified candidate*; a human decides (ADR 0007).
+
+---
+
+## İnceleme kuyruğu / Review queue
+
+[`.github/workflows/collect.yml`](../.github/workflows/collect.yml) her gün 05:23 UTC'de (ve elle `workflow_dispatch` ile) çalışır:
+
+1. `queue: true` işaretli akışları çeker, ayrıştırır ve normalleştirir;
+2. **güvenlik süzgeci ve coğrafi çit** bellekte, hiçbir şey yazılmadan önce çalışır;
+3. simhash ile yakın kopyaları ve tekilleştirme defterindeki (`state/seen.jsonl`, `collector-state` dalı) öğeleri eler;
+4. kalan adayları JSONL yapıtı olarak yükler ve `inceleme-kuyrugu` etiketli, tarihli **tek bir konu** açar (aynı gün ikinci çalışma aynı konuya yorum bırakır);
+5. konu açıldıktan **sonra** defteri bot commit'iyle `collector-state` dalına iter — konu açılamazsa öğeler görülmemiş sayılır ve sonraki çalışmada yine sunulur.
+
+Konudaki her satır: başlık, kaynak bağlantısı, varsa Wayback arşiv bağlantısı, bölge tahmini, akış kimliği ve tekilleştirme kimliği. Çalışma başına en çok 40 aday; gerisi bir sonraki çalışmaya kalır. Konunun başındaki uyarı, öğelerin **doğrulanmamış aday** olduğunu söyler.
+
+`.github/workflows/collect.yml` runs every day at 05:23 UTC, and on demand through `workflow_dispatch`:
+
+1. fetch, parse and normalize the feeds marked `queue: true`;
+2. the **safety filter and the geofence** run in memory, before anything is written;
+3. near-duplicates (simhash) and anything already in the dedup ledger (`state/seen.jsonl` on the `collector-state` branch) are dropped;
+4. what is left is uploaded as a JSONL artifact and written into **one dated issue** labelled `inceleme-kuyrugu` (a second run on the same day comments on the same issue);
+5. **after** the issue exists, the ledger is pushed to `collector-state` as a bot commit — if the issue could not be opened, the items stay unseen and the next run offers them again.
+
+Each line carries the title, the source link, a Wayback archive link when one exists, the region guess, the feed id and the dedup id. At most 40 candidates per run; the rest wait for the next run. The banner at the top of the issue says that the items are **unverified candidates**.
+
+Ne gerekmez / What it does not need: sır, hesap, ödeme yöntemi — hiçbiri. Yalnızca `GITHUB_TOKEN` (`contents: write` ile yalnızca `collector-state` dalı, `issues: write`). / No secrets, no accounts, no payment method: only `GITHUB_TOKEN`.
 
 ---
 
@@ -49,9 +77,13 @@ python -m gt_collectors.tools.build_geofence --check
 # Print signals as JSON lines, send nothing (no secrets needed)
 gt-collect --feed rss-aze-mod --dry-run
 gt-collect --feed rss-aze-mod --dry-run --input saved-feed.xml   # çevrimdışı / offline
+
+# İnceleme kuyruğunu yerelde üret (iş akışının yaptığının aynısı, konu açmadan)
+# Build the review queue locally (what the workflow does, without opening an issue)
+gt-collect --queue-dir queue --state state/seen.jsonl --max-items 40
 ```
 
-Gerçek çalıştırma yalnızca `enabled: true` ve `source_id` dolu akışları, `INGEST_URL` ve `INGEST_HMAC_KEY` ortam değişkenleriyle gönderir. / A real run sends only `enabled: true` feeds that have a `source_id`, using the `INGEST_URL` and `INGEST_HMAC_KEY` environment variables.
+İki ayrı kapı vardır ve biri diğerini gerektirmez: `enabled: true` + `source_id` → ingest'e gönderilebilir (`INGEST_URL`, `INGEST_HMAC_KEY` gerekir); `queue: true` + kayıtlı `terms` → insan inceleme kuyruğuna girebilir (sır gerekmez, hiçbir şey gönderilmez). / Two independent gates: `enabled: true` with a `source_id` means a feed may be **sent to ingest** (needs `INGEST_URL` and `INGEST_HMAC_KEY`); `queue: true` with its `terms` on record means it may enter the **human review queue** (no secrets, nothing is sent).
 
 | Modül / Module | İçerik / Content |
 |---|---|
@@ -61,6 +93,8 @@ Gerçek çalıştırma yalnızca `enabled: true` ve `source_id` dolu akışları
 | `safety.py`, `geo.py`, `data/tr_geofence.json` | Güvenlik filtresi ve geofence / safety filter and geofence |
 | `ingest.py` | HMAC-SHA256 imzalı ≤100'lük partiler / signed batches of ≤100 |
 | `fetch.py` | `urllib` tabanlı küçük HTTP yardımcısı (zaman aşımı, UA, koşullu GET, yeniden deneme) / small HTTP helper |
+| `state.py` | Tekilleştirme defteri (`{id, simhash, seen}`, budamalı) / dedup ledger, pruned |
+| `review.py` | İnceleme kuyruğu: aday modeli, konu metni, Wayback araması, `redline_check` işareti / review queue: candidate model, issue body, Wayback lookup, `redline_check` marker |
 | `rss.py`, `config.py`, `cli.py` | RSS/Atom toplayıcı, YAML yapılandırma, `gt-collect` / collector, config, CLI |
 
 Bağımlılıklar / Dependencies: yalnızca / only `PyYAML` at runtime. We use `urllib` rather than `httpx` and `xml.etree` rather than `feedparser`: the few features we need are small to write, and every extra package is supply-chain surface in a job that holds the ingest HMAC key (ADR 0011). XML entity declarations are rejected, so entity-expansion attacks cannot work.
@@ -80,7 +114,8 @@ feeds:
     cadence_minutes: 30           # >= 15
     lang: en
     regions: [aegean]             # datasets vocab/regions.yaml
-    enabled: false                # koşullar teyit edilene kadar / until terms are confirmed
+    enabled: false                # ingest kapısı / ingest gate: needs a source_id too
+    queue: false                  # inceleme kuyruğu kapısı / review-queue gate: needs `terms`
     secrets: []                   # ör. / e.g. [FIRMS_MAP_KEY]
     terms: https://example.org/terms
     notes: …

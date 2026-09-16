@@ -1,0 +1,152 @@
+name: collect
+
+# Daily signal collection into a human review queue.
+#
+#   fetch -> parse -> normalize -> SAFETY FILTER + geofence -> dedup ledger -> issue + artifact
+#
+# Nothing here publishes anything: the run opens one issue of **unverified candidates** for a
+# human to triage (ADR 0007). The safety filter and the geofence run in memory, before anything
+# is written to a file, an artifact or an issue.
+#
+# Keeping the schedule alive: GitHub disables `schedule:` in a public repository after 60 days
+# without repository activity. Every run that queues at least one item pushes a ledger commit to
+# the `collector-state` branch, which is repository activity; a quiet run pushes nothing, so if
+# the feeds go silent for 60 days the schedule can still be disabled. GitHub emails the
+# maintainers first, and `workflow_dispatch` (Actions -> collect -> Run workflow) re-arms it.
+#
+# `main` is protected (pull request + review), so the bot never commits there: the ledger lives
+# on its own `collector-state` branch, created by the first run.
+on:
+  schedule:
+    - cron: "23 5 * * *" # 05:23 UTC daily, off the hour (Actions queues are long on the hour)
+  workflow_dispatch:
+    inputs:
+      max_items:
+        description: "Most candidates in one issue (the rest wait for the next run)"
+        required: false
+        default: "40"
+      dry_run:
+        description: "Collect only: no issue, no ledger commit"
+        type: boolean
+        required: false
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: collect
+  cancel-in-progress: false
+
+env:
+  STATE_BRANCH: collector-state
+  LEDGER: collectors/state/seen.jsonl
+  LABEL: inceleme-kuyrugu
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write # push the dedup ledger to the collector-state branch
+      issues: write # open the review queue issue and create its label
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          version: "0.12.15" # pinned like every other tool here; Dependabot bumps the action
+          python-version: "3.13"
+
+      - name: Restore the dedup ledger
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$LEDGER")"
+          # Anonymous fetch: the repository is public and the branch may not exist yet.
+          if git fetch --no-tags --depth=1 origin "$STATE_BRANCH" 2>/dev/null; then
+            git show "FETCH_HEAD:$LEDGER" > "$LEDGER" 2>/dev/null || : > "$LEDGER"
+            echo "ledger: $(wc -l < "$LEDGER") entries"
+          else
+            echo "ledger: no $STATE_BRANCH branch yet, starting empty"
+          fi
+
+      - name: Collect into the review queue
+        id: collect
+        env:
+          MAX_ITEMS: ${{ github.event.inputs.max_items || '40' }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          uv run --project collectors gt-collect \
+            --config collectors/config/feeds.yaml \
+            --queue-dir queue \
+            --state "$LEDGER" \
+            --max-items "$MAX_ITEMS" \
+            --archive \
+            --run-url "$RUN_URL"
+          {
+            echo "queued=$(python3 -c 'import json;print(json.load(open("queue/summary.json"))["queued"])')"
+            echo "title=$(head -n 1 queue/issue-title.txt)"
+          } >> "$GITHUB_OUTPUT"
+          cat queue/summary.json
+
+      - name: Upload the batch
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: queue-${{ github.run_id }}
+          path: queue/
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Open the review queue issue
+        if: ${{ steps.collect.outputs.queued != '0' && github.event.inputs.dry_run != 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TITLE: ${{ steps.collect.outputs.title }}
+        run: |
+          set -euo pipefail
+          gh label create "$LABEL" --force --color "0e8a16" \
+            --description "İnsan inceleme kuyruğu / human review queue (unverified candidates)"
+          # One issue per day: a second run on the same day comments on the open one.
+          number=$(gh issue list --state open --label "$LABEL" --json number,title \
+            | python3 -c 'import json,os,sys; t=os.environ["TITLE"]; print(next((str(i["number"]) for i in json.load(sys.stdin) if i["title"] == t), ""))')
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body-file queue/issue.md
+          else
+            gh issue create --title "$TITLE" --label "$LABEL" --body-file queue/issue.md
+          fi
+
+      - name: Commit the dedup ledger
+        # After the issue, never before: if the queue could not be shown to anyone, the items
+        # must stay unseen so the next run offers them again.
+        if: ${{ steps.collect.outputs.queued != '0' && github.event.inputs.dry_run != 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          # Empty when the state branch does not exist yet: then this is the branch's first commit.
+          parent=$(git rev-parse --verify --quiet FETCH_HEAD || true)
+          # Build the commit with plumbing: no checkout of the state branch, no stray files, and
+          # it works the same whether or not the branch already exists.
+          GIT_INDEX_FILE=$(mktemp -u)
+          export GIT_INDEX_FILE
+          git read-tree --empty
+          git update-index --add --cacheinfo "100644,$(git hash-object -w "$LEDGER"),$LEDGER"
+          git update-index --add --cacheinfo \
+            "100644,$(git hash-object -w collectors/state/README.md),collectors/state/README.md"
+          tree=$(git write-tree)
+          if [ -n "$parent" ] && [ "$tree" = "$(git rev-parse "$parent^{tree}")" ]; then
+            echo "ledger unchanged; nothing to push"
+            exit 0
+          fi
+          printf 'Collectors: dedup ledger after run %s\n\n%s\n' "${GITHUB_RUN_ID}" "$RUN_URL" > "$RUNNER_TEMP/msg"
+          commit=$(GIT_AUTHOR_NAME="github-actions[bot]" \
+            GIT_AUTHOR_EMAIL="41898282+github-actions[bot]@users.noreply.github.com" \
+            GIT_COMMITTER_NAME="github-actions[bot]" \
+            GIT_COMMITTER_EMAIL="41898282+github-actions[bot]@users.noreply.github.com" \
+            TZ=UTC git commit-tree "$tree" ${parent:+-p "$parent"} -F "$RUNNER_TEMP/msg")
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push origin "$commit:refs/heads/$STATE_BRANCH"
