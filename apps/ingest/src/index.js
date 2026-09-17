@@ -117,18 +117,22 @@ function stamp(date) {
 /**
  * Fetch one published file. The URL is always built here from the configured base plus a name the
  * pointer validator has already constrained, so nothing in a file can redirect this anywhere:
- * `redirect: "error"` refuses even a 3xx from the host itself.
+ * `redirect: "manual"` (workerd does not implement "error") plus the 3xx check below refuses even a
+ * redirect from the host itself.
  */
 async function fetchFile(url, { fetchImpl, maxBytes }) {
   let response;
   try {
     response = await fetchImpl(url, {
       headers: { accept: "application/json", "user-agent": USER_AGENT },
-      redirect: "error",
+      redirect: "manual",
       cf: { cacheTtl: 0 },
     });
   } catch (error) {
     throw new BatchError(`could not reach the batch host: ${error?.name ?? "error"}`, "unreachable");
+  }
+  if (response.status >= 300 && response.status < 400) {
+    throw new BatchError("batch host tried to redirect this Worker", "unreachable");
   }
   if (response.status === 404) return null;
   if (!response.ok) throw new BatchError(`batch host answered HTTP ${response.status}`, "unreachable");
