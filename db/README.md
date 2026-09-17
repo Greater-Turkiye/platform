@@ -2,7 +2,7 @@
 
 [Türkçe](#türkçe) · [English](#english) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
 
-> Durum: her iki veritabanının `0001_init` ve `0002` migration'ları 2026-09-16'da uzak D1'e uygulandı; günlük toplayıcı çalışması `gt-signals`'a ve `gt-ops.reviews` inceleme kuyruğuna yazıyor. Henüz hiçbir Worker bağlı değil. / Status: `0001_init` and `0002` were applied to both remote D1 databases on 2026-09-16, and the daily collector run writes into `gt-signals` and into the `gt-ops.reviews` queue. No Worker is bound yet.
+> Durum: her iki veritabanının `0001_init` ve `0002` migration'ları 2026-09-16'da uzak D1'e uygulandı. Günlük toplayıcı çalışması partisini `collector-state` dalına yayımlar; `gt-signals` ve `gt-ops.reviews` yazmalarını [`apps/ingest`](../apps/ingest) Worker'ı yapar — kod ve testleri hazır, **henüz dağıtılmadı**. Bağlanan ilk Worker odur. / Status: `0001_init` and `0002` were applied to both remote D1 databases on 2026-09-16. The daily collector run publishes its batch to the `collector-state` branch and the [`apps/ingest`](../apps/ingest) Worker writes it into `gt-signals` and `gt-ops.reviews`; that Worker is written and tested but **not deployed yet**, and it is the first Worker bound to these databases.
 
 ## Türkçe
 
@@ -63,6 +63,8 @@ Dizinler / Indexes: `content_hash` (UNIQUE), `(triage_status, created_at)`.
 **collector_state**
 `collector_id` (PK), `enabled`, `last_run_at`, `last_success_at`, `next_due_at`, `cursor` (ETag / Last-Modified / son kimlik / last id), `consecutive_failures`, `last_error`
 
+`gt-ingest` satırı: `cursor` işlenmiş son parti kimliğidir (`2026-09-16-<run id>`), `last_error` reddedilen bir partinin sebebidir — yalnızca kod ve alan adı, hiçbir zaman adayın kendisi. Tablo `WITHOUT ROWID` olduğu için imleci ilerletmek tek satır yazar. / The `gt-ingest` row: `cursor` is the id of the last batch processed, and `last_error` is why a batch was refused — a code and a field name, never a candidate. The table is `WITHOUT ROWID`, so moving the cursor costs one row write.
+
 ### Uzak veritabanları / Remote databases
 
 Cloudflare hesabında oluşturuldu (2026-09-16). Veritabanı kimlikleri gizli değildir; erişim hesap yetkisiyle olur.
@@ -81,19 +83,32 @@ npx wrangler d1 execute gt-ops     --remote --file db/migrations/ops/0001_init.s
 npx wrangler d1 execute gt-ops --remote --command "SELECT name FROM sqlite_master WHERE type='table'"
 ```
 
-GitHub Actions'tan yazmak için depoya `CLOUDFLARE_API_TOKEN` secret'ı gerekir; yerelden `wrangler login` yeterlidir.
-Writing from GitHub Actions needs a `CLOUDFLARE_API_TOKEN` repository secret; locally `wrangler login` is enough.
+Yerelden yazmak için `wrangler login` yeterlidir. GitHub Actions'tan **yazılmaz**: iş akışı partiyi `collector-state` dalına yayımlar, `apps/ingest` Worker'ı çeker, böylece hiçbir API belirtecine gerek kalmaz.
+Locally, `wrangler login` is enough. Nothing writes from GitHub Actions: the workflow publishes the batch to the `collector-state` branch and the `apps/ingest` Worker pulls it, so no API token is needed anywhere.
 
 ### Kim yazıyor / Who writes
 
-Her iki veritabanına bugün yazan tek şey, günlük `collect` iş akışının son adımıdır
-([`.github/workflows/collect.yml`](../.github/workflows/collect.yml)): inceleme konusu açıldıktan sonra
-`gt-collect --write-d1 queue` çalışır, çalışmanın tamamını `signals`'a, insana sunulan adayları da `reviews`'a
-yazar. `ops`'un diğer tablolarına henüz hiçbir şey yazmaz.
+Her iki veritabanına yazan tek şey, günlük `collect` çalışmasının ürettiği partidir — ama artık onu Actions
+değil, [`apps/ingest`](../apps/ingest) Worker'ı yazar. İş akışı
+([`.github/workflows/collect.yml`](../.github/workflows/collect.yml)) inceleme konusu açıldıktan sonra partiyi
+`collector-state` dalına **yayımlar**; Worker cron tetiklemesinde onu herkese açık HTTPS ile okur, çalışmanın
+tamamını `signals`'a, insana sunulan adayları da `reviews`'a yazar ve ne işlediğini `ops.collector_state`
+satırına (`collector_id = 'gt-ingest'`) kaydeder. `ops`'un diğer tablolarına henüz hiçbir şey yazmaz.
 
-Today the only writer of both databases is the last step of the daily `collect` workflow: after the review
-issue exists, `gt-collect --write-d1 queue` writes the whole run into `signals` and then the candidates it
-offered to a human into `reviews`. Nothing writes to the other `ops` tables yet.
+The only writer of both databases is the batch the daily `collect` run produces — but the writer is now the
+[`apps/ingest`](../apps/ingest) Worker, not Actions. After the review issue exists the workflow **publishes**
+the batch to the `collector-state` branch; on its cron tick the Worker reads it over public HTTPS, writes the
+whole run into `signals` and the candidates offered to a human into `reviews`, and records what it processed
+in its own `ops.collector_state` row (`collector_id = 'gt-ingest'`). Nothing writes to the other `ops` tables
+yet.
+
+**Neden çekme / Why pull.** Actions'tan yazmak için bir `CLOUDFLARE_API_TOKEN` gerekirdi: bir insanın
+oluşturup saklayacağı ve döndüreceği, Cloudflare dışında yaşayan bir kimlik bilgisi. Worker ise veritabanlarının
+sahibi olan hesabın içindedir; yazma yetkisi D1 bağlamalarıdır. Böylece el değiştirmenin iki ucunda da sır
+yoktur ve dağıtım tek komuttur: `wrangler deploy`. / Writing from Actions would need a `CLOUDFLARE_API_TOKEN`:
+a credential a human has to create, store and rotate, living outside Cloudflare. The Worker is inside the
+account that owns the databases and its D1 bindings are its authorisation, so no secret exists on either side
+of the hand-off and deploying is one command.
 
 - **Ne yazılır / What is written**: kuyruğa giren (`triage_status = 'queued'`), sonraki çalışmaya kalan
   (`pending`) ve ilgi eşiğinin altında kalan (`scored`) her aday. Sütun eşlemesinin tamamı
@@ -104,15 +119,18 @@ offered to a human into `reviews`. Nothing writes to the other `ops` tables yet.
   dropped, here or anywhere else.
 - **Ne zaman / When**: her gün 05:23 UTC, konudan ve defter commit'inden sonra. / Daily at 05:23 UTC, after the
   issue and the ledger commit.
-- **Gereken tek sır / The one secret**: `CLOUDFLARE_API_TOKEN` (yalnızca ortamdan; yerelde `wrangler login`
-  yeterlidir). Sır yoksa adım gerekçesini günlüğe yazıp atlanır ve boru hattı bugünkü gibi çalışır. Belirtecin
-  birden çok hesabı görmesi hâlinde `CLOUDFLARE_ACCOUNT_ID` deposu değişkeni gerekir (sır değildir). /
-  `CLOUDFLARE_API_TOKEN`, from the environment only; without it the step is skipped with a log line and the
-  pipeline works exactly as before. If the token can see more than one account, add the repository variable
-  `CLOUDFLARE_ACCOUNT_ID` (not a secret).
+- **Gereken sır / Secrets needed**: **yok / none.** İş akışı yalnızca `GITHUB_TOKEN` kullanır, Worker ise D1
+  bağlamalarıyla yazar. `collect.yml` içindeki eski itme adımı yerinde durur ama sır olmadığı için atlanır; bu
+  beklenen durumdur. Yerelde `gt-collect --write-d1` hâlâ `wrangler login` ile çalışır. / The workflow uses
+  only `GITHUB_TOKEN` and the Worker writes through its D1 bindings. The old push step is still in
+  `collect.yml` but skips itself for want of a secret, which is the expected state; locally
+  `gt-collect --write-d1` still works behind `wrangler login`.
 - **Tekilleştirme / Deduplication**: hâlâ `collector-state` dalındaki git defterinden gelir; D1 eklemedir.
   `content_hash` UNIQUE olduğu için `INSERT … ON CONFLICT DO NOTHING` aynı partinin iki kez yazılmasını zararsız
-  kılar. / Still the git ledger; D1 is additive, and the UNIQUE `content_hash` makes a replayed batch harmless.
+  kılar. Worker ayrıca işlediği partinin kimliğini `collector_state.cursor` içinde tutar, böylece aynı parti
+  ikinci tetiklemede hiç okunmaz. / Still the git ledger; D1 is additive, and the UNIQUE `content_hash` makes a
+  replayed batch harmless. The Worker also keeps the id of the batch it processed in `collector_state.cursor`,
+  so a second tick does not even read it again.
 
 **`reviews` — inceleme kuyruğu / the review queue.** Sıra önemlidir: önce `signals`, sonra `reviews`; sinyali
 olmayan bir inceleme satırı, botta kaynak bağlantısı olmayan bir aday olarak görünür. / Order matters: signals

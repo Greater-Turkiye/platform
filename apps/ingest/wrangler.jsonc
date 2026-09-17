@@ -1,0 +1,55 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "gt-ingest",
+  "main": "src/index.js",
+  // Kept at a date the test runtime (workerd, through @cloudflare/vitest-pool-workers) also
+  // supports, so the tests run against the same runtime behaviour as production.
+  "compatibility_date": "2026-08-22",
+
+  // No route and no *.workers.dev subdomain: the cron tick is the only way in. The status
+  // handler is for `wrangler dev` and for the day a route is genuinely wanted. There is no
+  // endpoint that writes, so nothing is lost by leaving the Worker unreachable.
+  "workers_dev": false,
+
+  // 05:53 and 17:53 UTC. The collector run starts at 05:23 and is capped at 20 minutes, so the
+  // first tick reads a batch that is already published; the second is a cheap no-op (one small
+  // fetch and one D1 read) that also turns a bad afternoon into a retry rather than a lost day.
+  // One cron expression = one of the few triggers the free plan allows; `scheduler` uses the
+  // other one so far.
+  "triggers": {
+    "crons": ["53 5,17 * * *"]
+  },
+
+  // Public configuration only. **This Worker has no secret**, and `wrangler secret put` is never
+  // part of deploying it: its authorisation to write is the D1 bindings below, and the batches it
+  // reads are public files in a public repository.
+  "vars": {
+    "BATCH_BASE_URL": "https://raw.githubusercontent.com/Greater-Turkiye/platform/collector-state/collectors/state/batches/",
+    "MAX_ROWS_PER_TICK": "1000",
+    "INSERT_BATCH": "25",
+    "WRITE_BUDGET": "20000"
+  },
+
+  // The database ids are public configuration (db/README.md): access is controlled by Cloudflare
+  // account permissions, which is exactly why this Worker needs no API token. `migrations_dir`
+  // points at the schema it writes; the Worker never applies a migration and adds no table or
+  // column of its own.
+  "d1_databases": [
+    {
+      "binding": "SIGNALS_DB",
+      "database_name": "gt-signals",
+      "database_id": "c7e4f26e-c0c8-4120-a00f-fb88abdf8ed6",
+      "migrations_dir": "../../db/migrations/signals"
+    },
+    {
+      "binding": "OPS_DB",
+      "database_name": "gt-ops",
+      "database_id": "7cb22146-fca6-4193-b9a1-7bfa923dd783",
+      "migrations_dir": "../../db/migrations/ops"
+    }
+  ],
+
+  "observability": {
+    "enabled": true
+  }
+}

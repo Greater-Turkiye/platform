@@ -1,6 +1,6 @@
 """Command line: ``gt-collect`` (or ``python -m gt_collectors``).
 
-Four modes, none of which ever writes a record that the safety filter dropped:
+Five modes, none of which ever writes a record that the safety filter dropped:
 
 ``--dry-run``
     Print signals as JSON lines, send nothing (no secrets needed)::
@@ -37,6 +37,17 @@ Four modes, none of which ever writes a record that the safety filter dropped:
     the Telegram review bot. Items the safety filter or the geofence dropped are not in the
     batch, and the writer filters again before mapping a row.
 
+``--publish-batch``
+    Publish the same rows as a file the ``apps/ingest`` Worker pulls, instead of pushing them
+    into D1 from here (:mod:`gt_collectors.batch`). No credential of any kind::
+
+        gt-collect --publish-batch queue --batch-dir collectors/state/batches \\
+            --run-id "$GITHUB_RUN_ID" --existing existing.txt
+
+    Writes ``<batch-dir>/<day>-<run id>.json`` and ``<batch-dir>/latest.json``, and a summary in
+    ``DIR/publish.json`` naming the two files to commit and the old batches to delete. This is
+    what the scheduled workflow does, and it is why the workflow needs no Cloudflare secret.
+
 ``(neither)``
     A real ingest run: needs ``INGEST_URL`` and ``INGEST_HMAC_KEY``, and sends only enabled
     feeds that have a ``source_id``::
@@ -59,6 +70,7 @@ from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 
+from gt_collectors import batch as batch_publish
 from gt_collectors import d1, fetch, relevance, review, rss, safety, state
 from gt_collectors.config import ConfigError, FeedConfig, load_feeds
 from gt_collectors.ingest import IngestClient
@@ -69,6 +81,7 @@ CANDIDATES_FILE = "candidates.jsonl"
 ISSUE_BODY_FILE = "issue.md"
 ISSUE_TITLE_FILE = "issue-title.txt"
 SUMMARY_FILE = "summary.json"
+PUBLISH_FILE = "publish.json"
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -148,6 +161,33 @@ def _parser() -> argparse.ArgumentParser:
         "--no-reviews",
         action="store_true",
         help="write the signals only; do not promote queued candidates into ops.reviews",
+    )
+    published = p.add_argument_group("published batch (pulled by the apps/ingest Worker)")
+    published.add_argument(
+        "--publish-batch",
+        type=Path,
+        metavar="DIR",
+        help=f"publish the batch in DIR/{CANDIDATES_FILE} as a file a Worker can pull "
+        "(no credential of any kind)",
+    )
+    published.add_argument(
+        "--batch-dir",
+        type=Path,
+        default=batch_publish.DEFAULT_DIR,
+        metavar="DIR",
+        help="where the batch and its pointer are written (default: %(default)s)",
+    )
+    published.add_argument(
+        "--run-id",
+        metavar="ID",
+        help="run identifier in the batch id (default: the run's UTC time)",
+    )
+    published.add_argument(
+        "--existing",
+        type=Path,
+        metavar="FILE",
+        help="file listing the batch file names already published, one per line, "
+        "used to work out which old batches this run should delete",
     )
     return p
 
@@ -367,6 +407,58 @@ def _run_write_d1(args: argparse.Namespace) -> int:
     return 0
 
 
+def _existing_names(path: Path | None) -> list[str]:
+    """The batch file names already on the state branch (``git ls-tree --name-only``)."""
+    if path is None or not path.exists():
+        return []
+    lines = path.read_text(encoding="utf-8").splitlines()
+    return [line.strip().rsplit("/", 1)[-1] for line in lines if line.strip()]
+
+
+def _run_publish_batch(args: argparse.Namespace, now: datetime) -> int:
+    """Publish an existing queue batch as the file the ingest Worker pulls."""
+    queue_dir = args.publish_batch if args.publish_batch.is_dir() else args.publish_batch.parent
+    path = args.publish_batch / CANDIDATES_FILE if args.publish_batch.is_dir() else args.publish_batch
+    items = d1.read_batch(path)
+    identifier = batch_publish.batch_id(state.today_utc(now), batch_publish.run_id(args.run_id, now=now))
+    summary = batch_publish.publish(
+        items,
+        directory=args.batch_dir,
+        identifier=identifier,
+        created_at=now,
+        run_url=args.run_url,
+        existing=_existing_names(args.existing),
+    )
+    (queue_dir / PUBLISH_FILE).write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n"
+    )
+    print(json.dumps(summary, ensure_ascii=False), file=sys.stderr)
+    return 0
+
+
+def _run_batch_mode(args: argparse.Namespace) -> int | None:
+    """``--write-d1`` and ``--publish-batch``: the two ways an existing batch leaves this run.
+
+    Both take a batch ``--queue-dir`` already produced and collect nothing themselves, so neither
+    can be combined with a collecting option. Returns the exit code, or ``None`` when the run is
+    in neither mode.
+    """
+    if args.write_d1 and args.publish_batch:
+        raise ConfigError("--write-d1 pushes a batch, --publish-batch publishes one; pick one")
+    flag = "--write-d1" if args.write_d1 else "--publish-batch"
+    if not (args.write_d1 or args.publish_batch):
+        return None
+    if args.queue_dir or args.dry_run or args.input or args.feed:
+        raise ConfigError(f"{flag} is its own mode: it takes a batch that --queue-dir already produced")
+    try:
+        if args.write_d1:
+            return _run_write_d1(args)
+        return _run_publish_batch(args, datetime.now(UTC))
+    except (ValueError, OSError, d1.D1Error) as exc:  # BatchError is a ValueError
+        print(f"{flag.lstrip('-')} error: {type(exc).__name__}: {exc}", file=sys.stderr)
+        return 2
+
+
 def main(argv: list[str] | None = None) -> int:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
@@ -381,16 +473,9 @@ def main(argv: list[str] | None = None) -> int:
             raise ConfigError("--min-relevance must be between 0 and 1")
         if not 1 <= args.d1_batch <= d1.BATCH_LIMIT:
             raise ConfigError(f"--d1-batch must be between 1 and {d1.BATCH_LIMIT}")
-        if args.write_d1:
-            if args.queue_dir or args.dry_run or args.input or args.feed:
-                raise ConfigError(
-                    "--write-d1 is its own mode: it writes a batch that --queue-dir already produced"
-                )
-            try:
-                return _run_write_d1(args)
-            except (ValueError, OSError, d1.D1Error) as exc:
-                print(f"d1 error: {type(exc).__name__}: {exc}", file=sys.stderr)
-                return 2
+        code = _run_batch_mode(args)
+        if code is not None:
+            return code
         feeds = _select(load_feeds(args.config), args)
         if args.input and len(feeds) != 1:
             raise ConfigError("--input needs exactly one --feed")
