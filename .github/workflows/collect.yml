@@ -3,28 +3,33 @@ name: collect
 # Daily signal collection into a human review queue.
 #
 #   fetch -> parse -> normalize -> SAFETY FILTER + geofence -> dedup ledger
-#     -> issue + artifact -> D1 signal store -> D1 review queue
+#     -> issue + artifact -> publish the batch on `collector-state`  (-> a Worker pulls it into D1)
 #
 # Nothing here publishes anything: the run opens one issue of **unverified candidates** for a
 # human to triage (ADR 0007). The safety filter and the geofence run in memory, before anything
 # is written to a file, an artifact, an issue or the database.
 #
-# The last step writes to D1 (db/README.md): the whole batch into `gt-signals`, so the run has a
-# history a Worker can read, and then the candidates this run offered to a human into
-# `gt-ops.reviews`, which is the queue the Telegram review bot reads (apps/review-bot). The two
-# surfaces show the same items under the same identity: the dedup id in the issue is the first 12
-# characters of `reviews.content_hash`. It is additive: it runs after the issue and the ledger,
-# and it is skipped with a log line when the repository has no `CLOUDFLARE_API_TOKEN` secret,
-# which is the only secret this workflow can use. Deduplication still comes from the git ledger.
+# **This workflow needs no Cloudflare credential.** It publishes the batch it would have inserted
+# — the same rows, the same triage statuses — next to the dedup ledger on the `collector-state`
+# branch, and the `gt-ingest` Worker (apps/ingest) pulls it from there into `gt-signals` and
+# `gt-ops.reviews`. That Worker runs inside the Cloudflare account that owns both databases, so
+# its D1 bindings are its authorisation and no token has to exist on either side. Only what the
+# safety filter and the geofence already allowed is published, and never more than what goes into
+# D1 (collectors/src/gt_collectors/batch.py).
+#
+# The last step is the old push path, kept for a maintainer's machine (`wrangler login`), where it
+# still writes both databases directly. In CI its **absence is the normal case**: with no
+# `CLOUDFLARE_API_TOKEN` secret it logs one line and does nothing, and the pipeline is complete
+# without it, because the Worker has already been given everything it needs.
 #
 # Keeping the schedule alive: GitHub disables `schedule:` in a public repository after 60 days
-# without repository activity. Every run that queues at least one item pushes a ledger commit to
-# the `collector-state` branch, which is repository activity; a quiet run pushes nothing, so if
-# the feeds go silent for 60 days the schedule can still be disabled. GitHub emails the
+# without repository activity. Every run with anything to publish — a queued item, or only items
+# the relevance filter set aside — pushes a commit to the `collector-state` branch, which is
+# repository activity; a run that collected nothing at all pushes nothing. GitHub emails the
 # maintainers first, and `workflow_dispatch` (Actions -> collect -> Run workflow) re-arms it.
 #
-# `main` is protected (pull request + review), so the bot never commits there: the ledger lives
-# on its own `collector-state` branch, created by the first run.
+# `main` is protected (pull request + review), so the bot never commits there: the ledger and the
+# published batches live on the `collector-state` branch, created by the first run.
 on:
   schedule:
     - cron: "23 5 * * *" # 05:23 UTC daily, off the hour (Actions queues are long on the hour)
@@ -49,6 +54,7 @@ concurrency:
 env:
   STATE_BRANCH: collector-state
   LEDGER: collectors/state/seen.jsonl
+  BATCHES: collectors/state/batches
   LABEL: inceleme-kuyrugu
 
 jobs:
@@ -127,10 +133,35 @@ jobs:
             gh issue create --title "$TITLE" --label "$LABEL" --body-file queue/issue.md
           fi
 
-      - name: Commit the dedup ledger
+      - name: Publish the batch for the ingest Worker
+        # The whole run — queued, deferred and off-topic alike — as the file `apps/ingest` pulls
+        # into D1. Needs no credential: it writes two files into the working tree, and the commit
+        # step below puts them on the `collector-state` branch. Runs after the issue like every
+        # other write here, so a queue nobody could be shown is never recorded as delivered.
+        id: publish
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$BATCHES"
+          # What the branch already holds, so old batches can be pruned in the same commit.
+          git ls-tree --name-only "FETCH_HEAD:$BATCHES" > "$RUNNER_TEMP/batches.txt" 2>/dev/null \
+            || : > "$RUNNER_TEMP/batches.txt"
+          uv run --project collectors gt-collect \
+            --publish-batch queue \
+            --batch-dir "$BATCHES" \
+            --run-id "$GITHUB_RUN_ID" \
+            --run-url "$RUN_URL" \
+            --existing "$RUNNER_TEMP/batches.txt"
+          echo "rows=$(python3 -c 'import json;print(json.load(open("queue/publish.json"))["rows"])')" \
+            >> "$GITHUB_OUTPUT"
+          cat queue/publish.json
+
+      - name: Commit the dedup ledger and the published batch
         # After the issue, never before: if the queue could not be shown to anyone, the items
         # must stay unseen so the next run offers them again.
-        if: ${{ steps.collect.outputs.queued != '0' && github.event.inputs.dry_run != 'true' }}
+        if: ${{ github.event.inputs.dry_run != 'true' && (steps.collect.outputs.queued != '0' || steps.publish.outputs.rows != '0') }}
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -142,16 +173,29 @@ jobs:
           # it works the same whether or not the branch already exists.
           GIT_INDEX_FILE=$(mktemp -u)
           export GIT_INDEX_FILE
-          git read-tree --empty
+          # Start from the branch as it is, so earlier batches survive this commit; with no branch
+          # yet, start empty.
+          if [ -n "$parent" ]; then git read-tree "$parent"; else git read-tree --empty; fi
           git update-index --add --cacheinfo "100644,$(git hash-object -w "$LEDGER"),$LEDGER"
           git update-index --add --cacheinfo \
             "100644,$(git hash-object -w collectors/state/README.md),collectors/state/README.md"
+          if [ -f queue/publish.json ]; then
+            # Paths from publish.json only, and every one of them matches <day>-<run id>.json or
+            # latest.json, so there is nothing in them for the shell to split on.
+            for f in $(python3 -c 'import json;d=json.load(open("queue/publish.json"));print(d["file"]);print(d["pointer"])'); do
+              git update-index --add --cacheinfo "100644,$(git hash-object -w "$f"),$f"
+            done
+            for f in $(python3 -c 'import json;print("\n".join(json.load(open("queue/publish.json"))["prune"]))'); do
+              git update-index --force-remove "$f"
+            done
+          fi
           tree=$(git write-tree)
           if [ -n "$parent" ] && [ "$tree" = "$(git rev-parse "$parent^{tree}")" ]; then
-            echo "ledger unchanged; nothing to push"
+            echo "collector state unchanged; nothing to push"
             exit 0
           fi
-          printf 'Collectors: dedup ledger after run %s\n\n%s\n' "${GITHUB_RUN_ID}" "$RUN_URL" > "$RUNNER_TEMP/msg"
+          printf 'Collectors: dedup ledger and published batch after run %s\n\n%s\n' \
+            "${GITHUB_RUN_ID}" "$RUN_URL" > "$RUNNER_TEMP/msg"
           commit=$(GIT_AUTHOR_NAME="github-actions[bot]" \
             GIT_AUTHOR_EMAIL="41898282+github-actions[bot]@users.noreply.github.com" \
             GIT_COMMITTER_NAME="github-actions[bot]" \
@@ -160,16 +204,16 @@ jobs:
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git push origin "$commit:refs/heads/$STATE_BRANCH"
 
-      - name: Write the signals into D1 and fill the review queue
-        # Last, after the issue and the ledger: both writes are additive, so a database problem
-        # must never keep the queue from a human or the ledger from being recorded. Queued,
-        # deferred and off-topic items all go into `gt-signals` with their triage status; only the
-        # items this run actually put in front of a human become `gt-ops.reviews` rows, and the
-        # signals are written first so a review always has its signal. The safety filter and the
-        # geofence have already removed everything that may not be stored, and the writer applies
-        # them again. Both inserts are ON CONFLICT DO NOTHING, so a re-run adds nothing and cannot
-        # reopen an item a reviewer has already decided.
-        # Without the secret the step logs why it did nothing and the run is green.
+      - name: Push the batch into D1 directly (optional, normally skipped)
+        # The old push path. Nothing depends on it any more: the batch published above is what
+        # fills both databases, through the `gt-ingest` Worker, and this repository holds no
+        # Cloudflare secret. The step stays because the same command is how a maintainer fills D1
+        # from their own machine with `wrangler login`, and because a repository that *does* have
+        # a token (a fork, a future environment) can still take the short route.
+        #
+        # Skipping it is the normal case and is not a failure: the rows are already on the
+        # `collector-state` branch, and the Worker's next tick writes them. Both writes are
+        # ON CONFLICT DO NOTHING in either path, so running both changes nothing.
         if: ${{ github.event.inputs.dry_run != 'true' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -178,9 +222,9 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
-            echo "d1: no CLOUDFLARE_API_TOKEN secret in this repository — skipping the signal store"
-            echo "d1: and the gt-ops review queue (the Telegram bot will show nothing new)."
-            echo "d1: the GitHub issue, the artifact and the dedup ledger are unaffected."
+            echo "d1: no CLOUDFLARE_API_TOKEN secret here, which is the expected state — not pushing."
+            echo "d1: the batch for this run is published on the $STATE_BRANCH branch and the"
+            echo "d1: gt-ingest Worker (apps/ingest) writes it into gt-signals and gt-ops.reviews."
             exit 0
           fi
           if [ -n "${CF_ACCOUNT_ID:-}" ]; then

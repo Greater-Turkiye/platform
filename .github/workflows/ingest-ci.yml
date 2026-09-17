@@ -1,0 +1,57 @@
+name: ingest-ci
+
+# Test the ingest Worker. Everything here runs locally in workerd: no Cloudflare credential, no
+# network, and nothing is deployed — `wrangler deploy --dry-run` only builds the Worker and checks
+# wrangler.jsonc. The tests build two local D1 databases from `db/migrations`, so a schema change
+# that the Worker's INSERTs no longer fit fails here; that is why this workflow also watches
+# `db/migrations`.
+on:
+  pull_request:
+    paths:
+      - "apps/ingest/**"
+      - "db/migrations/**"
+      - ".github/workflows/ingest-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ingest-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  WRANGLER_SEND_METRICS: "false"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/ingest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: apps/ingest/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Tests
+        run: npm test
+      - name: The Worker builds and the configuration parses
+        run: npx wrangler deploy --dry-run --outdir "$RUNNER_TEMP/ingest-build"
+      - name: This Worker reads no credential
+        # Its one claim is that deploying it is `wrangler deploy` and nothing else. A binding that
+        # looks like a credential, or an Authorization header, would quietly break that claim, so
+        # the code is checked for both. (Prose about the token this design removed is fine; these
+        # patterns only match code.)
+        run: |
+          set -euo pipefail
+          if grep -rnE 'env\.[A-Za-z_]*(TOKEN|SECRET|PASSWORD|_KEY)|authorization *:|Bearer ' src; then
+            echo "ingest: this Worker must not read or send a credential" >&2
+            exit 1
+          fi

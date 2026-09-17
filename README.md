@@ -17,10 +17,11 @@ The code of the open-source intelligence community: the live map and dashboard, 
 |---|---|---|
 | [`apps/web`](apps/web) | **Yayında** | Statik site: ana sayfadaki dünya küresi, OSINT paneli ve yöntem sayfası. Derleme adımı yok; D3 ve topojson-client depoda barındırılır. Katman listesi: [apps/web/README.md](apps/web/README.md) |
 | [`tools/geo`](tools/geo) | **Çalışıyor** | Harita katmanlarını resmî kaynaklardan yeniden üretilebilir şekilde kuran Python betikleri (Mavi Vatan, KKTC ruhsat sahaları, Marmara ve Boğazlar, temsilcilikler, harekât bölgeleri) |
-| [`collectors`](collectors) | **Çalışıyor** | GitHub Actions'ta **her gün çalışan** Python toplayıcılar: RSS alımı, normalleştirme, tekrar eleme (simhash), güvenlik süzgeci ve coğrafi çit, ardından izleme bölgelerine ve olay türlerine göre **ilgi süzgeci**. Kalan adaylar `inceleme-kuyrugu` etiketli bir konuda insan incelemesine sunulur ([collect.yml](.github/workflows/collect.yml)) ; çalışmanın tamamı `gt-signals` D1 veritabanına, insana sunulan adaylar da `gt-ops.reviews` inceleme kuyruğuna yazılır; ingest'e gönderim `api` Worker'ı gelene kadar kapalı |
-| [`db`](db) | **Kurulu** | Cloudflare D1 şeması ve migration'lar (`signals`, `ops`); iki veritabanının migration'ları uygulandı ve günlük toplama her ikisine de yazıyor: sinyaller `gt-signals`'a, insana sunulan adaylar `gt-ops.reviews` inceleme kuyruğuna. Henüz hiçbir Worker bağlı değil |
+| [`collectors`](collectors) | **Çalışıyor** | GitHub Actions'ta **her gün çalışan** Python toplayıcılar: RSS alımı, normalleştirme, tekrar eleme (simhash), güvenlik süzgeci ve coğrafi çit, ardından izleme bölgelerine ve olay türlerine göre **ilgi süzgeci**. Kalan adaylar `inceleme-kuyrugu` etiketli bir konuda insan incelemesine sunulur ([collect.yml](.github/workflows/collect.yml)) ; çalışmanın tamamı `collector-state` dalına bir parti dosyası olarak yayımlanır ve oradan `gt-signals` ile `gt-ops.reviews` içine `apps/ingest` Worker'ı tarafından çekilir — iş akışının hiçbir sırrı yoktur; ingest'e gönderim `api` Worker'ı gelene kadar kapalı |
+| [`db`](db) | **Kurulu** | Cloudflare D1 şeması ve migration'lar (`signals`, `ops`); iki veritabanının migration'ları uygulandı. Günlük toplama partisini yayımlar, `gt-signals` ile `gt-ops.reviews` yazmalarını [`apps/ingest`](apps/ingest) Worker'ı yapar (dağıtılınca bağlanan ilk Worker o olacak) |
 | [`apps/scheduler`](apps/scheduler) | **Devam ediyor** | Cron tetikleyicisiyle çalışan, `collect.yml` iş akışını `workflow_dispatch` ile başlatan Cloudflare Worker'ı: kod ve testleri hazır ([scheduler-ci](.github/workflows/scheduler-ci.yml)), **henüz dağıtılmadı**. Toplayıcı tetikleyicisi, Worker dağıtılıp [ADR 0016](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0016-collector-schedule-until-worker.md)'yı geçersiz kılan bir karar yazılana kadar `schedule:` üzerinde kalır |
 | [`apps/review-bot`](apps/review-bot) | **Devam ediyor** | Özel Telegram inceleme botu (Cloudflare Worker): bekleyen adayları telefonda gösterir, `onayla` / `reddet` / `sonra` kararını `gt-ops` veritabanına yazar. Hiçbir yere yayın yapmaz, PR açmaz; onay yalnızca "taslağa uygun" işaretidir. Kuyruğunu günlük toplama doldurur. Kod ve testleri hazır ([review-bot-ci](.github/workflows/review-bot-ci.yml)), **henüz dağıtılmadı**: bot hesabı, sırlar ve `reviewers` tablosundaki gözden geçirici satırı yok |
+| [`apps/ingest`](apps/ingest) | **Devam ediyor** | Cron tetikleyicisiyle çalışan Cloudflare Worker'ı: toplayıcı çalışmasının `collector-state` dalına yayımladığı partiyi çeker ve `gt-signals` ile `gt-ops.reviews` içine yazar. **Hiçbir sır istemez** — yazma yetkisi hesabın kendi D1 bağlamalarıdır. Kod ve testleri hazır ([ingest-ci](.github/workflows/ingest-ci.yml)), **henüz dağıtılmadı** (`wrangler deploy`) |
 | [`apps/api`](apps/api) | **Planlandı** | Cloudflare Worker: alım ucu (`/v1/ingest`). Şimdilik yalnızca tasarım notları |
 | [`publishers`](publishers) | **Taslak** | Yayın kanallarının tasarımı ve **çalışan ama hiçbir şey göndermeyen** iskeleti (Telegram, Bluesky, RSS rölesi): mesaj sözleşmesi, içerik denetimleri, hız sınırları, insan onayı kapısı. Ağ istemcisi yok, kimlik bilgisi yok, açık kanal yok. Kamu akışı ise `datasets` deposunda üretilir |
 
@@ -71,7 +72,10 @@ uv run gt-collect --help
 # İnceleme kuyruğunu yerelde üret: aday listesi + konu metni, hiçbir şey gönderilmez
 uv run gt-collect --queue-dir queue --state state/seen.jsonl
 
-# Aynı çalışmayı D1'e yaz: sinyaller + inceleme kuyruğu (SQL'i görmek için --d1-dry-run)
+# Aynı çalışmayı D1'e giden parti olarak yayımla (sır gerekmez)
+uv run gt-collect --publish-batch queue --batch-dir state/batches --run-id local
+
+# Ya da yerelden doğrudan D1'e yaz (wrangler login; SQL'i görmek için --d1-dry-run)
 uv run gt-collect --write-d1 queue --d1-dry-run
 ```
 
@@ -81,11 +85,22 @@ Sonra **ilgi süzgeci** (`relevance.py`) gelir: her adaya bir izleme bölgesi si
 
 [`.github/workflows/collect.yml`](.github/workflows/collect.yml) her gün 05:23 UTC'de (ve elle tetiklenerek) çalışır: koşulları kayda geçmiş akışları toplar, güvenlik süzgecinden geçirir, tekrarları eler, ilgi süzgecini uygular ve kalan adayları tarihli tek bir konuya yazar. Konudaki hiçbir öğe doğrulanmış değildir; kararı insan verir. Tekilleştirme defteri `collector-state` dalında tutulur ([collectors/state](collectors/state)).
 
-Konu açıldıktan sonra son bir adım, çalışmanın **tamamını** — kuyruğa girenleri, sonraki çalışmaya kalanları ve konu dışı bulunanları — kendi triyaj durumlarıyla `gt-signals` D1 veritabanına yazar ([db/README.md](db/README.md)): konu insanın gördüğü liste, veritabanı ise geçmiştir. Yazma `INSERT … ON CONFLICT(content_hash) DO NOTHING` olduğu için aynı parti iki kez çalıştırılsa da ne satır çoğalır ne bir sayaç kayar. Güvenlik süzgecinin veya coğrafi çitin elediği hiçbir kayıt veritabanına ulaşmaz. Tekilleştirme hâlâ git defterinden gelir; D1 eklemedir.
+Konu açıldıktan sonra son bir adım, çalışmanın **tamamını** — kuyruğa girenleri, sonraki çalışmaya kalanları ve konu dışı bulunanları — kendi triyaj durumlarıyla tek bir **parti dosyası** olarak `collector-state` dalına yayımlar ([collectors/state](collectors/state)); oradan `gt-signals` D1 veritabanına yazan, [`apps/ingest`](apps/ingest) Worker'ıdır ([db/README.md](db/README.md)). Konu insanın gördüğü liste, veritabanı ise geçmiştir. Yazma `INSERT … ON CONFLICT(content_hash) DO NOTHING` olduğu için aynı parti iki kez işlense de ne satır çoğalır ne bir sayaç kayar. Güvenlik süzgecinin veya coğrafi çitin elediği hiçbir kayıt ne yayımlanan dosyaya ne de veritabanına ulaşır. Tekilleştirme hâlâ git defterinden gelir; D1 eklemedir.
 
 Aynı adım, **yalnızca insana sunulan** adayları (konuya giren satırlar) `gt-ops.reviews` tablosuna yazar: Telegram inceleme botunun ([apps/review-bot](apps/review-bot)) okuduğu kuyruk budur. Sonraki çalışmaya kalan ve konu dışı bulunan öğeler kuyruğa girmez. Konudaki tekilleştirme kimliği ile `reviews.content_hash` aynı değerdir (ilk 12 karakter), yani konu ile bot aynı öğeyi iki kez saymaz; `content_hash` UNIQUE olduğu için yeniden çalıştırma ne satır çoğaltır ne de gözden geçiricinin verdiği kararı geri alır.
 
-Bu adım tek bir sır ister, `CLOUDFLARE_API_TOKEN`; sır yoksa adım gerekçesini günlüğe yazıp atlanır ve boru hattının geri kalanı bugünkü gibi sırsız, hesapsız ve ödeme yöntemsiz çalışır.
+**Bu boru hattının hiçbir sırrı yoktur.** D1'e yazmak için eskiden gereken `CLOUDFLARE_API_TOKEN` artık gerekmez: veriyi Actions itmez, Worker çeker ve Worker zaten veritabanlarının sahibi olan Cloudflare hesabının içinde çalışır. `collect.yml` içindeki eski itme adımı yerinde durur ama sır olmadığı için atlanır — beklenen durum budur; aynı komut bir bakımcının makinesinde `wrangler login` ile hâlâ çalışır. Hesap ya da ödeme yöntemi de gerekmez.
+
+### Alım Worker'ı (henüz dağıtılmadı)
+
+```bash
+cd apps/ingest
+npm ci
+npm test                       # workerd içinde çalışan testler; kimlik bilgisi gerekmez
+npx wrangler deploy --dry-run  # derleme ve yapılandırma denetimi; dağıtım yok
+```
+
+[`apps/ingest`](apps/ingest), günlük toplama çalışmasının `collector-state` dalına yayımladığı partiyi cron tetiklemesiyle çeken ve `gt-signals` ile `gt-ops.reviews` içine yazan Cloudflare Worker'ıdır. **Dağıtımı tek komuttur ve hiçbir sır istemez** (`npx wrangler deploy`): yazma yetkisi, veritabanlarının sahibi olan hesabın kendi D1 bağlamalarıdır. Okuduğu dosya güvenilmez sayılır — her satır `signals` şemasına göre denetlenir, satır sayısı sınırlanır ve uymayan dosya tamamen reddedilir. İşlediği parti `ops.collector_state` içine yazıldığı ve her iki ekleme de `ON CONFLICT DO NOTHING` olduğu için yeniden çalıştırma zararsızdır: ne satır çoğalır, ne verilmiş bir karar geri alınır. Herkese açık yazan uç noktası yoktur.
 
 ### Zamanlayıcı (henüz dağıtılmadı)
 
@@ -146,10 +161,11 @@ Kod [MIT](LICENSE). Üretilen veriler `datasets` deposunda CC BY 4.0 ile yayıml
 |---|---|---|
 | [`apps/web`](apps/web) | **Live** | The static site: the globe on the home page, the OSINT dashboard and the methodology page. No build step; D3 and topojson-client are vendored. Layer list: [apps/web/README.md](apps/web/README.md) |
 | [`tools/geo`](tools/geo) | **Working** | Python builders that construct the map layers reproducibly from official sources (Blue Homeland, TRNC licence areas, the Sea of Marmara and the Straits, diplomatic missions, announced operation areas) |
-| [`collectors`](collectors) | **Working** | Python collectors that run in GitHub Actions **every day**: RSS ingest, normalisation, near-duplicate removal (simhash), the safety filter and the geofence, then a **relevance filter** over the watch regions and the recorded event types. What is left goes to a human in an issue labelled `inceleme-kuyrugu` ([collect.yml](.github/workflows/collect.yml)) ; the whole run is written into the `gt-signals` D1 database and the candidates offered to a human into the `gt-ops.reviews` queue; sending to ingest stays off until the `api` Worker exists |
-| [`db`](db) | **Provisioned** | Cloudflare D1 schema and migrations (`signals`, `ops`); both databases have their migrations applied and the daily collection writes to both: the signals into `gt-signals`, the candidates offered to a human into the `gt-ops.reviews` queue. No Worker is bound yet |
+| [`collectors`](collectors) | **Working** | Python collectors that run in GitHub Actions **every day**: RSS ingest, normalisation, near-duplicate removal (simhash), the safety filter and the geofence, then a **relevance filter** over the watch regions and the recorded event types. What is left goes to a human in an issue labelled `inceleme-kuyrugu` ([collect.yml](.github/workflows/collect.yml)) ; the whole run is published to the `collector-state` branch as a batch file, from which the `apps/ingest` Worker pulls it into `gt-signals` and `gt-ops.reviews` — the workflow holds no secret; sending to ingest stays off until the `api` Worker exists |
+| [`db`](db) | **Provisioned** | Cloudflare D1 schema and migrations (`signals`, `ops`); both databases have their migrations applied. The daily collection publishes its batch and the [`apps/ingest`](apps/ingest) Worker writes it into `gt-signals` and `gt-ops.reviews` — the first Worker to be bound, once it is deployed |
 | [`apps/scheduler`](apps/scheduler) | **In progress** | The Cloudflare Worker whose cron trigger starts the `collect.yml` workflow with `workflow_dispatch`: the code and its tests are here ([scheduler-ci](.github/workflows/scheduler-ci.yml)), but it is **not deployed yet**. The collector trigger stays on `schedule:` until the Worker runs and a decision superseding [ADR 0016](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0016-collector-schedule-until-worker.md) is written |
 | [`apps/review-bot`](apps/review-bot) | **In progress** | The private Telegram review bot (a Cloudflare Worker): it shows the waiting candidates on a phone and writes the `onayla` / `reddet` / `sonra` decision to the `gt-ops` database. It posts nothing anywhere and opens no pull request; approval is only a mark that the item is fit for a draft record. Its queue is filled by the daily collection run. The code and its tests are here ([review-bot-ci](.github/workflows/review-bot-ci.yml)), but it is **not deployed**: there is no bot account, no secret and no reviewer row yet |
+| [`apps/ingest`](apps/ingest) | **In progress** | The Cloudflare Worker whose cron trigger pulls the batch the collector run published to the `collector-state` branch and writes it into `gt-signals` and `gt-ops.reviews`. It needs **no secret**: its authorisation to write is the account's own D1 bindings. The code and its tests are here ([ingest-ci](.github/workflows/ingest-ci.yml)), but it is **not deployed yet** (`wrangler deploy`) |
 | [`apps/api`](apps/api) | **Planned** | A Cloudflare Worker: the ingest endpoint (`/v1/ingest`). Design notes only for now |
 | [`publishers`](publishers) | **Draft** | The design and a **runnable but inert** skeleton of the publishing channels (Telegram, Bluesky, RSS relay): message contract, content checks, rate limits and the human-approval gate. No network client, no credential, no channel switched on. The public feed itself is built in `datasets` |
 
@@ -200,7 +216,10 @@ uv run gt-collect --help
 # build the review queue locally: candidate list + issue body, nothing is sent
 uv run gt-collect --queue-dir queue --state state/seen.jsonl
 
-# write the same run into D1: signals + review queue (--d1-dry-run prints the SQL instead)
+# publish the same run as the batch that goes into D1 (no secret needed)
+uv run gt-collect --publish-batch queue --batch-dir state/batches --run-id local
+
+# or write straight into D1 from this machine (wrangler login; --d1-dry-run prints the SQL)
 uv run gt-collect --write-d1 queue --d1-dry-run
 ```
 
@@ -210,11 +229,22 @@ The **relevance filter** (`relevance.py`) runs after them: it gives each candida
 
 [`.github/workflows/collect.yml`](.github/workflows/collect.yml) runs every day at 05:23 UTC and on demand: it collects the feeds whose terms are on record, applies the safety filter, drops repeats, applies the relevance filter and writes what is left into a single dated issue. Nothing in that issue is verified; a human decides. The deduplication ledger lives on the `collector-state` branch ([collectors/state](collectors/state)).
 
-After the issue exists, one last step writes the **whole** run — queued, deferred and off-topic items alike, each with its triage status — into the `gt-signals` D1 database ([db/README.md](db/README.md)): the issue is the human's view, the database is the history. The write is `INSERT … ON CONFLICT(content_hash) DO NOTHING`, so running the same batch twice adds no row and moves no counter. Nothing the safety filter or the geofence dropped ever reaches the database. Deduplication still comes from the git ledger; D1 is additive.
+After the issue exists, one last step publishes the **whole** run — queued, deferred and off-topic items alike, each with its triage status — to the `collector-state` branch as a single **batch file** ([collectors/state](collectors/state)); the thing that writes it into the `gt-signals` D1 database is the [`apps/ingest`](apps/ingest) Worker ([db/README.md](db/README.md)). The issue is the human's view, the database is the history. The write is `INSERT … ON CONFLICT(content_hash) DO NOTHING`, so processing the same batch twice adds no row and moves no counter. Nothing the safety filter or the geofence dropped reaches the published file, let alone the database. Deduplication still comes from the git ledger; D1 is additive.
 
 The same step then writes the candidates that were **actually put in front of a human** — the lines in the issue, and nothing else — into `gt-ops.reviews`, which is the queue the Telegram review bot ([apps/review-bot](apps/review-bot)) reads. Deferred and off-topic items do not enter it. The dedup id in the issue is the first 12 characters of `reviews.content_hash`, so the issue and the bot cannot count the same candidate twice, and because that column is UNIQUE a re-run adds no row and cannot undo a reviewer's decision.
 
-This step needs exactly one secret, `CLOUDFLARE_API_TOKEN`; without it the step says so in the log and is skipped, and the rest of the pipeline runs as it does today, with no secrets, no accounts and no payment method.
+**This pipeline holds no secret at all.** The `CLOUDFLARE_API_TOKEN` that writing to D1 used to need is gone: Actions does not push the data, the Worker pulls it, and the Worker already runs inside the Cloudflare account that owns the databases. The old push step is still in `collect.yml` but skips itself for want of a secret, which is now the expected state; the same command still works on a maintainer's machine behind `wrangler login`. No accounts and no payment method either.
+
+### Ingest Worker (not deployed yet)
+
+```bash
+cd apps/ingest
+npm ci
+npm test                       # the tests run inside workerd; no credentials needed
+npx wrangler deploy --dry-run  # build and configuration check; nothing is deployed
+```
+
+[`apps/ingest`](apps/ingest) is the Cloudflare Worker whose cron trigger pulls the batch the daily collection run published to the `collector-state` branch and writes it into `gt-signals` and `gt-ops.reviews`. **Deploying it is one command and needs no secret** (`npx wrangler deploy`): its authorisation to write is the D1 bindings of the account that owns the databases. The file it reads is treated as untrusted — every row is checked against the `signals` schema, the row count is capped, and a file that does not match is refused whole. The batch it processed is recorded in `ops.collector_state` and both inserts are `ON CONFLICT DO NOTHING`, so re-running is harmless: no row is duplicated and no decision is undone. It has no public write endpoint.
 
 ### Scheduler (not deployed yet)
 
