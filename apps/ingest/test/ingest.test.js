@@ -273,8 +273,7 @@ describe("the redirect guard", () => {
   });
 
   it("refuses a 3xx from the host instead of following it", async () => {
-    const result = await run(serve({ pointerBody: "{}
-", status: 302 }));
+    const result = await run(serve({ pointerBody: "{}", status: 302 }));
 
     expect(result).toMatchObject({ ok: false, reason: "unreachable" });
   });
