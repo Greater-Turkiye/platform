@@ -269,7 +269,13 @@ describe("the redirect guard", () => {
 
     await run(fetchImpl);
 
-    for (const [, init] of fetchImpl.mock.calls) expect(init.redirect).toBe("error");
+    for (const [, init] of fetchImpl.mock.calls) expect(init.redirect).toBe("manual");
+  });
+
+  it("refuses a 3xx from the host instead of following it", async () => {
+    const result = await run(serve({ pointerBody: "{}", status: 302 }));
+
+    expect(result).toMatchObject({ ok: false, reason: "unreachable" });
   });
 });
 
