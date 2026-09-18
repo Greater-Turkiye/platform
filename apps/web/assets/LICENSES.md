@@ -1,7 +1,7 @@
 # Third-party assets / Üçüncü taraf varlıklar
 
-All assets are self-hosted so the site makes no third-party requests.
-Tüm varlıklar sitede barındırılır; site üçüncü taraflara istek göndermez.
+All assets are self-hosted, so the site as a visitor sees it makes no third-party requests. The one exception is the vector basemap prototype, which is off unless `panel.html` is opened with `?basemap=…`; it is credited in its own section below.
+Tüm varlıklar sitede barındırılır; ziyaretçinin gördüğü site üçüncü taraflara istek göndermez. Tek istisna, yalnızca `panel.html?basemap=…` ile açılan vektör altlık prototipidir; künyesi aşağıda kendi bölümündedir.
 
 | File | Project | Version | License |
 |---|---|---|---|
@@ -17,3 +17,22 @@ Tüm varlıklar sitede barındırılır; site üçüncü taraflara istek gönder
 
 Boundaries shown are Natural Earth's de facto boundaries and do not imply any position of the project on sovereignty.
 Gösterilen sınırlar Natural Earth'ün fiilî sınırlarıdır; projenin egemenlik konusundaki bir tutumunu ifade etmez.
+
+## Vector basemap prototype / Vektör altlık prototipi
+
+Loaded only with `panel.html?basemap=…` (see [apps/web/README.md](../README.md)). Nothing here is fetched on a normal visit.
+Yalnızca `panel.html?basemap=…` ile yüklenir; normal bir ziyarette buradaki hiçbir şey istenmez.
+
+| File | Project | Version | License |
+|---|---|---|---|
+| `vendor/maplibre-gl.js` | [MapLibre GL JS](https://github.com/maplibre/maplibre-gl-js) | 5.24.0 | BSD-3-Clause (the 70 KB `maplibre-gl.css` is **not** vendored: a non-interactive map needs only two rules, which are in `css/site.css`) |
+| `vendor/pmtiles.js` | [PMTiles](https://github.com/protomaps/PMTiles) | 4.5.0 | BSD-3-Clause |
+| `vendor/glyphs/Noto Sans Regular/{0-255,256-511,512-767}.pbf` | [Noto Sans](https://fonts.google.com/noto/specimen/Noto+Sans), SDF glyph ranges from [protomaps/basemaps-assets](https://github.com/protomaps/basemaps-assets) — Latin, Latin Extended-A and Extended-B only (298 KB), so no label in another script can be drawn | accessed 2026-09-18 | SIL Open Font License 1.1 |
+
+Tiles are not vendored. Whichever source is on, its credit is shown on the map and must stay visible.
+Karolar depoda değildir. Hangi kaynak açıksa künyesi haritada görünür ve görünür kalmalıdır.
+
+| Source | Shown as | License / terms |
+|---|---|---|
+| `?basemap=1` — [OpenFreeMap](https://openfreemap.org), `dark` style, tiles built with [OpenMapTiles](https://openmaptiles.org) from OpenStreetMap | "© OpenStreetMap · OpenFreeMap · OpenMapTiles" | Map data [ODbL 1.0](https://www.openstreetmap.org/copyright), © OpenStreetMap contributors. No key, no account, no stated request limit; commercial use allowed. Donation-funded, no SLA. |
+| `?basemap=pmtiles&pmtiles=<url>` — a [Protomaps](https://protomaps.com) basemap build we host ourselves | "© OpenStreetMap · Protomaps" | A Produced Work of OpenStreetMap data under [ODbL 1.0](https://www.openstreetmap.org/copyright), © OpenStreetMap contributors. Protomaps' own style code is BSD-3-Clause; the style in `basemap.js` is ours. |
