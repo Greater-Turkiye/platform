@@ -750,6 +750,22 @@ topics:
     - güvenlik anlaşma*
     - askeri anlaşma
     - mutabakat muhtırası
+    # ateşkes ve ayrılma hatları: bir bölgede kimin nerede durduğunu belirleyen anlaşmalar
+    # ceasefire and separation lines: agreements that fix who stands where
+    - ceasefire
+    - cease-fire
+    - truce
+    - withdrawal line
+    - yellow line
+    - buffer zone
+    - demilitarized zone
+    - demilitarised zone
+    - line of control
+    - demarcation line
+    - ateşkes
+    - çekilme hatt*
+    - tampon bölge*
+    - askerden arındırılmış
 
   policy.defense:
     - military

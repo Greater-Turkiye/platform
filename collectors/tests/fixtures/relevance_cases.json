@@ -159,6 +159,22 @@
       "expect": "queued",
       "borderline": true,
       "region": "cyprus"
+    },
+    {
+      "id": "yellow-line-levant",
+      "note": "a separation line in a watch region: dropped before ceasefire vocabulary existed (run of 2026-09-17)",
+      "title": "‘Where do we go?’: How Israel’s ‘yellow line’ is closing in on Palestinians",
+      "text": "The yellow line marks how far Israeli forces withdrew under the ceasefire, and families living beside it say the demarcation keeps moving into what is left of their neighbourhood in Gaza.",
+      "expect": "queued",
+      "region": "levant"
+    },
+    {
+      "id": "sg-boilerplate-page",
+      "note": "the UN Secretary-General feed publishes site pages, not events; it no longer reaches the queue",
+      "title": "Overshoot Report (EN)",
+      "text": "",
+      "expect": "off-topic",
+      "region": null
     }
   ]
 }
