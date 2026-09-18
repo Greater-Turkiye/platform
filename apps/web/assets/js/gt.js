@@ -501,6 +501,15 @@
   };
   GT.recordUrl = (rec) => `${GT.REPO}/datasets/blob/main/${GT.recordPath(rec)}`;
 
+  // Building an Intl.DateTimeFormat costs milliseconds; a feed or a ticker asks for the same handful of
+  // language-and-precision combinations over and over, so they are kept.
+  const dtf = new Map();
+  const formatter = (loc, precision, opts) => {
+    const k = loc + '|' + precision;
+    let f = dtf.get(k);
+    if (!f) dtf.set(k, (f = new Intl.DateTimeFormat(loc, opts)));
+    return f;
+  };
   GT.fmtTime = (iso, precision) => {
     if (!iso) return '';
     const t = new Date(iso);
@@ -509,7 +518,7 @@
     const opts = { timeZone: 'UTC', year: 'numeric' };
     if (precision !== 'year') opts.month = 'short';
     if (precision === 'day' || precision === 'hour' || precision === 'minute') opts.day = '2-digit';
-    let s = new Intl.DateTimeFormat(loc, opts).format(t);
+    let s = formatter(loc, precision, opts).format(t);
     if (precision === 'hour' || precision === 'minute') s += ' · ' + t.toISOString().slice(11, 16) + 'Z';
     return s;
   };

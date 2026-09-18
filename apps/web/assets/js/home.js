@@ -56,7 +56,8 @@
     cvOver.setAttribute('aria-label', GT.t('hero.mapAria'));
     sweepEl.className = 'globe-sweep';
     haloEl.className = 'globe-halo';
-    cvHold.style.opacity = '0';
+    // all three start transparent: the still frame and the labels are drawn before the first animated frame sets their opacity
+    cvHold.style.opacity = cvOver.style.opacity = cvEv.style.opacity = '0';
     cvEv.style.pointerEvents = 'none';
     host.replaceChildren(haloEl, cvMove, cvHold, sweepEl, cvOver, cvEv);
     // the still frame is opaque (it paints the page background), which lets the compositor skip what lies beneath it
@@ -159,7 +160,12 @@
       run(drawGlobe(hctx, g, true, dpr, 0, 0));
       if (g === G.next) { G.hi = g; G.next = null; }
       holdReady = true;
-      fontsPending = !!document.fonts && document.fonts.status !== 'loaded';
+      // The still frame's own text is Plex Mono, so re-render it only when that face was missing as it was painted.
+      // `document.fonts.status` does not answer this: it reads 'loaded' while a face has simply not been asked for yet.
+      fontsPending = !!document.fonts && !document.fonts.check('600 10px "Plex Mono"');
+      // The labels belong to the same still view, so they are drawn with it rather than on the first animated frame:
+      // on a first load that frame is the busiest one there is, and it is the frame the labels fade in on.
+      drawOverlay();
     }
 
     const easeInOut = (u) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2);
@@ -369,17 +375,19 @@
     }
 
     /* Re-rendering the still frame (1:50m arrived, language, fonts) runs in the background, a few layers per animation
-       frame, into a spare canvas that replaces the old frame when complete. */
+       frame, into a spare canvas that replaces the old frame when complete. Nothing rasterises the spare canvas while
+       it is being drawn: snapshotting it per step cost more than the one copy it was meant to spread out. */
     function startJob() {
       const g = best();
       const buf = document.createElement('canvas');
       buf.width = cvHold.width; buf.height = cvHold.height;
       const bctx = buf.getContext('2d');
       job = {
-        g, buf,
+        g, buf, cost: 0, // what a step is expected to cost, so the budget below knows whether another one fits
         gen: (function* () {
-          let i = 0;
-          for (const f of g.all) { R.prepare(f); if (++i % 16 === 0) yield; }
+          // one feature per step: at 1:50m a batch of sixteen is a tenth of a second of vertex work, which the
+          // caller's budget cannot interrupt
+          for (const f of g.all) { R.prepare(f); yield; }
           yield* drawGlobe(bctx, g, true, dpr, 0, 0);
         })(),
       };
@@ -388,10 +396,15 @@
       if (!job) return;
       const t0 = performance.now();
       setCamera(HOLD_CAM, false);
-      while (job && performance.now() - t0 < JOB_BUDGET) {
+      // A step is a whole layer and cannot be interrupted, so a second one only starts when a step of the expected
+      // size would still fit in the budget. The estimate is the recent worst, halved each step so one heavy layer
+      // does not hold the rest of the job to a single step per frame. Every frame runs one, so the job always moves on.
+      for (let n = 0; job; n++) {
+        const s0 = performance.now();
+        if (n && s0 - t0 + job.cost > JOB_BUDGET) break;
         const step = job.gen.next();
-        // rasterise now rather than all at once when the finished frame is copied
-        if (window.createImageBitmap) createImageBitmap(job.buf).then((bm) => bm.close(), () => {});
+        const spent = performance.now() - s0;
+        if (job) job.cost = Math.max(spent, job.cost / 2);
         if (step.done) {
           hctx.setTransform(1, 0, 0, 1, 0, 0);
           hctx.drawImage(job.buf, 0, 0);
@@ -401,9 +414,19 @@
       }
     }
 
+    /* Letter-spaced text, and the width of each character it uses. A label pass measures every character of every
+       label; the same few faces and sizes come back on every pass, so the widths are kept per font string. Cleared
+       when the web fonts arrive, in case a pass ran on a fallback face. */
+    const glyphs = new Map();
     function spaced(c, text, x, y, spacing) {
       const chars = [...text];
-      const widths = chars.map((ch) => c.measureText(ch).width);
+      let cache = glyphs.get(c.font);
+      if (!cache) glyphs.set(c.font, (cache = new Map()));
+      const widths = chars.map((ch) => {
+        let w = cache.get(ch);
+        if (w === undefined) cache.set(ch, (w = c.measureText(ch).width));
+        return w;
+      });
       const total = widths.reduce((a, w) => a + w, 0) + spacing * (chars.length - 1);
       let px = x - total / 2;
       chars.forEach((ch, i) => { c.fillText(ch, px, y); px += widths[i] + spacing; });
@@ -490,13 +513,41 @@
        for the hold view and kept (hidden by opacity in between), so no text is drawn while the camera moves: in the last
        tenth of the approach, when they fade in, the globe is within a fraction of a degree of the hold. Only the small
        event canvas changes each frame. */
-    let overA = -1, labelsKey = '', sweepKey = '', evs = [], evBox = null;
+    let overA = -1, labelsKey = '', sweepKey = '', evs = [], evBox = null, overPending = false;
+    const overKey = () => [W, H, dpr, GT.lang, !!data].join('|');
+    // the two faces the labels are drawn in; both are local and preloaded, so this is normally already true
+    const labelFaces = () => !document.fonts || (document.fonts.check('500 10px "Plex Mono"') && document.fonts.check('300 10px Montserrat'));
+    /* Draws the labels for the hold view, at the hold camera. The caller restores its own camera if it had one. */
+    function drawOverlay() {
+      labelsKey = overKey();
+      overPending = !labelFaces();
+      setCamera(HOLD_CAM, false);
+      octx.setTransform(1, 0, 0, 1, 0, 0);
+      octx.clearRect(0, 0, cvOver.width, cvOver.height);
+      octx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      drawLabels(octx);
+      evs = events();
+      if (evs.length) { // the event canvas covers just the pulses
+        const pad = 16, xs = evs.map((e) => e.p[0]), ys = evs.map((e) => e.p[1]);
+        const x0 = Math.floor(Math.min(...xs) - pad), y0 = Math.floor(Math.min(...ys) - pad);
+        const w = Math.ceil(Math.max(...xs) + pad) - x0, h = Math.ceil(Math.max(...ys) + pad) - y0;
+        evBox = { x0, y0 };
+        cvEv.width = Math.round(w * dpr); cvEv.height = Math.round(h * dpr);
+        Object.assign(cvEv.style, { width: w + 'px', height: h + 'px', transform: `translate(${x0}px,${y0}px)`, display: '' });
+      } else cvEv.style.display = 'none';
+    }
     function overlay(cam, a, now) {
       if (a !== overA) {
         overA = a;
         for (const el of [cvOver, cvEv, sweepEl]) el.style.opacity = String(a);
         sweepEl.style.display = a > 0 ? '' : 'none';
       }
+      /* Labels are redrawn when what they show changes: size, language, or the records arriving. That redraw happens
+         here, before the early return, so it lands on the frame the change arrives on — while the overlay is still
+         transparent — instead of on the frame where the labels become visible again. Otherwise a change that arrives
+         mid-orbit waits for the next approach and repaints every label there, in one frame, right as they fade in. */
+      if (overKey() !== labelsKey) { drawOverlay(); setCamera(cam, true); }
+
       if (a <= 0) return;
       // sweep: wedge anchored at its centre; sized once so moving it is a compositor-only translate
       const c0 = proj([35, 39]);
@@ -509,25 +560,6 @@
       const key = c0[0].toFixed(1) + ',' + c0[1].toFixed(1);
       if (key !== sweepKey) { sweepKey = key; sweepEl.style.translate = `${c0[0]}px ${c0[1] - Number(sweepEl.dataset.h)}px`; }
 
-      const lk = [W, H, dpr, GT.lang, !!data].join('|');
-      if (lk !== labelsKey) {
-        labelsKey = lk;
-        setCamera(HOLD_CAM, false);
-        octx.setTransform(1, 0, 0, 1, 0, 0);
-        octx.clearRect(0, 0, cvOver.width, cvOver.height);
-        octx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        drawLabels(octx);
-        evs = events();
-        if (evs.length) { // the event canvas covers just the pulses
-          const pad = 16, xs = evs.map((e) => e.p[0]), ys = evs.map((e) => e.p[1]);
-          const x0 = Math.floor(Math.min(...xs) - pad), y0 = Math.floor(Math.min(...ys) - pad);
-          const w = Math.ceil(Math.max(...xs) + pad) - x0, h = Math.ceil(Math.max(...ys) + pad) - y0;
-          evBox = { x0, y0 };
-          cvEv.width = Math.round(w * dpr); cvEv.height = Math.round(h * dpr);
-          Object.assign(cvEv.style, { width: w + 'px', height: h + 'px', transform: `translate(${x0}px,${y0}px)`, display: '' });
-        } else cvEv.style.display = 'none';
-        setCamera(cam, true);
-      }
       if (evs.length) {
         ectx.setTransform(1, 0, 0, 1, 0, 0);
         ectx.clearRect(0, 0, cvEv.width, cvEv.height);
@@ -602,8 +634,15 @@
       new IntersectionObserver((en) => { visible = en[0].isIntersecting; update(); }).observe(host);
     }
     document.addEventListener('visibilitychange', update);
-    // canvas text drawn before the web fonts arrived is redrawn once they have
-    if (document.fonts) document.fonts.ready.then(() => { labelsKey = ''; if (fontsPending) { fontsPending = false; startJob(); } });
+    // canvas text drawn before the web fonts arrived is redrawn once they have — and only then: both faces are local
+    // and preloaded, so on most loads they are already in place when the globe first draws and nothing is redrawn
+    if (document.fonts) {
+      document.fonts.ready.then(() => {
+        glyphs.clear();
+        if (overPending) { overPending = false; labelsKey = ''; }
+        if (fontsPending) { fontsPending = false; startJob(); }
+      });
+    }
 
     resize();
     update();
