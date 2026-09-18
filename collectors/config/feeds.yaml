@@ -221,7 +221,7 @@ feeds:
     lang: en
     regions: [global]
     enabled: false
-    queue: true
+    queue: false
     secrets: []
     terms: https://www.un.org/en/about-us/copyright
     notes: >-
