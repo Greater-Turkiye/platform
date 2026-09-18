@@ -1,0 +1,30 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "gt-tiles",
+  // the account that owns the rest of the project's Workers; pinned so a stale wrangler cache
+  // cannot deploy this somewhere else
+  "account_id": "b8312d821f2f8ef350b6de592521a5fa",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-22",
+
+  // This Worker *is* the tile endpoint, so unlike the others it needs a public URL.
+  "workers_dev": true,
+
+  // Public configuration only; this Worker has no secret and writes nothing.
+  //
+  // ARCHIVES maps the archive id that appears in the tile path to where the archive is read from.
+  // Today that is a release asset of this repository, which supports HTTP range requests and costs
+  // nothing. The day R2 is enabled on the account, add an R2 bucket binding named TILES and give
+  // the archive an `r2:<key>` origin instead: the code already reads both, and no client URL
+  // changes, because the archive id stays the same.
+  "vars": {
+    "ARCHIVES": "{\"region-20260917\":\"https://github.com/Greater-Turkiye/platform/releases/download/basemap-20260917/region-z0-11.pmtiles\"}",
+    "TILE_MAX_AGE": "604800",
+    // bumped when something already cached turned out to be wrong; it is part of the cache key
+    "CACHE_VERSION": "2"
+  },
+
+  "observability": {
+    "enabled": true
+  }
+}
