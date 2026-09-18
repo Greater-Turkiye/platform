@@ -1,6 +1,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "gt-scheduler",
+  // the account that owns the D1 databases; pinned so a stale wrangler cache cannot deploy elsewhere
+  "account_id": "b8312d821f2f8ef350b6de592521a5fa",
   "main": "src/index.js",
   // Kept at a date the test runtime (workerd, through @cloudflare/vitest-pool-workers) also
   // supports, so the tests run against the same runtime behaviour as production.

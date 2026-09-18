@@ -86,6 +86,9 @@ npx wrangler d1 execute gt-ops --remote --command "SELECT name FROM sqlite_maste
 Yerelden yazmak için `wrangler login` yeterlidir. GitHub Actions'tan **yazılmaz**: iş akışı partiyi `collector-state` dalına yayımlar, `apps/ingest` Worker'ı çeker, böylece hiçbir API belirtecine gerek kalmaz.
 Locally, `wrangler login` is enough. Nothing writes from GitHub Actions: the workflow publishes the batch to the `collector-state` branch and the `apps/ingest` Worker pulls it, so no API token is needed anywhere.
 
+Üç Worker yapılandırması hesabı `account_id` ile sabitler: wrangler hesap kimliğini önbelleğe alır, hesap değiştiğinde bu sabitleme olmadan yanlış hesaba istek atıp `Authentication error [code: 10000]` verir.
+All three Worker configs pin the account with `account_id`: wrangler caches an account id, and without the pin a change of account makes it call the wrong one and fail with `Authentication error [code: 10000]`.
+
 ### Kim yazıyor / Who writes
 
 Her iki veritabanına yazan tek şey, günlük `collect` çalışmasının ürettiği partidir — ama artık onu Actions
