@@ -19,6 +19,37 @@
   let svg = null, gRoot, gCountries, gLabels, gSites, gEvents, proj, zoom, k = 1, W = 0, H = 0;
   let lastFocus = null;
 
+  /* ---------------- vector basemap (prototype, off by default) ----------------
+     `?basemap=1` (OpenFreeMap) or `?basemap=pmtiles&pmtiles=<url>` (a file we host) puts a
+     vector basemap under the map. Without the parameter nothing below runs and nothing is
+     fetched, so a normal visit is byte for byte what it was. See assets/js/basemap.js. */
+  const baseMode = { '1': 'ofm', 'ofm': 'ofm', 'pmtiles': 'pmtiles' }[params.get('basemap')] || null;
+  let base = null;
+  async function initBase() {
+    if (!baseMode) return;
+    try {
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'assets/js/basemap.js';
+        s.onload = res;
+        s.onerror = () => rej(new Error('basemap.js'));
+        document.head.append(s);
+      });
+      base = await GT.basemap.create(els.map, baseMode, { lang: GT.lang, url: params.get('pmtiles') || window.GT_BASEMAP_PMTILES || '' });
+    } catch (e) {
+      base = null;
+      console.warn('basemap disabled:', e);
+    }
+  }
+  /* Both D3 and MapLibre are Web Mercator, so one camera describes the two: the projection's
+     scale times the zoom transform's k is a MapLibre zoom (512 px per tile), and the map's
+     centre is whatever lon/lat the middle of the box inverts to. */
+  function syncBase(t) {
+    if (!base || !proj || !W || !H) return;
+    const c = proj.invert(t.invert([W / 2, H / 2]));
+    if (c) base.sync(c[0], c[1], Math.log2((proj.scale() * t.k * 2 * Math.PI) / 512));
+  }
+
   wireUi();
   setTimeout(loadAll); // after the helpers below are initialised
 
@@ -27,6 +58,7 @@
     els.stateBox.hidden = false;
     els.stateBox.textContent = GT.t('p.loading');
     loadError = false;
+    const baseReady = base ? Promise.resolve() : initBase();
     const [w, d] = await Promise.allSettled([
       world ? Promise.resolve(world) : GT.loadWorld('assets/data/countries-50m.json'),
       GT.loadData(),
@@ -36,6 +68,7 @@
     if (data) lyr.examples.checked = params.get('examples') === '1' || (params.get('examples') !== '0' && data.event.length === 0);
     els.stateBox.hidden = !!world;
     if (!world) els.stateBox.textContent = GT.t('p.err');
+    await baseReady;
     buildFilters();
     drawMap();
     render();
@@ -97,7 +130,8 @@
     // the <svg> sits in a plain box that carries the pan/zoom transform while the map moves (see liveZoom)
     mover = d3.select(els.map).selectAll('div.p-mover').data([0]).join('div').attr('class', 'p-mover');
     svg = mover.selectAll('svg').data([0]).join('svg')
-      .attr('viewBox', `0 0 ${W} ${H}`).attr('aria-label', GT.t('hero.mapAria'));
+      .attr('viewBox', `0 0 ${W} ${H}`).attr('aria-label', GT.t('hero.mapAria'))
+      .classed('with-base', !!base); // thematic fills become a tint so the basemap reads through
     svg.selectAll('*').remove();
     GT.mapDefs(svg);
 
@@ -206,6 +240,7 @@
       .on('end', (ev) => { clearTimeout(settle); settle = setTimeout(() => requestAnimationFrame(commitZoom), ev.sourceEvent ? 150 : 0); });
     mapSel().property('__zoom', d3.zoomIdentity).call(zoom).on('dblclick.zoom', null);
     svg.on('pointermove.coords', (ev) => { pending.coords = d3.pointer(ev, els.map); schedule(); });
+    if (base) { base.resize(); syncBase(d3.zoomIdentity); }
   }
   const mapSel = () => d3.select(els.map);
 
@@ -230,6 +265,7 @@
     const t = d3.zoomTransform(els.map);
     moving = false;
     rendered = t;
+    syncBase(t);
     gRoot.attr('transform', t);
     // labels and markers only depend on the zoom level: a pan leaves them untouched
     if (t.k !== k) { k = t.k; rescale(); }
@@ -239,7 +275,7 @@
   function schedule() { if (!frameReq) frameReq = requestAnimationFrame(flush); }
   function flush() {
     frameReq = 0;
-    if (pending.zoom && svg) { liveZoom(pending.zoom); pending.zoom = null; }
+    if (pending.zoom && svg) { liveZoom(pending.zoom); syncBase(pending.zoom); pending.zoom = null; }
     if (pending.coords && svg) {
       const ll = proj.invert(d3.zoomTransform(els.map).invert(pending.coords));
       if (ll) els.coords.textContent = GT.fmtLL(ll);
@@ -603,6 +639,7 @@
     els.close.addEventListener('click', closeDrawer);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
     document.addEventListener('gt:lang', () => {
+      if (base) base.setLang(GT.lang);
       buildFilters();
       drawLabels();
       render();

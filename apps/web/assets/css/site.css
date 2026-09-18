@@ -550,3 +550,23 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
   .callout { padding: 24px 20px; }
   .doc-note { padding: 18px; }
 }
+
+/* ---------- vector basemap prototype (panel.html?basemap=…; assets/js/basemap.js) ----------
+   Nothing here applies unless the parameter is on: `.p-base` is only created then, and the
+   `with-base` class only lands on the panel's <svg> then. We vendor MapLibre's script but not
+   its 70 KB stylesheet — a non-interactive map needs exactly the two rules below. */
+.p-map .p-base { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.p-map .maplibregl-canvas { position: absolute; left: 0; top: 0; }
+.p-attrib { position: absolute; right: 16px; bottom: 16px; z-index: 4; padding: 6px 9px; background: rgba(5, 5, 5, .78); border: 1px solid var(--line);
+  font: 500 9px var(--m); letter-spacing: .12em; text-transform: uppercase; color: var(--t3); }
+.p-attrib a { color: var(--t2); border-bottom: 1px solid var(--line2); }
+.p-attrib a:hover { color: #fff; }
+/* The basemap carries the geography; our layers stay on top as a tint, so every border, country
+   name and sea name on screen is still ours and still sourced (ADR 0013). Countries with no
+   thematic meaning lose their fill entirely so the basemap can be read through them. */
+.p-map svg.with-base .m-grat { display: none; }
+.p-map svg.with-base .m-land { fill-opacity: .5; }
+.p-map svg.with-base .m-land:not(.m-tr):not(.m-watch):not(.m-ally):not(.m-coop):not(.m-kin):not(.m-frame):not(.m-nato):not(.m-disputed) { fill: none; }
+.p-map svg.with-base .m-border { stroke: rgba(232, 227, 220, .34); }
+.p-map svg.with-base .m-sea { fill: rgba(232, 227, 220, .32); }
+@media (max-width: 860px) { .p-attrib { right: 8px; bottom: 8px; font-size: 8px; } }
