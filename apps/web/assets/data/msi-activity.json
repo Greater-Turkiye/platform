@@ -1,0 +1,749 @@
+{
+ "about": "Navigational warnings for the Aegean, the eastern Mediterranean and the Black Sea, counted by year and by what the wording names. One warning is one announcement — not one exercise, not one ship, not one day — and the archive is a floor, not a total.",
+ "source": {
+  "name": "NGA Maritime Safety Information — broadcast warnings",
+  "url": "https://msi.nga.mil/NavWarnings",
+  "licence": "Work of the United States Government: public domain"
+ },
+ "method": {
+  "region": {
+   "words": [
+    "AEGEAN SEA",
+    "EASTERN MEDITERRANEAN",
+    "CENTRAL MEDITERRANEAN",
+    "BLACK SEA",
+    "SEA OF MARMARA",
+    "DARDANELLES",
+    "BOSPORUS",
+    "BOSPHORUS",
+    "LEVANTINE",
+    "CYPRUS",
+    "CRETE",
+    "RHODES",
+    "IONIAN SEA"
+   ],
+   "bbox": [
+    19.0,
+    30.0,
+    42.0,
+    47.0
+   ]
+  },
+  "classified_by": "gt_collectors.navtex.activity_of (the words the warning itself uses)",
+  "counted_by": "gt_collectors.msi.summarise",
+  "excluded": "Warnings issued by Turkish authorities, or whose subject is Türkiye, are not counted: this series measures what other states announce (ADR 0013, ADR 0019)."
+ },
+ "built_from": {
+  "records_read": 198034,
+  "records_kept": 9051,
+  "turkish_warnings_excluded": 1314,
+  "cancellation_only_messages_skipped": 624,
+  "years": [
+   1990,
+   2024
+  ]
+ },
+ "coverage_notes": [
+  {
+   "years": "1990-2021",
+   "note": "The NGA archive relays NAVAREA III and the Greek NAVTEX stations for this region. The totals in these years are dominated by those relays."
+  },
+  {
+   "years": "2022-",
+   "note": "The relay largely stops: 946 of the region's 1,034 warnings in 2020 were NAVAREA III relays, against 66 in 2022, and by 2023 most of what remains is issued by Romania and the rescue coordination centres. The fall in the totals after 2021 is a change in what the archive carries, not a measured fall in activity, and a reader must not read it as one. The per-year `by_authority` breakdown is here so that change is visible."
+  }
+ ],
+ "top_authorities": {
+  "NAVAREA": 6393,
+  "MRCC": 1411,
+  "GREEK": 460,
+  "JRCC": 258,
+  "ROMANIA": 119,
+  "RCC": 75,
+  "unknown": 57,
+  "CTF": 51,
+  "USS": 44,
+  "EGYPT": 21,
+  "EGYPTIAN": 11,
+  "M/V": 10
+ },
+ "series": [
+  {
+   "year": 1990,
+   "total": 1,
+   "by_activity": {
+    "unclassified": 1
+   },
+   "by_authority": {
+    "unknown": 1
+   },
+   "authorities": 1,
+   "archive_all_areas": 5
+  },
+  {
+   "year": 1993,
+   "total": 1,
+   "by_activity": {
+    "firing": 1
+   },
+   "by_authority": {
+    "unknown": 1
+   },
+   "authorities": 1,
+   "archive_all_areas": 24
+  },
+  {
+   "year": 1997,
+   "total": 1,
+   "by_activity": {
+    "aid-to-navigation": 1
+   },
+   "by_authority": {
+    "unknown": 1
+   },
+   "authorities": 1,
+   "archive_all_areas": 33
+  },
+  {
+   "year": 1998,
+   "total": 4,
+   "by_activity": {
+    "aid-to-navigation": 1,
+    "cable-pipeline": 1,
+    "hazardous-operations": 1,
+    "unclassified": 1
+   },
+   "by_authority": {
+    "unknown": 4
+   },
+   "authorities": 1,
+   "archive_all_areas": 169
+  },
+  {
+   "year": 1999,
+   "total": 118,
+   "by_activity": {
+    "aid-to-navigation": 1,
+    "cable-pipeline": 8,
+    "firing": 70,
+    "hazardous-operations": 4,
+    "sar": 8,
+    "survey": 8,
+    "unclassified": 17,
+    "wreck-obstruction": 2
+   },
+   "by_authority": {
+    "NAVAREA": 48,
+    "unknown": 46,
+    "JRCC": 8,
+    "RCC": 4,
+    "CTF": 3,
+    "MARIDIPART": 2
+   },
+   "authorities": 13,
+   "archive_all_areas": 5244
+  },
+  {
+   "year": 2000,
+   "total": 175,
+   "by_activity": {
+    "aid-to-navigation": 1,
+    "cable-pipeline": 4,
+    "firing": 105,
+    "hazardous-operations": 16,
+    "sar": 8,
+    "survey": 20,
+    "unclassified": 20,
+    "wreck-obstruction": 1
+   },
+   "by_authority": {
+    "NAVAREA": 134,
+    "USS": 19,
+    "RCC": 11,
+    "JRCC": 3,
+    "MARIDIPART": 3,
+    "MARDIPART": 1
+   },
+   "authorities": 10,
+   "archive_all_areas": 7140
+  },
+  {
+   "year": 2001,
+   "total": 182,
+   "by_activity": {
+    "cable-pipeline": 14,
+    "firing": 94,
+    "hazardous-operations": 14,
+    "sar": 11,
+    "survey": 20,
+    "unclassified": 27,
+    "wreck-obstruction": 2
+   },
+   "by_authority": {
+    "NAVAREA": 127,
+    "JRCC": 16,
+    "USS": 10,
+    "RCC": 8,
+    "MARISICILIA": 5,
+    "MARIDIPART": 3
+   },
+   "authorities": 14,
+   "archive_all_areas": 6320
+  },
+  {
+   "year": 2002,
+   "total": 182,
+   "by_activity": {
+    "aid-to-navigation": 2,
+    "cable-pipeline": 16,
+    "firing": 76,
+    "hazardous-operations": 23,
+    "military-exercise": 1,
+    "sar": 15,
+    "submarine": 1,
+    "survey": 20,
+    "unclassified": 27,
+    "wreck-obstruction": 1
+   },
+   "by_authority": {
+    "NAVAREA": 139,
+    "RCC": 12,
+    "JRCC": 10,
+    "USS": 6,
+    "PTNM": 4,
+    "WZ": 3
+   },
+   "authorities": 13,
+   "archive_all_areas": 6238
+  },
+  {
+   "year": 2003,
+   "total": 240,
+   "by_activity": {
+    "cable-pipeline": 9,
+    "firing": 80,
+    "hazardous-operations": 55,
+    "military-exercise": 11,
+    "sar": 31,
+    "submarine": 1,
+    "survey": 17,
+    "unclassified": 35,
+    "wreck-obstruction": 1
+   },
+   "by_authority": {
+    "NAVAREA": 164,
+    "RCC": 24,
+    "JRCC": 20,
+    "COMSIXTHFLT": 8,
+    "USS": 5,
+    "MRCC": 4
+   },
+   "authorities": 14,
+   "archive_all_areas": 5597
+  },
+  {
+   "year": 2004,
+   "total": 189,
+   "by_activity": {
+    "aid-to-navigation": 1,
+    "cable-pipeline": 11,
+    "firing": 73,
+    "hazardous-operations": 47,
+    "sar": 12,
+    "submarine": 3,
+    "survey": 19,
+    "unclassified": 23
+   },
+   "by_authority": {
+    "NAVAREA": 158,
+    "RCC": 11,
+    "JRCC": 6,
+    "USS": 3,
+    "1": 3,
+    "MRCC": 2
+   },
+   "authorities": 12,
+   "archive_all_areas": 4858
+  },
+  {
+   "year": 2005,
+   "total": 201,
+   "by_activity": {
+    "aid-to-navigation": 2,
+    "cable-pipeline": 7,
+    "firing": 29,
+    "hazardous-operations": 79,
+    "sar": 26,
+    "survey": 34,
+    "unclassified": 22,
+    "wreck-obstruction": 2
+   },
+   "by_authority": {
+    "NAVAREA": 165,
+    "JRCC": 28,
+    "RCC": 4,
+    "CTG": 2,
+    "COMTURFLEET": 1,
+    "MRCC": 1
+   },
+   "authorities": 6,
+   "archive_all_areas": 5450
+  },
+  {
+   "year": 2006,
+   "total": 228,
+   "by_activity": {
+    "cable-pipeline": 12,
+    "firing": 50,
+    "hazardous-operations": 82,
+    "sar": 4,
+    "survey": 47,
+    "unclassified": 30,
+    "wreck-obstruction": 3
+   },
+   "by_authority": {
+    "NAVAREA": 211,
+    "JRCC": 8,
+    "ARAB": 2,
+    "EGYPTIAN": 2,
+    "EGYPT": 2,
+    "PVMM": 2
+   },
+   "authorities": 7,
+   "archive_all_areas": 5645
+  },
+  {
+   "year": 2007,
+   "total": 195,
+   "by_activity": {
+    "cable-pipeline": 20,
+    "firing": 8,
+    "hazardous-operations": 60,
+    "military-exercise": 1,
+    "sar": 2,
+    "survey": 48,
+    "unclassified": 54,
+    "wreck-obstruction": 2
+   },
+   "by_authority": {
+    "NAVAREA": 182,
+    "JRCC": 6,
+    "MRCC": 2,
+    "EGYPTIAN": 1,
+    "TURKKISH": 1,
+    "RADIO": 1
+   },
+   "authorities": 8,
+   "archive_all_areas": 5257
+  },
+  {
+   "year": 2008,
+   "total": 85,
+   "by_activity": {
+    "aid-to-navigation": 3,
+    "cable-pipeline": 7,
+    "firing": 5,
+    "hazardous-operations": 10,
+    "sar": 4,
+    "survey": 35,
+    "unclassified": 20,
+    "wreck-obstruction": 1
+   },
+   "by_authority": {
+    "NAVAREA": 62,
+    "EGYPTIAN": 8,
+    "JRCC": 8,
+    "CTF": 4,
+    "MARITIME": 1,
+    "WWW.NOTAMS.JCS.MIL": 1
+   },
+   "authorities": 7,
+   "archive_all_areas": 5952
+  },
+  {
+   "year": 2009,
+   "total": 66,
+   "by_activity": {
+    "aid-to-navigation": 1,
+    "cable-pipeline": 9,
+    "firing": 8,
+    "hazardous-operations": 13,
+    "survey": 19,
+    "unclassified": 16
+   },
+   "by_authority": {
+    "NAVAREA": 43,
+    "CTF": 8,
+    "JRCC": 5,
+    "EGYPT": 4,
+    "unknown": 2,
+    "MRCC": 2
+   },
+   "authorities": 8,
+   "archive_all_areas": 6163
+  },
+  {
+   "year": 2010,
+   "total": 137,
+   "by_activity": {
+    "aid-to-navigation": 2,
+    "cable-pipeline": 23,
+    "firing": 3,
+    "hazardous-operations": 30,
+    "military-exercise": 16,
+    "sar": 2,
+    "survey": 25,
+    "unclassified": 35,
+    "wreck-obstruction": 1
+   },
+   "by_authority": {
+    "NAVAREA": 98,
+    "CTF": 17,
+    "EGYPT": 9,
+    "JRCC": 4,
+    "MRCC": 4,
+    "COMIKESTRKGRU": 3
+   },
+   "authorities": 8,
+   "archive_all_areas": 6692
+  },
+  {
+   "year": 2011,
+   "total": 144,
+   "by_activity": {
+    "aid-to-navigation": 1,
+    "cable-pipeline": 19,
+    "firing": 8,
+    "hazardous-operations": 20,
+    "military-exercise": 8,
+    "sar": 2,
+    "survey": 38,
+    "unclassified": 44,
+    "wreck-obstruction": 4
+   },
+   "by_authority": {
+    "NAVAREA": 101,
+    "MRCC": 14,
+    "CTF": 10,
+    "JRCC": 7,
+    "FRANK": 4,
+    "EGYPT": 3
+   },
+   "authorities": 10,
+   "archive_all_areas": 7089
+  },
+  {
+   "year": 2012,
+   "total": 324,
+   "by_activity": {
+    "aid-to-navigation": 4,
+    "cable-pipeline": 12,
+    "firing": 46,
+    "hazardous-operations": 145,
+    "sar": 8,
+    "survey": 45,
+    "unclassified": 61,
+    "wreck-obstruction": 3
+   },
+   "by_authority": {
+    "NAVAREA": 254,
+    "MRCC": 37,
+    "GREEK": 26,
+    "JRCC": 2,
+    "EGYPT": 2,
+    "COGARD": 1
+   },
+   "authorities": 8,
+   "archive_all_areas": 8234
+  },
+  {
+   "year": 2013,
+   "total": 447,
+   "by_activity": {
+    "aid-to-navigation": 4,
+    "cable-pipeline": 15,
+    "firing": 48,
+    "hazardous-operations": 146,
+    "sar": 9,
+    "survey": 54,
+    "unclassified": 165,
+    "wreck-obstruction": 6
+   },
+   "by_authority": {
+    "NAVAREA": 264,
+    "MRCC": 134,
+    "GREEK": 33,
+    "JRCC": 12,
+    "LIBYA": 2,
+    "NAVREA": 1
+   },
+   "authorities": 7,
+   "archive_all_areas": 8916
+  },
+  {
+   "year": 2014,
+   "total": 462,
+   "by_activity": {
+    "aid-to-navigation": 1,
+    "cable-pipeline": 9,
+    "firing": 94,
+    "hazardous-operations": 117,
+    "sar": 11,
+    "survey": 15,
+    "unclassified": 191,
+    "wreck-obstruction": 24
+   },
+   "by_authority": {
+    "NAVAREA": 271,
+    "MRCC": 156,
+    "GREEK": 19,
+    "JRCC": 10,
+    "RCC": 1,
+    "NCSM": 1
+   },
+   "authorities": 10,
+   "archive_all_areas": 9054
+  },
+  {
+   "year": 2015,
+   "total": 659,
+   "by_activity": {
+    "aid-to-navigation": 3,
+    "cable-pipeline": 18,
+    "firing": 107,
+    "hazardous-operations": 201,
+    "sar": 35,
+    "survey": 23,
+    "unclassified": 261,
+    "wreck-obstruction": 11
+   },
+   "by_authority": {
+    "NAVAREA": 357,
+    "MRCC": 245,
+    "GREEK": 47,
+    "JRCC": 10
+   },
+   "authorities": 4,
+   "archive_all_areas": 9445
+  },
+  {
+   "year": 2016,
+   "total": 717,
+   "by_activity": {
+    "cable-pipeline": 18,
+    "firing": 125,
+    "hazardous-operations": 218,
+    "military-exercise": 1,
+    "sar": 5,
+    "survey": 12,
+    "unclassified": 331,
+    "wreck-obstruction": 7
+   },
+   "by_authority": {
+    "NAVAREA": 410,
+    "MRCC": 234,
+    "GREEK": 61,
+    "JRCC": 11,
+    "SHGA": 1
+   },
+   "authorities": 5,
+   "archive_all_areas": 9561
+  },
+  {
+   "year": 2017,
+   "total": 830,
+   "by_activity": {
+    "aid-to-navigation": 3,
+    "cable-pipeline": 12,
+    "firing": 131,
+    "hazardous-operations": 253,
+    "military-exercise": 7,
+    "missile-test": 27,
+    "sar": 8,
+    "submarine": 1,
+    "survey": 74,
+    "unclassified": 307,
+    "wreck-obstruction": 7
+   },
+   "by_authority": {
+    "NAVAREA": 480,
+    "MRCC": 266,
+    "GREEK": 78,
+    "WZ": 1,
+    "JRCC": 1,
+    "IMB": 1
+   },
+   "authorities": 9,
+   "archive_all_areas": 11148
+  },
+  {
+   "year": 2018,
+   "total": 748,
+   "by_activity": {
+    "aid-to-navigation": 9,
+    "cable-pipeline": 13,
+    "firing": 131,
+    "hazardous-operations": 252,
+    "military-exercise": 3,
+    "missile-test": 14,
+    "sar": 17,
+    "survey": 61,
+    "unclassified": 240,
+    "wreck-obstruction": 8
+   },
+   "by_authority": {
+    "NAVAREA": 521,
+    "MRCC": 189,
+    "GREEK": 33,
+    "JRCC": 3,
+    "RSC": 2
+   },
+   "authorities": 5,
+   "archive_all_areas": 10783
+  },
+  {
+   "year": 2019,
+   "total": 796,
+   "by_activity": {
+    "aid-to-navigation": 14,
+    "cable-pipeline": 17,
+    "firing": 125,
+    "hazardous-operations": 510,
+    "military-exercise": 10,
+    "missile-test": 12,
+    "sar": 3,
+    "survey": 35,
+    "unclassified": 59,
+    "wreck-obstruction": 11
+   },
+   "by_authority": {
+    "NAVAREA": 697,
+    "GREEK": 83,
+    "MRCC": 11,
+    "JRCC": 3,
+    "SFH": 2
+   },
+   "authorities": 5,
+   "archive_all_areas": 10461
+  },
+  {
+   "year": 2020,
+   "total": 1034,
+   "by_activity": {
+    "cable-pipeline": 38,
+    "firing": 147,
+    "hazardous-operations": 674,
+    "military-exercise": 10,
+    "missile-test": 16,
+    "sar": 4,
+    "survey": 49,
+    "unclassified": 87,
+    "wreck-obstruction": 9
+   },
+   "by_authority": {
+    "NAVAREA": 946,
+    "GREEK": 67,
+    "MRCC": 16,
+    "JRCC": 2,
+    "SFH": 2,
+    "RAMFORM": 1
+   },
+   "authorities": 6,
+   "archive_all_areas": 10071
+  },
+  {
+   "year": 2021,
+   "total": 501,
+   "by_activity": {
+    "aid-to-navigation": 3,
+    "cable-pipeline": 8,
+    "firing": 92,
+    "hazardous-operations": 315,
+    "military-exercise": 1,
+    "missile-test": 5,
+    "sar": 2,
+    "survey": 30,
+    "unclassified": 30,
+    "wreck-obstruction": 15
+   },
+   "by_authority": {
+    "NAVAREA": 485,
+    "MRCC": 9,
+    "JRCC": 6,
+    "DESTROYER": 1
+   },
+   "authorities": 4,
+   "archive_all_areas": 9265
+  },
+  {
+   "year": 2022,
+   "total": 134,
+   "by_activity": {
+    "cable-pipeline": 2,
+    "firing": 7,
+    "hazardous-operations": 46,
+    "military-exercise": 3,
+    "sar": 9,
+    "survey": 5,
+    "unclassified": 58,
+    "wreck-obstruction": 4
+   },
+   "by_authority": {
+    "NAVAREA": 66,
+    "MRCC": 32,
+    "JRCC": 25,
+    "GREEK": 4,
+    "ROMANIA": 1,
+    "LIBYAN": 1
+   },
+   "authorities": 11,
+   "archive_all_areas": 9887
+  },
+  {
+   "year": 2023,
+   "total": 184,
+   "by_activity": {
+    "cable-pipeline": 2,
+    "firing": 3,
+    "hazardous-operations": 77,
+    "missile-test": 5,
+    "sar": 5,
+    "survey": 11,
+    "unclassified": 80,
+    "wreck-obstruction": 1
+   },
+   "by_authority": {
+    "ROMANIA": 89,
+    "MRCC": 37,
+    "JRCC": 33,
+    "GREEK": 7,
+    "M/V": 7,
+    "NAVAREA": 6
+   },
+   "authorities": 10,
+   "archive_all_areas": 9803
+  },
+  {
+   "year": 2024,
+   "total": 66,
+   "by_activity": {
+    "firing": 3,
+    "hazardous-operations": 15,
+    "missile-test": 3,
+    "survey": 6,
+    "unclassified": 36,
+    "wreck-obstruction": 3
+   },
+   "by_authority": {
+    "ROMANIA": 29,
+    "MRCC": 13,
+    "JRCC": 11,
+    "NAVAREA": 4,
+    "NAVHELLEN": 3,
+    "LIBYAN": 2
+   },
+   "authorities": 8,
+   "archive_all_areas": 3480
+  }
+ ]
+}
