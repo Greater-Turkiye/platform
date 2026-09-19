@@ -77,6 +77,11 @@ Dağıtım bir sır istemez. Yayındaki adres / the deployed endpoint:
   tekrarları bir hafta boyunca karşılar, yani dönen ziyaretçi neredeyse hiçbir şeye mal olmaz.
 - **Soğuk istek ~1 s, sıcak ~0,3 s.** İlk istek arşivin dizinini de okur; aynı isolate'teki sonraki
   karolar tek bir aralık isteğiyle gelir.
+- **Karo ağırlığı / tile weight** (3×3 görünüm, brotli): z6 ≈ 370 KB, z8 ≈ 206 KB, z10 ≈ 21 KB.
+  Karo `application/x-protobuf` olarak sunulur — bir vektör karo zaten odur — çünkü Cloudflare bu
+  türü sıkıştırır, `application/vnd.mapbox-vector-tile`'ı sıkıştırmaz: aradaki fark her karoda
+  %30'dur. `content-encoding` elle konmaz; konursa gövde ikinci kez kodlanır ve MapLibre karoyu
+  ayrıştıramaz.
 - **Zum 11'de biter.** Daha derin zumlarda aynı karolar ölçeklenir: etiketler keskin kalır, yeni
   ayrıntı gelmez.
 - **Kutunun dışı boştur.** Panel oraya kaydıramaz (`translateExtent`), altlık da orada hiçbir şey

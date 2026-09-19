@@ -36,6 +36,8 @@ const CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET, HEAD, OPTIONS",
   "access-control-max-age": "86400",
+  // so the page that draws the map can read how many bytes its tiles cost (Resource Timing)
+  "timing-allow-origin": "*",
 };
 
 const TILE_PATH = /^\/v1\/([a-z0-9][a-z0-9-]{0,63})\/(\d{1,2})\/(\d{1,7})\/(\d{1,7})\.mvt$/;
@@ -106,14 +108,19 @@ async function tile(request, env, ctx, [, id, z, x, y]) {
   // An empty tile is a real answer — most of a rectangle over this region is sea — and it is
   // cached like any other, so panning over water costs one request the first time and none after.
   //
-  // The tile goes out uncompressed and Cloudflare compresses it on the way: setting
-  // `content-encoding` here gets the body gzipped a second time at the edge, and MapLibre is then
-  // handed something it cannot parse.
+  // The tile goes out uncompressed and the edge compresses it on the way: setting
+  // `content-encoding` here gets the body encoded a second time, and MapLibre is then handed
+  // something it cannot parse.
+  //
+  // The content type is `application/x-protobuf`, which a vector tile is, rather than
+  // `application/vnd.mapbox-vector-tile`: Cloudflare compresses the first and not the second, and
+  // that is worth 30% of every tile (a 3x3 viewport at z6: 524 KB -> 370 KB, brotli). MapLibre
+  // does not care which of the two it is told.
   const response = new Response(result ? result.data : null, {
     status: result ? 200 : 204,
     headers: {
       ...CORS,
-      "content-type": "application/vnd.mapbox-vector-tile",
+      "content-type": "application/x-protobuf",
       // the archive id carries the build date, so a tile at this URL never changes
       "cache-control": `public, max-age=${env.TILE_MAX_AGE || 604800}, immutable`,
     },

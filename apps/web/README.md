@@ -84,7 +84,11 @@ The panel still draws country geometry with D3 — but now there is a real map u
 | `?basemap=ofm` | [OpenFreeMap](https://openfreemap.org) `dark` stili / style | Karşılaştırma için; anahtarsız ama bağışla işletilen üçüncü taraf sunucular, SLA yok / for comparison; no key, but third-party donation-funded servers, no SLA |
 | `?tiles=<url>` | Aynı stil, başka bir karo uç noktası / the same style, another tile endpoint | Yerel `wrangler dev` veya yeni bir arşivi denemek için / for `wrangler dev` or trying a new archive |
 
-Karolar erişilemezse altlık düşürülür ve harita kendiliğinden D3 moduna döner; sayfa hata vermez. / If the tiles cannot be reached the basemap is dropped and the map falls back to D3 on its own; nothing breaks.
+**İlk açılışta altlık yüklenmez.** MapLibre ve karolar, harita gerçekten yakınlaştırıldığında (k ≥ 1,6) istenir; genel görünüm, altlık hiç yokmuş gibi ağırdadır — telefon boyutunda ölçülen değer iki durumda da 1.764 KB'dır. Tarayıcı `Save-Data` istiyorsa altlık hiç yüklenmez (`?basemap=gt` bunu geçersiz kılar). Karolar erişilemezse altlık düşürülür ve harita kendiliğinden D3 moduna döner; sayfa hata vermez.
+
+**Nothing of the basemap loads on a first paint.** MapLibre and the tiles are requested when the map is actually zoomed (k ≥ 1.6), so the overview weighs what it did before — 1,764 KB at phone size either way. A browser asking for `Save-Data` gets no basemap (`?basemap=gt` overrides). If the tiles cannot be reached the basemap is dropped and the map falls back to D3 on its own; nothing breaks.
+
+Ölçülen karo ağırlığı / measured tile weight (3×3 görünüm, brotli): z6 ≈ 370 KB, z8 ≈ 206 KB, z10 ≈ 21 KB.
 
 Arşivin nasıl üretildiği, boyutları ve R2'ye taşıma: [`tools/geo/build_basemap.md`](../../tools/geo/build_basemap.md). Worker: [`apps/tiles`](../tiles/README.md). / How the archive is built, what it costs and how it moves to R2: `tools/geo/build_basemap.md`; the Worker: `apps/tiles`.
 

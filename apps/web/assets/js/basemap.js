@@ -172,6 +172,8 @@
       interactive: false,       // D3 keeps the pointer: this is a renderer, not a map control
       attributionControl: false, // drawn below in the panel's own style, and always visible
       fadeDuration: 0,
+      maxTileCacheSize: 48,     // a phone should not hold a hundred parsed tiles for a map it has left
+      refreshExpiredTiles: false, // the archive id in the URL is the version; a tile never expires
       center: [35, 39],
       zoom: 3,
     });

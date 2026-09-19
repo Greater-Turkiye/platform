@@ -21,7 +21,7 @@
     "ARCHIVES": "{\"region-20260917\":\"https://github.com/Greater-Turkiye/platform/releases/download/basemap-20260917/region-z0-11.pmtiles\"}",
     "TILE_MAX_AGE": "604800",
     // bumped when something already cached turned out to be wrong; it is part of the cache key
-    "CACHE_VERSION": "2"
+    "CACHE_VERSION": "3"
   },
 
   "observability": {

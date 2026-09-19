@@ -27,8 +27,29 @@
      — borders, maritime areas, operation areas, markers — stays D3's on top either way. */
   const baseMode = params.has('basemap')
     ? ({ 'ofm': 'ofm', 'gt': 'gt', '1': 'gt' }[params.get('basemap')] || '') // anything else, '0' included, is off
-    : 'gt';
-  let base = null;
+    // a phone on a metered connection gets the map it had before; ?basemap=gt overrides that
+    : (navigator.connection && navigator.connection.saveData ? '' : 'gt');
+  /* The basemap is what makes zooming in worth doing, and it is also 260 KB of MapLibre plus a
+     tile for every visible square. At the overview neither is needed: the whole region is on
+     screen, the thematic layers carry it, and the tiles under them would be read at a glance and
+     thrown away. So nothing is loaded until the map is actually zoomed (BASE_FROM), which keeps a
+     first load byte for byte what it was before the basemap existed. */
+  const BASE_FROM = 1.6;
+  let base = null, baseStarted = false;
+  function maybeInitBase(kk) {
+    if (baseStarted || !baseMode || kk < BASE_FROM) return;
+    baseStarted = true;
+    initBase().then(() => {
+      if (!base || !svg) return;
+      // The map is redrawn once, so the fills become a tint and our own city labels step aside.
+      // drawMap() rebuilds the zoom behaviour from scratch, so the view the reader is looking at
+      // has to be put back afterwards — otherwise their zoom would snap to the overview.
+      const t = d3.zoomTransform(els.map);
+      drawMap();
+      render();
+      mapSel().call(zoom.transform, t);
+    });
+  }
   async function initBase() {
     if (!baseMode) return;
     try {
@@ -72,7 +93,6 @@
     els.stateBox.hidden = false;
     els.stateBox.textContent = GT.t('p.loading');
     loadError = false;
-    const baseReady = base ? Promise.resolve() : initBase();
     const [w, d] = await Promise.allSettled([
       world ? Promise.resolve(world) : GT.loadWorld('assets/data/countries-50m.json'),
       GT.loadData(),
@@ -82,7 +102,6 @@
     if (data) lyr.examples.checked = params.get('examples') === '1' || (params.get('examples') !== '0' && data.event.length === 0);
     els.stateBox.hidden = !!world;
     if (!world) els.stateBox.textContent = GT.t('p.err');
-    await baseReady;
     buildFilters();
     drawMap();
     render();
@@ -343,6 +362,7 @@
   }
   function rescale() {
     if (!gLabels) return;
+    maybeInitBase(k); // the first zoom past the overview is what brings the basemap in
     svg.classed('zoomed', k >= 1.25); // small-country and region labels only appear once zoomed in
     // our own city labels come in as the map zooms; the deeper tiers stay hidden until there is room
     svg.classed('zp2', k >= 2).classed('zp3', k >= 5).classed('zp4', k >= 14);
