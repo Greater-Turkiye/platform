@@ -960,11 +960,13 @@
   });
 
   Object.assign(I18N.tr, {
-    'p.lyr.activity': 'İlan edilen faaliyet',
+    'p.lyr.activity': 'İlan edilen faaliyet', 'p.lyr.records': 'Kayıtlar', 'p.lyr.map': 'Harita',
+    'p.key': 'Harita anahtarı',
     'lg.activity': 'İlan edilen deniz faaliyeti (2015–2021, yabancı seyir ihbarları; Türk ihbarları sayılmaz)',
   });
   Object.assign(I18N.en, {
-    'p.lyr.activity': 'Announced activity',
+    'p.lyr.activity': 'Announced activity', 'p.lyr.records': 'Records', 'p.lyr.map': 'Map',
+    'p.key': 'Map key',
     'lg.activity': "Announced activity at sea (2015–2021, other states' navigational warnings; Turkish ones are not counted)",
   });
   Object.assign(I18N.tr, { 'lg.blue': "Mavi Vatan · deniz yetki alanları (Türkiye'nin tutumu)", 'lg.agreed': 'Anlaşmayla belirlenmiş', 'lg.position': "Türkiye'nin tutumu (itiraz edilen)", 'lg.island': 'Türk adası' });
