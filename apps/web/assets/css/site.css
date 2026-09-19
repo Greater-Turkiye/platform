@@ -621,3 +621,16 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .r-capt { margin: 18px 0 0; }
 .r-capt .doc-p { margin-bottom: 12px; }
 .r-counts { font: 400 10.5px var(--m); letter-spacing: .06em; color: var(--t3); }
+
+/* Announced-activity grid (panel layer, assets/data/msi-density.json). Off unless the layer is on;
+   four bands rather than a continuous ramp, because the underlying count is a coarse measure and a
+   smooth gradient would suggest a precision it does not have. */
+.m-act { fill: var(--rb); stroke: none; pointer-events: none; }
+.m-act.b0 { fill-opacity: .07; }
+.m-act.b1 { fill-opacity: .14; }
+.m-act.b2 { fill-opacity: .24; }
+.m-act.b3 { fill-opacity: .38; }
+.p-map svg:not(.show-activity) .m-act-g { display: none; }
+.lg i.act { background: var(--rb); opacity: .38; }
+/* the legend row appears with the layer, so the legend never explains something that is not drawn */
+.p-map-wrap:not(:has(svg.show-activity)) .lg-activity { display: none; }

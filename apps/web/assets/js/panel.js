@@ -170,6 +170,8 @@
 
     gRoot = svg.append('g');
     gRoot.append('path').datum(d3.geoGraticule().step([5, 5])()).attr('class', 'm-grat').attr('d', path);
+    gActivity = gRoot.append('g').attr('class', 'm-act-g');
+    drawActivity();
     gCountries = gRoot.append('g');
     gCountries.selectAll('path').data(world.countries).join('path')
       .attr('class', (f) => {
@@ -250,6 +252,12 @@
     }
     const lm = document.getElementById('l-missions');
     if (lm) { const sync = () => svg.classed('hide-missions', !lm.checked); lm.onchange = sync; sync(); }
+    const la = document.getElementById('l-activity');
+    if (la) {
+      const sync = () => { svg.classed('show-activity', la.checked); ensureDensity(la.checked); };
+      la.onchange = sync;
+      sync();
+    }
     gRoot.append('path').datum(tr).attr('class', 'm-tr-glow').attr('d', path).attr('filter', 'url(#glow)');
     gLabels = gRoot.append('g');
     ensurePlaces();
@@ -354,6 +362,41 @@
   }
 
   let sweepG = null, gIslands = null, places = [], placesAsked = false;
+  let gActivity = null, density = null, densityAsked = false;
+
+  /* ---------------- announced activity (assets/data/msi-density.json) ----------------
+     Where navigational warnings were announced between 2015 and 2021, on a 0.25° grid: a picture of
+     seven years, not of anything now, and never of Turkish warnings (they are not in the file).
+     It is off by default and fetched the first time it is switched on — a normal visit never asks
+     for it. The cells are drawn as four paths, one per intensity band, rather than 3,579 rectangles:
+     the whole layer is then four DOM nodes and redraws with the map. */
+  const ACT_BANDS = [1, 4, 16, 64];
+  function ensureDensity(on) {
+    if (!on || densityAsked) return;
+    densityAsked = true;
+    fetch('assets/data/msi-density.json', { cache: 'no-cache' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('msi-density: HTTP ' + r.status))))
+      .then((d) => { density = d; drawActivity(); })
+      .catch((e) => console.info('activity layer off:', e.message));
+  }
+  function drawActivity() {
+    if (!gActivity || !density || !proj) return;
+    const step = density.method.cell_deg;
+    const bands = ACT_BANDS.map(() => []);
+    for (const [lon, lat, mil, survey, other] of density.cells) {
+      const n = mil + survey + other;
+      let band = 0;
+      while (band < ACT_BANDS.length - 1 && n >= ACT_BANDS[band + 1]) band += 1;
+      const a = proj([lon, lat + step]);
+      const b = proj([lon + step, lat]);
+      if (!a || !b) continue;
+      bands[band].push(`M${a[0].toFixed(1)},${a[1].toFixed(1)}H${b[0].toFixed(1)}V${b[1].toFixed(1)}H${a[0].toFixed(1)}Z`);
+    }
+    gActivity.selectAll('*').remove();
+    bands.forEach((d, i) => {
+      if (d.length) gActivity.append('path').attr('class', 'm-act b' + i).attr('d', d.join(''));
+    });
+  }
   /* Fetched the first time the map is drawn without a basemap — on a normal visit, never. */
   function ensurePlaces() {
     if (placesAsked || base) return;
