@@ -608,3 +608,16 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 @media (max-width: 640px) { .r-card { padding: 22px 18px 18px; } }
 /* The panel header is a working toolbar: on a narrow phone the register link gives way to the map. */
 @media (max-width: 480px) { .panel-tools a[href="sicil.html"] { display: none; } }
+
+/* Announced-activity chart on the register page. The bar is a share, not a raw count, and the years
+   after the archive's coverage break are hollow — the drawing carries the caveat, not just the text. */
+.r-chart { margin: 36px 0 0; }
+.r-chart-svg { width: 100%; height: auto; display: block; }
+.r-grid-line { stroke: var(--line); stroke-width: 1; }
+.r-ax { fill: var(--t3); font: 400 11px var(--m); letter-spacing: .08em; }
+.r-bar { fill: rgba(232, 227, 220, .18); }
+.r-bar.thin { fill: none; stroke: var(--line2); stroke-width: 1; }
+.r-bar-mil { fill: var(--rb); fill-opacity: .72; }
+.r-capt { margin: 18px 0 0; }
+.r-capt .doc-p { margin-bottom: 12px; }
+.r-counts { font: 400 10.5px var(--m); letter-spacing: .06em; color: var(--t3); }
