@@ -68,6 +68,20 @@ rather than silent.
 söylemeyiz. / It is kept as its own class rather than folded into exercises: the warning does not say
 which it is, and neither do we.
 
+## Güncel kalması / Keeping it current
+
+Seri ayda bir, [`msi-activity.yml`](../../../../.github/workflows/msi-activity.yml) iş akışıyla
+yeniden üretilir. Sayılar değişmişse iş akışı yeni dosyayı artefakt olarak yükler ve
+`veri-guncellemesi` etiketli bir konu açar; dosyayı depoya bir insan alır. Gerekçe: bu org'da
+Actions pull request açamaz, `main` korumalıdır ve üçüncü tarafın arşivi ile sitenin yayımladığı
+şey arasında bir insanın durması zaten istediğimiz şeydir ([ADR 0007](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0007-human-in-the-loop-publishing.md)).
+Konu, değişimin **kapsama mı faaliyet mi** olduğunu sormayı hatırlatan bir kontrol listesiyle gelir.
+
+The series is rebuilt monthly by the `msi-activity` workflow. When the numbers move it uploads the
+new file as an artifact and opens an issue; a human lands it. Actions cannot open pull requests in
+this organisation and `main` is protected — and a person between a third party's archive and what
+the site publishes is what ADR 0007 asks for in any case.
+
 ## Yeniden üretmek / Rebuilding
 
 ```bash
