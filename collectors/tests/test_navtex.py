@@ -50,7 +50,7 @@ def test_position_is_degrees_and_decimal_minutes():
 
 def test_body_excludes_the_header_and_the_closing_marker():
     m = navtex.parse(LIMNOS)
-    assert m.body.startswith("NOTRHEAST AEGEAN SEA")   # the typo is the publisher's
+    assert m.body.startswith("NOTRHEAST AEGEAN SEA")  # the typo is the publisher's
     assert "ZCZC" not in m.body
     assert not m.body.endswith("NNNN")
 
