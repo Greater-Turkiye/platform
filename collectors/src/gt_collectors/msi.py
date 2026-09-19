@@ -100,8 +100,8 @@ def authority_of(item: dict) -> str:
 
 
 # Density grid: how a warning's positions become cells.
-CELL_DEG = 0.25          # ~25 km east-west at this latitude: coarse on purpose (see density())
-MAX_SPAN_DEG2 = 9.0      # a notice covering more than this is region-wide, not an area
+CELL_DEG = 0.25  # ~25 km east-west at this latitude: coarse on purpose (see density())
+MAX_SPAN_DEG2 = 9.0  # a notice covering more than this is region-wide, not an area
 MILITARY = ("firing", "hazardous-operations", "missile-test", "military-exercise", "submarine")
 
 
