@@ -44,6 +44,8 @@ Method and limits:
 | ROU | Dışişleri Bakanlığı / Ministry of Foreign Affairs | `https://www.mae.ro/rss.xml` | RSS 2.0 | ro | ~2–3/day | **Resets the connection for our descriptive User-Agent**; answers only a browser. Sends `Last-Modified`. | Needs confirmation. | `rss-rou-mfa` |
 | ROU | 〃 | `https://www.mae.ro/en/rss.xml` | RSS 2.0 | en | Low (10 items span Mar–Jul 2026) | Same User-Agent block. | Same as above. | — |
 
+| GRC | Seyir Hidrografi ve Oşinografi Dairesi / Hellenic Navy Hydrographic Service | `https://hnhs.gr/en/category/navtex-messages/feed/` | RSS 2.0 (WordPress) | en | Low (8 items, mixes recent and pinned older messages) | Whole NAVTEX messages (ZCZC … NNNN) from the Kerkyra, Limnos and Irakleio stations, with positions. **Not a complete NAVTEX log**, so counts from it are a floor, not a total. Sends `Last-Modified`, no `ETag`. | [Terms of use](https://hnhs.gr/en/terms-of-use/): viewing and printing "solely for information purposes"; exchange, modification and transmission forbidden → **no redistribution**, facts only, never the text. | `navtex-grc-hnhs` |
+
 ## İnceleme kuyruğundaki kaynaklar / Sources in the review queue
 
 Bunlar `queue: true` olan ilk akışlardır: zamanlanmış çalışma bunları toplar ve adayları bir
@@ -72,6 +74,29 @@ does not allow redistribution are recorded as **leads** only and are not added t
 Anadolu Agency and TRT Haber both parse and both reserve all rights, as does ACLED.
 
 Kapsam dışı ama çalışıyor / Out of scope but working: the US Department of War news feed (`https://www.war.gov/DesktopModules/ArticleCS/RSS.ashx?ContentType=1&Site=945&max=10`) answered normally. It is not a regional state, so it was not added.
+
+## NAVTEX: ilan edilen deniz faaliyeti / announced activity at sea
+
+Bir devletin seyre kapattığı alanlar ve bunu ne sıklıkla yaptığı, o devletin kendi yayımladığı
+ölçülebilir bir askerî faaliyet göstergesidir: atış eğitimi, füze denemesi, tatbikat, denizaltı
+faaliyeti ve araştırma gemisi çalışması NAVTEX ile, konumu ve zaman aralığıyla duyurulur.
+`gt_collectors.navtex` bir NAVTEX mesajını yapılandırılmış kayda çevirir (istasyon, konu, seri
+numarası, saat, konumlar, faaliyet türü) ve **metni saklamaz**: koşulları yeniden dağıtıma izin
+vermeyen kaynaklarda olgular kalır, metin kalmaz.
+
+**Türkiye'nin kendi NAVTEX yayınları (kiyiemniyeti.gov.tr) bilerek toplanmaz.** Türk kuvvetlerinin
+güncel atış ve tatbikat alanlarını yayımlamak, kim önce duyurmuş olursa olsun, ADR 0013'ün yasakladığı
+şeydir. Sicil, *başka* devletlerin ilan ettiği faaliyeti ölçer (ADR 0019).
+
+The areas a state closes to navigation, and how often, are a measure of its military activity that it
+publishes itself: firing practice, missile tests, exercises, submarine activity and survey work are all
+announced by NAVTEX with a position and a time window. `gt_collectors.navtex` turns a message into a
+structured record (station, subject, serial, time, positions, kind of activity) and **keeps no text**:
+where the terms forbid redistribution, the facts stay and the wording does not.
+
+**Türkiye's own NAVTEX broadcasts are deliberately not collected.** Publishing the current firing and
+exercise areas of Turkish forces is what ADR 0013 forbids, whoever announced them first. The register
+measures what *other* states announce.
 
 ## Akış bulunamayanlar / No feed confirmed
 

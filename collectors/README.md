@@ -331,6 +331,7 @@ Tüm koşullar kullanımdan önce teyit edilecektir. / All terms must be confirm
 | Toplayıcı / Collector | Kaynak / Source | Lisans ve koşul notları / Licence and terms notes |
 |---|---|---|
 | `rss` | Resmî bakanlık/hükümet RSS ve basın sayfaları / Official MoD/government RSS and press pages | Siteye göre değişir; yalnızca bağlantı + kısa özet saklanır / Varies per site; store link + short excerpt only |
+| `navtex` | Hidrografi dairelerinin NAVTEX yayınları / hydrographic services' NAVTEX broadcasts | Kaynağa göre değişir; koşulları yeniden dağıtıma izin vermeyenlerde yalnızca olgular saklanır, metin saklanmaz. Türkiye'nin kendi NAVTEX'i toplanmaz (ADR 0013) / varies per service; where the terms forbid redistribution only the facts are kept, never the text. Türkiye's own NAVTEX is not collected (ADR 0013) |
 | `gdelt` | GDELT | Açık erişim, atıf gerekir; gürültülü, yalnızca ipucu / Open access, attribution required; noisy, hints only |
 | `firms` | NASA FIRMS (VIIRS/MODIS aktif yangın) | Ücretsiz MAP_KEY; NASA verisi, atıf / Free MAP_KEY; NASA data, cite |
 | `adsb` | adsb.lol / OpenSky | adsb.lol veritabanı lisansı (atıf, benzer paylaşım); OpenSky ticari olmayan/araştırma koşulları / adsb.lol database licence (attribution, share-alike); OpenSky non-commercial/research terms |
