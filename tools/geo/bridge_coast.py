@@ -25,7 +25,8 @@ water, drawn up to the shoreline the reader can see.
 
 `own land` is Türkiye for every feature, plus Northern Cyprus for the merged Türkiye + TRNC area
 (that feature's coast is also the TRNC coast). Licence blocks are left untouched: they are offshore
-blocks with official coordinates and no coastal edge.
+blocks with official coordinates and no coastal edge, and so is the Sea of Marmara and the Straits
+(see SKIP).
 
 A bridged feature is stamped with `coast_bridge_km`, and this step refuses to bridge it again:
 the fill is defined relative to the feature's own edge, so a second pass would creep another
@@ -60,6 +61,12 @@ BRIDGE_KM = 6.0
 DEG = 1 / 111.0  # ~1 km in degrees of latitude; the bridge is a rendering tolerance, not a limit
 GRID = 1e-4      # the coordinate precision of this file (~11 m)
 OWN_LAND = {"default": ("Turkey",), "tur-kktc-med-merged": ("Turkey", "N. Cyprus")}
+# The Sea of Marmara and the Straits are not bridged. That feature already covers both Straits on
+# purpose — they are narrower than the 1:50m coastline, so the polygon has to sit over the land the
+# site draws — and widening it further only paints more of İstanbul blue at close zoom, which is
+# exactly what the reader complains about. Its own coastline is a closed sea's; there is no seam to
+# close that a reader can see.
+SKIP = frozenset({"tur-marmara-straits"})
 SNAP_SLACK_KM2 = 5.0  # measured worst case: +1.4 km² on the merged Eastern Mediterranean area
 
 
@@ -128,7 +135,7 @@ def main(check: bool) -> None:
         p = f["properties"]
         if f["geometry"]["type"] not in ("Polygon", "MultiPolygon") or p.get("status") == "licence":
             continue
-        if p.get("coast_bridge_km"):  # already bridged; see the module docstring
+        if p.get("coast_bridge_km") or p["id"] in SKIP:  # already bridged, or never bridged
             continue
         own_names = OWN_LAND.get(p["id"], OWN_LAND["default"])
         own = unary_union([named[n] for n in own_names])
