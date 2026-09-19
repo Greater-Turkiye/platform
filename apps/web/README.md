@@ -47,7 +47,7 @@ Farklı bir veri kökü için sayfada `window.GT_DATA_BASE = 'https://…/'` tan
 | `assets/css/site.css` | Tasarım belirteçleri ve tüm stiller / design tokens and all styles |
 | `assets/js/gt.js` | Ortak: i18n (TR/EN), veri yükleme, coğrafya, harita yardımcıları / shared helpers |
 | `assets/js/home.js`, `assets/js/panel.js`, `assets/js/method.js` | Sayfa mantığı / page logic |
-| `assets/js/basemap.js` | Vektör altlık prototipi; yalnızca `?basemap=…` ile yüklenir / the vector basemap prototype, loaded only with `?basemap=…` |
+| `assets/js/basemap.js` | Vektör altlık (MapLibre); panelde varsayılan açık, `?basemap=0` ile kapanır / the vector basemap, on by default in the panel |
 | `assets/vendor/`, `assets/fonts/`, `assets/data/` | Barındırılan üçüncü taraf varlıklar — [LICENSES.md](assets/LICENSES.md) |
 
 ### Harita katmanları / Map layers
@@ -64,40 +64,45 @@ Farklı bir veri kökü için sayfada `window.GT_DATA_BASE = 'https://…/'` tan
 | Adalar / Islands | `assets/data/islands-tur.geojson` | Kardak: Türkiye'nin tutumu / Türkiye's position |
 | Dış temsilcilikler / Missions | `assets/data/missions-tur.geojson` — [MISSIONS-SOURCES.md](assets/data/MISSIONS-SOURCES.md) | Şehir düzeyi; dokunulmaz ama Türk toprağı değil / city level; inviolable, but not Turkish territory |
 | Olaylar / Events | `../datasets/*.jsonl` | Koordinatsız olaylar bölge halkası / events without coordinates are drawn as a ring on their region |
+| Vektör altlık / Vector basemap | `gt-tiles` Worker'ı, `region-20260917` (OpenStreetMap, ODbL 1.0) — [LICENSES.md](assets/LICENSES.md) | Yalnızca coğrafya: sınır ve ülke adı katmanları stilden atılır ([ADR 0013](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0013-map-layers-turkiye-perspective.md), [ADR 0018](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0018-self-hosted-vector-basemap.md)) / geography only; boundary and country-name layers are dropped from the style |
+| Şehirler / Cities | `assets/data/places-10m.geojson` — [PLACES-SOURCES.md](assets/data/PLACES-SOURCES.md) (Natural Earth 10m; Türkçe adlar bizim / the Turkish names are ours) | Yalnızca altlık kapalıyken; zuma göre kademeli / only when the basemap is off, in tiers as the map zooms |
 
 Kurallar / Rules: [handbook ADR 0013](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0013-map-layers-turkiye-perspective.md).
 
-### Vektör altlık — prototip / Vector basemap — prototype
+### Vektör altlık / Vector basemap
 
-> Durum: **prototip**, varsayılan kapalı. Bir karar verilmedi; ADR yazılmadan varsayılan olmaz. / Status: **prototype**, off by default. Nothing is decided; it does not become the default without an ADR.
+> Durum: **canlı, varsayılan açık.** Karolar bizimdir: paneldeki bölgenin OpenStreetMap kesitini kendimiz üretir, kendi Worker'ımızdan sunarız ([ADR 0018](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0018-self-hosted-vector-basemap.md)). / Status: **live, on by default.** The tiles are ours: we cut the OpenStreetMap extract of the panel's region ourselves and serve it from our own Worker.
 
-Panel bugün ülke geometrisini D3 ile çizer: ülke ölçeğinde doğru, ama şehir, yol ve arazi gösteremez. `panel.html?basemap=…` haritanın altına MapLibre GL ile bir vektör altlık koyar. Parametre yoksa `basemap.js` hiç yüklenmez ve normal ziyaretçi için hiçbir şey değişmez — MapLibre de, altlık isteği de yoktur.
+Panel ülke geometrisini D3 ile çizmeye devam eder — ama artık altında gerçek bir harita vardır: kıyı çizgisi, yollar, araziler ve yerleşim adları. Anlam taşıyan her katman (sınırlar, Mavi Vatan, harekât bölgeleri, işaretçiler) hâlâ bizim verimizden D3 ile üstte çizilir; altlık yalnızca coğrafyayı taşır.
 
-The dashboard draws country geometry with D3: right at country scale, but it cannot show cities, roads or terrain. `panel.html?basemap=…` puts a MapLibre GL vector basemap underneath the map. Without the parameter `basemap.js` is never loaded and nothing changes for a normal visitor — no MapLibre, no tile request.
+The panel still draws country geometry with D3 — but now there is a real map underneath it: coastline, roads, land cover and settlement names. Everything that carries meaning (borders, Blue Homeland, operation areas, markers) is still drawn on top by D3 from our own data; the basemap only carries the geography.
 
-| Parametre / Parameter | Altlık / Basemap | Anahtar / Key | Not / Note |
-|---|---|---|---|
-| `?basemap=1` | [OpenFreeMap](https://openfreemap.org) `dark` stili / style | yok / none | Anahtarsız, kotasız; tek kişinin bağışla işlettiği sunucular, SLA yok / no key, no quota; one person's donation-funded servers, no SLA |
-| `?basemap=pmtiles&pmtiles=<url>` | Kendi barındırdığımız bir [Protomaps](https://protomaps.com) `.pmtiles` dosyası / a `.pmtiles` file we host | yok / none | Üçüncü taraf çalışma zamanı bağımlılığı yok; dosya HTTP Range isteklerini destekleyen bir yerde durmalı / no third-party runtime dependency; the file must sit somewhere that serves HTTP Range requests |
+| Parametre / Parameter | Altlık / Basemap | Not / Note |
+|---|---|---|
+| (yok / none) | **Kendi karolarımız / our own tiles** — `gt-tiles` Worker'ı, `region-20260917` arşivi (z0–11, OSM 2026-09-17) | Varsayılan. Anahtar yok, hesap yok, üçüncü taraf harita servisi yok / the default: no key, no account, no third-party map service |
+| `?basemap=0` | Kapalı / off | Harita yalnızca depodaki 50m dosyadan çizilir; şehir adları `assets/data/places-10m.geojson`'dan gelir / drawn only from the 50m file in the repository; city names come from `places-10m.geojson` |
+| `?basemap=ofm` | [OpenFreeMap](https://openfreemap.org) `dark` stili / style | Karşılaştırma için; anahtarsız ama bağışla işletilen üçüncü taraf sunucular, SLA yok / for comparison; no key, but third-party donation-funded servers, no SLA |
+| `?tiles=<url>` | Aynı stil, başka bir karo uç noktası / the same style, another tile endpoint | Yerel `wrangler dev` veya yeni bir arşivi denemek için / for `wrangler dev` or trying a new archive |
 
-`.pmtiles` bölgesel kesiti üretmek / to cut a regional extract ([go-pmtiles](https://github.com/protomaps/go-pmtiles)):
+**İlk açılışta altlık yüklenmez.** MapLibre ve karolar, harita gerçekten yakınlaştırıldığında (k ≥ 1,6) istenir; genel görünüm, altlık hiç yokmuş gibi ağırdadır — telefon boyutunda ölçülen değer iki durumda da 1.764 KB'dır. Tarayıcı `Save-Data` istiyorsa altlık hiç yüklenmez (`?basemap=gt` bunu geçersiz kılar). Karolar erişilemezse altlık düşürülür ve harita kendiliğinden D3 moduna döner; sayfa hata vermez.
 
-```bash
-# panelin görüş alanı, z0–8 ≈ 55 MB (z10 ≈ 349 MB, z12 ≈ 1,6 GB)
-pmtiles extract https://build.protomaps.com/<YYYYMMDD>.pmtiles gt.pmtiles --bbox=13,22,74,48 --maxzoom=8
-```
+**Nothing of the basemap loads on a first paint.** MapLibre and the tiles are requested when the map is actually zoomed (k ≥ 1.6), so the overview weighs what it did before — 1,764 KB at phone size either way. A browser asking for `Save-Data` gets no basemap (`?basemap=gt` overrides). If the tiles cannot be reached the basemap is dropped and the map falls back to D3 on its own; nothing breaks.
+
+Ölçülen karo ağırlığı / measured tile weight (3×3 görünüm, brotli): z6 ≈ 370 KB, z8 ≈ 206 KB, z10 ≈ 21 KB.
+
+Arşivin nasıl üretildiği, boyutları ve R2'ye taşıma: [`tools/geo/build_basemap.md`](../../tools/geo/build_basemap.md). Worker: [`apps/tiles`](../tiles/README.md). / How the archive is built, what it costs and how it moves to R2: `tools/geo/build_basemap.md`; the Worker: `apps/tiles`.
 
 **Sınırlar ve tutumlar / Boundaries and positions.** Üçüncü taraf altlığın sınır ve ülke adı katmanları harita kurulmadan **önce** stilden atılır (`basemap.js` → `sanitise`): `boundary` kaynak katmanının tamamı ve `place` katmanının şehir/kasaba/köy dışındaki her etiketi. Ekranda görünen her sınır, ülke adı ve deniz adı bizim veri kaynağımızdan D3 ile çizilir; ülke renkleri altlığın okunabilmesi için yarı saydam bir tona iner. Yerleşim adları kalır (bir şehir adı egemenlik iddiası değildir) ve önce Türkçe (`name:tr`), sonra arayüz dili, sonra Latin harfli ad sorulur; başka bir alfabedeki tek adı olan yer etiketsiz kalır. Bu, ADR 0013'ün gereğidir: altlığın "İsrail" yazısı Filistin'in üzerine ya da adalarımızın Yunanca adları haritaya giremez.
 
 The basemap's boundary and country-label layers are dropped from the style **before** the map is created (`basemap.js` → `sanitise`): the whole `boundary` source layer, and every `place` label that is not a city, town or village. Every border, country name and sea name on screen is still drawn by D3 from our own data; the country colours drop to a translucent tint so the basemap can be read through them. Settlement labels are kept (a city name is not a sovereignty claim) and are asked for in Turkish first (`name:tr`), then the interface language, then a Latin-script name; a place whose only name is in another script gets no label. That is what ADR 0013 requires: the basemap's own "Israel" over Palestine, or Greek names for our islands, cannot reach the map.
 
-Ölçülen değerler ve seçeneklerin karşılaştırması: bu prototipi açan pull request. / Measurements and the comparison of the options: the pull request that opened this prototype.
+Ölçülen değerler ve seçeneklerin karşılaştırması: altlığı açan pull request'ler. / Measurements and the comparison of the options: the pull requests that brought the basemap in.
 
 ### İnceleme / Review
 
 `?globe-t=<saniye>` ana sayfa animasyonunu belirli bir anda başlatır (0–9 odak, ~12–32 dünya turu, ~32–36 yaklaşma). / starts the home page animation at a given second.
 
-`?basemap=1` · `?basemap=pmtiles&pmtiles=<url>` vektör altlık prototipini açar (yukarıya bakın). / turn the vector basemap prototype on (see above).
+`?basemap=0` altlığı kapatır, `?basemap=ofm` OpenFreeMap'e geçer, `?tiles=<url>` başka bir karo uç noktası kullanır (yukarıya bakın). / turn the basemap off, swap in OpenFreeMap, or point the style at another tile endpoint (see above).
 
 ### Yayın / Deploy
 

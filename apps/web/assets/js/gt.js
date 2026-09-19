@@ -771,9 +771,10 @@
         'https://www.iletisim.gov.tr/turkce/haberler/detay/turkiye-ile-birlesik-arap-emirlikleri-arasinda-13-anlasma-imzalandi'],
     },
     'bra-2022': {
-      tr: 'Savunma Sanayii İş Birliği Anlaşması · 25 Mar 2022 · yürürlükte (7586 sayılı Kanun, RG 4 Tem 2026)',
-      en: 'Defence Industry Cooperation Agreement · 25 Mar 2022 · in force (Law 7586, Official Gazette 4 Jul 2026)',
+      tr: 'Savunma Sanayii İş Birliği Anlaşması · 25 Mar 2022 · onaylandı (7586 sayılı Kanun, RG 4 Tem 2026; 11799 sayılı Cumhurbaşkanı Kararı, RG 18 Eyl 2026)',
+      en: 'Defence Industry Cooperation Agreement · 25 Mar 2022 · ratified (Law 7586, Official Gazette 4 Jul 2026; Presidential Decision 11799, Official Gazette 18 Sep 2026)',
       sources: ['https://www.resmigazete.gov.tr/04.07.2026',
+        'https://www.resmigazete.gov.tr/18.09.2026',
         'https://www.ahaber.com.tr/gundem/2026/07/04/turkiye-ve-brezilyadan-kritik-anlasma-savunmada-stratejik-is-birligi'],
     },
     'col-2026': {
@@ -980,6 +981,10 @@
     }
     return layerCache.get(u);
   };
+
+  /* Cities for the zoomed-in map when no basemap is drawing them (assets/data/places-10m.geojson,
+     built by tools/geo/build_places.py). Fetched the first time it is asked for and never again. */
+  GT.loadPlaces = () => optionalLayer('assets/data/places-10m.geojson');
 
   Object.assign(I18N.tr, { 'p.regional': 'bölge düzeyi, kesin konum yok', 'lg.regional': 'Olay (bölge düzeyi)' });
   Object.assign(I18N.en, { 'p.regional': 'region level only; no precise location', 'lg.regional': 'Event (region level)' });
