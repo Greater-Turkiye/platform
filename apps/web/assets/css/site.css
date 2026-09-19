@@ -589,3 +589,35 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .p-map svg.zp4 .m-place { display: block; }
 
 @media (max-width: 860px) { .p-attrib { right: 8px; bottom: 8px; font-size: 8px; } }
+
+/* Aegean register cards (sicil.html): one record per card, read straight from the dataset. */
+.r-grid { display: grid; gap: 1px; margin-top: 36px; background: var(--line); border: 1px solid var(--line);
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.r-card { padding: 26px 26px 22px; background: var(--bg); display: flex; flex-direction: column; gap: 12px; }
+.r-name { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -.01em; line-height: 1.3; }
+.r-meta { margin: 0; font: 500 10px var(--m); letter-spacing: .2em; text-transform: uppercase; color: var(--rb); }
+.r-body { margin: 0; font-size: 13.5px; font-weight: 300; color: var(--t2); line-height: 1.75; }
+.r-flags { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
+.r-flag { padding: 4px 9px; border: 1px solid var(--line2); font: 500 9.5px var(--m); letter-spacing: .16em;
+  text-transform: uppercase; color: var(--t3); }
+.r-src { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin: auto 0 0; padding-top: 14px;
+  border-top: 1px solid var(--line); font: 400 10.5px var(--m); letter-spacing: .06em; color: var(--t3); }
+.r-src > span { text-transform: uppercase; letter-spacing: .2em; }
+.r-src a { color: var(--t2); border-bottom: 1px solid var(--line2); padding-bottom: 2px; }
+.r-src a:hover { color: #fff; border-color: var(--rb); }
+@media (max-width: 640px) { .r-card { padding: 22px 18px 18px; } }
+/* The panel header is a working toolbar: on a narrow phone the register link gives way to the map. */
+@media (max-width: 480px) { .panel-tools a[href="sicil.html"] { display: none; } }
+
+/* Announced-activity chart on the register page. The bar is a share, not a raw count, and the years
+   after the archive's coverage break are hollow — the drawing carries the caveat, not just the text. */
+.r-chart { margin: 36px 0 0; }
+.r-chart-svg { width: 100%; height: auto; display: block; }
+.r-grid-line { stroke: var(--line); stroke-width: 1; }
+.r-ax { fill: var(--t3); font: 400 11px var(--m); letter-spacing: .08em; }
+.r-bar { fill: rgba(232, 227, 220, .18); }
+.r-bar.thin { fill: none; stroke: var(--line2); stroke-width: 1; }
+.r-bar-mil { fill: var(--rb); fill-opacity: .72; }
+.r-capt { margin: 18px 0 0; }
+.r-capt .doc-p { margin-bottom: 12px; }
+.r-counts { font: 400 10.5px var(--m); letter-spacing: .06em; color: var(--t3); }

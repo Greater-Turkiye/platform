@@ -986,6 +986,46 @@
      built by tools/geo/build_places.py). Fetched the first time it is asked for and never again. */
   GT.loadPlaces = () => optionalLayer('assets/data/places-10m.geojson');
 
+  Object.assign(I18N.tr, {
+    'nav.register': 'Ege sicili',
+    'r.eyebrow': 'Ege sicili', 'r.title1': 'Antlaşmayla silahsız adalarda', 'r.title2': 'bugün ne var?',
+    'r.lead': "Lozan Barış Antlaşması (1923) ve Paris Barış Antlaşması (1947), Doğu Ege adaları ile Oniki Ada'yı askerden arındırılmış bir rejime bağlar. Bu sicil, o adalarda bugün ne olduğunu — hangi maddeye karşı, hangi kaynakla — kayıt kayıt tutar. Bir iddia listesi değil, bir uyum kaydıdır: yetenek ve duruş belgelenir, niyet iddiası kurulmaz.",
+    'r.not': "Bu sayfada koordinat, harita işareti, personel bilgisi, güncel hareket ve zafiyet değerlendirmesi yoktur ve olmayacaktır. Koordinat, birincil kaynağıyla doğrulanmadan hiçbir kayda yazılmaz; bu yüzden sicilin ilk sürümü bilerek koordinatsızdır (ADR 0019).",
+    'r.listk': 'Kayıtlar', 'r.list': 'Adalar',
+    'r.listlead': "Her kayıt, veri setindeki dosyanın kendisidir; burada gördüğünüz metin kaydın içindeki metindir.",
+    'r.loading': 'Yükleniyor…', 'r.count': '{n} kayıt', 'r.empty': 'Bu sicilde henüz kayıt yok.',
+    'r.err': 'Veri yüklenemedi.', 'r.sources': 'Kaynaklar', 'r.decision': 'Karar',
+    'r.actk': 'İlan edilen faaliyet', 'r.act': 'Denizde ne ilan ediliyor?',
+    'r.actlead': 'Bir devletin seyre kapattığı alanlar, o devletin kendi yayımladığı bir faaliyet ölçüsüdür. Sütunlar, bölgemize ait seyir ihbarlarının o yılki arşivin tamamı içindeki payıdır (binde); kırmızı kısım, kelimeleri askerî faaliyet adlandıran ihbarların payını gösterir.',
+    'r.breaknote': "Zirve {p} yılındadır: bölgenin payı binde {v}. {b} ve sonrası içi boş çizilir, çünkü NGA bu tarihten sonra NAVAREA III ve Yunan NAVTEX mesajlarını aktarmayı büyük ölçüde bıraktı — oradaki düşüş denizde olanın değil, arşivin taşıdığının değişimidir ve öyle okunmamalıdır. Türk makamlarının yayımladığı ihbarlar hiç sayılmaz.",
+    'r.tip': '{y}: bölgede {n} ihbar ({m} askerî), arşivin o yılki toplamı {a}',
+    'r.aria': '{a}–{b} arası yıllık ilan edilen deniz faaliyeti sütun grafiği ({n} yıl)',
+    'r.built': '{k} ihbar sayıldı · {t} Türk ihbarı sayılmadı',
+    'r.howk': 'Okuma kılavuzu', 'r.how': 'Bu sicil nasıl okunur',
+    'r.how1': "Her kayıt üç şeyi ayırır: antlaşmanın ne dediği (metinden alıntıyla), bugün belgelenen şey ve eksik olan şey. Kaynak sırası da bunu izler: önce antlaşma metni, sonra resmî tutum, en sonda ikincil kaynaklar kendi güvenilirlik notlarıyla.",
+    'r.how2': "OpenStreetMap sayıları ipucudur, bulgu değildir: gönüllülerin etiketlediği bir nesne bugün faal olduğunu kanıtlamaz ve İkinci Dünya Savaşı'ndan kalma bir mevzi de aynı etiketi taşır. Sorgu yalnızca Yunan toprağıyla sınırlıdır; Türk toprağındaki hiçbir nesne bu sayılara girmez.",
+    'r.how3': "Bir kaydı yanlış bulursanız düzeltme açın: sicilin gücü, tek bir yanlış satırın bütün tabloyu çürütebileceğini bilerek yazılmış olmasıdır.",
+  });
+  Object.assign(I18N.en, {
+    'nav.register': 'Aegean register',
+    'r.eyebrow': 'Aegean register', 'r.title1': 'On islands demilitarised by treaty,', 'r.title2': 'what stands today?',
+    'r.lead': 'The 1923 Treaty of Lausanne and the 1947 Treaty of Paris place the eastern Aegean islands and the Dodecanese under a demilitarised regime. This register keeps, record by record, what is on those islands today — against which article, on whose evidence. It is a compliance register, not a list of claims: it documents capability and posture, and makes no assertion about intent.',
+    'r.not': 'There are no coordinates on this page, no map markers, no personnel, no current movements and no vulnerability assessment — and there will not be. A coordinate is written into a record once it has been verified against a primary source, so the first version of the register is deliberately without them (ADR 0019).',
+    'r.listk': 'Records', 'r.list': 'The islands',
+    'r.listlead': 'Each card is the record itself: the text you read here is the text inside the file.',
+    'r.loading': 'Loading…', 'r.count': '{n} records', 'r.empty': 'No records in this register yet.',
+    'r.err': 'Could not load the data.', 'r.sources': 'Sources', 'r.decision': 'Decision',
+    'r.actk': 'Announced activity', 'r.act': 'What is being announced at sea?',
+    'r.actlead': "The areas a state closes to navigation are a measure of its activity that the state publishes itself. Each bar is the region's share of the whole archive for that year (per 1,000); the red part is the share of warnings whose wording names military activity.",
+    'r.breaknote': 'The peak is {p}, at {v} per 1,000. {b} onwards is drawn hollow because NGA largely stopped relaying NAVAREA III and the Greek NAVTEX stations after then — that fall is a change in what the archive carries, not in what happens at sea, and must not be read as one. Warnings issued by Turkish authorities are never counted.',
+    'r.tip': '{y}: {n} warnings in the region ({m} military), {a} in the archive that year',
+    'r.aria': 'Bar chart of announced activity at sea per year, {a}–{b} ({n} years)',
+    'r.built': '{k} warnings counted · {t} Turkish warnings not counted',
+    'r.howk': 'How to read it', 'r.how': 'How to read this register',
+    'r.how1': 'Every record separates three things: what the treaty says (quoted from the text), what is documented today, and what is missing. The order of the sources follows the same rule — the treaty text first, then the official position, then secondary sources with their own reliability noted.',
+    'r.how2': "The OpenStreetMap counts are leads, not findings: a volunteer's tag does not prove a facility is in use today, and a Second World War position carries the same tag. The query is restricted to Greek territory, so nothing on Turkish soil enters these numbers.",
+    'r.how3': 'If a record is wrong, open a correction: the register is written in the knowledge that one wrong line can discredit the whole table.',
+  });
   Object.assign(I18N.tr, { 'p.regional': 'bölge düzeyi, kesin konum yok', 'lg.regional': 'Olay (bölge düzeyi)' });
   Object.assign(I18N.en, { 'p.regional': 'region level only; no precise location', 'lg.regional': 'Event (region level)' });
   Object.assign(I18N.tr, { 'lg.mission': 'Türk dış temsilciliği (şehir düzeyi)', 'p.lyr.missions': 'Temsilcilikler','lg.schematic': "Şematik — Türkiye'nin tutumu esas alınarak çizildi, resmî koordinat değildir" });
