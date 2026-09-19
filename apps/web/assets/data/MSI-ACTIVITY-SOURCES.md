@@ -1,4 +1,4 @@
-# `msi-activity.json` — kaynaklar ve yöntem / sources and method
+# `msi-activity.json` ve `msi-density.json` — kaynaklar ve yöntem / sources and method
 
 Ege, Doğu Akdeniz ve Karadeniz için **ilan edilmiş** seyir ihbarlarının yıllara göre sayımı.
 A yearly count of the navigational warnings **announced** for the Aegean, the eastern Mediterranean
@@ -82,6 +82,27 @@ The series is rebuilt monthly by the `msi-activity` workflow. When the numbers m
 new file as an artifact and opens an issue; a human lands it. Actions cannot open pull requests in
 this organisation and `main` is protected — and a person between a third party's archive and what
 the site publishes is what ADR 0007 asks for in any case.
+
+## Yoğunluk ızgarası / The density grid
+
+`msi-density.json`, aynı ihbarların **nerede** ilan edildiğini 0,25°'lik bir ızgarada gösterir
+(panelde "İlan edilen faaliyet" katmanı). Kurallar:
+
+- **Pencere 2015–2021.** Arşivin bu bölgedeki kapsamı bu yıllarda istikrarlı; NAVAREA III aktarımının
+  durduğu yılları karıştırmak denizi değil arşivi haritalamak olurdu.
+- **Alan, köşelerden kurulur.** Dört köşe veren bir ihbar, köşelerinin sınırladığı dikdörtgendeki
+  hücreleri sayar; tek konum veren bir ihbar tek hücre. 9 derece kareden geniş bir duyuru bölge
+  geneli sayılır ve alan olarak çizilmez.
+- **Karadaki hücreler atılır** (bu üretimde 564 hücre): bu bir deniz faaliyeti haritasıdır, bir Yunan
+  köyünün üzerindeki kırmızı kare değil. Karar, sitenin çizdiği 1:50m kara geometrisine göre verilir.
+- **Türk ihbarları burada da yok.** Dosyada güncel hiçbir şey yoktur: pencere 2021'de biter.
+
+Bugünkü çıktı: **3.015 hücre**, hücre-ihbar toplamları askerî 36.437, araştırma 7.290, diğer 7.591.
+
+`msi-density.json` shows **where** the same warnings were announced, on a 0.25° grid (the panel's
+"announced activity" layer): a 2015–2021 window because the archive's coverage is steady there, areas
+built from the warning's own corners, region-wide notices not drawn as areas, cells whose centre is on
+land dropped, and no Turkish warnings. Nothing in it is current; the window ends in 2021.
 
 ## Yeniden üretmek / Rebuilding
 

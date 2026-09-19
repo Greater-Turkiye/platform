@@ -41,11 +41,18 @@
       </div>
       <fieldset class="layers">
         <legend data-i18n="p.layers">Katmanlar</legend>
-        <label class="tog"><input type="checkbox" id="l-regions" checked><span data-i18n="p.lyr.regions">Bölgeler</span></label>
-        <label class="tog"><input type="checkbox" id="l-sites" checked><span data-i18n="p.lyr.sites">Tesisler</span></label>
-        <label class="tog"><input type="checkbox" id="l-events" checked><span data-i18n="p.lyr.events">Olaylar</span></label>
-        <label class="tog"><input type="checkbox" id="l-examples"><span data-i18n="p.lyr.examples">Örnek veriler</span></label>
-        <label class="tog"><input type="checkbox" id="l-missions" checked><span data-i18n="p.lyr.missions">Temsilcilikler</span></label>
+        <p class="layers-sub" data-i18n="p.lyr.records">Kayıtlar</p>
+        <div class="layers-grid">
+          <label class="tog"><input type="checkbox" id="l-events" checked><span data-i18n="p.lyr.events">Olaylar</span></label>
+          <label class="tog"><input type="checkbox" id="l-sites" checked><span data-i18n="p.lyr.sites">Tesisler</span></label>
+          <label class="tog"><input type="checkbox" id="l-examples"><span data-i18n="p.lyr.examples">Örnek veriler</span></label>
+        </div>
+        <p class="layers-sub" data-i18n="p.lyr.map">Harita</p>
+        <div class="layers-grid">
+          <label class="tog"><input type="checkbox" id="l-regions" checked><span data-i18n="p.lyr.regions">Bölgeler</span></label>
+          <label class="tog"><input type="checkbox" id="l-missions" checked><span data-i18n="p.lyr.missions">Temsilcilikler</span></label>
+          <label class="tog"><input type="checkbox" id="l-activity"><span data-i18n="p.lyr.activity">İlan edilen faaliyet</span></label>
+        </div>
       </fieldset>
     </div>
     <div class="p-feed-head"><span id="p-feed-title" data-i18n="p.feed">Kayıtlar</span><span id="p-count" class="mono"></span></div>
@@ -63,7 +70,9 @@
       <button type="button" id="z-out" data-i18n-aria="p.zoomOut" aria-label="Uzaklaştır"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1 7h12" stroke="currentColor" stroke-width="1.4"/></svg></button>
       <button type="button" id="z-reset" data-i18n-aria="p.reset" aria-label="Görünümü sıfırla"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 0v4M8 12v4M0 8h4M12 8h4" stroke="currentColor" stroke-width="1.2"/></svg></button>
     </div>
-    <div class="p-legend" aria-hidden="true">
+    <details class="p-legend" id="p-legend">
+      <summary class="p-legend-sum"><span data-i18n="p.key">Harita anahtarı</span><span class="p-legend-n mono" id="p-legend-n"></span></summary>
+      <div class="p-legend-body">
       <span class="lg"><i class="tr"></i><span data-i18n="lg.tr">Türkiye</span></span>
       <span class="lg"><i class="ally"></i><span data-i18n="lg.ally">Müttefik · karşılıklı savunma</span></span>
       <span class="lg"><i class="coop"></i><span data-i18n="lg.coop">Savunma işbirliği anlaşması</span></span>
@@ -75,12 +84,14 @@
       <span class="lg"><i class="concern"></i><span data-i18n="lg.concern">Doğu Türkistan · Uygur Türklerine yönelik ihlaller</span></span>
       <span class="lg"><i class="ops"></i><span data-i18n="lg.ops">Türkiye'nin ilan ettiği harekât bölgeleri (kesikli: sona erdi)</span></span>
       <span class="lg"><i class="blue"></i><span data-i18n="lg.blue">Mavi Vatan · deniz yetki alanları (Türkiye'nin tutumu)</span></span>
-      <span class="lg"><i></i><span data-i18n="lg.unverified">Doğrulanmamış</span></span>
-      <span class="lg"><i class="warn"></i><span data-i18n="lg.partial">Kısmen / tartışmalı</span></span>
-      <span class="lg"><i class="ok"></i><span data-i18n="lg.verified">Doğrulandı</span></span>
-      <span class="lg"><i class="ex"></i><span data-i18n="lg.example">Örnek (kurgusal)</span></span>
-      <span class="lg"><i class="site"></i><span data-i18n="lg.site">Tesis</span></span>
-    </div>
+      <span class="lg" data-lyr="l-activity"><i class="act"></i><span data-i18n="lg.activity">İlan edilen deniz faaliyeti (2015–2021, yabancı seyir ihbarları; Türk ihbarları sayılmaz)</span></span>
+      <span class="lg" data-lyr="l-events"><i></i><span data-i18n="lg.unverified">Doğrulanmamış</span></span>
+      <span class="lg" data-lyr="l-events"><i class="warn"></i><span data-i18n="lg.partial">Kısmen / tartışmalı</span></span>
+      <span class="lg" data-lyr="l-events"><i class="ok"></i><span data-i18n="lg.verified">Doğrulandı</span></span>
+      <span class="lg" data-lyr="l-examples"><i class="ex"></i><span data-i18n="lg.example">Örnek (kurgusal)</span></span>
+      <span class="lg" data-lyr="l-sites"><i class="site"></i><span data-i18n="lg.site">Tesis</span></span>
+      </div>
+    </details>
   </section>
 
   <aside id="p-drawer" class="p-drawer" aria-hidden="true" aria-labelledby="p-d-title" inert>

@@ -116,3 +116,31 @@ def test_series_carries_the_columns_a_reader_needs():
     assert row["by_authority"] == {"NAVAREA": 1}
     assert row["archive_all_areas"] == 1
     assert row["by_activity"] == {"hazardous-operations": 1}
+
+
+def test_a_four_corner_area_fills_the_cells_between_its_corners():
+    cells = msi._cells_of(
+        navtex.positions(
+            "AREA BOUND BY 39-00.00N 025-00.00E, 39-00.00N 025-30.00E, 38-40.00N 025-30.00E, 38-40.00N 025-00.00E"
+        )
+    )
+    assert (25.0, 38.5) in cells and (25.5, 39.0) in cells
+    assert len(cells) == 9  # three cells each way at 0.25 degrees
+
+
+def test_a_single_position_is_a_single_cell():
+    assert msi._cells_of(navtex.positions("IN POSITION 38-32.20N 025-36.56E")) == [(25.5, 38.5)]
+
+
+def test_a_region_wide_notice_is_not_drawn_as_an_area():
+    huge = navtex.positions("AREA BOUND BY 45-00.00N 010-00.00E, 45-00.00N 040-00.00E, 30-00.00N 040-00.00E")
+    assert msi._cells_of(huge) == []
+
+
+def test_density_counts_by_kind_and_only_inside_the_window():
+    inside = dict(AEGEAN_FIRING)  # 2020, hazardous-operations
+    outside = dict(AEGEAN_FIRING, msgYear=2014, msgNumber=9)
+    grid = msi.density([inside, outside, TURKISH_BY_AUTHORITY], (2015, 2021))
+    assert grid, "the 2020 warning should have produced cells"
+    assert all(c["military"] >= 1 for c in grid.values())
+    assert sum(c["other"] for c in grid.values()) == 0  # the Turkish one is never counted

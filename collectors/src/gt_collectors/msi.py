@@ -99,6 +99,61 @@ def authority_of(item: dict) -> str:
     return words[0].rstrip(".,") if words else "unknown"
 
 
+# Density grid: how a warning's positions become cells.
+CELL_DEG = 0.25  # ~25 km east-west at this latitude: coarse on purpose (see density())
+MAX_SPAN_DEG2 = 9.0  # a notice covering more than this is region-wide, not an area
+MILITARY = ("firing", "hazardous-operations", "missile-test", "military-exercise", "submarine")
+
+
+def _cells_of(positions) -> list[tuple[float, float]]:
+    """The grid cells a warning covers: its positions' bounding box, snapped to the grid.
+
+    A warning that gives four corners is an area and fills the rectangle between them; one that
+    gives a single position is one cell. Nothing finer is attempted and nothing finer should be:
+    the grid exists to show where activity is announced over years, not to place anything."""
+    if not positions:
+        return []
+    lons = [p.lon for p in positions]
+    lats = [p.lat for p in positions]
+    w, e, s, n = min(lons), max(lons), min(lats), max(lats)
+    if (e - w) * (n - s) > MAX_SPAN_DEG2:
+        return []
+    out = []
+    lat = (s // CELL_DEG) * CELL_DEG
+    while lat <= n + 1e-9:
+        lon = (w // CELL_DEG) * CELL_DEG
+        while lon <= e + 1e-9:
+            out.append((round(lon, 2), round(lat, 2)))
+            lon += CELL_DEG
+        lat += CELL_DEG
+    return out
+
+
+def density(items, years: tuple[int, int]) -> dict[tuple[float, float], Counter[str]]:
+    """Warnings per grid cell for a window of years, split into military, survey and other.
+
+    Only the years given are counted, because the archive's coverage of this region changes: mixing
+    a year when NAVAREA III was relayed with one when it was not would draw a map of the archive
+    rather than of the sea."""
+    first, last = years
+    grid: dict[tuple[float, float], Counter[str]] = defaultdict(Counter)
+    for item in items:
+        text = item.get("text") or ""
+        year = item.get("msgYear")
+        if not text or not isinstance(year, int) or not (first <= year <= last):
+            continue
+        positions = navtex.positions(text)
+        if not in_region(text, positions) or is_turkish(item, text):
+            continue
+        if navtex.is_cancellation_only(text):
+            continue
+        activity = navtex.activity_of(text)
+        kind = "military" if activity in MILITARY else "survey" if activity == "survey" else "other"
+        for cell in _cells_of(positions):
+            grid[cell][kind] += 1
+    return grid
+
+
 def summarise(items) -> Tally:
     """Count the warnings that are ours, year by year. `items` are NGA broadcast-warning records."""
     t = Tally()
