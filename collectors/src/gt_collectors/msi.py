@@ -28,8 +28,19 @@ from gt_collectors import navtex
 
 # The region this project watches, as the warnings themselves name it.
 REGION_WORDS: tuple[str, ...] = (
-    "AEGEAN SEA", "EASTERN MEDITERRANEAN", "CENTRAL MEDITERRANEAN", "BLACK SEA", "SEA OF MARMARA",
-    "DARDANELLES", "BOSPORUS", "BOSPHORUS", "LEVANTINE", "CYPRUS", "CRETE", "RHODES", "IONIAN SEA",
+    "AEGEAN SEA",
+    "EASTERN MEDITERRANEAN",
+    "CENTRAL MEDITERRANEAN",
+    "BLACK SEA",
+    "SEA OF MARMARA",
+    "DARDANELLES",
+    "BOSPORUS",
+    "BOSPHORUS",
+    "LEVANTINE",
+    "CYPRUS",
+    "CRETE",
+    "RHODES",
+    "IONIAN SEA",
 )
 BBOX = (19.0, 30.0, 42.0, 47.0)  # west, south, east, north — Ionian to the Caucasus, Libya to Ukraine
 
