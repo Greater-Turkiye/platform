@@ -10,6 +10,7 @@ and the Black Sea.
 | Kaynak / Source | [NGA Maritime Safety Information — broadcast warnings](https://msi.nga.mil/NavWarnings) (`?status=cancelled` arşivi + `?status=active`) |
 | Lisans / Licence | ABD Hükümeti eseri, **kamu malı** / Work of the United States Government, **public domain** |
 | Sınıflandırma / Classification | [`gt_collectors.navtex.activity_of`](../../../../collectors/src/gt_collectors/navtex.py) — ihbarın kendi kelimeleri |
+| Sayım kuralları / Counting rules | [`gt_collectors.msi`](../../../../collectors/src/gt_collectors/msi.py) — bölge süzgeci, Türk ihbarı dışlaması ve yıllık sayım; testleri [`tests/test_msi.py`](../../../../collectors/tests/test_msi.py) |
 | Üretim / Built | 2026-09-19 · 198.034 kayıt okundu, **9.051** bölge ihbarı tutuldu, 1.314 Türk ihbarı dışlandı, 624 yalnızca iptal mesajı sayılmadı |
 | Kapsanan yıllar / Years | 1990–2024 |
 

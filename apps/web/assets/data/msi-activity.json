@@ -30,6 +30,7 @@
    ]
   },
   "classified_by": "gt_collectors.navtex.activity_of (the words the warning itself uses)",
+  "counted_by": "gt_collectors.msi.summarise",
   "excluded": "Warnings issued by Turkish authorities, or whose subject is Türkiye, are not counted: this series measures what other states announce (ADR 0013, ADR 0019)."
  },
  "built_from": {
@@ -49,7 +50,7 @@
   },
   {
    "years": "2022-",
-   "note": "The relay largely stops: in 2020 the region's warnings were 1,148 NAVAREA III relays, in 2022 they are 76, and by 2023 most of what remains is issued by Romania and the rescue coordination centres. The fall in the totals after 2021 is a change in what the archive carries, not a measured fall in activity, and a reader must not read it as one. The per-year `by_authority` breakdown is here so that change is visible."
+   "note": "The relay largely stops: 946 of the region's 1,034 warnings in 2020 were NAVAREA III relays, against 66 in 2022, and by 2023 most of what remains is issued by Romania and the rescue coordination centres. The fall in the totals after 2021 is a change in what the archive carries, not a measured fall in activity, and a reader must not read it as one. The per-year `by_authority` breakdown is here so that change is visible."
   }
  ],
  "top_authorities": {

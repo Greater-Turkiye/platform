@@ -40,11 +40,9 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import re
 import sys
 import tempfile
 import urllib.request
-from collections import Counter, defaultdict
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -52,29 +50,11 @@ ROOT = HERE.parent.parent
 OUT = ROOT / "apps" / "web" / "assets" / "data" / "msi-activity.json"
 sys.path.insert(0, str(ROOT / "collectors" / "src"))
 
-# the path is set above, so this import cannot move to the top of the file
-from gt_collectors import navtex
+# the path is set above, so these imports cannot move to the top of the file
+from gt_collectors import msi
 
 API = "https://msi.nga.mil/api/publications/broadcast-warn?status={status}&output=json"
 USER_AGENT = "GreaterTurkiye-OSINT/0.1 (+https://github.com/Greater-Turkiye)"
-
-# The region this project watches, as the warnings themselves name it. A warning is kept when its
-# text names one of these waters, or when any position it carries falls inside BBOX.
-REGION_WORDS = (
-    "AEGEAN SEA", "EASTERN MEDITERRANEAN", "CENTRAL MEDITERRANEAN", "BLACK SEA", "SEA OF MARMARA",
-    "DARDANELLES", "BOSPORUS", "BOSPHORUS", "LEVANTINE", "CYPRUS", "CRETE", "RHODES", "IONIAN SEA",
-)
-BBOX = (19.0, 30.0, 42.0, 47.0)  # west, south, east, north — Ionian to the Caucasus, Libya to Ukraine
-
-# Authorities we do not count (see the module docstring). Matched against the `authority` field and
-# the first line of the text, upper-cased.
-TURKISH_AUTHORITY = re.compile(
-    r"\bTURK(EY|ISH)\b|\bTURKIYE\b|ANTALYA (RADIO|NAVTEX)|IZMIR (RADIO|NAVTEX)|ISTANBUL (RADIO|NAVTEX)|"
-    r"SAMSUN (RADIO|NAVTEX)|TURKISH (NAVY|STRAITS)"
-)
-# A warning about a Turkish area issued by someone else is still about Turkish forces if it says so.
-TURKISH_SUBJECT = re.compile(r"^\s*[A-Z ]*\bTURKEY\b")
-
 
 def fetch(status: str, cache: Path, refresh: bool) -> list[dict]:
     cache.mkdir(parents=True, exist_ok=True)
@@ -88,76 +68,10 @@ def fetch(status: str, cache: Path, refresh: bool) -> list[dict]:
     return json.loads(path.read_text(encoding="utf-8"))["broadcast-warn"]
 
 
-def in_region(text: str, positions: list) -> bool:
-    upper = text.upper()
-    if any(w in upper for w in REGION_WORDS):
-        return True
-    west, south, east, north = BBOX
-    return any(west <= p.lon <= east and south <= p.lat <= north for p in positions)
-
-
-def is_turkish(item: dict, text: str) -> bool:
-    upper = f"{item.get('authority') or ''} {text[:120]}".upper()
-    return bool(TURKISH_AUTHORITY.search(upper) or TURKISH_SUBJECT.search(text.upper()))
-
-
 def build(cache: Path, refresh: bool) -> dict:
     items = fetch("cancelled", cache, refresh) + fetch("active", cache, refresh)
-    years: Counter[int] = Counter()
-    archive_years: Counter[int] = Counter()  # every warning in the archive, all areas: the exposure baseline
-    per_year: dict[int, Counter[str]] = defaultdict(Counter)
-    per_year_auth: dict[int, Counter[str]] = defaultdict(Counter)
-    authorities: Counter[str] = Counter()
-    dropped_tur = 0
-    cancellations = 0
-    kept = 0
-    seen: set[tuple] = set()
-
-    for item in items:
-        text = item.get("text") or ""
-        if not text:
-            continue
-        key = (item.get("msgYear"), item.get("msgNumber"), item.get("navArea"))
-        if key in seen:
-            continue
-        seen.add(key)
-        if isinstance(item.get("msgYear"), int):
-            archive_years[item["msgYear"]] += 1
-        positions = navtex.positions(text)
-        if not in_region(text, positions):
-            continue
-        if is_turkish(item, text):
-            dropped_tur += 1
-            continue
-        year = item.get("msgYear")
-        if not isinstance(year, int):
-            continue
-        if navtex.is_cancellation_only(text):
-            cancellations += 1
-            continue
-        activity = navtex.activity_of(text) or "unclassified"
-        years[year] += 1
-        per_year[year][activity] += 1
-        auth_words = (item.get("authority") or "").split()
-        auth = auth_words[0].rstrip(".,") if auth_words else "unknown"
-        authorities[auth] += 1
-        per_year_auth[year][auth] += 1
-        kept += 1
-
-    series = [
-        {
-            "year": y,
-            "total": years[y],
-            "by_activity": dict(sorted(per_year[y].items())),
-            # who was relaying that year, and how concentrated it was: this is what tells a reader
-            # whether a change in the total is a change in activity or a change in the archive
-            "by_authority": dict(per_year_auth[y].most_common(6)),
-            "authorities": len(per_year_auth[y]),
-            # the same archive, all sea areas: a year's regional count only means something next to it
-            "archive_all_areas": archive_years[y],
-        }
-        for y in sorted(years)
-    ]
+    tally = msi.summarise(items)
+    series = tally.series()
     return {
         "about": (
             "Navigational warnings for the Aegean, the eastern Mediterranean and the Black Sea, counted "
@@ -170,18 +84,19 @@ def build(cache: Path, refresh: bool) -> dict:
             "licence": "Work of the United States Government: public domain",
         },
         "method": {
-            "region": {"words": list(REGION_WORDS), "bbox": list(BBOX)},
+            "region": {"words": list(msi.REGION_WORDS), "bbox": list(msi.BBOX)},
             "classified_by": "gt_collectors.navtex.activity_of (the words the warning itself uses)",
+            "counted_by": "gt_collectors.msi.summarise",
             "excluded": (
                 "Warnings issued by Turkish authorities, or whose subject is Türkiye, are not counted: "
                 "this series measures what other states announce (ADR 0013, ADR 0019)."
             ),
         },
         "built_from": {
-            "records_read": len(items),
-            "records_kept": kept,
-            "turkish_warnings_excluded": dropped_tur,
-            "cancellation_only_messages_skipped": cancellations,
+            "records_read": tally.read,
+            "records_kept": tally.kept,
+            "turkish_warnings_excluded": tally.turkish_excluded,
+            "cancellation_only_messages_skipped": tally.cancellations,
             "years": [series[0]["year"], series[-1]["year"]] if series else [],
         },
         "coverage_notes": [
@@ -195,15 +110,15 @@ def build(cache: Path, refresh: bool) -> dict:
             {
                 "years": "2022-",
                 "note": (
-                    "The relay largely stops: in 2020 the region's warnings were 1,148 NAVAREA III relays, "
-                    "in 2022 they are 76, and by 2023 most of what remains is issued by Romania and the "
-                    "rescue coordination centres. The fall in the totals after 2021 is a change in what "
-                    "the archive carries, not a measured fall in activity, and a reader must not read it "
-                    "as one. The per-year `by_authority` breakdown is here so that change is visible."
+                    "The relay largely stops: 946 of the region's 1,034 warnings in 2020 were NAVAREA III "
+                    "relays, against 66 in 2022, and by 2023 most of what remains is issued by Romania and "
+                    "the rescue coordination centres. The fall in the totals after 2021 is a change in what "
+                    "the archive carries, not a measured fall in activity, and a reader must not read it as "
+                    "one. The per-year `by_authority` breakdown is here so that change is visible."
                 ),
             },
         ],
-        "top_authorities": dict(authorities.most_common(12)),
+        "top_authorities": dict(tally.authorities.most_common(12)),
         "series": series,
     }
 
