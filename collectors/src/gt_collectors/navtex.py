@@ -43,17 +43,42 @@ from datetime import UTC, datetime
 # B1: the transmitting station letter; B2: the subject indicator. Both are ITU/IMO allocations,
 # and only the ones that reach this region are named — an unknown letter is kept, never guessed.
 STATIONS = {
-    "A": "Kerkyra (GR)", "H": "Irakleio (GR)", "L": "Limnos (GR)", "K": "Kerkyra (GR)",
-    "F": "İstanbul (TR)", "M": "İzmir (TR)", "I": "Samsun (TR)", "D": "Antalya (TR)",
-    "B": "Varna (BG)", "C": "Constanţa (RO)", "R": "Novorossiysk (RU)", "W": "Odesa (UA)",
-    "V": "Cyprus (CY)", "P": "Alexandria (EG)", "N": "Haifa (IL)", "X": "Beirut (LB)",
+    "A": "Kerkyra (GR)",
+    "H": "Irakleio (GR)",
+    "L": "Limnos (GR)",
+    "K": "Kerkyra (GR)",
+    "F": "İstanbul (TR)",
+    "M": "İzmir (TR)",
+    "I": "Samsun (TR)",
+    "D": "Antalya (TR)",
+    "B": "Varna (BG)",
+    "C": "Constanţa (RO)",
+    "R": "Novorossiysk (RU)",
+    "W": "Odesa (UA)",
+    "V": "Cyprus (CY)",
+    "P": "Alexandria (EG)",
+    "N": "Haifa (IL)",
+    "X": "Beirut (LB)",
 }
 SUBJECTS = {
-    "A": "navigational warning", "B": "meteorological warning", "C": "ice report",
-    "D": "search and rescue", "E": "meteorological forecast", "F": "pilot service",
-    "G": "AIS", "H": "LORAN", "I": "unassigned", "J": "SATNAV", "K": "other electronic navaid",
-    "L": "navigational warning (additional)", "T": "test", "V": "special service",
-    "W": "special service", "X": "special service", "Y": "special service", "Z": "no message",
+    "A": "navigational warning",
+    "B": "meteorological warning",
+    "C": "ice report",
+    "D": "search and rescue",
+    "E": "meteorological forecast",
+    "F": "pilot service",
+    "G": "AIS",
+    "H": "LORAN",
+    "I": "unassigned",
+    "J": "SATNAV",
+    "K": "other electronic navaid",
+    "L": "navigational warning (additional)",
+    "T": "test",
+    "V": "special service",
+    "W": "special service",
+    "X": "special service",
+    "Y": "special service",
+    "Z": "no message",
 }
 
 # What the message says is happening. The order matters: the first match wins, and the more
@@ -62,8 +87,10 @@ ACTIVITY_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("firing", ("FIRING", "GUNNERY", "LIVE FIRE", "LIVE-FIRE", "ATIŞ", "SHOOTING")),
     ("missile-test", ("MISSILE", "ROCKET LAUNCH", "FÜZE")),
     ("submarine", ("SUBMARINE", "DENİZALTI")),
-    ("military-exercise", ("EXERCISE", "MILITARY ACTIVITY", "NAVAL ACTIVITY", "TATBİKAT",
-                           "MANOEUVRE", "MANEUVER")),
+    (
+        "military-exercise",
+        ("EXERCISE", "MILITARY ACTIVITY", "NAVAL ACTIVITY", "TATBİKAT", "MANOEUVRE", "MANEUVER"),
+    ),
     ("survey", ("SURVEY", "SEISMIC", "RESEARCH", "ARAŞTIRMA", "SİSMİK", "HYDROGRAPHIC")),
     ("cable-pipeline", ("CABLE", "PIPELINE", "BORU", "KABLO")),
     ("sar", ("SARWARN", "SEARCH AND RESCUE", "PERSON IN THE SEA", "DISTRESS")),
@@ -83,8 +110,12 @@ SERIAL_RE = re.compile(
     r"\s+(\d{1,4}\s*/\s*\d{2})",
     re.I,
 )
-MONTHS = {m: i for i, m in enumerate(
-    ("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"), start=1)}
+MONTHS = {
+    m: i
+    for i, m in enumerate(
+        ("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"), start=1
+    )
+}
 
 
 @dataclass(frozen=True)
@@ -105,10 +136,10 @@ class NavtexMessage:
     station: str | None = None
     subject_letter: str | None = None
     subject: str | None = None
-    serial_in_subject: str | None = None      # B3B4, the two digits after the letters
-    issuing_station: str | None = None        # "LIMNOS RADIO", as written
-    warning_kind: str | None = None           # NAVWARN | SARWARN | NAVAREA | METAREA
-    warning_serial: str | None = None         # "038/26", as written
+    serial_in_subject: str | None = None  # B3B4, the two digits after the letters
+    issuing_station: str | None = None  # "LIMNOS RADIO", as written
+    warning_kind: str | None = None  # NAVWARN | SARWARN | NAVAREA | METAREA
+    warning_serial: str | None = None  # "038/26", as written
     issued_at: datetime | None = None
     positions: list[Position] = field(default_factory=list)
     activity: str | None = None
@@ -205,9 +236,9 @@ def parse(text: str, *, now: datetime | None = None) -> NavtexMessage:
 
     body = flat
     if header:
-        body = flat[header.end():].strip()
+        body = flat[header.end() :].strip()
     if serial and serial.end() > (header.end() if header else 0):
-        body = flat[serial.end():].strip()
+        body = flat[serial.end() :].strip()
     msg.body = re.sub(r"\s*NNNN\s*$", "", body).strip()
 
     msg.positions = positions(msg.body or flat)
