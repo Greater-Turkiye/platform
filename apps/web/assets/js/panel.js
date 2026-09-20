@@ -893,6 +893,13 @@
       top.append(GT.el('span', null, GT.fmtTime(e.time.start, e.time.precision)), GT.el('span', 'chip', GT.label('event-types', e.event_type)),
         GT.el('span', 'badge st-' + e.assessment.status, GT.txt(GT.STATUS[e.assessment.status])));
       if (e._example) top.append(GT.el('span', 'ex-tag', GT.upper(GT.t('p.example'))));
+      /* How many independent publishers stand behind this, in the list rather than two clicks
+         away. A single-source claim and a corroborated one look the same otherwise, and the
+         difference is the whole of the verification scale: one source is a report, two are a
+         finding. The registry id is the publisher when there is one; the hostname otherwise,
+         so two articles from the same outlet still count once. */
+      const publishers = new Set((e.sources || []).map((c) => c.ref || (c.url || '').split('/')[2]).filter(Boolean));
+      if (publishers.size === 1) top.append(GT.el('span', 'chip chip-thin', GT.t('p.oneSource')));
       const where = e.location && e.location.geometry ? GT.txt(GT.PRECISION[e.location.precision]) : GT.t('p.nogeo');
       b.append(top, GT.el('div', 'fi-title', GT.txt(e.title)), GT.el('div', 'fi-meta', e.regions.map((r) => GT.label('regions', r)).join(' · ') + ' — ' + where));
       b.addEventListener('click', () => select(e, true));
