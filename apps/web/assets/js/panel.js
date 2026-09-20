@@ -30,7 +30,7 @@
   let regionActivity = null; // assets/data/msi-regions.json, loaded once, absent is not zero
 
   let world = null, data = null, loadError = false;
-  let svg = null, gRoot, gCountries, gLabels, gSites, gEvents, proj, zoom, k = 1, W = 0, H = 0;
+  let svg = null, gRoot, gCountries, gLabels, gUnc, gSites, gEvents, proj, geoPath, zoom, k = 1, W = 0, H = 0;
   let lastFocus = null;
 
   /* ---------------- vector basemap ----------------
@@ -227,6 +227,7 @@
     // Balkans to Pakistan, Black Sea to the Gulf
     proj = d3.geoMercator().fitExtent([[24, 24], [W - 24, H - 24]], { type: 'MultiPoint', coordinates: [[13, 22], [74, 48]] });
     const path = d3.geoPath(proj);
+    geoPath = path; // the marker layers draw geometry too, outside this function
 
     // the <svg> sits in a plain box that carries the pan/zoom transform while the map moves (see liveZoom)
     mover = d3.select(els.map).selectAll('div.p-mover').data([0]).join('div').attr('class', 'p-mover');
@@ -332,6 +333,7 @@
     ensurePlaces();
     const c = proj([35, 39]);
     sweepG = GT.sweep(gRoot.append('g').attr('transform', `translate(${c[0]},${c[1]})`), Math.hypot(W, H) * 1.1, reduce, 16);
+    gUnc = gRoot.append('g').attr('class', 'm-unc-layer');
     gSites = gRoot.append('g');
     gEvents = gRoot.append('g');
     drawLabels();
@@ -544,10 +546,35 @@
     if (els.scale) els.scale.textContent = k.toFixed(1) + '×';
   }
 
+  /* A point is only as good as its uncertainty, and a record whose position is known to the island
+     must not look like one known to the metre. Anything coarser than UNC_FROM is drawn as the circle
+     the source actually supports, under the marker, in map coordinates so it keeps its real size as
+     the map zooms (ADR 0021 §5). The marker stays where it is: the circle says how much of the map
+     around it the claim covers. */
+  const UNC_FROM = 1500; // metres: below this the circle would be smaller than the marker at any zoom
+  const uncircle = d3.geoCircle();
+
+  function drawUncertainty(records) {
+    if (!gUnc) return;
+    gUnc.selectAll('*').remove();
+    for (const r of records) {
+      const g = r.location && r.location.geometry;
+      const m = r.location && r.location.uncertainty_m;
+      if (!g || g.type !== 'Point' || !(m >= UNC_FROM)) continue;
+      const shape = uncircle.center(g.coordinates).radius((m / 6371008.8) * 180 / Math.PI)();
+      gUnc.append('path')
+        .attr('class', 'm-unc' + (r.id === state.selected ? ' sel' : ''))
+        .attr('d', geoPath(shape))
+        .append('title')
+        .text(GT.t('p.uncCircle', { n: m >= 1000 ? (m / 1000).toFixed(m >= 10000 ? 0 : 1) + ' km' : m + ' m' }));
+    }
+  }
+
   function drawMarkers(list) {
     if (!gSites) return;
     gSites.selectAll('*').remove();
     gEvents.selectAll('*').remove();
+    drawUncertainty(lyr.sites.checked ? allSites() : []);
     const bind = (m, rec, title, sub) => m
       .attr('class', 'mk' + (rec.id === state.selected ? ' sel' : ''))
       .attr('tabindex', 0).attr('role', 'button').attr('aria-label', title)
