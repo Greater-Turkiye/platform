@@ -1,0 +1,33 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "gt-site",
+  // the account that owns the other Workers; pinned so a stale wrangler cache cannot deploy elsewhere
+  "account_id": "b8312d821f2f8ef350b6de592521a5fa",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-22",
+  "workers_dev": true,
+
+  // The site as it is in the repository. Static asset requests are served by Cloudflare itself and
+  // do not run the Worker unless `run_worker_first` says so — the Worker exists for the headers and
+  // for the dataset proxy below.
+  "assets": {
+    "directory": "../web",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": true
+  },
+
+  // Public configuration only; this Worker has no secret and writes nothing.
+  //
+  // DATA_ORIGIN is where the dataset export is published. The panel asks for `/datasets/…` on its
+  // own origin and this Worker fetches it from there, so the browser makes no cross-origin request
+  // and the answer is cached at the edge. Moving the export elsewhere later is one line here.
+  "vars": {
+    "DATA_ORIGIN": "https://greater-turkiye.github.io/datasets/",
+    "DATA_MAX_AGE": "300"
+  },
+
+  "observability": {
+    "enabled": true
+  }
+}
