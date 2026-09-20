@@ -25,6 +25,7 @@
   <div class="panel-tools">
     <a href="method.html" data-i18n="nav.method">Yöntem</a>
     <a href="sicil.html" data-i18n="nav.register">Ege sicili</a>
+    <button type="button" id="p-brief" class="p-brief" data-i18n="p.brief">Brifing</button>
     <span class="mono">UTC <span class="clock" id="p-utc">--:--:--Z</span></span>
     <div class="lang" role="group" data-i18n-aria="a11y.lang" aria-label="Dil"><button type="button" data-lang="tr">TR</button><button type="button" data-lang="en">EN</button></div>
   </div>
@@ -38,6 +39,7 @@
         <label class="fld"><span data-i18n="p.region">Bölge</span><select id="f-region"></select></label>
         <label class="fld"><span data-i18n="p.type">Tür</span><select id="f-type"></select></label>
         <label class="fld"><span data-i18n="p.status">Durum</span><select id="f-status"></select></label>
+        <label class="fld"><span data-i18n="p.period">Dönem</span><select id="f-period"></select></label>
       </div>
       <fieldset class="layers">
         <legend data-i18n="p.layers">Katmanlar</legend>
@@ -55,10 +57,34 @@
         </div>
       </fieldset>
     </div>
+    <div class="p-sum" id="p-sum" hidden>
+      <div class="p-sum-row">
+        <span class="p-sum-k" data-i18n="p.sum.window">Seçili dönem</span>
+        <span class="p-sum-v mono" id="p-sum-window">—</span>
+      </div>
+      <div class="p-sum-row">
+        <span class="p-sum-k" data-i18n="p.sum.status">Doğrulama</span>
+        <span class="p-sum-v mono" id="p-sum-status">—</span>
+      </div>
+      <div class="p-sum-row">
+        <span class="p-sum-k" data-i18n="p.sum.top">Öne çıkan bölge</span>
+        <span class="p-sum-v mono" id="p-sum-top">—</span>
+      </div>
+      <div class="p-sum-row">
+        <span class="p-sum-k" data-i18n="p.sum.last">Son kayıt</span>
+        <span class="p-sum-v mono" id="p-sum-last">—</span>
+      </div>
+    </div>
     <div class="p-feed-head"><span id="p-feed-title" data-i18n="p.feed">Kayıtlar</span><span id="p-count" class="mono"></span></div>
     <p id="p-banner" class="p-banner" hidden data-i18n="p.demo"></p>
     <div id="p-feed" class="p-feed" role="list" tabindex="-1"></div>
   </aside>
+
+  <div class="p-print" id="p-print" aria-hidden="true">
+    <h1>Greater Türkiye — <span data-i18n="p.briefTitle">OSINT brifingi</span></h1>
+    <p><span data-i18n="p.briefFilters">Süzgeç</span>: <b data-print="filters"></b></p>
+    <p><span data-i18n="p.briefAt">Çıktı</span>: <b data-print="at"></b> · <span data-i18n="p.briefNote">Her kayıt kaynağıyla birlikte greater-turkiye.github.io adresinde</span></p>
+  </div>
 
   <section class="p-map-wrap" aria-label="Harita / Map">
     <div id="p-map" class="p-map"></div>

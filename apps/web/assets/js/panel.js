@@ -8,12 +8,19 @@
   const $ = (id) => document.getElementById(id);
   const els = {
     map: $('p-map'), feed: $('p-feed'), count: $('p-count'), drawer: $('p-drawer'), body: $('p-drawer-body'), close: $('p-close'),
-    search: $('f-search'), region: $('f-region'), type: $('f-type'), status: $('f-status'), banner: $('p-banner'),
+    search: $('f-search'), region: $('f-region'), type: $('f-type'), status: $('f-status'), period: $('f-period'),
+    banner: $('p-banner'),
     coords: $('p-coords'), scale: $('p-scale'), tip: $('p-tip'), stateBox: $('p-state'),
   };
   const lyr = { regions: $('l-regions'), sites: $('l-sites'), events: $('l-events'), examples: $('l-examples') };
   const params = new URLSearchParams(location.search);
-  const state = { region: params.get('region') || '', type: params.get('type') || '', status: params.get('status') || '', q: '', selected: params.get('id') || '' };
+  const state = {
+    region: params.get('region') || '', type: params.get('type') || '', status: params.get('status') || '',
+    period: params.get('period') || '', q: '', selected: params.get('id') || '',
+  };
+  /* A period is the first thing anyone reading a situation asks for, and the dataset is ordered by
+     time anyway. Days, not months: a record's time is a day at best (`time.precision`). */
+  const PERIODS = { '7': 7, '30': 30, '90': 90, '365': 365 };
 
   let world = null, data = null, loadError = false;
   let svg = null, gRoot, gCountries, gLabels, gSites, gEvents, proj, zoom, k = 1, W = 0, H = 0;
@@ -98,6 +105,24 @@
     zoom: () => k,
   };
 
+  /* Print is a briefing: the reader wants the map, the four summary lines and the list, with the
+     filter that produced them written down. The header is built at print time so it can never
+     describe a different view than the one on paper. */
+  function printHeader() {
+    const box = document.getElementById('p-print');
+    if (!box) return;
+    const bits = [
+      state.region ? GT.label('regions', state.region) : GT.t('p.allRegions'),
+      state.type ? (GT.DOMAIN[state.type] ? GT.txt(GT.DOMAIN[state.type]) : state.type) : null,
+      state.status ? GT.txt(GT.STATUS[state.status]) : null,
+      state.period ? (state.period === '365' ? GT.t('p.year') : GT.t('p.days', { n: state.period })) : null,
+      state.q ? '“' + state.q + '”' : null,
+    ].filter(Boolean);
+    box.querySelector('[data-print="filters"]').textContent = bits.join(' · ');
+    box.querySelector('[data-print="at"]').textContent = new Date().toISOString().slice(0, 16).replace('T', ' ') + 'Z';
+  }
+  window.addEventListener('beforeprint', printHeader);
+
   wireUi();
   wireKey();
   setTimeout(loadAll); // after the helpers below are initialised
@@ -142,10 +167,13 @@
 
   function filtered() {
     const q = fold(state.q.trim());
+    const days = PERIODS[state.period];
+    const since = days ? new Date(Date.now() - days * 864e5).toISOString().slice(0, 10) : null;
     return allEvents()
       .filter((e) => (!state.region || e.regions.includes(state.region))
         && (!state.type || e.event_type.split('.')[0] === state.type)
         && (!state.status || e.assessment.status === state.status)
+        && (!since || (e.time.start || '').slice(0, 10) >= since)
         && (!q || haystack(e).includes(q)))
       .sort((a, b) => b.time.start.localeCompare(a.time.start));
   }
@@ -158,6 +186,7 @@
     if (!domains.size) Object.keys(GT.DOMAIN).forEach((d) => domains.add(d));
     fillSelect(els.type, [['', GT.t('p.all')], ...[...domains].map((d) => [d, GT.DOMAIN[d] ? GT.txt(GT.DOMAIN[d]) : d])], state.type);
     fillSelect(els.status, [['', GT.t('p.all')], ...Object.keys(GT.STATUS).map((s) => [s, GT.txt(GT.STATUS[s])])], state.status);
+    fillSelect(els.period, [['', GT.t('p.all')], ...Object.keys(PERIODS).map((d) => [d, GT.t('p.days', { n: d })])], state.period);
   }
   function fillSelect(sel, opts, value) {
     sel.replaceChildren(...opts.map(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; return o; }));
@@ -579,9 +608,38 @@
   }
 
   /* ---------------- rendering ---------------- */
+  /* The four lines above the list answer, in order, the questions a reader asks before reading any
+     record: how many in the window, how sure are they, where are they, and how fresh is the newest.
+     Every number is derived from the filtered list, so it always describes what is on screen. */
+  function renderSummary(list) {
+    const box = document.getElementById('p-sum');
+    if (!box) return;
+    box.hidden = !list.length;
+    if (!list.length) return;
+    const byStatus = {};
+    const byRegion = {};
+    for (const e of list) {
+      byStatus[e.assessment.status] = (byStatus[e.assessment.status] || 0) + 1;
+      for (const r of e.regions || []) byRegion[r] = (byRegion[r] || 0) + 1;
+    }
+    const days = PERIODS[state.period];
+    document.getElementById('p-sum-window').textContent = days
+      ? GT.t('p.sum.inDays', { n: list.length, d: days })
+      : GT.t('p.sum.all', { n: list.length });
+    document.getElementById('p-sum-status').textContent = Object.keys(GT.STATUS)
+      .filter((key) => byStatus[key])
+      .map((key) => GT.txt(GT.STATUS[key]) + ' ' + byStatus[key])
+      .join(' · ') || '—';
+    const top = Object.entries(byRegion).sort((a, b) => b[1] - a[1])[0];
+    document.getElementById('p-sum-top').textContent = top ? GT.label('regions', top[0]) + ' ' + top[1] : '—';
+    const newest = list[0] && list[0].time && list[0].time.start;
+    document.getElementById('p-sum-last').textContent = newest ? GT.fmtTime(newest, "day") : '—';
+  }
+
   function render() {
     const list = filtered();
     els.count.textContent = GT.t('p.count', { n: list.length });
+    renderSummary(list);
     els.banner.hidden = !lyr.examples.checked;
     renderFeed(list);
     drawMarkers(list);
@@ -788,6 +846,7 @@
     if (state.region) p.set('region', state.region);
     if (state.type) p.set('type', state.type);
     if (state.status) p.set('status', state.status);
+    if (state.period) p.set('period', state.period);
     if (state.selected) p.set('id', state.selected);
     const qs = p.toString();
     history.replaceState(null, '', qs ? '?' + qs : location.pathname);
@@ -815,6 +874,8 @@
     els.type.addEventListener('change', () => { state.type = els.type.value; render(); });
     els.status.addEventListener('change', () => { state.status = els.status.value; render(); });
     Object.values(lyr).forEach((c) => c.addEventListener('change', render));
+    const pb = $('p-brief');
+    if (pb) pb.addEventListener('click', () => { printHeader(); window.print(); });
     $('z-in').addEventListener('click', () => svg && mapSel().transition().duration(reduce ? 0 : 350).call(zoom.scaleBy, 1.7));
     $('z-out').addEventListener('click', () => svg && mapSel().transition().duration(reduce ? 0 : 350).call(zoom.scaleBy, 1 / 1.7));
     $('z-reset').addEventListener('click', () => setRegion(''));
