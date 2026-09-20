@@ -104,6 +104,21 @@ Bugünkü çıktı: **3.015 hücre**, hücre-ihbar toplamları askerî 36.437, a
 built from the warning's own corners, region-wide notices not drawn as areas, cells whose centre is on
 land dropped, and no Turkish warnings. Nothing in it is current; the window ends in 2021.
 
+## Bölge toplamları / The region totals
+
+`msi-regions.json`, aynı ızgarayı panelin izleme bölgelerine toplar (kenar çubuğundaki "Bölge durumu"
+tablosunun "Faaliyet" sütunu). Bir hücre, merkezi bir bölgenin kutusunun içindeyse o bölgeye sayılır.
+**Kutular örtüşür** — Doğu Akdeniz ile Kıbrıs aynı suyu paylaşır — bu yüzden bölgelerin toplamı genel
+toplamı vermez; dosya bunu `about` alanında yazar, normalleştirip saklamaz. Sayılan denizi olmayan
+bölge (Irak, İran, Körfez, Orta Asya) dosyada **0 hücre** ile durur ve panelde "—" okunur: ölçülmedi,
+"sıfır" değil. Bölge kutuları `assets/js/gt.js` içindeki `GT.REGIONS` ile aynıdır ve üreticide elle
+tekrarlanır; biri taşınırsa diğeri de taşınmalıdır.
+
+`msi-regions.json` folds the same grid into the panel's watch regions (the "Activity" column of the
+region board). A cell counts for a region when its centre is inside that region's box; the boxes
+overlap, so the regions do not sum to the total, and a region with no counted sea stands at zero
+cells and reads "—" rather than "0" — not measured, not zero.
+
 ## Yeniden üretmek / Rebuilding
 
 ```bash

@@ -1,0 +1,92 @@
+{
+ "about": "Announced activity per watch region, counted from the same grid the map draws (2015-2021). A cell counts for a region when its centre is inside that region's box; the boxes overlap, so the regions do not sum to the total. Turkish warnings are not counted (ADR 0013).",
+ "source": {
+  "name": "NGA Maritime Safety Information — broadcast warnings",
+  "url": "https://msi.nga.mil/NavWarnings",
+  "licence": "Work of the United States Government: public domain"
+ },
+ "window": [
+  2015,
+  2021
+ ],
+ "regions": {
+  "syria": {
+   "military": 179,
+   "survey": 6,
+   "other": 5,
+   "cells": 13
+  },
+  "iraq": {
+   "military": 0,
+   "survey": 0,
+   "other": 0,
+   "cells": 0
+  },
+  "iran": {
+   "military": 0,
+   "survey": 0,
+   "other": 0,
+   "cells": 0
+  },
+  "levant": {
+   "military": 1982,
+   "survey": 94,
+   "other": 87,
+   "cells": 48
+  },
+  "caucasus": {
+   "military": 122,
+   "survey": 0,
+   "other": 18,
+   "cells": 38
+  },
+  "aegean": {
+   "military": 6375,
+   "survey": 1592,
+   "other": 1557,
+   "cells": 365
+  },
+  "east-med": {
+   "military": 10105,
+   "survey": 3223,
+   "other": 2240,
+   "cells": 667
+  },
+  "cyprus": {
+   "military": 941,
+   "survey": 113,
+   "other": 142,
+   "cells": 38
+  },
+  "black-sea": {
+   "military": 18615,
+   "survey": 771,
+   "other": 751,
+   "cells": 668
+  },
+  "libya-north-africa": {
+   "military": 14667,
+   "survey": 6179,
+   "other": 5964,
+   "cells": 1864
+  },
+  "gulf-red-sea": {
+   "military": 0,
+   "survey": 0,
+   "other": 0,
+   "cells": 0
+  },
+  "balkans": {
+   "military": 2442,
+   "survey": 245,
+   "other": 520,
+   "cells": 206
+  },
+  "central-asia": {
+   "military": 0,
+   "survey": 0,
+   "other": 0,
+   "cells": 0
+  }
+ }
+}
