@@ -2,8 +2,8 @@
 
 [Türkçe](#türkçe) · [English](#english) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
 
-> Durum: kod yazıldı ve testleri geçiyor; **henüz dağıtılmadı**. Dağıtım tek komuttur ve **hiçbir sır istemez**: `npx wrangler deploy`.
-> Status: written and passing its tests; **not deployed yet**. Deploying is one command and needs **no secret**: `npx wrangler deploy`.
+> Durum: **dağıtıldı ve çalışıyor** (`gt-ingest`, 2026-09-17). Cron günde iki kez tetikler; son çalışma 2026-09-19'da başarıyla tamamlandı ve o günün partisini işledi. Hiçbir sır kullanmaz.
+> Status: **deployed and running** (`gt-ingest`, since 2026-09-17). The cron fires twice a day; the last run completed successfully on 2026-09-19 and processed that day's batch. It uses no secret.
 
 ## Türkçe
 

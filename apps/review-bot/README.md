@@ -2,7 +2,7 @@
 
 [Türkçe](#türkçe) · [English](#english) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
 
-> Durum: Worker yazıldı ve test edildi; **dağıtılmadı**, bot hesabı yok, hiçbir sır oluşturulmadı. / Status: the Worker is written and tested; it is **not deployed**, there is no bot account, and no secret has been created.
+> Durum: **dağıtıldı ve bağlandı** (`gt-review-bot`). Bot hesabı açıldı, dört sır Cloudflare'de oluşturuldu, webhook kuruldu ve bakımcı `reviewers` tablosuna eklendi. Sırların hiçbiri bu depoda değildir ve olmayacaktır. / Status: **deployed and connected** (`gt-review-bot`). The bot account exists, the four secrets are stored in Cloudflare, the webhook is registered and the maintainer is in the `reviewers` table. None of the secrets are in this repository and none ever will be.
 
 ## Türkçe
 
@@ -33,6 +33,8 @@ Candidate text that names Turkish forces is **never relayed**: the item still ap
 | `/goster <id>`, `/show <id>` | Belirli bir adayı gösterir / show one candidate |
 | `/durum`, `/status` | Duruma göre sayılar / counts per status |
 | `/yardim`, `/help`, `/start` | Yardım / help |
+
+Bir karara basıldığında — **Onayla**, **Reddet** veya **Sonra** — bot sıradaki adayı kendiliğinden gönderir; tur bittiğinde kaç adayın kuyrukta kaldığını söyler. Bir öğe başına tek dokunuş: telefonda kuyruk eritmenin tek makul yolu budur. / After any decision the bot sends the next candidate by itself and, at the end of a pass, says how many are still queued: one touch per item.
 
 Tasarımdaki `/quota`, `/stop` ve `/resume` komutları **henüz yok**: yayın kuyruğu ve kota defteri bu Worker'a bağlı değil. / The `/quota`, `/stop` and `/resume` commands from the original design **do not exist yet**: the publish queue and the usage ledger are not wired to this Worker.
 

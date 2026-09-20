@@ -84,6 +84,20 @@ describe('reddet', () => {
   });
 });
 
+describe('after a decision', () => {
+  it('hands over the next candidate without another command', async () => {
+    const target = env();
+    const tg = await tap(target, 'v1|onayla|1'); // the oldest item
+    expect(tg.texts()[0]).toContain('#2'); // the next one arrives by itself
+  });
+
+  it('does the same when an item is dismissed', async () => {
+    const target = env();
+    const tg = await tap(target, 'v1|reddet|1');
+    expect(tg.texts()[0]).toContain('#2');
+  });
+});
+
 describe('sonra', () => {
   it('leaves the item queued, records the skip and shows the next one', async () => {
     const target = env();
@@ -96,10 +110,18 @@ describe('sonra', () => {
     expect(tg.texts()[0]).toContain('#2');
   });
 
-  it('says the queue is empty when there is nothing after it', async () => {
+  it('says where the pass ended while items are still queued', async () => {
     const target = env();
-    const tg = await tap(target, 'v1|sonra|2');
-    expect(tg.texts()[0]).toContain('Nothing is waiting in the queue.');
+    const tg = await tap(target, 'v1|sonra|2'); // the newest item: nothing is after it
+    expect(tg.texts()[0]).toContain('End of this pass');
+    expect(tg.texts()[0]).toContain('2 still queued'); // a skip leaves the item in the queue
+  });
+
+  it('says the queue is empty once nothing is left in it', async () => {
+    const target = env();
+    await tap(target, 'v1|onayla|1');
+    const tg = await tap(target, 'v1|reddet|2');
+    expect(tg.texts().at(-1)).toContain('Nothing is waiting in the queue.');
   });
 });
 
