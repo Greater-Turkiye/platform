@@ -959,6 +959,26 @@
     'ops.active': 'ongoing', 'ops.ended': 'ended', 'ops.unclear': 'status unclear', 'ops.asof': 'as of',
   });
 
+  Object.assign(I18N.tr, {
+    'p.lyr.activity': 'İlan edilen faaliyet', 'p.lyr.records': 'Kayıtlar', 'p.lyr.map': 'Harita',
+    'p.key': 'Harita anahtarı', 'p.period': 'Dönem', 'p.days': 'Son {n} gün',
+    'p.sum.window': 'Seçili dönem', 'p.sum.status': 'Doğrulama', 'p.sum.top': 'Öne çıkan bölge',
+    'p.brief': 'Brifing', 'p.briefTitle': 'OSINT brifingi', 'p.briefFilters': 'Süzgeç', 'p.briefAt': 'Çıktı',
+    'p.briefNote': 'Her kayıt kaynağıyla birlikte panelde',
+    'p.allRegions': 'Tüm bölgeler', 'p.year': 'Son 12 ay',
+    'p.sum.last': 'Son kayıt', 'p.sum.inDays': '{n} kayıt · son {d} gün', 'p.sum.all': '{n} kayıt · tüm dönem',
+    'lg.activity': 'İlan edilen deniz faaliyeti (2015–2021, yabancı seyir ihbarları; Türk ihbarları sayılmaz)',
+  });
+  Object.assign(I18N.en, {
+    'p.lyr.activity': 'Announced activity', 'p.lyr.records': 'Records', 'p.lyr.map': 'Map',
+    'p.key': 'Map key', 'p.period': 'Period', 'p.days': 'Last {n} days',
+    'p.sum.window': 'Selected period', 'p.sum.status': 'Verification', 'p.sum.top': 'Leading region',
+    'p.brief': 'Brief', 'p.briefTitle': 'OSINT briefing', 'p.briefFilters': 'Filter', 'p.briefAt': 'Printed',
+    'p.briefNote': 'Every record with its sources is in the panel',
+    'p.allRegions': 'All regions', 'p.year': 'Last 12 months',
+    'p.sum.last': 'Newest record', 'p.sum.inDays': '{n} records · last {d} days', 'p.sum.all': '{n} records · all time',
+    'lg.activity': "Announced activity at sea (2015–2021, other states' navigational warnings; Turkish ones are not counted)",
+  });
   Object.assign(I18N.tr, { 'lg.blue': "Mavi Vatan · deniz yetki alanları (Türkiye'nin tutumu)", 'lg.agreed': 'Anlaşmayla belirlenmiş', 'lg.position': "Türkiye'nin tutumu (itiraz edilen)", 'lg.island': 'Türk adası' });
   Object.assign(I18N.en, { 'lg.blue': "Blue Homeland · maritime jurisdiction (Türkiye's position)", 'lg.agreed': 'Delimited by agreement', 'lg.position': "Türkiye's position (disputed)", 'lg.island': 'Turkish island' });
 

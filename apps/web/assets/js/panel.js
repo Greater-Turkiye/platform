@@ -8,12 +8,19 @@
   const $ = (id) => document.getElementById(id);
   const els = {
     map: $('p-map'), feed: $('p-feed'), count: $('p-count'), drawer: $('p-drawer'), body: $('p-drawer-body'), close: $('p-close'),
-    search: $('f-search'), region: $('f-region'), type: $('f-type'), status: $('f-status'), banner: $('p-banner'),
+    search: $('f-search'), region: $('f-region'), type: $('f-type'), status: $('f-status'), period: $('f-period'),
+    banner: $('p-banner'),
     coords: $('p-coords'), scale: $('p-scale'), tip: $('p-tip'), stateBox: $('p-state'),
   };
   const lyr = { regions: $('l-regions'), sites: $('l-sites'), events: $('l-events'), examples: $('l-examples') };
   const params = new URLSearchParams(location.search);
-  const state = { region: params.get('region') || '', type: params.get('type') || '', status: params.get('status') || '', q: '', selected: params.get('id') || '' };
+  const state = {
+    region: params.get('region') || '', type: params.get('type') || '', status: params.get('status') || '',
+    period: params.get('period') || '', q: '', selected: params.get('id') || '',
+  };
+  /* A period is the first thing anyone reading a situation asks for, and the dataset is ordered by
+     time anyway. Days, not months: a record's time is a day at best (`time.precision`). */
+  const PERIODS = { '7': 7, '30': 30, '90': 90, '365': 365 };
 
   let world = null, data = null, loadError = false;
   let svg = null, gRoot, gCountries, gLabels, gSites, gEvents, proj, zoom, k = 1, W = 0, H = 0;
@@ -85,7 +92,39 @@
     if (c) base.sync(c[0], c[1], Math.log2((proj.scale() * t.k * 2 * Math.PI) / 512));
   }
 
+  /* A handle for the screenshot harness and for anyone checking the map by hand: put the view on a
+     coordinate at a chosen zoom. It reads nothing and changes no state the map does not already own. */
+  window.GT_PANEL = {
+    goto(lon, lat, kk) {
+      if (!zoom || !proj) return false;
+      const c = proj([lon, lat]);
+      const t = d3.zoomIdentity.translate(viewW() / 2, H / 2).scale(kk).translate(-c[0], -c[1]);
+      mapSel().call(zoom.transform, t);
+      return true;
+    },
+    zoom: () => k,
+  };
+
+  /* Print is a briefing: the reader wants the map, the four summary lines and the list, with the
+     filter that produced them written down. The header is built at print time so it can never
+     describe a different view than the one on paper. */
+  function printHeader() {
+    const box = document.getElementById('p-print');
+    if (!box) return;
+    const bits = [
+      state.region ? GT.label('regions', state.region) : GT.t('p.allRegions'),
+      state.type ? (GT.DOMAIN[state.type] ? GT.txt(GT.DOMAIN[state.type]) : state.type) : null,
+      state.status ? GT.txt(GT.STATUS[state.status]) : null,
+      state.period ? (state.period === '365' ? GT.t('p.year') : GT.t('p.days', { n: state.period })) : null,
+      state.q ? '“' + state.q + '”' : null,
+    ].filter(Boolean);
+    box.querySelector('[data-print="filters"]').textContent = bits.join(' · ');
+    box.querySelector('[data-print="at"]').textContent = new Date().toISOString().slice(0, 16).replace('T', ' ') + 'Z';
+  }
+  window.addEventListener('beforeprint', printHeader);
+
   wireUi();
+  wireKey();
   setTimeout(loadAll); // after the helpers below are initialised
 
   /* ---------------- loading ---------------- */
@@ -128,10 +167,13 @@
 
   function filtered() {
     const q = fold(state.q.trim());
+    const days = PERIODS[state.period];
+    const since = days ? new Date(Date.now() - days * 864e5).toISOString().slice(0, 10) : null;
     return allEvents()
       .filter((e) => (!state.region || e.regions.includes(state.region))
         && (!state.type || e.event_type.split('.')[0] === state.type)
         && (!state.status || e.assessment.status === state.status)
+        && (!since || (e.time.start || '').slice(0, 10) >= since)
         && (!q || haystack(e).includes(q)))
       .sort((a, b) => b.time.start.localeCompare(a.time.start));
   }
@@ -144,6 +186,7 @@
     if (!domains.size) Object.keys(GT.DOMAIN).forEach((d) => domains.add(d));
     fillSelect(els.type, [['', GT.t('p.all')], ...[...domains].map((d) => [d, GT.DOMAIN[d] ? GT.txt(GT.DOMAIN[d]) : d])], state.type);
     fillSelect(els.status, [['', GT.t('p.all')], ...Object.keys(GT.STATUS).map((s) => [s, GT.txt(GT.STATUS[s])])], state.status);
+    fillSelect(els.period, [['', GT.t('p.all')], ...Object.keys(PERIODS).map((d) => [d, GT.t('p.days', { n: d })])], state.period);
   }
   function fillSelect(sel, opts, value) {
     sel.replaceChildren(...opts.map(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; return o; }));
@@ -170,6 +213,8 @@
 
     gRoot = svg.append('g');
     gRoot.append('path').datum(d3.geoGraticule().step([5, 5])()).attr('class', 'm-grat').attr('d', path);
+    gActivity = gRoot.append('g').attr('class', 'm-act-g');
+    drawActivity();
     gCountries = gRoot.append('g');
     gCountries.selectAll('path').data(world.countries).join('path')
       .attr('class', (f) => {
@@ -250,6 +295,13 @@
     }
     const lm = document.getElementById('l-missions');
     if (lm) { const sync = () => svg.classed('hide-missions', !lm.checked); lm.onchange = sync; sync(); }
+    const la = document.getElementById('l-activity');
+    if (la) {
+      const sync = () => { svg.classed('show-activity', la.checked); ensureDensity(la.checked); syncKey(); };
+      la.onchange = sync;
+      sync();
+    }
+    syncKey();
     gRoot.append('path').datum(tr).attr('class', 'm-tr-glow').attr('d', path).attr('filter', 'url(#glow)');
     gLabels = gRoot.append('g');
     ensurePlaces();
@@ -262,7 +314,9 @@
     // the zoom behaviour lives on the map's container, so its coordinates don't move with the map (see liveZoom)
     pending.zoom = null; rendered = d3.zoomIdentity; moving = false; clearTimeout(settle);
     mover.style('transform', null);
-    zoom = d3.zoom().scaleExtent([1, 192]) // k 192 is about zoom 11, where our tiles stop
+    // k 192 is about zoom 11, where our tiles stop. Without tiles the 1:50m coastline is the whole
+    // map, and past ~24x it is a generalisation pretending to be a survey, so the range is shorter.
+    zoom = d3.zoom().scaleExtent([1, baseMode ? 192 : 24])
       .translateExtent([[-W * 0.3, -H * 0.3], [W * 1.3, H * 1.3]])
       .on('zoom', (ev) => {
         pending.zoom = ev.transform;
@@ -337,45 +391,127 @@
       add('m-rlabel', r.at, 9, GT.upper(GT.label('regions', code)), 14).attr('data-region', code);
     }
     for (const pl of GT.PLACE_LABELS || []) add('m-label sm', pl.at, 7, GT.upper(pl[GT.lang]));
-    // Cities, but only when no basemap is drawing them: with tiles under the map the settlement
-    // labels are the basemap's, and two sets of city names on one map is one too many.
-    if (!base) for (const f of places) {
-      const q = f.properties, at = f.geometry.coordinates;
-      const tier = q.cap || q.p >= 1000000 ? 1 : q.p >= 300000 ? 2 : 3;
-      const g = gLabels.append('g').attr('class', 'm-place t' + tier)
-        .attr('data-x', proj(at)[0]).attr('data-y', proj(at)[1]);
-      g.append('path').attr('class', 'm-place-dot').attr('d', 'M0,0h0');
-      g.append('text').attr('x', 4.5).attr('y', 2.6).attr('font-size', tier === 1 ? 7.5 : 6.5).text(q.tr || q.n);
-    }
+    placeTiers.clear(); // the city tiers are built as the map is zoomed into them (addPlaceTier)
     // centred on Türkiye's centroid; letters spaced with thin spaces (CSS letter-spacing would add a trailing gap)
     const trF = world.countries.find((f) => GT.a3(f) === 'TUR');
     add('m-tr-label', d3.geoCentroid(trF), 19, [...GT.upper('Türkiye')].join('  '));
     rescale();
   }
 
+  /* ---------------- map key ----------------
+     The key explains what is on screen: a row whose layer is switched off is hidden, the count in
+     the summary is the number of rows actually shown, and whether the key is open is remembered.
+     Seventeen rows pinned open covered half the map, which is what made the panel feel crowded. */
+  function syncKey() {
+    const box = document.getElementById('p-legend');
+    if (!box) return;
+    let shown = 0;
+    box.querySelectorAll('.lg').forEach((row) => {
+      const id = row.dataset.lyr;
+      const on = !id || (document.getElementById(id) || { checked: true }).checked;
+      row.hidden = !on;
+      if (on) shown += 1;
+    });
+    const n = document.getElementById('p-legend-n');
+    if (n) n.textContent = String(shown);
+  }
+
   let sweepG = null, gIslands = null, places = [], placesAsked = false;
+  let gActivity = null, density = null, densityAsked = false;
+
+  /* ---------------- announced activity (assets/data/msi-density.json) ----------------
+     Where navigational warnings were announced between 2015 and 2021, on a 0.25° grid: a picture of
+     seven years, not of anything now, and never of Turkish warnings (they are not in the file).
+     It is off by default and fetched the first time it is switched on — a normal visit never asks
+     for it. The cells are drawn as four paths, one per intensity band, rather than 3,579 rectangles:
+     the whole layer is then four DOM nodes and redraws with the map. */
+  const ACT_BANDS = [1, 4, 16, 64];
+  function ensureDensity(on) {
+    if (!on || densityAsked) return;
+    densityAsked = true;
+    fetch('assets/data/msi-density.json', { cache: 'no-cache' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('msi-density: HTTP ' + r.status))))
+      .then((d) => { density = d; drawActivity(); })
+      .catch((e) => console.info('activity layer off:', e.message));
+  }
+  function drawActivity() {
+    if (!gActivity || !density || !proj) return;
+    const step = density.method.cell_deg;
+    const bands = ACT_BANDS.map(() => []);
+    for (const [lon, lat, mil, survey, other] of density.cells) {
+      const n = mil + survey + other;
+      let band = 0;
+      while (band < ACT_BANDS.length - 1 && n >= ACT_BANDS[band + 1]) band += 1;
+      const a = proj([lon, lat + step]);
+      const b = proj([lon + step, lat]);
+      if (!a || !b) continue;
+      bands[band].push(`M${a[0].toFixed(1)},${a[1].toFixed(1)}H${b[0].toFixed(1)}V${b[1].toFixed(1)}H${a[0].toFixed(1)}Z`);
+    }
+    gActivity.selectAll('*').remove();
+    bands.forEach((d, i) => {
+      if (d.length) gActivity.append('path').attr('class', 'm-act b' + i).attr('d', d.join(''));
+    });
+  }
   /* Fetched the first time the map is drawn without a basemap — on a normal visit, never. */
   function ensurePlaces() {
     if (placesAsked || base) return;
     placesAsked = true;
-    GT.loadPlaces().then((list) => { places = list; if (svg && !base) drawLabels(); });
+    GT.loadPlaces().then((list) => {
+      places = list;
+      if (svg && !base) rescale(); // builds the tiers the current zoom calls for, and no others
+    });
   }
+  /* Cities are drawn tier by tier, as the map reaches the zoom that shows them. Building all 455
+     labels for a view that shows twelve of them cost half a thousand DOM nodes nobody could read;
+     now a tier is built the first time it is needed and never again. They are drawn only when no
+     basemap is under the map: with tiles there, the settlement labels are the basemap's, and two
+     sets of city names on one map is one too many. */
+  const placeTiers = new Set();
+  const placeTierOf = (q) => (q.cap || q.p >= 1000000 ? 1 : q.p >= 300000 ? 2 : 3);
+  function addPlaceTier(tier) {
+    if (base || !gLabels || !places.length || placeTiers.has(tier)) return;
+    placeTiers.add(tier);
+    for (const f of places) {
+      const q = f.properties;
+      if (placeTierOf(q) !== tier) continue;
+      const at = proj(f.geometry.coordinates);
+      const g = gLabels.append('g').attr('class', 'm-place t' + tier)
+        .attr('data-x', at[0]).attr('data-y', at[1]);
+      g.append('path').attr('class', 'm-place-dot').attr('d', 'M0,0h0');
+      g.append('text').attr('x', 4.5).attr('y', 2.6).attr('font-size', tier === 1 ? 7.5 : 6.5).text(q.tr || q.n);
+    }
+    scaleLabels();
+  }
+
+  function scaleLabels() {
+    if (!gLabels) return;
+    const f = Math.pow(k, 0.82);
+    const label = function () { return `translate(${this.dataset.x},${this.dataset.y}) scale(${1 / f})`; };
+    gLabels.selectAll(':scope > text').attr('transform', label);
+    gLabels.selectAll('g.m-place').attr('transform', label);
+    gLabels.selectAll('.m-tr-label').style('stroke-width', 3 * f + 'px');
+  }
+
   function rescale() {
     if (!gLabels) return;
     maybeInitBase(k); // the first zoom past the overview is what brings the basemap in
     svg.classed('zoomed', k >= 1.25); // small-country and region labels only appear once zoomed in
     // our own city labels come in as the map zooms; the deeper tiers stay hidden until there is room
     svg.classed('zp2', k >= 2).classed('zp3', k >= 5).classed('zp4', k >= 14);
+    if (k >= 2) addPlaceTier(1);
+    if (k >= 5) addPlaceTier(2);
+    if (k >= 14) addPlaceTier(3);
     // past this point the 50m outline is coarser than what is drawn underneath: let the tiles show
     svg.classed('deep', !!base && k >= 6);
+    /* Without a basemap there is nothing underneath, and the maritime areas overlap the 1:50m land
+       by hundreds of square kilometres — their own coastlines are finer than the one we draw. At a
+       regional zoom that is invisible; at 40x it paints İstanbul blue. Past this point the fills
+       step back to outlines, so the reader sees the claim without losing the coast. */
+    svg.classed('flat-sea', !base && k >= 12);
     if (sweepG) sweepG.style('opacity', Math.max(0, 1 - (k - 1) / 1.2)); // the sweep is an overview effect; fade it when zoomed in
-    // labels shrink as the map zooms (by k^0.82) through their transform, so zooming never re-lays out text;
-    // the Türkiye label's outline keeps its width in map units, as before
-    const f = Math.pow(k, 0.82);
-    const label = function () { return `translate(${this.dataset.x},${this.dataset.y}) scale(${1 / f})`; };
-    gLabels.selectAll(':scope > text').attr('transform', label); // a city label is a group (dot + text), handled next
-    gLabels.selectAll('g.m-place').attr('transform', label);
-    gLabels.selectAll('.m-tr-label').style('stroke-width', 3 * f + 'px');
+    // labels shrink as the map zooms (by k^0.82) through their transform, so zooming never re-lays out
+    // text; the Türkiye label's outline keeps its width in map units, as before (scaleLabels)
+    scaleLabels();
     const place = function () { return `translate(${this.dataset.x},${this.dataset.y}) scale(${1 / k})`; };
     gSites.selectAll('.mk').attr('transform', place);
     gEvents.selectAll('.mk').attr('transform', place);
@@ -444,7 +580,9 @@
     if (!zoom || !r) return;
     const a = proj(r.bbox[0]), b = proj(r.bbox[1]);
     const x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]);
-    const kk = Math.max(1, Math.min(16, 0.82 / Math.max((x1 - x0) / viewW(), (y1 - y0) / H)));
+    // the map now goes to 192x; a region may use a good part of that, but not all of it — a region
+    // shown at its tightest fit loses the context that makes it a region
+    const kk = Math.max(1, Math.min(48, 0.82 / Math.max((x1 - x0) / viewW(), (y1 - y0) / H)));
     const t = d3.zoomIdentity.translate(viewW() / 2, H / 2).scale(kk).translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
     mapSel().transition().duration(animate && !reduce ? 900 : 0).call(zoom.transform, t);
   }
@@ -470,9 +608,38 @@
   }
 
   /* ---------------- rendering ---------------- */
+  /* The four lines above the list answer, in order, the questions a reader asks before reading any
+     record: how many in the window, how sure are they, where are they, and how fresh is the newest.
+     Every number is derived from the filtered list, so it always describes what is on screen. */
+  function renderSummary(list) {
+    const box = document.getElementById('p-sum');
+    if (!box) return;
+    box.hidden = !list.length;
+    if (!list.length) return;
+    const byStatus = {};
+    const byRegion = {};
+    for (const e of list) {
+      byStatus[e.assessment.status] = (byStatus[e.assessment.status] || 0) + 1;
+      for (const r of e.regions || []) byRegion[r] = (byRegion[r] || 0) + 1;
+    }
+    const days = PERIODS[state.period];
+    document.getElementById('p-sum-window').textContent = days
+      ? GT.t('p.sum.inDays', { n: list.length, d: days })
+      : GT.t('p.sum.all', { n: list.length });
+    document.getElementById('p-sum-status').textContent = Object.keys(GT.STATUS)
+      .filter((key) => byStatus[key])
+      .map((key) => GT.txt(GT.STATUS[key]) + ' ' + byStatus[key])
+      .join(' · ') || '—';
+    const top = Object.entries(byRegion).sort((a, b) => b[1] - a[1])[0];
+    document.getElementById('p-sum-top').textContent = top ? GT.label('regions', top[0]) + ' ' + top[1] : '—';
+    const newest = list[0] && list[0].time && list[0].time.start;
+    document.getElementById('p-sum-last').textContent = newest ? GT.fmtTime(newest, "day") : '—';
+  }
+
   function render() {
     const list = filtered();
     els.count.textContent = GT.t('p.count', { n: list.length });
+    renderSummary(list);
     els.banner.hidden = !lyr.examples.checked;
     renderFeed(list);
     drawMarkers(list);
@@ -679,9 +846,26 @@
     if (state.region) p.set('region', state.region);
     if (state.type) p.set('type', state.type);
     if (state.status) p.set('status', state.status);
+    if (state.period) p.set('period', state.period);
     if (state.selected) p.set('id', state.selected);
     const qs = p.toString();
     history.replaceState(null, '', qs ? '?' + qs : location.pathname);
+  }
+
+  /* The key follows every layer switch, so it can never describe a layer that is off. */
+  function wireKey() {
+    const box = document.getElementById('p-legend');
+    if (!box) return;
+    const KEY = 'gt-panel-key';
+    try { box.open = localStorage.getItem(KEY) === '1'; } catch (e) { /* private mode */ }
+    box.addEventListener('toggle', () => {
+      try { localStorage.setItem(KEY, box.open ? '1' : '0'); } catch (e) { /* private mode */ }
+    });
+    ['l-events', 'l-sites', 'l-examples', 'l-missions', 'l-regions'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', syncKey);
+    });
+    syncKey();
   }
 
   function wireUi() {
@@ -690,6 +874,8 @@
     els.type.addEventListener('change', () => { state.type = els.type.value; render(); });
     els.status.addEventListener('change', () => { state.status = els.status.value; render(); });
     Object.values(lyr).forEach((c) => c.addEventListener('change', render));
+    const pb = $('p-brief');
+    if (pb) pb.addEventListener('click', () => { printHeader(); window.print(); });
     $('z-in').addEventListener('click', () => svg && mapSel().transition().duration(reduce ? 0 : 350).call(zoom.scaleBy, 1.7));
     $('z-out').addEventListener('click', () => svg && mapSel().transition().duration(reduce ? 0 : 350).call(zoom.scaleBy, 1 / 1.7));
     $('z-reset').addEventListener('click', () => setRegion(''));

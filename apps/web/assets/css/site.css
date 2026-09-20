@@ -255,7 +255,10 @@ a.ticker-item:hover { color: #fff; }
 .fld input:focus, .fld select:focus { border-color: var(--t2); outline: none; }
 .fld-search input { padding-left: 38px; background-image: radial-gradient(circle at 50% 50%, transparent 4.5px, var(--t3) 4.6px, var(--t3) 5.6px, transparent 5.7px); background-size: 20px 20px; background-position: 10px 10px; background-repeat: no-repeat; }
 .fld-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.layers { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; padding: 0; border: 0; }
+.layers { display: block; margin: 0; padding: 0; border: 0; }
+.layers-sub { margin: 12px 0 4px; font: 500 9px var(--m); letter-spacing: .24em; text-transform: uppercase; color: var(--t3); }
+.layers-sub:first-of-type { margin-top: 0; }
+.layers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 2px 14px; }
 .layers legend { width: 100%; margin-bottom: 8px; font: 500 9.5px var(--m); letter-spacing: .22em; text-transform: uppercase; color: var(--t3); }
 .tog { display: inline-flex; align-items: center; gap: 8px; min-height: 30px; font-size: 12px; color: var(--t2); cursor: pointer; }
 .tog input { appearance: none; -webkit-appearance: none; width: 26px; height: 14px; margin: 0; border: 1px solid var(--line2); background: var(--s2); position: relative; cursor: pointer; transition: background .25s var(--e); }
@@ -293,7 +296,22 @@ a.ticker-item:hover { color: #fff; }
 .p-zoom button { width: 40px; height: 40px; background: none; border: 0; cursor: pointer; display: grid; place-items: center; color: var(--t2); }
 .p-zoom button + button { border-top: 1px solid var(--line); }
 .p-zoom button:hover { color: #fff; background: var(--s3); }
-.p-legend { position: absolute; left: 16px; bottom: 16px; display: grid; gap: 8px; padding: 12px 14px; background: rgba(5, 5, 5, .78); border: 1px solid var(--line); font: 500 9.5px var(--m); letter-spacing: .16em; text-transform: uppercase; color: var(--t2); }
+/* The map key is a panel, not a wall: seventeen rows covered half the map, so it folds away and
+   remembers whether it was open. Rows belonging to a layer that is switched off are not shown —
+   the key explains what is on screen and nothing else. */
+.p-legend { position: absolute; left: 16px; bottom: 16px; max-width: min(420px, calc(100% - 32px));
+  background: rgba(5, 5, 5, .84); border: 1px solid var(--line); color: var(--t2); }
+.p-legend-sum { display: flex; align-items: center; gap: 10px; padding: 9px 13px; cursor: pointer; list-style: none;
+  font: 500 9.5px var(--m); letter-spacing: .22em; text-transform: uppercase; color: var(--t2); }
+.p-legend-sum::-webkit-details-marker { display: none; }
+.p-legend-sum::before { content: ''; width: 7px; height: 7px; border-right: 1px solid var(--rb); border-bottom: 1px solid var(--rb);
+  transform: rotate(-45deg); transition: transform .25s var(--e); }
+.p-legend[open] .p-legend-sum::before { transform: rotate(45deg); }
+.p-legend-sum:hover { color: #fff; }
+.p-legend-n { margin-left: auto; color: var(--t3); }
+.p-legend-body { display: grid; gap: 8px; padding: 2px 13px 13px; max-height: min(52vh, 520px); overflow: auto;
+  font: 500 9.5px var(--m); letter-spacing: .16em; text-transform: uppercase; }
+.lg[hidden] { display: none; }
 .lg { display: flex; align-items: center; gap: 10px; }
 .lg i { width: 9px; height: 9px; border-radius: 50%; background: var(--rb); }
 .lg i.ok { background: var(--ok); } .lg i.warn { background: var(--warn); }
@@ -411,7 +429,8 @@ a.ticker-item:hover { color: #fff; }
   .p-feed { overflow: visible; }
   .p-drawer { position: fixed; top: var(--nh); }
   .panel-title { display: none; }
-  .p-legend { display: none; }
+  .p-legend { left: 8px; bottom: 8px; right: 8px; max-width: none; }
+  .p-legend-body { max-height: 40vh; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
@@ -621,3 +640,61 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .r-capt { margin: 18px 0 0; }
 .r-capt .doc-p { margin-bottom: 12px; }
 .r-counts { font: 400 10.5px var(--m); letter-spacing: .06em; color: var(--t3); }
+
+/* Announced-activity grid (panel layer, assets/data/msi-density.json). Off unless the layer is on;
+   four bands rather than a continuous ramp, because the underlying count is a coarse measure and a
+   smooth gradient would suggest a precision it does not have. */
+.m-act { fill: var(--rb); stroke: none; pointer-events: none; }
+.m-act.b0 { fill-opacity: .07; }
+.m-act.b1 { fill-opacity: .14; }
+.m-act.b2 { fill-opacity: .24; }
+.m-act.b3 { fill-opacity: .38; }
+.p-map svg:not(.show-activity) .m-act-g { display: none; }
+.lg i.act { background: var(--rb); opacity: .38; }
+
+/* Zoomed past what the 1:50m coastline can honestly carry and with no basemap under it, the
+   maritime areas become outlines: their fills overlap the land they are drawn over (their sources'
+   coastlines are finer than ours), and at that scale the fill reads as "the city is under water". */
+.p-map svg.flat-sea .m-blue-area { fill-opacity: .06; }
+.p-map svg.flat-sea .m-blue-area.licence { fill-opacity: .04; }
+.p-map svg.flat-sea .m-ops { fill-opacity: .12; }
+.p-map svg.flat-sea .m-sea { opacity: .5; }
+
+/* The four lines a reader wants before the list: how many, how sure, where, how fresh. */
+.p-sum { display: grid; gap: 6px; padding: 14px 18px; border-top: 1px solid var(--line); background: var(--s2); }
+.p-sum-row { display: flex; align-items: baseline; gap: 10px; justify-content: space-between; }
+.p-sum-k { font: 500 9px var(--m); letter-spacing: .22em; text-transform: uppercase; color: var(--t3); }
+.p-sum-v { font-size: 11px; color: var(--t2); text-align: right; }
+
+/* A briefing on paper: the header the panel builds at print time, then the map, the summary and the
+   list. Everything a reader cannot act on from paper — filters, switches, buttons, the drawer — is
+   left out, and nothing is re-laid out, so what prints is what was on screen. */
+.p-print { display: none; }
+.p-brief { padding: 5px 10px; border: 1px solid var(--line2); background: none; color: var(--t2); cursor: pointer;
+  font: 500 9.5px var(--m); letter-spacing: .18em; text-transform: uppercase; }
+.p-brief:hover { color: #fff; border-color: var(--rb); }
+@media print {
+  @page { margin: 12mm; }
+  html, body { background: #fff !important; color: #111 !important; height: auto; overflow: visible; }
+  .site-header, .panel-tools, .p-zoom, .p-hud, .p-tip, .p-legend, .p-drawer, .p-filters, .p-banner,
+  .nav-tools, .site-footer, .p-empty .btn { display: none !important; }
+  /* header, then the map, then the numbers and the list — the order a briefing is read in */
+  .panel { display: flex !important; flex-direction: column; height: auto !important; }
+  .p-print { display: block; order: -2; margin: 0 0 6mm; }
+  .p-print h1 { margin: 0 0 3mm; font-size: 15pt; font-weight: 700; color: #111; }
+  .p-print p { margin: 0 0 1.5mm; font-size: 9pt; color: #333; }
+  .p-map-wrap { order: -1; height: 105mm !important; page-break-inside: avoid; border: 1px solid #bbb; }
+  .p-map, .p-map svg { background: #050505 !important; }  /* the map prints as it is read on screen */
+  .p-side { order: 0; width: auto !important; height: auto !important; border: 0 !important; background: #fff !important; }
+  .p-sum { background: #fff !important; border-top: 1px solid #bbb; padding: 4mm 0 2mm; }
+  .p-sum-k { color: #555 !important; }
+  .p-sum-v { color: #111 !important; }
+  .p-feed-head { background: #fff !important; color: #111 !important; border-bottom: 1px solid #bbb; padding: 2mm 0; }
+  .p-feed { overflow: visible !important; background: #fff !important; }
+  .fi { page-break-inside: avoid; padding: 3mm 0 !important; background: #fff !important;
+    border-bottom: 1px solid #ddd !important; }
+  .fi, .fi *, .p-feed-head, .p-feed-head * { color: #111 !important; }
+  .fi-meta, .fi-top > span:first-child { color: #555 !important; }
+  .chip, .badge, .ex-tag { border-color: #999 !important; background: none !important; }
+  .badge::before, .st-unverified::before, .st-verified::before { filter: grayscale(0.4); }
+}

@@ -11,9 +11,10 @@ public domain, served as JSON by the NGA Maritime Safety Information site.
     https://msi.nga.mil/api/publications/broadcast-warn?status=active&output=json      (in force)
 
 This builder reads both, keeps what falls in our region, classifies each warning by what its
-wording names (`gt_collectors.navtex.activity_of`), and writes a yearly series:
+wording names (`gt_collectors.navtex.activity_of`), and writes two files:
 
-    apps/web/assets/data/msi-activity.json
+    apps/web/assets/data/msi-activity.json   the yearly series
+    apps/web/assets/data/msi-density.json    where those warnings were announced, on a 0.25° grid
 
 **What is deliberately left out.** Warnings issued by Turkish authorities are not counted and not
 published here. The series measures what *other* states announce; publishing a series of Türkiye's
@@ -31,8 +32,9 @@ series against those two columns or not at all.
 
     python tools/msi/build_activity.py [--cache DIR] [--refresh]
 
-The downloads are cached outside the repository, like the other builders here. Dependencies: none
-beyond the standard library and `gt_collectors` (collectors/src on the path).
+The downloads are cached outside the repository, like the other builders here. Dependencies: the
+standard library, `gt_collectors` (collectors/src on the path) and — for the density grid only —
+`shapely`, which drops grid cells whose centre falls on land so the map shows sea activity.
 """
 
 from __future__ import annotations
@@ -48,6 +50,10 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 OUT = ROOT / "apps" / "web" / "assets" / "data" / "msi-activity.json"
+OUT_DENSITY = ROOT / "apps" / "web" / "assets" / "data" / "msi-density.json"
+# The window the density map is drawn from: the years when the archive's coverage of this region is
+# steady. Mixing in a year when NAVAREA III was not relayed would map the archive, not the sea.
+DENSITY_YEARS = (2015, 2021)
 sys.path.insert(0, str(ROOT / "collectors" / "src"))
 
 # the path is set above, so these imports cannot move to the top of the file
@@ -123,17 +129,111 @@ def build(cache: Path, refresh: bool) -> dict:
     }
 
 
+def land_of(world: Path):
+    """The land the site draws (countries-50m.json), as one shapely geometry."""
+    # imported here: only the density grid needs shapely, and the yearly series must build without it
+    import shapely
+    from shapely.geometry import shape
+    from shapely.ops import unary_union
+
+    topo = json.loads(world.read_text(encoding="utf-8"))
+    t = topo["transform"]
+    arcs = []
+    for arc in topo["arcs"]:
+        x = y = 0
+        pts = []
+        for dx, dy in arc:
+            x += dx
+            y += dy
+            pts.append((x * t["scale"][0] + t["translate"][0], y * t["scale"][1] + t["translate"][1]))
+        arcs.append(pts)
+
+    def ring(idxs):
+        out: list[tuple[float, float]] = []
+        for i in idxs:
+            a = arcs[~i][::-1] if i < 0 else arcs[i]
+            out.extend(a if not out else a[1:])
+        return out
+
+    geoms = []
+    for g in topo["objects"]["countries"]["geometries"]:
+        if g["type"] == "Polygon":
+            geoms.append(shape({"type": "Polygon", "coordinates": [ring(r) for r in g["arcs"]]}))
+        elif g["type"] == "MultiPolygon":
+            geoms.append(shape({"type": "MultiPolygon", "coordinates": [[ring(r) for r in p] for p in g["arcs"]]}))
+    return shapely.prepare(unary_union([g.buffer(0) for g in geoms])) or unary_union([g.buffer(0) for g in geoms])
+
+
+def build_density(cache: Path, refresh: bool) -> dict:
+    """Where the warnings were announced, on a coarse grid — a picture of years, not of anything now."""
+    # see land_of: shapely is a dependency of the density grid only
+    from shapely.geometry import Point
+
+    items = fetch("cancelled", cache, refresh) + fetch("active", cache, refresh)
+    grid = msi.density(items, DENSITY_YEARS)
+    # A warning's bounding box can reach over a coast; a cell whose centre is on land is dropped,
+    # because this is a map of activity at sea and a red square over a Greek village is not that.
+    land = land_of(ROOT / "apps" / "web" / "assets" / "data" / "countries-50m.json")
+    half = msi.CELL_DEG / 2
+    on_land = [c for c in grid if land.contains(Point(c[0] + half, c[1] + half))]
+    for c in on_land:
+        del grid[c]
+    cells = [
+        [lon, lat, c.get("military", 0), c.get("survey", 0), c.get("other", 0)]
+        for (lon, lat), c in sorted(grid.items())
+    ]
+    totals = {k: sum(c[i + 2] for c in cells) for i, k in enumerate(("military", "survey", "other"))}
+    return {
+        "about": (
+            "Where navigational warnings were announced in our waters between "
+            f"{DENSITY_YEARS[0]} and {DENSITY_YEARS[1]}, counted on a {msi.CELL_DEG}° grid. A cell counts a "
+            "warning when the warning's area covers it; a notice spanning more than "
+            f"{msi.MAX_SPAN_DEG2}° square is region-wide and is not drawn as an area at all."
+        ),
+        "source": {
+            "name": "NGA Maritime Safety Information — broadcast warnings",
+            "url": "https://msi.nga.mil/NavWarnings",
+            "licence": "Work of the United States Government: public domain",
+        },
+        "method": {
+            "cell_deg": msi.CELL_DEG,
+            "window": list(DENSITY_YEARS),
+            "window_reason": (
+                "The archive's coverage of this region is steady in these years; NGA's relay of "
+                "NAVAREA III and the Greek NAVTEX stations largely stops after 2021."
+            ),
+            "kinds": ["military", "survey", "other"],
+            "excluded": (
+                "Warnings issued by Turkish authorities, or whose subject is Türkiye, are not counted "
+                "(ADR 0013). Nothing here is current: the window ends in 2021."
+            ),
+        },
+        "totals": totals,
+        "cells_dropped_on_land": len(on_land),
+        "cells": cells,
+    }
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--cache", default=os.environ.get("GT_MSI_CACHE", Path(tempfile.gettempdir()) / "gt-msi-cache"))
     ap.add_argument("--refresh", action="store_true", help="download again instead of using the cache")
     args = ap.parse_args()
-    data = build(Path(args.cache), args.refresh)
+    cache = Path(args.cache)
+    data = build(cache, args.refresh)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     b = data["built_from"]
     print(
         f"{b['records_kept']} warnings in region ({b['records_read']} read, "
         f"{b['turkish_warnings_excluded']} Turkish excluded), {b['years']} -> {OUT.relative_to(ROOT)}"
+    )
+    grid = build_density(cache, False)  # the same cache; never a second download
+    OUT_DENSITY.write_text(
+        json.dumps(grid, ensure_ascii=False, separators=(",", ":")) + chr(10), encoding="utf-8"
+    )
+    print(
+        f"{len(grid['cells'])} cells, {grid['totals']} in {grid['method']['window']} "
+        f"-> {OUT_DENSITY.relative_to(ROOT)}"
     )
 
 
