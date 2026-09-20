@@ -1,0 +1,15 @@
+{
+  "name": "gt-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Worker that serves the static site from the edge: our own headers, our own cache, and the dataset export on the same origin",
+  "license": "MIT",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "4.132.0"
+  }
+}
