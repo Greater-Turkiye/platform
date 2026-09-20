@@ -516,9 +516,9 @@
   const [w, d, v, t, recs] = await Promise.allSettled([
     GT.loadWorld('assets/data/countries-50m.json'),
     optional('assets/data/msi-density.json'),
-    optional('assets/data/vessels-sanctioned.json'),
+    optional('assets/data/vessels-summary.json'),
     optional('assets/data/trade-il.json'),
-    GT.loadData(),
+    GT.loadData(['site']),
   ]);
   if (w.status === 'fulfilled') world = w.value; else console.warn(w.reason);
   density = d.status === 'fulfilled' ? d.value : null;

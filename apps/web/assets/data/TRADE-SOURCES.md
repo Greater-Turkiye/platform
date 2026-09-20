@@ -60,6 +60,7 @@ Sorunun "bayrak değiştiriyorlar mı" kısmı, hiçbir şey izlemeden cevaplana
 |---|---|
 | Kaynaklar | [OFAC SDN](https://www.treasury.gov/ofac/downloads/sdn.xml) (ABD hükümeti eseri, **kamu malı**) · [BM GK birleşik listesi](https://scsanctions.un.org/resources/xml/en/consolidated.xml) |
 | Üretici | [`tools/vessels/build_vessels.py`](../../../../tools/vessels/build_vessels.py) |
+| Sayfaların okuduğu | `vessels-summary.json` (~3 KB): sayımlar ve bayrak değişikliği rotaları. Tam dosya (463 KB) okumak ve indirmek için durur; bir sayfa dört sayı için yarım megabayt yüklemez |
 | Alanlar | ad, IMO, MMSI, tür, yapım yılı, bayrak, **önceki bayrak(lar)**, kayıtlı sahip, çağrı işareti, program |
 | Bugünkü çıktı | 1.565 gemi; 81'inde kayıtlı önceki bayrak; 449'u izleme bölgelerine değiyor |
 
@@ -92,5 +93,7 @@ The two policy dates are carried without a primary source attached, because the 
 No vessel is tracked. The position, route, estimated arrival or crew of a civilian ship is never recorded or published (ADR 0022).
 
 The reflagging half of the question needs no tracking: two authorities publish the flag a designated ship flies and the flag it used to fly. `vessels-sanctioned.json` carries identity only — name, IMO, MMSI, type, year, flag, former flags, recorded owner, programme — from the OFAC SDN list (a work of the US Government, public domain) and the UN Security Council consolidated list. Nothing is filtered out; `watch` marks the rows touching this project's regions. Position, route, arrival and crew are not fields in this file.
+
+The pages read `vessels-summary.json` (about 3 KB: the counts and the flag-change routes); the full file stays for reading and download, because no page should load half a megabyte for four numbers.
 
 Equasis has no public API and its terms forbid systematic extraction, so it is not used. IMO GISIS has no public API either. The Paris MoU does share its port state control inspections in bulk XML and through an API, free, on application — each inspection records the ship's flag on that date, which is a flag history kept by an official regulator, and that is the next source to add.

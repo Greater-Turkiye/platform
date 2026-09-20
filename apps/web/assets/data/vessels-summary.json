@@ -1,0 +1,175 @@
+{
+ "about": "Vessel identity as two authorities publish it: name, IMO number, flag, the flag it used to fly, and the owner as recorded. Both lists are published so that third parties can identify the ship, which is the only use made of them here. No position, no destination, no crew: the file has no such field and never will (ADR 0022). `watch` marks a vessel whose flag, former flag or owner touches this project's watch regions; nothing is dropped, because a filter is a claim about what matters.",
+ "source": {
+  "ofac": {
+   "name": "OFAC Specially Designated Nationals list",
+   "url": "https://www.treasury.gov/ofac/downloads/sdn.xml",
+   "terms": "Work of the United States Government: public domain"
+  },
+  "un": {
+   "name": "UN Security Council consolidated list",
+   "url": "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
+   "terms": "Published by the United Nations for implementation of the measures"
+  }
+ },
+ "built_at": "2026-09-20T18:01:45Z",
+ "counts": {
+  "vessels": 1565,
+  "with_imo": 1554,
+  "with_former_flag": 81,
+  "watch": 449
+ },
+ "flag_changes": [
+  {
+   "from": "Malta",
+   "to": "Iran",
+   "vessels": 16
+  },
+  {
+   "from": "China",
+   "to": "Hong Kong",
+   "vessels": 10
+  },
+  {
+   "from": "Cyprus",
+   "to": "Iran",
+   "vessels": 8
+  },
+  {
+   "from": "Panama",
+   "to": "Iran",
+   "vessels": 5
+  },
+  {
+   "from": "Palau",
+   "to": "Unknown",
+   "vessels": 5
+  },
+  {
+   "from": "Panama",
+   "to": "Unknown",
+   "vessels": 4
+  },
+  {
+   "from": "Comoros",
+   "to": "Unknown",
+   "vessels": 3
+  },
+  {
+   "from": "Tuvalu",
+   "to": "Iran",
+   "vessels": 2
+  },
+  {
+   "from": "Tanzania",
+   "to": "Iran",
+   "vessels": 2
+  },
+  {
+   "from": "Malta",
+   "to": "Panama",
+   "vessels": 2
+  },
+  {
+   "from": "Comoros",
+   "to": "Botswana False",
+   "vessels": 1
+  },
+  {
+   "from": "Panama",
+   "to": "Cameroon",
+   "vessels": 1
+  },
+  {
+   "from": "Greece",
+   "to": "Cuba",
+   "vessels": 1
+  },
+  {
+   "from": "Palau",
+   "to": "Djibouti",
+   "vessels": 1
+  },
+  {
+   "from": "Hong Kong",
+   "to": "Gambia",
+   "vessels": 1
+  },
+  {
+   "from": "Vietnam",
+   "to": "Guyana",
+   "vessels": 1
+  },
+  {
+   "from": "Liberia",
+   "to": "Iran",
+   "vessels": 1
+  },
+  {
+   "from": "Tanzania",
+   "to": "Malta",
+   "vessels": 1
+  },
+  {
+   "from": "Palau",
+   "to": "Mozambique",
+   "vessels": 1
+  },
+  {
+   "from": "Panama",
+   "to": "Mozambique",
+   "vessels": 1
+  },
+  {
+   "from": "Gambia (False)",
+   "to": "Mozambique (False)",
+   "vessels": 1
+  },
+  {
+   "from": "Malta",
+   "to": "None Identified",
+   "vessels": 1
+  },
+  {
+   "from": "Djibouti",
+   "to": "Panama",
+   "vessels": 1
+  },
+  {
+   "from": "Palau",
+   "to": "Panama",
+   "vessels": 1
+  },
+  {
+   "from": "Panama",
+   "to": "Tanzania",
+   "vessels": 1
+  },
+  {
+   "from": "Togo",
+   "to": "Tanzania",
+   "vessels": 1
+  },
+  {
+   "from": "Liberia",
+   "to": "Tanzania",
+   "vessels": 1
+  },
+  {
+   "from": "Gambia",
+   "to": "Unknown",
+   "vessels": 1
+  },
+  {
+   "from": "Gabon",
+   "to": "Unknown",
+   "vessels": 1
+  },
+  {
+   "from": "Panama",
+   "to": "Vanuatu",
+   "vessels": 1
+  }
+ ],
+ "full_file": "vessels-sanctioned.json"
+}

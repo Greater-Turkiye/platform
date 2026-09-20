@@ -204,7 +204,7 @@
   async function flags() {
     let f = null;
     try {
-      const r = await fetch('assets/data/vessels-sanctioned.json', { cache: 'no-cache' });
+      const r = await fetch('assets/data/vessels-summary.json', { cache: 'no-cache' });
       if (!r.ok) return;
       f = await r.json();
     } catch { return; }

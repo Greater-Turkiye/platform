@@ -458,16 +458,21 @@
   const jsonl = (s) => s.split('\n').filter((l) => l.trim()).map((l) => JSON.parse(l));
   const KINDS = ['event', 'actor', 'site', 'source', 'equipment', 'examples'];
 
-  GT.loadData = async () => {
+  /* `kinds` lets a page ask for the records it actually draws. The dashboard needs every kind; the
+     sea dashboard needs sites, and fetching the other five cost it 130 KB and four requests for
+     nothing. Anything not asked for comes back as an empty array, so callers do not branch. */
+  GT.loadData = async (kinds) => {
+    const want = Array.isArray(kinds) && kinds.length ? KINDS.filter((k) => kinds.includes(k)) : KINDS;
     const [manifest, vocab, ...lists] = await Promise.all([
       getText('manifest.json').then(JSON.parse),
       getText('vocab.json').then(JSON.parse),
-      ...KINDS.map((k) => getText(k + '.jsonl').then(jsonl).catch(() => [])),
+      ...want.map((k) => getText(k + '.jsonl').then(jsonl).catch(() => [])),
     ]);
     const d = { manifest, vocab, byId: new Map() };
-    KINDS.forEach((k, i) => { d[k] = lists[i]; });
+    KINDS.forEach((k) => { d[k] = []; });
+    want.forEach((k, i) => { d[k] = lists[i]; });
     d.examples.forEach((r) => { r._example = true; });
-    for (const k of KINDS) for (const r of d[k]) d.byId.set(r.id, r);
+    for (const k of want) for (const r of d[k]) d.byId.set(r.id, r);
     GT.vocab = vocab;
     return d;
   };

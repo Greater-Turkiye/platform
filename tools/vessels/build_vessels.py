@@ -40,6 +40,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "apps" / "web" / "assets" / "data" / "vessels-sanctioned.json"
+# The pages need the counts and the routes, not 1,500 records: 463 KB for four numbers is a
+# page nobody should have to load. The full file stays for reading and for download.
+OUT_SUMMARY = ROOT / "apps" / "web" / "assets" / "data" / "vessels-summary.json"
 
 SOURCES = {
     "ofac": "https://www.treasury.gov/ofac/downloads/sdn.xml",
@@ -210,9 +213,15 @@ def main() -> int:
     OUT.write_text(
         json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n"
     )
+    summary = {k: v for k, v in data.items() if k != "vessels"}
+    summary["full_file"] = OUT.name
+    OUT_SUMMARY.write_text(
+        json.dumps(summary, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n"
+    )
     print(
         f"{len(vessels)} vessels -> {OUT.relative_to(ROOT)}; "
-        f"{len(changed)} with a recorded former flag, {data['counts']['watch']} touching the watch regions"
+        f"{len(changed)} with a recorded former flag, {data['counts']['watch']} touching the watch regions; "
+        f"summary -> {OUT_SUMMARY.relative_to(ROOT)}"
     )
     return 0
 
