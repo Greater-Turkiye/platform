@@ -193,6 +193,57 @@
     document.getElementById('rota').hidden = false;
   }
 
+  /* The question that started this page was whether a reflagging can be followed. It can, and not
+     by watching anything: two authorities publish the flag a designated ship flies and the flag it
+     used to fly. This section shows the shape of that — which registry a ship left and which it
+     joined — from lists published so that third parties can identify the ship.
+
+     It is a different list from the trade series above and says nothing about the Israel trade.
+     The lead says so, because a reader who conflates the two would be reading a claim we did not
+     make. */
+  async function flags() {
+    let f = null;
+    try {
+      const r = await fetch('assets/data/vessels-sanctioned.json', { cache: 'no-cache' });
+      if (!r.ok) return;
+      f = await r.json();
+    } catch { return; }
+    if (!f || !f.counts) return;
+
+    const n = new Intl.NumberFormat(GT.lang === 'tr' ? 'tr-TR' : 'en-GB');
+    const tile = (value, label) => {
+      const d = GT.el('div', 't-stat');
+      d.append(GT.el('b', 'mono', value), GT.el('span', null, label));
+      return d;
+    };
+    $('t-flag-stats').replaceChildren(
+      tile(n.format(f.counts.vessels), GT.t('t.f.listed')),
+      tile(n.format(f.counts.with_former_flag), GT.t('t.f.changed')),
+      tile(n.format(f.counts.watch), GT.t('t.f.watch')),
+      tile(n.format(f.counts.with_imo), GT.t('t.f.imo')),
+    );
+
+    const routes = (f.flag_changes || []).slice(0, 8);
+    if (routes.length) {
+      const peak = Math.max(...routes.map((r) => r.vessels));
+      const head = GT.el('div', 't-route t-route-head');
+      head.append(GT.el('span', null, GT.t('t.f.from')), GT.el('span', null, GT.t('t.f.to')),
+        GT.el('span', null, ''), GT.el('span', null, GT.t('t.f.count')));
+      $('t-flag-routes').replaceChildren(head, ...routes.map((r) => {
+        const row = GT.el('div', 't-route');
+        const ch = GT.el('span', 't-route-ch');
+        const bar = GT.el('span', 't-route-bar');
+        bar.style.setProperty('--w', (100 * r.vessels / peak).toFixed(1) + '%');
+        ch.append(bar, GT.el('b', 'mono', String(r.vessels)));
+        row.append(GT.el('span', 't-route-name', r.from || '—'),
+          GT.el('span', 'mono', r.to || '—'), GT.el('span', null, ''), ch);
+        return row;
+      }));
+    }
+    $('t-flag-src').textContent = GT.t('t.f.src', { at: (f.built_at || '').slice(0, 10) });
+    document.getElementById('bayrak').hidden = false;
+  }
+
   function render() {
     if (!data) return;
     const s = renderStats(data.series);
@@ -214,5 +265,6 @@
     return;
   }
   render();
-  document.addEventListener('gt:lang', render);
+  flags();
+  document.addEventListener('gt:lang', () => { render(); flags(); });
 })();

@@ -52,6 +52,31 @@ python tools/trade/build_trade.py             # önbellekteki indirmeleri kullan
 python tools/trade/build_trade.py --refresh   # baştan indirir (ayda bir çağrı; yaklaşık 15 dakika)
 ```
 
+## `vessels-sanctioned.json` — gemi kimliği / vessel identity
+
+Sorunun "bayrak değiştiriyorlar mı" kısmı, hiçbir şey izlemeden cevaplanabilir: iki otorite, yaptırım uyguladığı geminin bayrağını **ve daha önce taşıdığı bayrağı** yayımlıyor.
+
+| | |
+|---|---|
+| Kaynaklar | [OFAC SDN](https://www.treasury.gov/ofac/downloads/sdn.xml) (ABD hükümeti eseri, **kamu malı**) · [BM GK birleşik listesi](https://scsanctions.un.org/resources/xml/en/consolidated.xml) |
+| Üretici | [`tools/vessels/build_vessels.py`](../../../../tools/vessels/build_vessels.py) |
+| Alanlar | ad, IMO, MMSI, tür, yapım yılı, bayrak, **önceki bayrak(lar)**, kayıtlı sahip, çağrı işareti, program |
+| Bugünkü çıktı | 1.565 gemi; 81'inde kayıtlı önceki bayrak; 449'u izleme bölgelerine değiyor |
+
+`watch` alanı, bayrağı/önceki bayrağı/sahibi izleme bölgelerine değen gemileri **işaretler**, hiçbirini elemez: süzgeç, neyin önemli olduğuna dair bir iddiadır ve bu dosya o iddiayı kurmaz.
+
+**Bu liste, yukarıdaki ticaret serisinden bağımsızdır** ve İsrail ticareti hakkında hiçbir şey söylemez. Gösterdiği şey yöntemdir: bir geminin hangi sicili bırakıp hangisine geçtiği resmî kaynaklarda kayıtlıdır.
+
+Konum, rota, tahmini varış ve mürettebat bu dosyada **yoktur**; böyle bir alan hiç tanımlanmamıştır ([ADR 0022](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0022-trade-compliance-not-vessel-tracking.md)).
+
+### Denenip kullanılmayanlar / tried and not used
+
+| Kaynak | Bulunan |
+|---|---|
+| **Equasis** | Genel API yok; kullanım şartları sistematik/otomatik çıkarımı yasaklıyor. Bir oturum çerezi ile istek atmak tarayıcı oturumunu taklit etmek olur. **Kullanılmadı.** |
+| **IMO GISIS** | Genel API yok; giriş sonrası modüller tarayıcıda gezilir, toplu veri vermez. |
+| **Paris MoU** | **Kullanılabilir ve asıl hedef:** liman devleti denetim kayıtlarını toplu **XML + API** olarak başvuru formuyla, ücretsiz paylaşıyor ([datasharing-public](https://parismou.org/datasharing-public/)). Her denetimde gemi, IMO, **bayrak**, şirket, liman ve tarih bulunur; yıllar boyunca bayrak alanı, resmî bir düzenleyicinin tuttuğu bayrak geçmişidir. Hesap alındığında bu dosyanın ikinci kaynağı olacaktır. |
+
 ## English
 
 Türkiye announced a halt to trade with Israel in 2024. This file does not judge that decision: it puts **both states' own monthly returns** side by side and makes the gap between them readable.
@@ -65,3 +90,7 @@ A month with no Israel line in Türkiye's returns is checked against the same mo
 The two policy dates are carried without a primary source attached, because the ministry's announcement pages do not answer a plain HTTP client and an unsourced date next to sourced figures would be the weakest thing in the file.
 
 No vessel is tracked. The position, route, estimated arrival or crew of a civilian ship is never recorded or published (ADR 0022).
+
+The reflagging half of the question needs no tracking: two authorities publish the flag a designated ship flies and the flag it used to fly. `vessels-sanctioned.json` carries identity only — name, IMO, MMSI, type, year, flag, former flags, recorded owner, programme — from the OFAC SDN list (a work of the US Government, public domain) and the UN Security Council consolidated list. Nothing is filtered out; `watch` marks the rows touching this project's regions. Position, route, arrival and crew are not fields in this file.
+
+Equasis has no public API and its terms forbid systematic extraction, so it is not used. IMO GISIS has no public API either. The Paris MoU does share its port state control inspections in bulk XML and through an API, free, on application — each inspection records the ship's flag on that date, which is a flag history kept by an official regulator, and that is the next source to add.
