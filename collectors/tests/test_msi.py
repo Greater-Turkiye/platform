@@ -121,7 +121,8 @@ def test_series_carries_the_columns_a_reader_needs():
 def test_a_four_corner_area_fills_the_cells_between_its_corners():
     cells = msi._cells_of(
         navtex.positions(
-            "AREA BOUND BY 39-00.00N 025-00.00E, 39-00.00N 025-30.00E, 38-40.00N 025-30.00E, 38-40.00N 025-00.00E"
+            "AREA BOUND BY 39-00.00N 025-00.00E, 39-00.00N 025-30.00E, "
+            "38-40.00N 025-30.00E, 38-40.00N 025-00.00E"
         )
     )
     assert (25.0, 38.5) in cells and (25.5, 39.0) in cells
