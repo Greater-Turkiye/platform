@@ -228,6 +228,39 @@ feeds:
       RSS 2.0, 10 items (~52 kB), sends an ETag. Low volume; the 10-item window can span months,
       so items may be older than the run that first sees them.
 
+  # --- NAVTEX: how much activity a state announces at sea ------------------------------------
+  # The areas a state closes to navigation are a published measure of its military activity, with a
+  # position and a time window, from the state doing it (gt_collectors/navtex.py). This feed is a
+  # measurement source, not a news source: `queue: false`, and its terms forbid redistribution, so
+  # only the facts a message states may be kept — station, serial, time, positions, activity kind —
+  # and never the text (`NavtexMessage.to_json()` leaves the body out unless asked).
+  #
+  # Türkiye's own NAVTEX (kiyiemniyeti.gov.tr) is deliberately **not** collected: publishing the
+  # current firing and exercise areas of Turkish forces is what ADR 0013 forbids, whoever published
+  # them first. The register measures other states' announced activity (ADR 0019).
+  - id: navtex-grc-hnhs
+    kind: rss
+    name: Hellenic Navy Hydrographic Service — NAVTEX messages (English)
+    country: GRC
+    source_id: null
+    url: https://hnhs.gr/en/category/navtex-messages/feed/
+    cadence_minutes: 360
+    lang: en
+    regions: [aegean, east-med]
+    enabled: false
+    queue: false
+    secrets: []
+    terms: https://hnhs.gr/en/terms-of-use/
+    notes: >-
+      RSS 2.0, 8 items (~16 kB), sends Last-Modified but no ETag. Checked on 2026-09-19: the items
+      are whole NAVTEX messages (ZCZC … NNNN) from the Kerkyra, Limnos and Irakleio stations, with
+      positions in degrees and decimal minutes. Two caveats. (1) The category is not a complete
+      NAVTEX log: it carries a few recent messages next to older pinned ones, so any count from it
+      is a floor, not a total — a complete series needs the station broadcasts themselves. (2) The
+      terms of use forbid redistribution and modification ("not be used for commercial or personal
+      use, but solely for information purposes"), so this source is facts-only for us: no message
+      text is stored or published, and it can never be the only source for a record (ADR 0009).
+
   # --- Leads: parse, but the terms could not be read ----------------------------------------
   - id: iaea-news-en
     kind: rss
