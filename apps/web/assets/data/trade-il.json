@@ -1,0 +1,759 @@
+{
+ "about": "Türkiye's declared halt of trade with Israel against both states' own monthly returns. Türkiye reports exports by country of destination and Israel reports imports by country of origin, so a gap between them measures routing through third countries, not smuggling: a Turkish-made good shipped via a third country is an export to that country in Türkiye's books and an import of Turkish origin in Israel's. Figures are US dollars. A month with no Israel line in Türkiye's returns is marked reported when Türkiye reported other partners that month, so an absent line is not read as a fall to zero unless the check passed.",
+ "source": {
+  "name": "UN Comtrade — monthly merchandise trade, HS, all commodities",
+  "url": "https://comtradeapi.un.org/public/v1/preview/C/M/HS",
+  "terms": "https://comtrade.un.org/data/AboutDataUsage",
+  "reporters": {
+   "792": "Türkiye",
+   "376": "Israel",
+   "276": "Germany (control)"
+  }
+ },
+ "policy": [
+  {
+   "date": "2024-04-09",
+   "tr": "54 ürün grubunda İsrail'e ihracat kısıtlandı (Ticaret Bakanlığı).",
+   "en": "Exports to Israel restricted in 54 product groups (Ministry of Trade).",
+   "source": null,
+   "status": "birincil kaynak bekliyor / primary source not attached"
+  },
+  {
+   "date": "2024-05-02",
+   "tr": "İsrail ile ticaretin iki yönde de durdurulduğu açıklandı (Ticaret Bakanlığı).",
+   "en": "Trade with Israel announced as halted in both directions (Ministry of Trade).",
+   "source": null,
+   "status": "birincil kaynak bekliyor / primary source not attached"
+  }
+ ],
+ "method": {
+  "total_row": "motCode 0, customsCode C00",
+  "modes": {
+   "1000": "air",
+   "2100": "sea",
+   "3100": "rail",
+   "3200": "road"
+  },
+  "window": [
+   "202301",
+   "202607"
+  ]
+ },
+ "series": [
+  {
+   "period": "202301",
+   "tur_exports_to_isr": 484356412.0,
+   "tur_imports_from_isr": 172287183.0,
+   "isr_imports_from_tur": 537460000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 30315828.0,
+     "sea": 444307039.0,
+     "road": 8857879.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202302",
+   "tur_exports_to_isr": 458401065.0,
+   "tur_imports_from_isr": 174068879.0,
+   "isr_imports_from_tur": 466288000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 37091320.0,
+     "sea": 412643809.0,
+     "rail": 67200.0,
+     "road": 8598736.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202303",
+   "tur_exports_to_isr": 602021300.0,
+   "tur_imports_from_isr": 199858636.0,
+   "isr_imports_from_tur": 541867000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 46148354.0,
+     "sea": 546190834.0,
+     "rail": 53395.0,
+     "road": 9628717.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202304",
+   "tur_exports_to_isr": 428432096.0,
+   "tur_imports_from_isr": 154723121.0,
+   "isr_imports_from_tur": 396996000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 25391592.0,
+     "sea": 395438514.0,
+     "road": 7601990.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202305",
+   "tur_exports_to_isr": 470536939.0,
+   "tur_imports_from_isr": 155365125.0,
+   "isr_imports_from_tur": 450071000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 27659775.0,
+     "sea": 433640126.0,
+     "road": 9237038.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202306",
+   "tur_exports_to_isr": 484556746.0,
+   "tur_imports_from_isr": 87252880.0,
+   "isr_imports_from_tur": 471989000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 37216494.0,
+     "sea": 439712175.0,
+     "rail": 68404.0,
+     "road": 7559673.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202307",
+   "tur_exports_to_isr": 409205223.0,
+   "tur_imports_from_isr": 125383222.0,
+   "isr_imports_from_tur": 373712000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 31130026.0,
+     "sea": 372419768.0,
+     "road": 5655429.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202308",
+   "tur_exports_to_isr": 496031333.0,
+   "tur_imports_from_isr": 130503951.0,
+   "isr_imports_from_tur": 483009000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 40734979.0,
+     "sea": 447207173.0,
+     "rail": 3385.0,
+     "road": 8085796.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202309",
+   "tur_exports_to_isr": 499995030.0,
+   "tur_imports_from_isr": 119408949.0,
+   "isr_imports_from_tur": 395066000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 35673447.0,
+     "sea": 455602200.0,
+     "rail": 602.0,
+     "road": 8718781.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202310",
+   "tur_exports_to_isr": 348485236.0,
+   "tur_imports_from_isr": 98722897.0,
+   "isr_imports_from_tur": 454823000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 20501637.0,
+     "sea": 321210917.0,
+     "rail": 575.0,
+     "road": 6772107.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202311",
+   "tur_exports_to_isr": 322741377.0,
+   "tur_imports_from_isr": 122252827.0,
+   "isr_imports_from_tur": 340877000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 15661372.0,
+     "sea": 298226065.0,
+     "rail": 67200.0,
+     "road": 8786740.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202312",
+   "tur_exports_to_isr": 429843561.0,
+   "tur_imports_from_isr": 101243503.0,
+   "isr_imports_from_tur": 360241000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 17211681.0,
+     "sea": 402355998.0,
+     "road": 10275882.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202401",
+   "tur_exports_to_isr": 349478974.0,
+   "tur_imports_from_isr": 140769625.0,
+   "isr_imports_from_tur": 401069000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 20924629.0,
+     "sea": 318541471.0,
+     "road": 10012874.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202402",
+   "tur_exports_to_isr": 422039373.0,
+   "tur_imports_from_isr": 120639665.0,
+   "isr_imports_from_tur": 397330000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 23621308.0,
+     "sea": 387790615.0,
+     "rail": 14055.0,
+     "road": 10613395.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202403",
+   "tur_exports_to_isr": 440711644.0,
+   "tur_imports_from_isr": 167428355.0,
+   "isr_imports_from_tur": 427956000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 29288996.0,
+     "sea": 397768482.0,
+     "rail": 11706.0,
+     "road": 13642460.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202404",
+   "tur_exports_to_isr": 307796094.0,
+   "tur_imports_from_isr": 158096129.0,
+   "isr_imports_from_tur": 338204000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 20883895.0,
+     "sea": 279880289.0,
+     "rail": 45823.0,
+     "road": 6986087.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202405",
+   "tur_exports_to_isr": 1514325.0,
+   "tur_imports_from_isr": 9167366.0,
+   "isr_imports_from_tur": 174800000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {
+     "air": 627.0,
+     "sea": 819260.0,
+     "road": 694438.0
+    },
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202406",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 120790000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202407",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 158727000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202408",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 174038000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202409",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 217000000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202410",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 214786000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202411",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 112231000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202412",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 131178000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202501",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 168048000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202502",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 180758000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202503",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 178096000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202504",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 177081000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202505",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 206597000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202506",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 138899000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202507",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 173078000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202508",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 150601000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202509",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 176298000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202510",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 143594000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202511",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 254738000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202512",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 167221000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202601",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 165822000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202602",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": null,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202603",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 164218000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202604",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 154502000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202605",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 169535000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202606",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 186700000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  },
+  {
+   "period": "202607",
+   "tur_exports_to_isr": null,
+   "tur_imports_from_isr": null,
+   "isr_imports_from_tur": 214682000.0,
+   "tur_reported_that_month": true,
+   "by_mode": {
+    "tur_exports": {},
+    "isr_imports": {}
+   }
+  }
+ ],
+ "routes": {
+  "about": "Türkiye's own monthly exports to its neighbours and transit economies, averaged over the twelve months before the halt (2023-05 to 2024-04) and the twelve after it (2024-06 to 2025-05). A line that grew is not a route: nothing is traced from one statistic to another, and every economy grows for its own reasons. The comparison says where a check would look next, and where it would not.",
+  "windows": {
+   "before": [
+    "202305",
+    "202404"
+   ],
+   "after": [
+    "202406",
+    "202505"
+   ]
+  },
+  "all_exports": {
+   "before": 21528440978,
+   "after": 21151878615,
+   "change_pct": -1.7
+  },
+  "partners": {
+   "300": {
+    "name": "Greece",
+    "name_tr": "Yunanistan",
+    "before": 370476951,
+    "before_months": 12,
+    "after": 441603235,
+    "after_months": 12,
+    "change_pct": 19.2,
+    "change_usd": 71126284,
+    "excess_pct": 20.9,
+    "excess_usd": 77424392
+   },
+   "470": {
+    "name": "Malta",
+    "name_tr": "Malta",
+    "before": 102688998,
+    "before_months": 12,
+    "after": 68884399,
+    "after_months": 12,
+    "change_pct": -32.9,
+    "change_usd": -33804599,
+    "excess_pct": -31.2,
+    "excess_usd": -32058886
+   },
+   "196": {
+    "name": "Cyprus",
+    "name_tr": "GKRY",
+    "before": 198975372,
+    "before_months": 12,
+    "after": 222017975,
+    "after_months": 12,
+    "change_pct": 11.6,
+    "change_usd": 23042603,
+    "excess_pct": 13.3,
+    "excess_usd": 26425184
+   },
+   "818": {
+    "name": "Egypt",
+    "name_tr": "Mısır",
+    "before": 302897862,
+    "before_months": 12,
+    "after": 344883580,
+    "after_months": 12,
+    "change_pct": 13.9,
+    "change_usd": 41985718,
+    "excess_pct": 15.6,
+    "excess_usd": 47134982
+   },
+   "400": {
+    "name": "Jordan",
+    "name_tr": "Ürdün",
+    "before": 67582313,
+    "before_months": 12,
+    "after": 123016201,
+    "after_months": 12,
+    "change_pct": 82.0,
+    "change_usd": 55433888,
+    "excess_pct": 83.7,
+    "excess_usd": 56582787
+   },
+   "784": {
+    "name": "United Arab Emirates",
+    "name_tr": "BAE",
+    "before": 736778539,
+    "before_months": 12,
+    "after": 764005476,
+    "after_months": 12,
+    "change_pct": 3.7,
+    "change_usd": 27226937,
+    "excess_pct": 5.4,
+    "excess_usd": 39752172
+   },
+   "100": {
+    "name": "Bulgaria",
+    "name_tr": "Bulgaristan",
+    "before": 362426733,
+    "before_months": 12,
+    "after": 457958582,
+    "after_months": 12,
+    "change_pct": 26.4,
+    "change_usd": 95531849,
+    "excess_pct": 28.1,
+    "excess_usd": 101693103
+   },
+   "642": {
+    "name": "Romania",
+    "name_tr": "Romanya",
+    "before": 628491896,
+    "before_months": 12,
+    "after": 664481271,
+    "after_months": 12,
+    "change_pct": 5.7,
+    "change_usd": 35989375,
+    "excess_pct": 7.4,
+    "excess_usd": 46673737
+   },
+   "275": {
+    "name": "Palestine",
+    "name_tr": "Filistin",
+    "before": 11809175,
+    "before_months": 12,
+    "after": 75710270,
+    "after_months": 12,
+    "change_pct": 541.1,
+    "change_usd": 63901095,
+    "excess_pct": 542.8,
+    "excess_usd": 64101851
+   },
+   "268": {
+    "name": "Georgia",
+    "name_tr": "Gürcistan",
+    "before": 221533563,
+    "before_months": 12,
+    "after": 224512889,
+    "after_months": 12,
+    "change_pct": 1.3,
+    "change_usd": 2979326,
+    "excess_pct": 3.0,
+    "excess_usd": 6745397
+   },
+   "422": {
+    "name": "Lebanon",
+    "name_tr": "Lübnan",
+    "before": 121867459,
+    "before_months": 12,
+    "after": 101777644,
+    "after_months": 12,
+    "change_pct": -16.5,
+    "change_usd": -20089815,
+    "excess_pct": -14.8,
+    "excess_usd": -18018068
+   },
+   "760": {
+    "name": "Syria",
+    "name_tr": "Suriye",
+    "before": 173197520,
+    "before_months": 12,
+    "after": 215182520,
+    "after_months": 12,
+    "change_pct": 24.2,
+    "change_usd": 41985000,
+    "excess_pct": 25.9,
+    "excess_usd": 44929358
+   }
+  }
+ }
+}

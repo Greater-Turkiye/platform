@@ -631,6 +631,39 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 /* Announced-activity chart on the register page. The bar is a share, not a raw count, and the years
    after the archive's coverage break are hollow — the drawing carries the caveat, not just the text. */
 .r-chart { margin: 36px 0 0; }
+/* ---- the halted trade: two states' own returns, drawn as two lines and the space between them.
+   The shaded area is the difference, not a claim; the caption under the chart says what it is. ---- */
+.t-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1px; margin-top: 36px;
+  background: var(--line); border: 1px solid var(--line); }
+.t-stat { display: grid; gap: 6px; padding: 20px; background: var(--s1); }
+.t-stat b { font: 600 24px var(--m); color: var(--t1); font-variant-numeric: tabular-nums; }
+.t-stat span { font: 500 9px var(--m); letter-spacing: .2em; text-transform: uppercase; color: var(--t3); line-height: 1.6; }
+
+.t-line-tr { fill: none; stroke: var(--rb); stroke-width: 2.2; stroke-linejoin: round; }
+.t-line-il { fill: none; stroke: #6eb4ff; stroke-width: 2.2; stroke-linejoin: round; }
+.t-gap { fill: rgba(110, 180, 255, .12); stroke: none; }
+.t-halt { stroke: var(--t3); stroke-width: 1; stroke-dasharray: 4 4; }
+.t-halt-label { fill: var(--t2); }
+.t-hit { fill: transparent; }
+
+.t-routes { margin-top: 32px; border-top: 1px solid var(--line); }
+.t-route { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(0, 1fr)) minmax(0, 1.6fr);
+  align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--t2); }
+.t-route-head { font: 500 9px var(--m); letter-spacing: .2em; text-transform: uppercase; color: var(--t3); }
+.t-route-name { color: var(--t1); }
+.t-route .mono { font-variant-numeric: tabular-nums; color: var(--t2); }
+.t-route-ch { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.t-route-ch b { font-variant-numeric: tabular-nums; color: var(--ok); }
+.t-route-ch.down b { color: var(--t3); }
+.t-route-bar { flex: 0 0 auto; width: var(--w, 0%); min-width: 1px; height: 6px; background: linear-gradient(90deg, var(--rg), var(--rb)); }
+.t-route-bar.down { background: var(--t4); }
+
+@media (max-width: 720px) {
+  .t-route { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); row-gap: 4px; }
+  .t-route-head { display: none; }
+  .t-route-ch { grid-column: 1 / -1; }
+}
+
 .r-chart-svg { width: 100%; height: auto; display: block; }
 .r-grid-line { stroke: var(--line); stroke-width: 1; }
 .r-ax { fill: var(--t3); font: 400 11px var(--m); letter-spacing: .08em; }
