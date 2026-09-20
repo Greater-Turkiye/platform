@@ -85,6 +85,10 @@ SUBJECTS = {
 # specific kinds are tried first, because a firing exercise is also an exercise.
 ACTIVITY_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("firing", ("FIRING", "GUNNERY", "LIVE FIRE", "LIVE-FIRE", "ATIŞ", "SHOOTING")),
+    # "hazardous operations" is the standard wording for a closed military area when the notice does
+    # not say what is happening inside it. It is kept as its own kind rather than folded into
+    # exercises: the warning does not say which it is, and neither should we.
+    ("hazardous-operations", ("HAZARDOUS OPERATION", "DANGEROUS OPERATION", "TEHLİKELİ FAALİYET")),
     ("missile-test", ("MISSILE", "ROCKET LAUNCH", "FÜZE")),
     ("submarine", ("SUBMARINE", "DENİZALTI")),
     (
@@ -189,6 +193,16 @@ def positions(text: str) -> list[Position]:
             seen.add(key)
             out.append(Position(*key))
     return out
+
+
+def is_cancellation_only(text: str) -> bool:
+    """True for a message whose whole content is cancelling another one: an administrative line, not
+    an announcement of activity. Counting those as activity would double-count every exercise."""
+    body = re.sub(r"\bDNC \d+\.?", " ", text.upper())
+    if "CANCEL" not in body:
+        return False
+    # anything that also announces something of its own carries a time group or an area
+    return not re.search(r"\d{6}Z|\bAREA BOUND\b|\bIN POSITION\b|\bOPERATION", body)
 
 
 def activity_of(text: str) -> str | None:
