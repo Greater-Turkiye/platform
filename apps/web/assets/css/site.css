@@ -652,16 +652,24 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .t-route-head { font: 500 9px var(--m); letter-spacing: .2em; text-transform: uppercase; color: var(--t3); }
 .t-route-name { color: var(--t1); }
 .t-route .mono { font-variant-numeric: tabular-nums; color: var(--t2); }
-.t-route-ch { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.t-route-ch { display: grid; grid-template-columns: minmax(0, 1fr) 54px; align-items: center; gap: 10px; min-width: 0; }
+.t-route-ch b { text-align: right; }  /* the bar may fill its track; the figure never leaves the row */
 .t-route-ch b { font-variant-numeric: tabular-nums; color: var(--ok); }
 .t-route-ch.down b { color: var(--t3); }
 .t-route-bar { flex: 0 0 auto; width: var(--w, 0%); min-width: 1px; height: 6px; background: linear-gradient(90deg, var(--rg), var(--rb)); }
 .t-route-bar.down { background: var(--t4); }
 
 @media (max-width: 720px) {
-  .t-route { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); row-gap: 4px; }
+  /* Name on its own line, the two figures under it as a before-and-after pair, the change at the
+     end of that line. The bar is a desktop luxury: at this width it only steals room from the
+     figure it is supposed to illustrate. */
+  .t-route { grid-template-columns: auto auto 1fr; row-gap: 5px; column-gap: 8px; padding: 13px 0; }
   .t-route-head { display: none; }
-  .t-route-ch { grid-column: 1 / -1; }
+  .t-route-name { grid-column: 1 / -1; }
+  .t-route .mono { color: var(--t3); }
+  .t-route .mono + .mono::before { content: '→ '; color: var(--t4); }
+  .t-route-ch { grid-column: 3; grid-template-columns: 1fr; justify-self: end; }
+  .t-route-bar { display: none; }
 }
 
 .r-chart-svg { width: 100%; height: auto; display: block; }

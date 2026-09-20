@@ -166,7 +166,10 @@
       const bar = GT.el('span', 't-route-bar' + (p.change_pct < 0 ? ' down' : ''));
       bar.style.setProperty('--w', (100 * Math.abs(p.change_pct) / peak).toFixed(1) + '%');
       const change = GT.el('span', 't-route-ch' + (p.change_pct < 0 ? ' down' : ''));
-      change.append(bar, GT.el('b', 'mono', (p.change_pct > 0 ? '+' : '') + p.change_pct.toFixed(0) + '%'));
+      const whole = new Intl.NumberFormat(GT.lang === 'tr' ? 'tr-TR' : 'en-GB', {
+        maximumFractionDigits: 0, signDisplay: 'always',
+      });
+      change.append(bar, GT.el('b', 'mono', whole.format(p.change_pct) + '%'));
       r.append(
         GT.el('span', 't-route-name', (GT.lang === 'tr' && p.name_tr) || p.name),
         GT.el('span', 'mono', usd(p.before)), GT.el('span', 'mono', usd(p.after)), change,
@@ -178,8 +181,11 @@
        merely kept pace has said nothing. The figure is stated once, next to the table. */
     const all = block.all_exports;
     if (all && all.change_pct != null) {
+      const pctFmt = new Intl.NumberFormat(GT.lang === 'tr' ? 'tr-TR' : 'en-GB', {
+        minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: 'always',
+      });
       const note = GT.el('p', 'doc-note', GT.t('t.allExports', {
-        pct: (all.change_pct > 0 ? '+' : '') + all.change_pct.toFixed(1),
+        pct: pctFmt.format(all.change_pct),
         a: usd(all.before), b: usd(all.after),
       }));
       box.after(note);
