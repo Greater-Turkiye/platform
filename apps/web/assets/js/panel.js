@@ -19,12 +19,37 @@
   let svg = null, gRoot, gCountries, gLabels, gSites, gEvents, proj, zoom, k = 1, W = 0, H = 0;
   let lastFocus = null;
 
-  /* ---------------- vector basemap (prototype, off by default) ----------------
-     `?basemap=1` (OpenFreeMap) or `?basemap=pmtiles&pmtiles=<url>` (a file we host) puts a
-     vector basemap under the map. Without the parameter nothing below runs and nothing is
-     fetched, so a normal visit is byte for byte what it was. See assets/js/basemap.js. */
-  const baseMode = { '1': 'ofm', 'ofm': 'ofm', 'pmtiles': 'pmtiles' }[params.get('basemap')] || null;
-  let base = null;
+  /* ---------------- vector basemap ----------------
+     The map is drawn on our own OpenStreetMap tiles (assets/js/basemap.js, served by the gt-tiles
+     Worker). `?basemap=0` turns it off and the map is drawn only from the 50m file we ship, which
+     is also what happens if the tiles cannot be reached; `?basemap=ofm` swaps in OpenFreeMap, and
+     `?tiles=<url>` points the same style at another tile endpoint. Everything that carries meaning
+     — borders, maritime areas, operation areas, markers — stays D3's on top either way. */
+  const baseMode = params.has('basemap')
+    ? ({ 'ofm': 'ofm', 'gt': 'gt', '1': 'gt' }[params.get('basemap')] || '') // anything else, '0' included, is off
+    // a phone on a metered connection gets the map it had before; ?basemap=gt overrides that
+    : (navigator.connection && navigator.connection.saveData ? '' : 'gt');
+  /* The basemap is what makes zooming in worth doing, and it is also 260 KB of MapLibre plus a
+     tile for every visible square. At the overview neither is needed: the whole region is on
+     screen, the thematic layers carry it, and the tiles under them would be read at a glance and
+     thrown away. So nothing is loaded until the map is actually zoomed (BASE_FROM), which keeps a
+     first load byte for byte what it was before the basemap existed. */
+  const BASE_FROM = 1.6;
+  let base = null, baseStarted = false;
+  function maybeInitBase(kk) {
+    if (baseStarted || !baseMode || kk < BASE_FROM) return;
+    baseStarted = true;
+    initBase().then(() => {
+      if (!base || !svg) return;
+      // The map is redrawn once, so the fills become a tint and our own city labels step aside.
+      // drawMap() rebuilds the zoom behaviour from scratch, so the view the reader is looking at
+      // has to be put back afterwards — otherwise their zoom would snap to the overview.
+      const t = d3.zoomTransform(els.map);
+      drawMap();
+      render();
+      mapSel().call(zoom.transform, t);
+    });
+  }
   async function initBase() {
     if (!baseMode) return;
     try {
@@ -35,11 +60,21 @@
         s.onerror = () => rej(new Error('basemap.js'));
         document.head.append(s);
       });
-      base = await GT.basemap.create(els.map, baseMode, { lang: GT.lang, url: params.get('pmtiles') || window.GT_BASEMAP_PMTILES || '' });
+      base = await GT.basemap.create(els.map, baseMode, { lang: GT.lang, url: params.get('tiles') || '', onFail: dropBase });
+      window.GT_BASE = base; // the screenshot harness asks the basemap what it saw
     } catch (e) {
       base = null;
       console.warn('basemap disabled:', e);
     }
+  }
+  /* Give the map back to D3 when the tiles do not arrive: the thematic layers are already there,
+     so this is one class change and a redraw, not a reload. */
+  function dropBase(err) {
+    if (!base) return;
+    console.warn('basemap dropped:', err);
+    try { base.destroy(); } catch (e) { /* the map is going away anyway */ }
+    base = null;
+    if (svg) { drawMap(); render(); }
   }
   /* Both D3 and MapLibre are Web Mercator, so one camera describes the two: the projection's
      scale times the zoom transform's k is a MapLibre zoom (512 px per tile), and the map's
@@ -58,7 +93,6 @@
     els.stateBox.hidden = false;
     els.stateBox.textContent = GT.t('p.loading');
     loadError = false;
-    const baseReady = base ? Promise.resolve() : initBase();
     const [w, d] = await Promise.allSettled([
       world ? Promise.resolve(world) : GT.loadWorld('assets/data/countries-50m.json'),
       GT.loadData(),
@@ -68,7 +102,6 @@
     if (data) lyr.examples.checked = params.get('examples') === '1' || (params.get('examples') !== '0' && data.event.length === 0);
     els.stateBox.hidden = !!world;
     if (!world) els.stateBox.textContent = GT.t('p.err');
-    await baseReady;
     buildFilters();
     drawMap();
     render();
@@ -219,6 +252,7 @@
     if (lm) { const sync = () => svg.classed('hide-missions', !lm.checked); lm.onchange = sync; sync(); }
     gRoot.append('path').datum(tr).attr('class', 'm-tr-glow').attr('d', path).attr('filter', 'url(#glow)');
     gLabels = gRoot.append('g');
+    ensurePlaces();
     const c = proj([35, 39]);
     sweepG = GT.sweep(gRoot.append('g').attr('transform', `translate(${c[0]},${c[1]})`), Math.hypot(W, H) * 1.1, reduce, 16);
     gSites = gRoot.append('g');
@@ -228,7 +262,7 @@
     // the zoom behaviour lives on the map's container, so its coordinates don't move with the map (see liveZoom)
     pending.zoom = null; rendered = d3.zoomIdentity; moving = false; clearTimeout(settle);
     mover.style('transform', null);
-    zoom = d3.zoom().scaleExtent([1, 16])
+    zoom = d3.zoom().scaleExtent([1, 192]) // k 192 is about zoom 11, where our tiles stop
       .translateExtent([[-W * 0.3, -H * 0.3], [W * 1.3, H * 1.3]])
       .on('zoom', (ev) => {
         pending.zoom = ev.transform;
@@ -303,21 +337,44 @@
       add('m-rlabel', r.at, 9, GT.upper(GT.label('regions', code)), 14).attr('data-region', code);
     }
     for (const pl of GT.PLACE_LABELS || []) add('m-label sm', pl.at, 7, GT.upper(pl[GT.lang]));
+    // Cities, but only when no basemap is drawing them: with tiles under the map the settlement
+    // labels are the basemap's, and two sets of city names on one map is one too many.
+    if (!base) for (const f of places) {
+      const q = f.properties, at = f.geometry.coordinates;
+      const tier = q.cap || q.p >= 1000000 ? 1 : q.p >= 300000 ? 2 : 3;
+      const g = gLabels.append('g').attr('class', 'm-place t' + tier)
+        .attr('data-x', proj(at)[0]).attr('data-y', proj(at)[1]);
+      g.append('path').attr('class', 'm-place-dot').attr('d', 'M0,0h0');
+      g.append('text').attr('x', 4.5).attr('y', 2.6).attr('font-size', tier === 1 ? 7.5 : 6.5).text(q.tr || q.n);
+    }
     // centred on Türkiye's centroid; letters spaced with thin spaces (CSS letter-spacing would add a trailing gap)
     const trF = world.countries.find((f) => GT.a3(f) === 'TUR');
     add('m-tr-label', d3.geoCentroid(trF), 19, [...GT.upper('Türkiye')].join('  '));
     rescale();
   }
 
-  let sweepG = null, gIslands = null;
+  let sweepG = null, gIslands = null, places = [], placesAsked = false;
+  /* Fetched the first time the map is drawn without a basemap — on a normal visit, never. */
+  function ensurePlaces() {
+    if (placesAsked || base) return;
+    placesAsked = true;
+    GT.loadPlaces().then((list) => { places = list; if (svg && !base) drawLabels(); });
+  }
   function rescale() {
     if (!gLabels) return;
+    maybeInitBase(k); // the first zoom past the overview is what brings the basemap in
     svg.classed('zoomed', k >= 1.25); // small-country and region labels only appear once zoomed in
+    // our own city labels come in as the map zooms; the deeper tiers stay hidden until there is room
+    svg.classed('zp2', k >= 2).classed('zp3', k >= 5).classed('zp4', k >= 14);
+    // past this point the 50m outline is coarser than what is drawn underneath: let the tiles show
+    svg.classed('deep', !!base && k >= 6);
     if (sweepG) sweepG.style('opacity', Math.max(0, 1 - (k - 1) / 1.2)); // the sweep is an overview effect; fade it when zoomed in
     // labels shrink as the map zooms (by k^0.82) through their transform, so zooming never re-lays out text;
     // the Türkiye label's outline keeps its width in map units, as before
     const f = Math.pow(k, 0.82);
-    gLabels.selectAll('text').attr('transform', function () { return `translate(${this.dataset.x},${this.dataset.y}) scale(${1 / f})`; });
+    const label = function () { return `translate(${this.dataset.x},${this.dataset.y}) scale(${1 / f})`; };
+    gLabels.selectAll(':scope > text').attr('transform', label); // a city label is a group (dot + text), handled next
+    gLabels.selectAll('g.m-place').attr('transform', label);
     gLabels.selectAll('.m-tr-label').style('stroke-width', 3 * f + 'px');
     const place = function () { return `translate(${this.dataset.x},${this.dataset.y}) scale(${1 / k})`; };
     gSites.selectAll('.mk').attr('transform', place);

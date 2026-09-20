@@ -569,4 +569,23 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .p-map svg.with-base .m-land:not(.m-tr):not(.m-watch):not(.m-ally):not(.m-coop):not(.m-kin):not(.m-frame):not(.m-nato):not(.m-disputed) { fill: none; }
 .p-map svg.with-base .m-border { stroke: rgba(232, 227, 220, .34); }
 .p-map svg.with-base .m-sea { fill: rgba(232, 227, 220, .32); }
+/* Zoomed in past the point where a 50m outline is honest, the land fills and the coastline step
+   back further: below is a coastline surveyed street by street, above is a generalised one, and
+   the two must not argue. The thematic layers — maritime areas, operation areas, markers — keep
+   their weight, because they are the reason to zoom in at all. */
+.p-map svg.with-base.deep .m-land { fill-opacity: .22; stroke-opacity: .35; }
+.p-map svg.with-base.deep .m-border { stroke: rgba(232, 227, 220, .22); }
+.p-map svg.with-base.deep .m-sea, .p-map svg.with-base.deep .m-label, .p-map svg.with-base.deep .m-rlabel { opacity: .45; }
+.p-map svg.with-base.deep .m-tr-label, .p-map svg.with-base.deep .m-tr-glow { display: none; }
+
+/* Cities we name ourselves (assets/data/places-10m.geojson). Only drawn when no basemap is under
+   the map; they arrive in tiers as the map zooms, so the view never carries more names than it
+   has room for. The dot is a zero-length round stroke, so it keeps its size at any zoom. */
+.m-place { display: none; }
+.m-place text { fill: rgba(232, 227, 220, .62); font-family: var(--m); letter-spacing: .04em; paint-order: stroke; stroke: rgba(5, 5, 5, .85); stroke-width: 2.2px; }
+.m-place-dot { stroke: rgba(232, 227, 220, .5); stroke-width: 2.4px; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.p-map svg.zp2 .m-place.t1 { display: block; }
+.p-map svg.zp3 .m-place.t1, .p-map svg.zp3 .m-place.t2 { display: block; }
+.p-map svg.zp4 .m-place { display: block; }
+
 @media (max-width: 860px) { .p-attrib { right: 8px; bottom: 8px; font-size: 8px; } }
