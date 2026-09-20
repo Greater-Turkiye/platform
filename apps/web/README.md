@@ -2,7 +2,7 @@
 
 [Türkçe](#türkçe) · [English](#english) · [Teknik başvuru / Technical reference](#teknik-başvuru--technical-reference)
 
-> Durum: ilk sürüm yayında — ana sayfa + OSINT paneli + yöntem sayfası. / Status: first release is live — home page, OSINT dashboard and methodology page.
+> Durum: ilk sürüm yayında — ana sayfa, OSINT paneli, yöntem sayfası ve Ege sicili. / Status: first release is live — home page, OSINT dashboard, methodology page and the Aegean register.
 > https://greater-turkiye.github.io/platform/
 
 ## Türkçe
@@ -12,6 +12,8 @@ Derleme adımı olmayan statik site: düz HTML, CSS ve JavaScript (D3 + TopoJSON
 - `index.html` — ana sayfa: Türkiye merkezli küre haritası, kayıt akışı, izleme bölgeleri, yöntem, canlı sayılar, kırmızı çizgiler, katılım.
 - `panel.html` — OSINT paneli: yakınlaştırılabilir harita, bölge/tür/durum filtreleri, arama, katmanlar, kayıt listesi ve ayrıntı çekmecesi. Derin bağlantı: `panel.html?region=aegean`, `panel.html?id=evt_…`.
 - `method.html` — yöntem sayfası: projenin ne iddia edip etmediği, bir kaydın oluşma akışı (öneri → triyaj → kaynak ve arşiv → doğrulama ölçeği → insan onayı), durum değerlerinin anlamı, sade dille kırmızı çizgiler, harita katmanlarının kaynakları ve "şematik" etiketi, lisans ve düzeltme yolları. Her bölüm El Kitabı'ndaki kaynağına bağlanır; el kitabı bağlantıları seçilen dile göre `tr/` veya `en/` sürümüne gider.
+- `sicil.html` — Ege sicili: Lozan 1923 ve Paris 1947 ile askerden arındırılmış adalarda belgelenen askerî varlık, kayıt kayıt. Veriyi `site.jsonl`'den okur ve `ege-silahsizlandirilmis-statu` etiketli kayıtları kart olarak gösterir; **harita ve koordinat yoktur** — koordinat, birincil kaynağıyla doğrulanmadan hiçbir kayda yazılmaz ([ADR 0019](https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0019-foreign-installations-register.md)). / The Aegean register: what is documented on the islands demilitarised by the 1923 and 1947 treaties, record by record, read from `site.jsonl`. **No map and no coordinates**, by decision.
+  Sayfa ayrıca `assets/data/msi-activity.json` varsa **ilan edilen deniz faaliyeti** grafiğini çizer (NGA seyir ihbarları arşivinden sayım; [MSI-ACTIVITY-SOURCES.md](assets/data/MSI-ACTIVITY-SOURCES.md)). Dosya yoksa bölüm gizli kalır. / The page also draws the **announced activity** chart when `assets/data/msi-activity.json` is present, and hides the section when it is not.
 - Örnek (kurgusal) kayıtlar yalnızca panelde, "Örnek veriler" katmanı açıkken ve açıkça etiketlenmiş olarak gösterilir; gerçek kayıt yokken bu katman varsayılan olarak açıktır.
 
 ## English
@@ -46,7 +48,7 @@ Farklı bir veri kökü için sayfada `window.GT_DATA_BASE = 'https://…/'` tan
 |---|---|
 | `assets/css/site.css` | Tasarım belirteçleri ve tüm stiller / design tokens and all styles |
 | `assets/js/gt.js` | Ortak: i18n (TR/EN), veri yükleme, coğrafya, harita yardımcıları / shared helpers |
-| `assets/js/home.js`, `assets/js/panel.js`, `assets/js/method.js` | Sayfa mantığı / page logic |
+| `assets/js/home.js`, `assets/js/panel.js`, `assets/js/method.js`, `assets/js/sicil.js` | Sayfa mantığı / page logic |
 | `assets/js/basemap.js` | Vektör altlık (MapLibre); panelde varsayılan açık, `?basemap=0` ile kapanır / the vector basemap, on by default in the panel |
 | `assets/vendor/`, `assets/fonts/`, `assets/data/` | Barındırılan üçüncü taraf varlıklar — [LICENSES.md](assets/LICENSES.md) |
 
