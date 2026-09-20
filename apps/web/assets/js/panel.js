@@ -50,10 +50,19 @@
      first load byte for byte what it was before the basemap existed. */
   const BASE_FROM = 1.6;
   let base = null, baseStarted = false;
+  /* Run something once the browser has a moment. Loading MapLibre and rebuilding the map from
+     inside a zoom commit is a second of work in the middle of a gesture; profiling a zoom put the
+     worst frame at 1,517 ms with the basemap and 533 ms without it. None of that work is urgent —
+     the reader is looking at a map that is already drawn — so it waits for an idle slot, with a
+     timeout so a busy page still gets its basemap. */
+  const whenIdle = (fn) => (window.requestIdleCallback
+    ? window.requestIdleCallback(fn, { timeout: 1200 })
+    : setTimeout(fn, 200));
+
   function maybeInitBase(kk) {
     if (baseStarted || !baseMode || kk < BASE_FROM) return;
     baseStarted = true;
-    initBase().then(() => {
+    whenIdle(() => initBase().then(() => {
       if (!base || !svg) return;
       // The map is redrawn once, so the fills become a tint and our own city labels step aside.
       // drawMap() rebuilds the zoom behaviour from scratch, so the view the reader is looking at
@@ -62,7 +71,7 @@
       drawMap();
       render();
       mapSel().call(zoom.transform, t);
-    });
+    }));
   }
   async function initBase() {
     if (!baseMode) return;
@@ -348,7 +357,7 @@
       .on('zoom', (ev) => {
         pending.zoom = ev.transform;
         clearTimeout(settle);
-        if (!moving) { moving = true; hideTip(); }
+        if (!moving) { moving = true; hideTip(); if (svg) svg.classed('moving', true); }
         schedule();
       })
       // re-render once a gesture has rested for a moment (or right after an animated zoom)
@@ -379,6 +388,7 @@
     if (!svg) return;
     const t = d3.zoomTransform(els.map);
     moving = false;
+    svg.classed('moving', false);
     rendered = t;
     syncBase(t);
     gRoot.attr('transform', t);
@@ -498,15 +508,32 @@
   function addPlaceTier(tier) {
     if (base || !gLabels || !places.length || placeTiers.has(tier)) return;
     placeTiers.add(tier);
+    /* A tier is a few hundred groups, and appending them one at a time makes the browser lay the
+       map out a few hundred times. They are built in a fragment, off the document, and inserted
+       in one go — the same nodes, one layout. */
+    const NS = 'http://www.w3.org/2000/svg';
+    const frag = document.createDocumentFragment();
+    const size = tier === 1 ? '7.5' : '6.5';
     for (const f of places) {
       const q = f.properties;
       if (placeTierOf(q) !== tier) continue;
       const at = proj(f.geometry.coordinates);
-      const g = gLabels.append('g').attr('class', 'm-place t' + tier)
-        .attr('data-x', at[0]).attr('data-y', at[1]);
-      g.append('path').attr('class', 'm-place-dot').attr('d', 'M0,0h0');
-      g.append('text').attr('x', 4.5).attr('y', 2.6).attr('font-size', tier === 1 ? 7.5 : 6.5).text(q.tr || q.n);
+      const g = document.createElementNS(NS, 'g');
+      g.setAttribute('class', 'm-place t' + tier);
+      g.dataset.x = at[0];
+      g.dataset.y = at[1];
+      const dot = document.createElementNS(NS, 'path');
+      dot.setAttribute('class', 'm-place-dot');
+      dot.setAttribute('d', 'M0,0h0');
+      const text = document.createElementNS(NS, 'text');
+      text.setAttribute('x', '4.5');
+      text.setAttribute('y', '2.6');
+      text.setAttribute('font-size', size);
+      text.textContent = q.tr || q.n;
+      g.append(dot, text);
+      frag.append(g);
     }
+    gLabels.node().append(frag);
     scaleLabels();
   }
 
@@ -575,13 +602,16 @@
     gSites.selectAll('*').remove();
     gEvents.selectAll('*').remove();
     drawUncertainty(lyr.sites.checked ? allSites() : []);
+    wireMarkerEvents();
+    /* Markers are rebuilt whenever the list changes, and there are a few hundred of them with the
+       missions layer on. Binding four listeners to each one meant a thousand listeners per draw,
+       all of them garbage a moment later: a census after load counted 11,983 live listeners.
+       One set on the map, installed once (wireMarkerEvents), reads the record id off the group
+       instead. The behaviour is identical; the allocation is not. */
     const bind = (m, rec, title, sub) => m
       .attr('class', 'mk' + (rec.id === state.selected ? ' sel' : ''))
       .attr('tabindex', 0).attr('role', 'button').attr('aria-label', title)
-      .on('click', (ev) => { ev.stopPropagation(); select(rec, true); })
-      .on('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); select(rec, true); } })
-      .on('pointermove', (ev) => showTip(ev, title, sub))
-      .on('pointerleave', hideTip);
+      .attr('data-id', rec.id).attr('data-tip', title).attr('data-sub', sub || '');
 
     if (lyr.sites.checked) {
       for (const s of allSites()) {
@@ -617,6 +647,30 @@
       }
     }
     rescale();
+  }
+
+  /* One set of handlers for every marker, on the map itself. `closest` finds the group a pointer
+     or a key landed in, and the record comes from the id on it. */
+  let markerEventsWired = false;
+  function wireMarkerEvents() {
+    if (markerEventsWired || !els.map) return;
+    markerEventsWired = true;
+    const groupAt = (ev) => (ev.target && ev.target.closest ? ev.target.closest('.mk[data-id]') : null);
+    const recordOf = (g) => (g && data ? data.byId.get(g.getAttribute('data-id')) : null);
+    els.map.addEventListener('click', (ev) => {
+      const rec = recordOf(groupAt(ev));
+      if (rec) { ev.stopPropagation(); select(rec, true); }
+    });
+    els.map.addEventListener('keydown', (ev) => {
+      if (ev.key !== 'Enter' && ev.key !== ' ') return;
+      const rec = recordOf(groupAt(ev));
+      if (rec) { ev.preventDefault(); select(rec, true); }
+    });
+    els.map.addEventListener('pointermove', (ev) => {
+      const g = groupAt(ev);
+      if (g) showTip(ev, g.getAttribute('data-tip') || '', g.getAttribute('data-sub') || '');
+    });
+    els.map.addEventListener('pointerleave', hideTip);
   }
 
   function applyRegionClass() {

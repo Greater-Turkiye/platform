@@ -667,6 +667,18 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .p-map svg.flat-sea .m-ops { fill-opacity: .12; }
 .p-map svg.flat-sea .m-sea { opacity: .5; }
 
+/* ---- what a moving frame does not have to be ----
+   Profiling a zoom (4x CPU throttle, 1400x900) put 46% of the time in rasterisation, not in
+   script: the maritime areas carry a drop-shadow and the Türkiye outline an SVG blur, and both
+   are re-rasterised for every intermediate scale. The settled frame is the one a reader looks
+   at, so it keeps all of it; while the map is actually moving the two filters come off and the
+   glow is not drawn at all. Nothing moves, nothing is re-laid out, and the frame the gesture
+   ends on is identical to the frame before it started. */
+.p-map svg.moving .m-blue-area, .p-map svg.moving .m-blue-line { filter: none; }
+.p-map svg.moving .m-tr-glow { display: none; }
+.p-map svg.moving .m-unc { display: none; }
+.p-map { contain: layout paint; }
+
 /* ---- the situation block: the first thing on the page, and the only thing that is not a control.
    Four numbers answer how many, how sure, where and how fresh; the period chips above them say as
    of when. Everything that narrows the view sits below, folded away. ---- */
