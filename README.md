@@ -357,6 +357,23 @@ request that lands them, falling back to an issue with a one-click compare link 
 organisation does not allow Actions to open pull requests. Neither ever writes to `main`. What is
 left for a maintainer is the one step that is a judgement rather than a chore.
 
+### Kırık bağlantı denetimi / broken-link check
+
+`.github/workflows/markdown-links.yml`, depodaki bütün Markdown dosyalarındaki bağlantıları her
+pull request'te, haftada bir ve elle tetiklendiğinde [lychee](https://github.com/lycheeverse/lychee)
+ile denetler. Salt-okunur çalışır ve hiçbir sırra erişmez.
+
+`.lycheeignore`, denetleyicinin **runner'dan** erişemediği bağlantıları ve her birinin sebebini
+taşır. Bir dışlama, çürümüş bir kaynağı en az bir güvenlik duvarı kadar iyi gizler; bu yüzden hiçbir
+satır tahminle eklenmez. Mevcut liste ölçülerek çıkarıldı: denetim bir kez dışlama dosyası olmadan
+koşturuldu ve yalnızca gerçekten düşenler, runner'ın bildirdiği hatayla birlikte yazıldı. Hepsi
+Türkiye'den bir tarayıcıya 200 döner — sorun kaynağın ölü olması değil, runner'ın o sunucuya giden
+yolu. Bir satır eklemeden önce yeniden ölç; sunucu cevap vermeye başladığında satırı sil.
+
+Every Markdown link in the repository is checked on each pull request, weekly and on demand. The
+ignore file carries the reason for each exclusion, measured by running the check once without it —
+an exclusion hides a rotted citation as effectively as it hides a firewall.
+
 ### Metin denetimi / i18n check
 
 ```bash
