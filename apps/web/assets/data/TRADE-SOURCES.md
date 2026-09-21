@@ -49,6 +49,26 @@ Bir ayda Türkiye'nin beyanında İsrail satırının bulunmaması iki şey anla
 
 Bugünkü çıktı: tüm fasılların toplamı **408 M$/ay → 177 M$/ay**. Süreklilik gösterenlerin başında **demir-çelik (HS 72) 44,7 → 27,8 M$/ay, 11 ayın hepsinde** ve **taş-alçı-çimento mamulleri (HS 68) 11,6 → 10,2 M$/ay** gelir.
 
+### Fasıl içi kırılım (4 hane)
+
+`headings` bölümü, en çok taşıyan dört faslı (**72** demir-çelik, **73** demir-çelik eşya, **68** taş-alçı-çimento mamulleri, **25** ham taş ve çimento) iki haneden **dört haneye** açar; pencereler ve raportör `chapters` ile aynıdır, böylece iki tablo karşılaştırılabilir kalır.
+
+Neden: fasıl geniş bir kategoridir. "Demir ve çelik" hem bir şantiyenin inşaat demirini hem bir fabrikanın sacını kapsar ve bunlar aynı soruyu yanıtlamaz. Bugünkü çıktı bunu gösterir — **HS 72 toplamda 44,7 → 27,8 M$/ay (−%38) düşerken içindeki dağılım tek yönlü değildir:**
+
+| Başlık | Önce | Sonra | Değişim | Ay |
+|---|---|---|---|---|
+| 7214 inşaat demiri (sıcak haddelenmiş çubuk) | 15,2 M$ | 15,4 M$ | **+1%** | 11/11 |
+| 7228 alaşımlı çubuk ve profil | 12,0 M$ | 9,0 M$ | -25% | 11/11 |
+| 7213 filmaşin (inşaat demiri girdisi) | 5,4 M$ | 1,9 M$ | -65% | 6/11 |
+| 7208 sıcak haddelenmiş yassı ürün | 2,4 M$ | 0,1 M$ | -97% | 6/11 |
+| 7210 kaplanmış yassı ürün (galvaniz, boyalı) | 1,8 M$ | 0,0 M$ | -99% | 5/11 |
+
+Yani **yassı çelik neredeyse tamamen durmuş, inşaat demiri hiç durmamıştır.** Aynı şey taş tarafında da görülür: ham taş ve çimento faslı (HS 25) 24,7 → 1,5 M$/ay düşerken, işlenmiş yapı taşı (6802 mermer ve granit) 6,1 → 5,9 M$/ay ile neredeyse yerinde durur.
+
+Bu bir iddia değil, bir ölçümdür. Ne taşındığını söyler; hangi yoldan, hangi gemiyle ya da kimin kararıyla taşındığını söylemez. Başlık adlarının Türkçesi gümrük tarifesinin kendi ifadesinden yazılmıştır; İngilizcesi UN'in kendi metnidir ve sayfada kısaltılır, tam metin başlıkta durur.
+
+Bir başlık da, bir fasıl gibi, penceresinin tamamını tek ayda taşıyabilir; `months_present` ve `lumpy` alanları aynı işi burada da görür.
+
 ### Politika tarihleri
 
 9 Nisan 2024 (54 ürün grubunda kısıtlama) ve 2 Mayıs 2024 (iki yönlü durdurma) tarihleri dosyada **birincil kaynağı eklenmemiş** olarak taşınır: bakanlığın duyuru sayfaları düz bir HTTP istemcisine yanıt vermiyor ve kaynaksız bir tarih, kaynaklı rakamların yanında dosyanın en zayıf yeri olurdu. Rakamlar bu tarihlere bağlı değildir: seri, Türk satırının nerede durduğunu kendisi gösterir.
@@ -99,6 +119,8 @@ The data is UN Comtrade monthly merchandise trade, taken from the public preview
 Türkiye reports exports by country of **destination** and Israel reports imports by country of **origin**, which is the whole reason for the comparison: before the halt the two lines agree to within a few per cent, and a Turkish-made good routed through a third country afterwards is an export to that country in Türkiye's books and an import of Turkish origin in Israel's. The gap therefore measures **routing**, not smuggling.
 
 A month with no Israel line in Türkiye's returns is checked against the same month's Germany line; only when Türkiye reported other partners is the absence recorded as a reported absence. The `chapters` section breaks the same flow down by Harmonized System chapter, both windows read from Israel's returns so they are comparable. A chapter that carries almost its whole window in one month is marked `lumpy` — 105 M$ of ships in a single month averages to 10 M$ and would read as a trade that is still running. The `routes` section compares Türkiye's own exports to a fixed list of neighbours and transit economies, twelve months before against twelve months after — a line that grew is not a route, and nothing is traced from one statistic to another.
+
+The `headings` section opens the four chapters that carry the most — 72, 73, 68 and 25 — from two digits to four, on the same windows and from the same reporter. A chapter is a wide category, and the breakdown shows the chapter total hides the shape: iron and steel as a whole fell 38%, but rebar (7214) did not fall at all while flat-rolled products (7208, 7210) fell by 97% and 99%. Raw stone and cement (chapter 25) fell 94% while worked building stone (6802) barely moved. This is a measurement of what arrived, not a claim about who sent it or how.
 
 The two policy dates are carried without a primary source attached, because the ministry's announcement pages do not answer a plain HTTP client and an unsourced date next to sourced figures would be the weakest thing in the file.
 
