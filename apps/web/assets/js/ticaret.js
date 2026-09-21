@@ -16,11 +16,21 @@
   const HALT = '202405'; // the month the halt was announced; the series speaks for the rest
   let data = null;
 
+  /* Whole millions were right while every row was a chapter worth tens of them. Opened to four
+     digits the rows run down to a few thousand dollars, and a row reading "0 M$" beside "-99%"
+     says the figure is missing rather than small. The unit stays the same down to a hundredth,
+     below which the row says so instead of rounding to nothing. */
   const usd = (v) => {
     const loc = GT.lang === 'tr' ? 'tr-TR' : 'en-GB';
     if (v == null) return '—';
-    if (Math.abs(v) >= 1e9) return new Intl.NumberFormat(loc, { maximumFractionDigits: 2 }).format(v / 1e9) + ' ' + GT.t('t.bn');
-    return new Intl.NumberFormat(loc, { maximumFractionDigits: 0 }).format(v / 1e6) + ' ' + GT.t('t.mn');
+    const n = (x, d) => new Intl.NumberFormat(loc, { minimumFractionDigits: d, maximumFractionDigits: d }).format(x);
+    const a = Math.abs(v);
+    if (a >= 1e9) return n(v / 1e9, 2) + ' ' + GT.t('t.bn');
+    if (a >= 1e7) return n(v / 1e6, 0) + ' ' + GT.t('t.mn');
+    if (a >= 1e6) return n(v / 1e6, 1) + ' ' + GT.t('t.mn');
+    if (a >= 1e4) return n(v / 1e6, 2) + ' ' + GT.t('t.mn');
+    if (a > 0) return '<' + n(0.01, 2) + ' ' + GT.t('t.mn');
+    return n(0, 0) + ' ' + GT.t('t.mn');
   };
   const monthLabel = (period) => {
     const y = period.slice(0, 4);
@@ -250,11 +260,57 @@
 
      A chapter whose window is one delivery is marked: 105 M$ of ships in a single month of eleven
      averages to 10 M$ a month and would otherwise read as a trade that is still running. */
+  /* A chapter opened one level. "Iron and steel" is a category, not a product: rebar for a
+     building site and coated sheet for a factory are both HS 72 and they answer different
+     questions. Only the chapters the builder actually fetched can be opened, so a chapter with
+     no headings behind it is drawn as a plain row and says nothing it cannot support. */
+  function headingRows(chapter, headings) {
+    const rows = headings.filter((h) => h.chapter === chapter && (h.after > 0 || h.before > 0))
+      .slice(0, 10);
+    if (!rows.length) return null;
+    const peak = Math.max(...rows.map((h) => h.after), 1);
+    const box = GT.el('div', 't-sub');
+    for (const h of rows) {
+      const r = GT.el('div', 't-route t-route-sub');
+      const bar = GT.el('span', 't-route-bar');
+      bar.style.setProperty('--w', (100 * h.after / peak).toFixed(1) + '%');
+      const share = GT.el('span', 't-route-ch');
+      const pct = h.change_pct == null ? '\u2014'
+        : new Intl.NumberFormat(GT.lang === 'tr' ? 'tr-TR' : 'en-GB',
+          { maximumFractionDigits: 0, signDisplay: 'always' }).format(h.change_pct) + '%';
+      share.append(bar, GT.el('b', 'mono', pct));
+      if (h.change_pct != null && h.change_pct < 0) share.classList.add('down');
+      const full = (GT.lang === 'tr' && h.name_tr) ? h.name_tr : h.name;
+      /* The UN sometimes writes a heading as "short chapter label; the thing it actually is"
+         ("Iron or non-alloy steel; bars and rods, hot-rolled...") and sometimes puts the specific
+         part first ("Alloy steel bars, rods, shapes and sections; hollow drill bars..."). Taking
+         the first half printed "Iron or non-alloy steel" on five rows running; taking the second
+         half turned 7228 into drill bars. The label is the short one, so only a short first
+         segment is dropped. */
+      const head0 = full.includes(';') ? full.slice(0, full.indexOf(';')).trim() : full;
+      const cut = (full.includes(';') && head0.length <= 30)
+        ? full.slice(full.indexOf(';') + 1).trim() : full;
+      const short = cut.length > 74 ? cut.slice(0, 73).replace(/[\s,;]+\S*$/, '') + '…' : cut;
+      const name = GT.el('span', 't-route-name');
+      name.append(GT.el('span', 't-code mono', h.heading), ' ',
+        short.charAt(0).toUpperCase() + short.slice(1));
+      name.title = full;
+      if (h.lumpy) {
+        name.append(' ', GT.el('span', 't-lump', '\u25b2'));
+        r.title = GT.t('t.g.lumpyTip', { n: h.months_present });
+      }
+      r.append(name, GT.el('span', 'mono', usd(h.before)), GT.el('span', 'mono', usd(h.after)), share);
+      box.append(r);
+    }
+    return box;
+  }
+
   function goods(block) {
     if (!block || !block.chapters) return;
     const rows = block.chapters.filter((c) => c.after > 0).slice(0, 12);
     if (!rows.length) return;
     const peak = Math.max(...rows.map((c) => c.after));
+    const heads = (block.headings && block.headings.headings) || [];
     const box = $('t-goods');
     const head = GT.el('div', 't-route t-route-head');
     head.append(
@@ -284,7 +340,17 @@
         r.title = GT.t('t.g.lumpyTip', { n: c.months_present });
       }
       r.append(name, GT.el('span', 'mono', usd(c.before)), GT.el('span', 'mono', usd(c.after)), share);
-      return r;
+
+      const sub = heads.length ? headingRows(c.chapter, heads) : null;
+      if (!sub) return r;
+      /* The chapter row becomes the control that opens its own breakdown. <details> rather than a
+         button and a class: it is open or closed in the page's own state, it prints open, and a
+         reader who searches the page finds the headings inside a closed one. */
+      const d = GT.el('details', 't-open');
+      const sum = GT.el('summary', 't-open-sum');
+      sum.append(r, GT.el('span', 't-open-n mono', GT.t('t.g.open')));
+      d.append(sum, sub);
+      return d;
     }));
     const total = block.chapters.reduce((a, c) => a + c.after, 0);
     const wasTotal = block.chapters.reduce((a, c) => a + c.before, 0);
@@ -300,7 +366,7 @@
     const s = renderStats(data.series);
     chart(data.series);
     routes(data.routes);
-    goods(data.chapters);
+    goods(Object.assign({}, data.chapters, { headings: data.headings }));
     const last = data.series[data.series.length - 1];
     $('t-chart-note').textContent = GT.t('t.note', { n: s.months, d: s.ofMonths, v: usd(s.total) });
     $('t-chart-src').textContent = GT.t('t.src', { p: monthLabel(last.period) });

@@ -339,6 +339,179 @@ def build_chapters(cache: Path, refresh: bool) -> dict:
     }
 
 
+# Which chapters are worth opening one level further. A chapter is a wide category: "iron and
+# steel" covers rebar for a building site and coated sheet for a factory, and those are different
+# answers to the question this page asks. Kept to a short list because each chapter costs a full
+# pass over both windows, and a breakdown nobody reads is a download nobody needed.
+HEADING_CHAPTERS = ("72", "73", "68", "25")
+
+# The tariff's own wording for the headings this series actually carries, shortened to a row. The
+# English comes from the UN reference; anything missing falls back to the code itself.
+HEADING_TR = {
+    "7213": "Sıcak haddelenmiş filmaşin (inşaat demiri girdisi)",
+    "7214": "İnşaat demiri — sıcak haddelenmiş çubuk",
+    "7215": "Diğer demir/çelik çubuklar",
+    "7216": "Profiller (köşebent, U, I, H)",
+    "7208": "Sıcak haddelenmiş yassı ürün (kaplamasız)",
+    "7209": "Soğuk haddelenmiş yassı ürün",
+    "7210": "Kaplanmış yassı ürün (galvaniz, boyalı)",
+    "7211": "Dar yassı ürün, sıcak/soğuk",
+    "7212": "Dar yassı ürün, kaplanmış",
+    "7217": "Demir/çelik teller",
+    "7219": "Paslanmaz yassı ürün",
+    "7225": "Alaşımlı yassı ürün",
+    "7227": "Alaşımlı filmaşin",
+    "7228": "Alaşımlı çubuk ve profil",
+    "7301": "Palplanş ve kaynaklı profil",
+    "7304": "Dikişsiz boru",
+    "7305": "Büyük çaplı boru",
+    "7306": "Diğer borular ve profiller",
+    "7308": "Çelik konstrüksiyon (köprü, kule, kapı, çatı)",
+    "7310": "Çelik varil, bidon, kutu",
+    "7312": "Çelik halat ve tel örgü",
+    "7318": "Cıvata, somun, vida",
+    "7326": "Diğer demir/çelik eşya",
+    "6810": "Çimentodan, betondan mamul eşya (blok, boru, direk)",
+    "6802": "İşlenmiş yapı taşı (mermer, granit)",
+    "6807": "Asfalt esaslı eşya (su yalıtımı)",
+    "6809": "Alçıdan eşya (alçıpan)",
+    "2523": "Çimento (portland, klinker dahil)",
+    "7202": "Ferro alaşımlar",
+    "7220": "Paslanmaz dar yassı ürün",
+    "7222": "Paslanmaz çubuk ve profil",
+    "7223": "Paslanmaz tel",
+    "7226": "Alaşımlı dar yassı ürün",
+    "7307": "Boru bağlantı parçaları (dirsek, manşon)",
+    "7309": "Büyük depo, tank ve sarnıç",
+    "7311": "Basınçlı gaz tüpleri",
+    "7313": "Dikenli tel",
+    "7314": "Tel örgü, hasır, kafes",
+    "7315": "Zincir ve aksamı",
+    "7317": "Çivi, raptiye, zımba teli",
+    "7319": "Dikiş iğnesi, tığ ve benzeri",
+    "7320": "Yaylar ve yaprak yaylar",
+    "7321": "Soba, ocak, ızgara ve benzeri",
+    "7322": "Kalorifer radyatörü",
+    "7323": "Sofra ve mutfak eşyası",
+    "7324": "Sıhhi tesisat eşyası",
+    "7325": "Dökme demir/çelik eşya",
+    "2506": "Kuvars ve kuvarsit",
+    "2508": "Killer (kaolin dışı)",
+    "2511": "Barit ve viterit",
+    "2513": "Ponza, zımpara, doğal aşındırıcılar",
+    "2518": "Dolomit",
+    "2520": "Alçı taşı, anhidrit ve alçılar",
+    "2522": "Sönmemiş ve sönmüş kireç",
+    "2526": "Steatit (talk taşı)",
+    "2529": "Feldispat, flüorit",
+    "2530": "Tasnif dışı mineral maddeler",
+    "6801": "Doğal taştan parke, bordür, döşeme",
+    "6804": "Değirmen taşı, bileği taşı, zımpara diski",
+    "6805": "Aşındırıcı toz ve tanecikler (mesnetli)",
+    "6806": "Cüruf yünü, taş yünü, genleştirilmiş kil",
+    "6808": "Bitkisel lifli panel ve levhalar",
+    "6811": "Lif-çimento eşya",
+    "6813": "Sürtünme malzemesi (balata, fren)",
+    "6815": "Taş ve mineral maddelerden diğer eşya",
+    "2517": "Mıcır, çakıl, balast",
+    "2515": "Mermer ve traverten, blok hâlinde",
+    "2516": "Granit, bazalt, blok hâlinde",
+}
+
+
+def heading_names(cache: Path, refresh: bool) -> dict[str, str]:
+    """The UN's own text for each four-digit heading, cached with the rest of the downloads."""
+    cache.mkdir(parents=True, exist_ok=True)
+    path = cache / "hs-headings.json"
+    if not path.exists() or refresh:
+        req = urllib.request.Request(CHAPTERS_URL, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(req, timeout=120) as r:
+            path.write_bytes(r.read())
+    rows = json.loads(path.read_text(encoding="utf-8")).get("results", [])
+    out = {}
+    for row in rows:
+        code = str(row.get("id") or "")
+        if len(code) != 4 or not code.isdigit():
+            continue
+        out[code] = str(row.get("text") or "").split(" - ", 1)[-1].strip()
+    return out
+
+
+def headings_of(rows: list[dict]) -> dict[str, float]:
+    """The undivided figure for each four-digit heading in one month's reply."""
+    out: dict[str, float] = {}
+    for r in rows:
+        if str(r.get("customsCode") or "C00") != "C00":
+            continue
+        if str(r.get("partner2Code") or "0") != "0":
+            continue
+        if str(r.get("motCode")) != "0":
+            continue
+        code = str(r.get("cmdCode") or "")
+        if len(code) != 4 or not code.isdigit():
+            continue
+        value = r.get("primaryValue")
+        if value is not None:
+            out[code] = out.get(code, 0.0) + float(value)
+    return out
+
+
+def build_headings(cache: Path, refresh: bool) -> dict:
+    """The chapters that carry the weight, opened to four digits, on the same two windows."""
+    names = heading_names(cache, refresh)
+    windows = {"before": CHAPTER_BEFORE, "after": CHAPTER_AFTER}
+    totals: dict[str, dict[str, float]] = {}
+    seen: dict[str, set[str]] = {}
+    months = {"before": 0, "after": 0}
+    for label, window in windows.items():
+        for period in window:
+            rows = fetch(period, ISR, TUR, "M", cache, refresh, cmd="AG4")
+            month = headings_of(rows)
+            if not month:
+                continue
+            months[label] += 1
+            for code, value in month.items():
+                if code[:2] not in HEADING_CHAPTERS:
+                    continue
+                totals.setdefault(code, {"before": 0.0, "after": 0.0})[label] += value
+                if label == "after" and value > 0:
+                    seen.setdefault(code, set()).add(period)
+
+    out = []
+    for code, sums in totals.items():
+        before = sums["before"] / months["before"] if months["before"] else None
+        after = sums["after"] / months["after"] if months["after"] else None
+        present = len(seen.get(code, ()))
+        out.append({
+            "heading": code,
+            "chapter": code[:2],
+            "name": names.get(code, code),
+            "name_tr": HEADING_TR.get(code, names.get(code, code)),
+            "before": round(before) if before else 0,
+            "after": round(after) if after else 0,
+            "change_pct": round(100 * (after - before) / before, 1) if (before and after is not None) else None,
+            "months_present": present,
+            # the same guard the chapters carry: one delivery averaged over a window is not a flow
+            "lumpy": bool(after and present and present <= max(2, months["after"] // 4)),
+        })
+    out.sort(key=lambda h: -h["after"])
+    return {
+        "about": (
+            "The chapters that carry most of what still arrives, opened from two digits to four. "
+            "A chapter is a wide category: 'iron and steel' covers rebar for a building site and "
+            "coated sheet for a factory, and those answer different questions. Both windows are "
+            "read from Israel's own returns, as the chapters are, so the two are comparable. The "
+            "figures say what arrived, never by which route or on whose ship."
+        ),
+        "chapters_opened": list(HEADING_CHAPTERS),
+        "windows": {"before": [CHAPTER_BEFORE[0], CHAPTER_BEFORE[-1]],
+                    "after": [CHAPTER_AFTER[0], CHAPTER_AFTER[-1]]},
+        "months_with_data": months,
+        "reporter": "Israel (376), imports from Türkiye (792)",
+        "headings": out,
+    }
+
+
 def build_routes(cache: Path, refresh: bool) -> dict:
     """Türkiye's own monthly exports to its neighbours, twelve months before the halt and twelve after.
 
@@ -435,6 +608,7 @@ def build(cache: Path, refresh: bool) -> dict:
         "series": series,
         "routes": build_routes(cache, refresh),
         "chapters": build_chapters(cache, refresh),
+        "headings": build_headings(cache, refresh),
     }
 
 
