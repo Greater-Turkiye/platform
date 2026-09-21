@@ -55,6 +55,17 @@ exclude:
 # Beraberlikte YAML'daki ilk bölge kazanır. / The first region listed wins a tie.
 regions:
   syria:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - Сири*
+    - сирийск*
+    - Дамаск*
+    - Алеппо
+    - Идлиб*
+    - سوريا
+    - سوري
+    - دمشق
+    - حلب
+    - إدلب
     - suriye
     - suriyeli
     - syria
@@ -94,6 +105,17 @@ regions:
     - suriye demokratik güçleri
 
   iraq:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - Ирак*
+    - иракск*
+    - Багдад*
+    - Эрбил*
+    - Мосул*
+    - العراق
+    - عراقي
+    - بغداد
+    - أربيل
+    - الموصل
     - irak
     - iraqi
     - iraq
@@ -125,6 +147,16 @@ regions:
     - makhmour
 
   iran:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - Иран*
+    - иранск*
+    - Тегеран*
+    - Бушер*
+    - Ормуз*
+    - إيران
+    - إيراني
+    - طهران
+    - هرمز
     - iran
     - iranian
     - iranlı
@@ -148,6 +180,22 @@ regions:
     - basij
 
   levant:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - Израил*
+    - израильск*
+    - Палестин*
+    - Газа
+    - сектор газа
+    - Ливан*
+    - ливанск*
+    - Бейрут*
+    - Иордани*
+    - إسرائيل
+    - فلسطين
+    - غزة
+    - لبنان
+    - بيروت
+    - الأردن
     - israel
     - israeli
     - israil
@@ -183,6 +231,21 @@ regions:
     - amman
 
   caucasus:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - Азербайджан*
+    - азербайджанск*
+    - Армени*
+    - армянск*
+    - Грузи*
+    - грузинск*
+    - Карабах*
+    - Баку
+    - Ереван*
+    - Тбилиси
+    - أذربيجان
+    - أرمينيا
+    - جورجيا
+    - باكو
     - caucasus
     - kafkas*
     - azerbaijan
@@ -224,6 +287,20 @@ regions:
     - çeçenistan
 
   aegean:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - Эгейск*
+    - Греци*
+    - греческ*
+    - Афин*
+    - Родос*
+    - Лесбос*
+    - Хиос*
+    - Самос*
+    - بحر إيجه
+    - اليونان
+    - يوناني
+    - أثينا
+    - رودس
     - aegean
     - ege
     - ege denizi
@@ -256,6 +333,12 @@ regions:
     - dedeağaç
 
   east-med:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - Восточное Средиземноморье
+    - Средиземноморь*
+    - средиземноморск*
+    - شرق المتوسط
+    - البحر المتوسط
     - eastern mediterranean
     - doğu akdeniz
     - east med
@@ -270,6 +353,13 @@ regions:
     - east mediterranean gas forum
 
   cyprus:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - Кипр*
+    - кипрск*
+    - Никоси*
+    - قبرص
+    - نيقوسيا
+    - قبرصي
     - cyprus
     - cypriot
     - kıbrıs
@@ -294,6 +384,24 @@ regions:
     - kapalı maraş
 
   black-sea:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - Чёрное море
+    - Черное море
+    - черноморск*
+    - Одесс*
+    - Севастопол*
+    - Крым*
+    - крымск*
+    - Украин*
+    - украинск*
+    - Болгари*
+    - Румыни*
+    - البحر الأسود
+    - أوكرانيا
+    - القرم
+    - أوديسا
+    - بلغاريا
+    - رومانيا
     - black sea
     - karadeniz
     - ukraine
@@ -327,6 +435,21 @@ regions:
     - tuna nehri
 
   libya-north-africa:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - Ливи*
+    - ливийск*
+    - Триполи
+    - Бенгази
+    - Египт*
+    - египетск*
+    - Тунис*
+    - Алжир*
+    - ليبيا
+    - طرابلس
+    - بنغازي
+    - مصر
+    - تونس
+    - الجزائر
     - libya
     - libyan
     - libyalı
@@ -368,6 +491,24 @@ regions:
     - rabat
 
   gulf-red-sea:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - Персидский залив
+    - Красное море
+    - Йемен*
+    - йеменск*
+    - хусит*
+    - Саудовская Аравия
+    - Катар*
+    - Оман*
+    - Ормузский пролив
+    - الخليج
+    - البحر الأحمر
+    - اليمن
+    - الحوثي
+    - السعودية
+    - قطر
+    - الإمارات
+    - عمان
     - red sea
     - kızıldeniz
     - persian gulf
@@ -438,6 +579,20 @@ regions:
     - afrika boynuzu
 
   balkans:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - Балканы
+    - балканск*
+    - Серби*
+    - сербск*
+    - Косов*
+    - Босни*
+    - Албани*
+    - Белград*
+    - البلقان
+    - صربيا
+    - كوسوفو
+    - البوسنة
+    - ألبانيا
     - balkans
     - balkanlar
     - serbia
@@ -481,6 +636,18 @@ regions:
     - bükreş
 
   central-asia:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - Центральная Азия
+    - Казахстан*
+    - казахстанск*
+    - Узбекистан*
+    - Туркмени*
+    - Кыргыз*
+    - Таджики*
+    - آسيا الوسطى
+    - كازاخستان
+    - أوزبكستان
+    - تركمانستان
     - central asia
     - orta asya
     - kazakhstan
@@ -515,6 +682,15 @@ regions:
 # contributes its weight once; the score is capped at 1.0.
 topics:
   exercise.military:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - учени*
+    - манёвр*
+    - маневр*
+    - боевые стрельбы
+    - مناورات
+    - مناورة
+    - تدريب عسكري
+    - تمرين عسكري
     - exercise
     - exercises
     - drill
@@ -531,6 +707,14 @@ topics:
     - atışlı eğitim
 
   deployment.announced:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - развёртыван*
+    - развертыван*
+    - переброск*
+    - дислокац*
+    - نشر قوات
+    - انتشار عسكري
+    - إرسال قوات
     - deploy*
     - redeploy*
     - troop*
@@ -545,6 +729,13 @@ topics:
     - asker gönder*
 
   basing.agreement:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - военная база
+    - военно-морская база
+    - авиабаз*
+    - قاعدة عسكرية
+    - قاعدة جوية
+    - قاعدة بحرية
     - military base
     - air base
     - airbase
@@ -559,6 +750,13 @@ topics:
     - garnizon
 
   procurement.contract:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - контракт на поставку
+    - закупк*
+    - вооружени*
+    - صفقة أسلحة
+    - عقد تسليح
+    - توريد أسلحة
     - procurement
     - arms deal
     - arms sale
@@ -589,6 +787,12 @@ topics:
     - envantere gir*
 
   test.missile:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - пуск ракет*
+    - ракетн* испытани*
+    - تجربة صاروخية
+    - إطلاق صاروخ
+    - اختبار صاروخي
     - missile test
     - test launch
     - test-fired
@@ -597,6 +801,12 @@ topics:
     - deneme atış*
 
   kinetic.airstrike:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - авиауда*
+    - бомбардировк*
+    - غارة جوية
+    - غارات جوية
+    - قصف جوي
     - airstrike*
     - air strike*
     - air raid*
@@ -676,6 +886,14 @@ topics:
     - it dalaşı
 
   air.activity:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - истребител*
+    - боевой самолёт
+    - беспилотник*
+    - дрон*
+    - طائرة مقاتلة
+    - مقاتلات
+    - طائرة مسيرة
     - reconnaissance
     - surveillance flight
     - patrol flight
@@ -705,6 +923,16 @@ topics:
     - seyrüsefer serbestisi
 
   maritime.activity:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - военно-морск*
+    - фрегат*
+    - корвет*
+    - эсминц*
+    - подводн* лодк*
+    - فرقاطة
+    - غواصة
+    - أسطول
+    - سفينة حربية
     - navy
     - naval
     - warship*
@@ -768,6 +996,12 @@ topics:
     - askerden arındırılmış
 
   policy.defense:
+    # rusça ve arapça / Russian and Arabic (2026-09-20)
+    - санкци*
+    - военн* доктрин*
+    - عقوبات
+    - حظر أسلحة
+    - سياسة دفاعية
     - military
     - militia
     - armed forces

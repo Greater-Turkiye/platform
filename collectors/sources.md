@@ -119,6 +119,21 @@ measures what *other* states announce.
 | LBY | foreign.gov.ly | 403 for feed paths. |
 | JOR | jaf.mil.jo | No feed found. |
 
+## Canlı seyir ihbarı: neden hâlâ yok / A live navigational-warning feed: why there is still none
+
+2026-09-20'de arandı ve bulunamadı. Bunu buraya yazmak, aramayı tekrar etmemek içindir.
+
+| Aday / Candidate | Bulunan / What was found |
+|---|---|
+| NGA MSI `status=active` | Uç nokta çalışıyor (386 ihbar) ama **en yeni kaydı 2024**. Akdeniz aktarımı 2021'den sonra zaten seyrekleşiyor; "şu anda yürürlükte" sorusunu bizim denizlerimiz için cevaplamıyor. |
+| HNHS RSS (`/en/category/navtex-messages/feed/`) | Yalnızca **8 öğe**, en yenisi 20 Şubat 2026; sayfalama yok (`?paged=2` yanıt vermiyor). Ayrıca kullanım şartları "exchange, modification, sale, transmission" yasaklıyor: mesaj **metni** alıntılanamaz. |
+| HNHS "NAVTEX messages on the map" | Sayfa, üçüncü taraf bir uygulamaya (`pn.valmore.gr`) iframe'dir. `robots.txt` her şeye izin veriyor ama `view-points` uç noktası Laravel CSRF belirteci istiyor ve servisin kendi kullanım şartları okunamıyor. **Bağlanmadı:** şartını okuyamadığımız bir uygulamaya bağımlılık kurmuyoruz. |
+| NAVAREA III koordinatörü (İspanya, IHM) | `armada.defensa.gob.es` radyo-ihbar sayfaları bizim ağımızdan yanıt vermedi (zaman aşımı); yalnızca `robots.txt` döndü. Bir GitHub runner'ından yeniden denenmeli. |
+
+Sonuç: panelin "ilan edilen faaliyet" sütunu **2015–2021 tarihsel taban çizgisidir** ve öyle etiketlenir. Güncel sapma ancak yukarıdakilerden biri açıldığında hesaplanabilir; o zamana kadar güncelmiş gibi gösterilmez.
+
+Searched on 2026-09-20 and not found; recorded so the search is not repeated. The NGA active endpoint stops in 2024; the Hellenic hydrographic feed carries eight items and forbids transmitting its text; its map is a third-party application behind a CSRF token whose own terms we cannot read; Spain's NAVAREA III pages did not answer from this network. Until one of these opens, the panel's activity column stays labelled as the 2015–2021 baseline it is.
+
 ## Sonraki adımlar / Next steps
 
 1. Register the confirmed publishers in `datasets` (issue #4) and fill in `source_id`. Until then
@@ -130,4 +145,5 @@ measures what *other* states announce.
    page asks, before anything derived from them is published anywhere.
 6. Ask a maintainer to read the IAEA terms (their site blocks us) and, if they allow it, set
    `queue: true` for `iaea-news-en`.
-7. Many ministries publish mainly on Telegram/X. The planned `telegram-web` collector (public `t.me/s/…` previews) may cover them better than RSS.
+7. Retry Spain's IHM NAVAREA III pages from a GitHub runner; if they answer, that is the live warning feed the panel is missing.
+8. Many ministries publish mainly on Telegram/X. The planned `telegram-web` collector (public `t.me/s/…` previews) may cover them better than RSS.

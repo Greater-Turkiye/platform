@@ -55,6 +55,28 @@ async function sendCandidate(ctx, review) {
   return sent;
 }
 
+/**
+ * Hand the reviewer the next item, or tell them the queue is empty.
+ *
+ * Every decision goes through here — approve, dismiss and skip alike — because a reviewer working
+ * a queue on a phone should touch one button per item, not two. `after` keeps the cursor on the
+ * item just decided so the oldest-first order is not restarted at each decision; a skipped item
+ * stays in the queue and comes back on the next `/sonraki`.
+ */
+async function advance(ctx, review) {
+  const [next] = await nextReviews(ctx.config, {
+    limit: 1,
+    after: { createdAt: review.created_at, id: review.id },
+  });
+  if (next) return sendCandidate(ctx, next);
+  const left = await countQueued(ctx.config);
+  return ctx.tg.sendMessage(
+    left > 0
+      ? `Bu turun sonu. Kuyrukta ${left} aday var: /sonraki ile baştan devam. / End of this pass; ${left} still queued.`
+      : EMPTY_QUEUE,
+  );
+}
+
 async function cmdQueue(ctx) {
   const reviews = await nextReviews(ctx.config, { limit: ctx.config.pageSize });
   const signals = await signalsByHash(
@@ -156,12 +178,7 @@ async function handleCallback(update, ctx) {
     await recordSkip(ctx.config, { reviewId: review.id, reviewerId: reviewer.id });
     await ctx.tg.answerCallbackQuery(query.id, '⏭ Sonra / skipped');
     await ctx.tg.clearButtons(query.message?.message_id);
-    const [next] = await nextReviews(ctx.config, {
-      limit: 1,
-      after: { createdAt: review.created_at, id: review.id },
-    });
-    if (next) await sendCandidate(ctx, next);
-    else await ctx.tg.sendMessage(EMPTY_QUEUE);
+    await advance(ctx, review);
     return { handled: true, action: 'sonra', wrote: true };
   }
 
@@ -185,6 +202,7 @@ async function handleCallback(update, ctx) {
   } else {
     await ctx.tg.answerCallbackQuery(query.id, '🚫 Reddedildi / dismissed');
   }
+  await advance(ctx, review);
   return { handled: true, action: parsed.action, wrote: true, status };
 }
 
