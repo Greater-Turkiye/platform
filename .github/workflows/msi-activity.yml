@@ -4,15 +4,13 @@ name: msi-activity
 #
 #   NGA archive (public domain) -> region filter -> classify -> counts per year
 #
-# Why this opens an issue instead of a pull request: this organisation does not allow Actions to
-# create pull requests, and `main` is protected, so a workflow cannot land the file itself. It
-# therefore rebuilds the series, compares it with the committed one, and — when the numbers move —
-# attaches the new file as an artifact and tells a maintainer, who lands it with one command. That
-# also keeps a human between a third party's archive and what the site publishes, which is what
-# ADR 0007 asks for anyway.
+# When the figures move it commits them to a branch of their own and opens the pull request that
+# lands them, falling back to an issue with a one-click compare link if this organisation does not
+# allow Actions to open pull requests. What is left for a maintainer is to look at the diff and
+# decide, which is what ADR 0007 asks for and all it asks for. It never pushes to `main`.
 #
 # The run needs no secret. It downloads ~112 MB from msi.nga.mil into the runner's temp directory
-# and writes nothing outside it except the artifact.
+# and writes nothing outside it except the branch it pushes.
 on:
   schedule:
     - cron: "41 4 3 * *" # the 3rd of each month, 04:41 UTC (off the hour; the archive is not urgent)
@@ -33,13 +31,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
-      issues: write # tell a maintainer that the series moved
+      contents: write # push the rebuilt series to a branch of its own
+      pull-requests: write # and open the pull request that lands it
+      issues: write # or say so in an issue, if the organisation does not allow that
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: false
+          # kept on purpose: this run pushes the rebuilt series to a branch of its own.
+          # It never pushes to `main`, which the ruleset protects anyway.
+          persist-credentials: true
 
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
@@ -81,19 +83,8 @@ jobs:
           pathlib.Path(os.environ["RUNNER_TEMP"], "summary.md").write_text("\n".join(lines), encoding="utf-8")
           PY
 
-      - name: Attach the rebuilt series
+      - name: Write what moved
         if: steps.diff.outputs.changed == 'true'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: msi-activity
-          path: ${{ env.DATA }}
-          retention-days: 30
-
-      - name: Tell a maintainer
-        if: steps.diff.outputs.changed == 'true'
-        env:
-          TITLE: "İlan edilen faaliyet serisi güncellendi / The announced-activity series moved"
-          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
           {
@@ -102,24 +93,26 @@ jobs:
             echo
             cat "$RUNNER_TEMP/summary.md"
             echo
-            echo "Yeni dosya bu çalışmanın \`msi-activity\` artefaktındadır / the new file is the \`msi-activity\` artifact of [this run]($RUN)."
+            echo "Hiçbir sayı henüz bir insan tarafından yargılanmadı; bu PR'ı incelemek tam olarak onun içindir (ADR 0007)."
+            echo "No figure here has been judged by a person yet: reviewing this pull request is exactly what that is for."
             echo
-            echo "Yerelde almak için / to take it locally:"
-            echo '```bash'
-            echo "python tools/msi/build_activity.py --refresh   # aynı dosyayı üretir / produces the same file"
-            echo '```'
-            echo
-            echo "- [ ] Kapsama değişimi mi, faaliyet değişimi mi? \`by_authority\` ve \`archive_all_areas\` sütunlarına bakıldı / coverage or activity? checked against \`by_authority\` and \`archive_all_areas\`"
+            echo "- [ ] Kapsama değişimi mi, faaliyet değişimi mi? \`by_authority\` ve \`archive_all_areas\` sütunlarına bakıldı / coverage or activity?"
             echo "- [ ] \`MSI-ACTIVITY-SOURCES.md\` içindeki sayılar güncellendi / the figures in the source document updated"
-          } > "$RUNNER_TEMP/issue.md"
-          gh label create "$LABEL" --description "Bir veri dosyası kaynağında değişti" --color BFD4F2 2>/dev/null || true
-          number=$(gh issue list --state open --label "$LABEL" --json number,title \
-            | python3 -c 'import json,os,sys; t=os.environ["TITLE"]; print(next((str(i["number"]) for i in json.load(sys.stdin) if i["title"] == t), ""))')
-          if [ -n "$number" ]; then
-            gh issue comment "$number" --body-file "$RUNNER_TEMP/issue.md"
-          else
-            gh issue create --title "$TITLE" --label "$LABEL" --body-file "$RUNNER_TEMP/issue.md"
-          fi
+            echo
+            echo "Yerelde aynı dosyayı üretmek için / to reproduce the same file locally:"
+            echo '```bash'
+            echo "python tools/msi/build_activity.py --refresh"
+            echo '```'
+          } > "$RUNNER_TEMP/body.md"
+
+      - name: Land it
+        if: steps.diff.outputs.changed == 'true'
+        uses: ./.github/actions/land-data
+        with:
+          name: msi-activity
+          paths: apps/web/assets/data/msi-activity.json
+          title: "İlan edilen faaliyet serisi güncellendi / The announced-activity series moved"
+          body-file: ${{ runner.temp }}/body.md
 
       - name: Nothing moved
         if: steps.diff.outputs.changed != 'true'

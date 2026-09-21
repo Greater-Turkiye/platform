@@ -320,6 +320,24 @@ The three Workers pin `sharp` to `>=0.35.4` through `overrides`. It is not used 
 arrives with `wrangler` → `miniflare` for local development, and miniflare still pins a version
 carrying two high-severity libheif advisories. Remove the override once upstream moves.
 
+### Veri kendini indirir / data lands itself
+
+`msi-activity` ve `trade-vessels` iş akışları, kaynaklarındaki rakamlar oynadığında dosyayı
+**kendi dalına commit'leyip pushlar** ve onu indiren pull request'i açar
+([`.github/actions/land-data`](.github/actions/land-data)). Kuruluş Actions'ın PR açmasına izin
+vermiyorsa tek tıklık bir karşılaştırma bağlantısı taşıyan issue'ya düşer ve hangi yolu izlediğini
+söyler. Hiçbir koşulda `main`'e yazmaz.
+
+Önceden bunun anlamı şuydu: issue'yu oku, artefaktı indir, derleyiciyi yerelde çalıştır, farkı
+kontrol et, commit'le, pushla, PR aç, birleştir. Sekiz adımın yedisi mekanikti; tek yargı gerektiren
+adım "bu değişiklik gerçek mi?" sorusuydu. Artık geriye o soru kalıyor — ADR 0007'nin istediği ve
+istediği tek şey budur.
+
+Both refresh workflows now commit the rebuilt files to a branch of their own and open the pull
+request that lands them, falling back to an issue with a one-click compare link where the
+organisation does not allow Actions to open pull requests. Neither ever writes to `main`. What is
+left for a maintainer is the one step that is a judgement rather than a chore.
+
 ### Metin denetimi / i18n check
 
 ```bash
