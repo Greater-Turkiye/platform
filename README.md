@@ -370,9 +370,47 @@ koşturuldu ve yalnızca gerçekten düşenler, runner'ın bildirdiği hatayla b
 Türkiye'den bir tarayıcıya 200 döner — sorun kaynağın ölü olması değil, runner'ın o sunucuya giden
 yolu. Bir satır eklemeden önce yeniden ölç; sunucu cevap vermeye başladığında satırı sil.
 
+Dışlanan bir kaynak, izlenmeyen bir kaynaktır. Haftalık koşu bu yüzden ikinci bir iş çalıştırır:
+
+```bash
+python tools/web/check_archives.py --max-age-days 400
+```
+
+`.lycheeignore` içindeki her adres için Wayback'e "bunun bir kopyası var mı, ne kadar eski" diye
+sorar. Hiçbir yerde kopyası olmayan bir kaynak, başarısız olmuş bir atıftır ve bunu okuyucudan önce
+bizim görmemiz gerekir. Hesap ya da sır istemez. Cevap alamadığı adresi **başarı saymaz**: sonuçsuz
+ama "geçti" diyen bir denetim, hiç denetim olmamasından kötüdür çünkü inanılır.
+
+Pull request'lerde çalışmaz, yalnızca haftalık koşuda ve elle: katkıcının değişikliğinden önce
+var olan bir boşluk, onun PR'ını kırmızıya çevirmemeli.
+
 Every Markdown link in the repository is checked on each pull request, weekly and on demand. The
 ignore file carries the reason for each exclusion, measured by running the check once without it —
-an exclusion hides a rotted citation as effectively as it hides a firewall.
+an exclusion hides a rotted citation as effectively as it hides a firewall. The weekly run also asks
+the Wayback archive whether each excluded source has a copy at all, because an excluded source is
+otherwise entirely unwatched.
+
+### Dışarıdan gelen bir PR'da nelere bakılır / reviewing an outside pull request
+
+1. **Tetikleyici.** `pull_request` mi, `pull_request_target` mı? İkincisi fork kodunu sırlarla aynı
+   bağlamda çalıştırır; bir bağlantı denetimi için asla gerekmez.
+2. **SHA'lar gerçekten iddia edilen sürüm mü?** Yoruma yazılan etiket bağlayıcı değildir:
+   `gh api repos/<sahip>/<eylem>/git/ref/tags/<etiket>` ile commit'i karşılaştır.
+3. **İzinler.** `permissions:` daraltılmış mı, `persist-credentials: false` mı?
+4. **Susturulan bir şey var mı?** Bir dışlama listesi, bir `continue-on-error`, bir `|| true` —
+   her biri bir denetimi kapatır. Kapatmanın **ölçülmüş** bir gerekçesi olmalı, tahmini değil.
+5. **Koşturuldu mu?** İlk katkıda GitHub çalıştırmayı `action_required`'da tutar; onaylamadan
+   "geçiyor" denemez.
+6. **README.** Davranış, yapı, build adımı, komut ya da bağımlılık değiştiren PR aynı PR'da
+   README'yi günceller (bkz. `CLAUDE.md` §1).
+
+Eksik varsa: katkıyı al, eksiği ayrı bir PR'da kendin tamamla ve ne yaptığını yorumda ölçümle
+birlikte yaz. Katkıcının emeği kayda geçer, kural da çiğnenmez.
+
+Check the trigger, verify each pinned SHA against the tag's own ref, check the permissions, look
+for anything being silenced without a measured reason, approve the held run before claiming it
+passes, and check the README rule. Where something is missing, merge the contribution and fix the
+gap in a follow-up rather than sending the contributor away.
 
 ### Metin denetimi / i18n check
 
