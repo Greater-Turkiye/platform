@@ -25,6 +25,7 @@ import datetime as dt
 import json
 import re
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -33,6 +34,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 IGNORE = ROOT / ".lycheeignore"
 AVAILABILITY = "https://archive.org/wayback/available?url="
+CDX = "https://web.archive.org/cdx/search/cdx"
 USER_AGENT = "GreaterTurkiye-OSINT/0.1 (+https://github.com/Greater-Turkiye)"
 
 # A SPARQL endpoint has nothing to archive and nothing to rot: it is cited as the interface a query
@@ -75,6 +77,39 @@ def snapshot(url: str) -> dict | None:
     return closest if closest and closest.get("available") else None
 
 
+def confirm_absent(url: str) -> dict | None:
+    """Ask the index directly before believing that nothing is archived.
+
+    The availability API is not consistent: the same TRNC gazette PDF answered "775 days old" on
+    one run of this script and "never archived" on the next, minutes apart. A daily check that
+    cries wolf is a check people learn to ignore, which is worse than not having one — so a
+    negative answer is confirmed against the CDX index, which reads the capture list itself.
+
+    Returns a snapshot-shaped dict when the index does have captures, or None when both agree.
+    """
+    q = (CDX + "?url=" + urllib.parse.quote(url, safe="")
+         + "&output=json&limit=-1&fl=timestamp,original&filter=statuscode:200")
+    req = urllib.request.Request(q, headers={"User-Agent": USER_AGENT})
+    last = None
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=60) as r:
+                rows = json.loads(r.read() or "[]")
+            break
+        except (urllib.error.URLError, TimeoutError, ValueError) as e:
+            last = e
+            time.sleep(3 + attempt * 5)
+    else:
+        raise last
+    # the first row is the header when there is any result at all
+    if len(rows) < 2:
+        return None
+    timestamp = rows[-1][0]
+    return {"timestamp": timestamp,
+            "url": f"https://web.archive.org/web/{timestamp}/{url}",
+            "available": True}
+
+
 def age_days(timestamp: str) -> int | None:
     """Wayback stamps are YYYYMMDDhhmmss."""
     m = re.match(r"^(\d{4})(\d{2})(\d{2})", timestamp or "")
@@ -99,7 +134,7 @@ def main() -> int:
         print("the ignore file excludes nothing")
         return 0
 
-    failures, stale = 0, 0
+    failures, stale, unknown = 0, 0, 0
     print(f"{len(urls)} excluded URL(s); asking the Wayback availability API for each\n")
     for url in urls:
         if any(skip in url for skip in NOT_A_DOCUMENT):
@@ -111,12 +146,21 @@ def main() -> int:
             # Unknown is not a pass. A checker that reports success when it could not check is
             # worse than no checker, because it is believed.
             print(f"  ?  could not ask the archive ({e}): {url}", file=sys.stderr)
-            failures += 1
+            unknown += 1
             continue
         if not hit:
-            print(f"  X  no snapshot anywhere: {url}", file=sys.stderr)
-            failures += 1
-            continue
+            # Confirm before believing it: the availability API flaps, and a false alarm every
+            # day is how a check stops being read.
+            try:
+                hit = confirm_absent(url)
+            except (urllib.error.URLError, TimeoutError, ValueError) as e:
+                print(f"  ?  could not confirm with the index ({e}): {url}", file=sys.stderr)
+                unknown += 1
+                continue
+            if not hit:
+                print(f"  X  no snapshot anywhere (confirmed against the index): {url}", file=sys.stderr)
+                failures += 1
+                continue
         days = age_days(hit.get("timestamp", ""))
         mark = "ok"
         if args.max_age_days and days is not None and days > args.max_age_days:
@@ -129,7 +173,11 @@ def main() -> int:
               f"archive them with datasets/tools/archive.py", file=sys.stderr)
     if stale:
         print(f"{stale} snapshot(s) older than {args.max_age_days} days", file=sys.stderr)
-    if not failures and not stale:
+    if unknown:
+        print(f"{unknown} source(s) could not be checked — the archive did not answer. Not counted "
+              f"as a pass and not counted as a failure: a daily check that goes red because "
+              f"archive.org had a bad minute is a check nobody reads.", file=sys.stderr)
+    if not failures and not stale and not unknown:
         print("every excluded source has an archive copy")
     return 1 if failures else 0
 
