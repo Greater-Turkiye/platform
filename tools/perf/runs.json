@@ -71,6 +71,21 @@
     "scriptMs": 500,
     "layoutMs": 700
    }
+  },
+  {
+   "name": "hava-zoom",
+   "url": "{base}/hava.html",
+   "width": 1400,
+   "height": 900,
+   "cpu": 4,
+   "settle": 7000,
+   "seconds": 10,
+   "script": "(async()=>{for(const f of ['LGGG','LTBB','LCCC','LTAA','']){GT_AIR.setFir(f);await new Promise(r=>setTimeout(r,1100));}return 'done';})()",
+   "budget": {
+    "p90": 40,
+    "scriptMs": 700,
+    "layoutMs": 900
+   }
   }
  ]
 }

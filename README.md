@@ -21,6 +21,7 @@ The code of the open-source intelligence community: the live map and dashboard, 
 | [`tools/perf`](tools/perf) | **Çalışıyor** | Siteyi ölçen performans motoru: headless Chrome'u CPU kısarak sürer, kare süreleri, bloke süre ve betik/yerleşim/biçem maliyetini raporlar; `runs.json` içindeki bütçe aşılırsa sıfırdan farklı çıkar |
 | [`tools/trade`](tools/trade) | **Çalışıyor** | Türkiye'nin ilan ettiği İsrail ticareti durdurma kararını iki devletin kendi aylık beyanlarıyla karşılaştıran seri üreticisi (UN Comtrade, anahtarsız). Gemi izlemez |
 | [`tools/vessels`](tools/vessels) | **Çalışıyor** | Yaptırım listelerinden gemi **kimliği**: ad, IMO, bayrak ve kayıtlı önceki bayrak (OFAC kamu malı + BM). Konum, rota, mürettebat alanı yoktur |
+| [`tools/air`](tools/air) | **Çalışıyor** | Uçuş bilgi bölgeleri (FIR) ve her denizin hava sahasının bölünmesi; açık lisanslı topluluk verisi, **şematik**, seyrüsefer için değil |
 | [`tools/geo`](tools/geo) | **Çalışıyor** | Harita katmanlarını resmî kaynaklardan yeniden üretilebilir şekilde kuran Python betikleri (Mavi Vatan, KKTC ruhsat sahaları, Marmara ve Boğazlar, temsilcilikler, harekât bölgeleri) |
 | [`collectors`](collectors) | **Çalışıyor** | GitHub Actions'ta **her gün çalışan** Python toplayıcılar: RSS alımı, normalleştirme, tekrar eleme (simhash), güvenlik süzgeci ve coğrafi çit, ardından izleme bölgelerine ve olay türlerine göre **ilgi süzgeci**. Kalan adaylar `inceleme-kuyrugu` etiketli bir konuda insan incelemesine sunulur ([collect.yml](.github/workflows/collect.yml)) ; çalışmanın tamamı `collector-state` dalına bir parti dosyası olarak yayımlanır ve oradan `gt-signals` ile `gt-ops.reviews` içine `apps/ingest` Worker'ı tarafından çekilir — iş akışının hiçbir sırrı yoktur; ingest'e gönderim `api` Worker'ı gelene kadar kapalı |
 | [`db`](db) | **Kurulu** | Cloudflare D1 şeması ve migration'lar (`signals`, `ops`); iki veritabanının migration'ları uygulandı. Günlük toplama partisini yayımlar; `gt-signals` ile `gt-ops.reviews` yazmalarını dağıtılmış olan [`apps/ingest`](apps/ingest) Worker'ı yapar |
@@ -170,6 +171,7 @@ Kod [MIT](LICENSE). Üretilen veriler `datasets` deposunda CC BY 4.0 ile yayıml
 | [`tools/perf`](tools/perf) | **Working** | The performance engine: drives headless Chrome under CPU throttling and reports frame times, blocked time and where the time went; exceeding a budget in `runs.json` exits non-zero |
 | [`tools/trade`](tools/trade) | **Working** | Builds the series that sets Türkiye's declared halt of trade with Israel against both states' own monthly returns (UN Comtrade, no key). It tracks no vessel |
 | [`tools/vessels`](tools/vessels) | **Working** | Vessel **identity** from the sanctions lists: name, IMO, flag and recorded former flag (OFAC, public domain, plus the UN). It has no field for a position, a route or a crew |
+| [`tools/air`](tools/air) | **Working** | Flight information regions and how each sea's airspace divides between them; openly licensed community data, **schematic**, not for navigation |
 | [`tools/geo`](tools/geo) | **Working** | Python builders that construct the map layers reproducibly from official sources (Blue Homeland, TRNC licence areas, the Sea of Marmara and the Straits, diplomatic missions, announced operation areas) |
 | [`collectors`](collectors) | **Working** | Python collectors that run in GitHub Actions **every day**: RSS ingest, normalisation, near-duplicate removal (simhash), the safety filter and the geofence, then a **relevance filter** over the watch regions and the recorded event types. What is left goes to a human in an issue labelled `inceleme-kuyrugu` ([collect.yml](.github/workflows/collect.yml)) ; the whole run is published to the `collector-state` branch as a batch file, from which the `apps/ingest` Worker pulls it into `gt-signals` and `gt-ops.reviews` — the workflow holds no secret; sending to ingest stays off until the `api` Worker exists |
 | [`db`](db) | **Provisioned** | Cloudflare D1 schema and migrations (`signals`, `ops`); both databases have their migrations applied. The daily collection publishes its batch and the [`apps/ingest`](apps/ingest) Worker writes it into `gt-signals` and `gt-ops.reviews` — the first Worker to be bound, once it is deployed |
@@ -317,3 +319,18 @@ GHSA-2jg2-4ch7-h545, düzeltme 0.35.4). Üst akış sabitlemesini gevşetince bu
 The three Workers pin `sharp` to `>=0.35.4` through `overrides`. It is not used here directly: it
 arrives with `wrangler` → `miniflare` for local development, and miniflare still pins a version
 carrying two high-severity libheif advisories. Remove the override once upstream moves.
+
+### Metin denetimi / i18n check
+
+```bash
+python tools/web/check_i18n.py
+```
+
+`GT.t` bulamadığı anahtarın kendisini döndürür ve `applyI18n` onu elemanın içine yazar — yani yanlış
+yazılmış bir anahtar hata vermez, **yayımlanır**. Bir sayfa, anahtarı `p.zoom` olduğu için ölçeğin
+yanında `P.SCALE` yazar hâlde çıktı. Bu betik her sayfanın kullandığı anahtarları iki tablo ile
+karşılaştırır, tek dilde kalmış anahtarları ve iki dilde farklı `{token}` taşıyan satırları bulur.
+
+`GT.t` returns the key itself when it cannot find it, so a mistyped key does not fail — it ships.
+This script checks every `data-i18n` key on every page against both tables, and flags keys defined
+in one language only or carrying different placeholders in the two.
