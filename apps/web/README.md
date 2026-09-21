@@ -56,6 +56,33 @@ Farklı bir veri kökü için sayfada `window.GT_DATA_BASE = 'https://…/'` tan
 | `assets/js/basemap.js` | Vektör altlık (MapLibre); panelde varsayılan açık, `?basemap=0` ile kapanır / the vector basemap, on by default in the panel |
 | `assets/vendor/`, `assets/fonts/`, `assets/data/` | Barındırılan üçüncü taraf varlıklar — [LICENSES.md](assets/LICENSES.md) |
 
+### Harita motoru neyi kapsar, neyi kapsamaz / what the map engine covers
+
+`assets/js/gtmap.js` üç panonun ortak motorudur: `panel.js`, `deniz.js`, `hava.js`. Yeni bir harita
+sayfası da bunu kullanır — çerçeveleme, zoom, ertelenmiş çizim, ters-ölçeklenen işaretler, hata payı
+dairesi ve kara maskesi bir kez yazılmıştır.
+
+**Ana sayfadaki küre (`home.js` + `ortho.js`) bu motora taşınmaz, ve bu bir eksik değil bir karardır.**
+Motorun yüzeyi SVG kökü, `d3.zoom`, `fitExtent` ve ekran pikseli cinsinden kara maskesidir; hepsi
+Mercator ve kaydır-yakınlaştır varsayar. Küre ise beş katmanlı bir **canvas**, ortografik projeksiyon,
+kendi çizicisi (`ortho.js`, d3.geoPath'in yaptığını d3 olmadan yapar) ve kare süresine göre çözünürlük
+düşüren bir kalite denetleyicisidir; sürüklenince **döner**, kaymaz. İkisi arasında tek satır ortak
+makine yoktur. Zorla birleştirmek ya küreyi SVG'ye çevirmeyi (ölçülmüş performans işini yıkar) ya da
+motoru her iki yolu da tek çağrıyla besleyen bir çerçeveye dönüştürmeyi gerektirirdi — ikisi de iki
+dürüst uygulamadan kötüdür.
+
+Paylaşılabilir olan zaten paylaşılıyor: `home.js`, `gt.js`'ten 26 yardımcı kullanır (i18n, veri
+yükleme, coğrafya, ülke ve ortaklık tabloları, biçimlendiriciler, `mapDefs`, `sweep`). Paylaşım
+katmanı orasıdır; `gtmap.js` ise yalnızca SVG haritalar içindir.
+
+`gtmap.js` is the shared engine for the three dashboards. The home-page globe is deliberately not on
+it: the engine is SVG, Mercator, pan-and-zoom; the globe is a five-layer canvas with an orthographic
+projection, its own path renderer and an adaptive quality controller, and it rotates rather than
+pans. They share no machinery, and `home.js` already takes everything that is shareable from
+`gt.js`. Forcing them together would mean rewriting the globe as SVG — throwing away measured
+performance work — or turning the engine into a framework serving one caller down each branch.
+
+
 ### Harita katmanları / Map layers
 
 | Katman / Layer | Kaynak / Source | Not / Note |
