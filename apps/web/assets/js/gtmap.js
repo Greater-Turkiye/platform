@@ -16,6 +16,11 @@
  *     m.ready();                           // wire the zoom once the layers are in
  *
  * What it does not do: decide what a page means. No layer here knows what it is drawing.
+ *
+ * What it is not for: the home-page globe. This engine is SVG, Mercator and pan-and-zoom;
+ * home.js is a canvas, orthographic, rotates rather than pans and carries its own path
+ * renderer (ortho.js) and quality controller. They share no machinery, and everything that
+ * could be shared already lives in gt.js. See apps/web/README.md for the reasoning.
  */
 (function () {
   'use strict';
