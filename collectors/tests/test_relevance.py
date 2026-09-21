@@ -55,6 +55,26 @@ def test_every_queued_fixture_gets_a_real_region_not_global() -> None:
 # -- how the score is built -------------------------------------------------------------------
 
 
+def test_an_inflected_russian_place_name_still_names_its_region() -> None:
+    """Russian declines its nouns: Сирия in the nominative is Сирию in the accusative. The table
+    holds stems for exactly that reason, and a feed read in Russian is worth nothing without it."""
+    r = default_table().assess(item("Переброска сил в Сирию", "Авиабаза приняла истребители"))
+    assert r.region == "syria"
+    assert r.relevant
+
+
+def test_an_arabic_item_is_scored_like_any_other() -> None:
+    r = default_table().assess(item("غارة جوية على إدلب", "نفذت طائرات حربية غارات جوية في شمال سوريا"))
+    assert r.region == "syria"
+    assert r.relevant
+
+
+def test_russian_domestic_news_still_scores_nothing() -> None:
+    """The point of the tables is to drop what is not ours, in every language they cover."""
+    r = default_table().assess(item("Встреча с губернатором Тверской области", "Рабочая встреча"))
+    assert not r.relevant
+
+
 def test_region_alone_is_not_enough() -> None:
     score = default_table().assess(item("Yemen wedding traditions", "A report from Sanaa."))
     assert score.region == "gulf-red-sea" and score.region_score > 0
