@@ -25,3 +25,24 @@ jobs:
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
           args: --verbose --no-progress --hidden './**/*.md'
+
+  # What lychee cannot reach, it excludes — and an excluded source is an unwatched source. These
+  # are the primary documents the method rests on, so the other side of the hole is checked here:
+  # does an archive copy exist at all? Only on the weekly run and on demand, never on a pull
+  # request, because a gap that predates a contributor's change must not turn their pull request
+  # red.
+  archives:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: Check the archive copies of the excluded sources
+        run: python tools/web/check_archives.py --max-age-days 400
