@@ -288,6 +288,8 @@ a.ticker-item:hover { color: #fff; }
 .badge.st-partially_verified::before, .badge.st-disputed::before { background: var(--warn); }
 .badge.st-false::before { background: #6b6b6b; }
 .badge.st-unverified::before { background: var(--rb); }
+/* One publisher, said plainly: a report, not yet a finding. */
+.chip-thin { border-style: dashed; color: var(--warn); border-color: rgba(214, 161, 58, .5); }
 .ex-tag { padding: 2px 6px; background: rgba(214, 161, 58, .15); color: var(--warn); font: 600 9px var(--m); letter-spacing: .2em; }
 .p-empty { padding: 36px 22px; color: var(--t2); font-size: 14px; line-height: 1.7; }
 .p-empty a, .p-empty button { display: inline-flex; margin-top: 16px; }
