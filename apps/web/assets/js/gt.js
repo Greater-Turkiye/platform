@@ -200,7 +200,7 @@
       'p.err': 'Veri yüklenemedi.', 'p.retry': 'Tekrar dene', 'p.loading': 'Yükleniyor',
       'p.zoomIn': 'Yakınlaştır', 'p.zoomOut': 'Uzaklaştır', 'p.reset': 'Görünümü sıfırla', 'p.close': 'Kapat',
       'p.nogeo': 'koordinat yok', 'p.example': 'Örnek',
-      'lg.unverified': 'Doğrulanmamış', 'lg.verified': 'Doğrulandı', 'lg.partial': 'Kısmen / tartışmalı', 'lg.example': 'Örnek (kurgusal)', 'lg.site': 'Tesis', 'lg.tr': 'Türkiye',
+      'lg.unverified': 'Doğrulanmamış', 'lg.verified': 'Doğrulandı', 'lg.partial': 'Kısmen / tartışmalı', 'lg.example': 'Örnek (kurgusal)', 'lg.unc': 'Belirsizlik dairesi: konum bu dairenin içinde bir yerde (kayıttaki hata payı)', 'lg.site': 'Tesis', 'lg.tr': 'Türkiye',
       'd.time': 'Zaman', 'd.location': 'Konum', 'd.regions': 'Bölgeler', 'd.countries': 'Devletler', 'd.actors': 'Aktörler', 'd.equipment': 'Teçhizat', 'd.claims': 'İddialar',
       'd.sources': 'Kaynaklar', 'd.assessment': 'Değerlendirme', 'd.id': 'Kimlik', 'd.type': 'Tür', 'd.operators': 'İşleten', 'd.country': 'Devlet',
       'd.github': 'GitHub’da görüntüle', 'd.correct': 'Düzeltme öner', 'd.copy': 'Kopyala', 'd.copied': 'Kopyalandı', 'd.archive': 'arşiv',
@@ -392,7 +392,7 @@
       'p.err': 'Unable to load data.', 'p.retry': 'Try again', 'p.loading': 'Loading',
       'p.zoomIn': 'Zoom in', 'p.zoomOut': 'Zoom out', 'p.reset': 'Reset view', 'p.close': 'Close',
       'p.nogeo': 'no coordinates', 'p.example': 'Example',
-      'lg.unverified': 'Unverified', 'lg.verified': 'Verified', 'lg.partial': 'Partial / disputed', 'lg.example': 'Example (fictional)', 'lg.site': 'Site', 'lg.tr': 'Türkiye',
+      'lg.unverified': 'Unverified', 'lg.verified': 'Verified', 'lg.partial': 'Partial / disputed', 'lg.example': 'Example (fictional)', 'lg.unc': 'Uncertainty circle: the position is somewhere inside it (the record’s own figure)', 'lg.site': 'Site', 'lg.tr': 'Türkiye',
       'd.time': 'Time', 'd.location': 'Location', 'd.regions': 'Regions', 'd.countries': 'States', 'd.actors': 'Actors', 'd.equipment': 'Equipment', 'd.claims': 'Claims',
       'd.sources': 'Sources', 'd.assessment': 'Assessment', 'd.id': 'ID', 'd.type': 'Type', 'd.operators': 'Operator', 'd.country': 'State',
       'd.github': 'View on GitHub', 'd.correct': 'Suggest a correction', 'd.copy': 'Copy', 'd.copied': 'Copied', 'd.archive': 'archive',
@@ -999,6 +999,7 @@
   });
   Object.assign(I18N.tr, {
     'p.sit.title': 'Durum', 'p.controls': 'Süzgeç ve katmanlar',
+    'p.uncCircle': 'Konum bu dairenin içinde bir yerde: hata payı ±{n}',
     'p.sum.verified': 'Doğrulanmış', 'p.sum.recordsAll': 'Kayıt · tüm dönem', 'p.sum.recordsIn': 'Kayıt · son {d} gün', 'p.sum.recordsYear': 'Kayıt · son 12 ay',
     'p.chip.all': 'Tümü', 'p.chip.days': '{n}g', 'p.chip.year': '1y',
     'p.board.title': 'Bölge durumu', 'p.board.region': 'Bölge', 'p.board.records': 'Kayıt',
@@ -1011,6 +1012,7 @@
   });
   Object.assign(I18N.en, {
     'p.sit.title': 'Situation', 'p.controls': 'Filters and layers',
+    'p.uncCircle': 'The position is somewhere inside this circle: ±{n}',
     'p.sum.verified': 'Verified', 'p.sum.recordsAll': 'Records · all time', 'p.sum.recordsIn': 'Records · last {d} days', 'p.sum.recordsYear': 'Records · last 12 months',
     'p.chip.all': 'All', 'p.chip.days': '{n}d', 'p.chip.year': '1y',
     'p.board.title': 'Regions', 'p.board.region': 'Region', 'p.board.records': 'Rec.',

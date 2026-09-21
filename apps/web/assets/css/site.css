@@ -147,6 +147,11 @@ img, svg { display: block; max-width: 100%; }
 .m-sweep, .m-sweep-slice { pointer-events: none; }
 .m-sweep-edge { stroke: rgba(200, 0, 42, .55); stroke-width: 1; }
 .mk { cursor: pointer; }
+/* How much of the map a coarse position covers: drawn in map units, so it grows with the zoom
+   the way the doubt it represents does. */
+.m-unc { fill: rgba(232, 227, 220, .045); stroke: rgba(232, 227, 220, .3); stroke-width: 1;
+  stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; pointer-events: none; }
+.m-unc.sel { fill: rgba(200, 0, 42, .1); stroke: var(--rb); }
 .mk-site { fill: var(--t1); stroke: var(--bg); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .mk-ev { fill: var(--rb); stroke: var(--bg); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
 .mk-ev.st-verified { fill: var(--ok); }
@@ -318,6 +323,7 @@ a.ticker-item:hover { color: #fff; }
 .lg i.ok { background: var(--ok); } .lg i.warn { background: var(--warn); }
 .lg i.ex { background: transparent; border: 1px dashed var(--warn); }
 .lg i.site { border-radius: 0; background: var(--t1); transform: rotate(45deg) scale(.8); }
+.lg i.unc { background: rgba(232, 227, 220, .06); border: 1px dashed rgba(232, 227, 220, .45); border-radius: 50%; }
 .lg i.tr { border-radius: 0; background: var(--r); outline: 1px solid var(--rb); }
 .p-tip { position: absolute; z-index: 5; padding: 8px 11px; background: rgba(8, 8, 8, .95); border: 1px solid var(--line2); font: 500 10.5px var(--m); letter-spacing: .12em; text-transform: uppercase; color: var(--t1); pointer-events: none; transform: translate(-50%, calc(-100% - 14px)); white-space: nowrap; }
 .p-tip small { display: block; margin-top: 3px; color: var(--rb); font-size: 9.5px; }
