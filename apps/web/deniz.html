@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deniz paneli / Sea dashboard — Greater Türkiye</title>
+<meta name="description" content="Deniz panosu: Türkiye'nin deniz yetki alanları, Boğazlar, KKTC ruhsat sahaları, adalar, Ege sicili ve denizde ilan edilen faaliyet. Hiçbir geminin konumu yoktur. / The sea dashboard: maritime jurisdiction, the Straits, the TRNC licence blocks, the islands, the Aegean register and the activity announced at sea. No vessel positions.">
+<meta name="theme-color" content="#f7f8f9">
+<meta name="color-scheme" content="light">
+<meta property="og:title" content="Deniz paneli / Sea dashboard">
+<meta property="og:description" content="Deniz yetki alanları, Boğazlar, adalar, sicil ve ilan edilen faaliyet — tek panoda">
+<meta property="og:type" content="website">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/montserrat-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/data/countries-50m.json" as="fetch" crossorigin>
+<link rel="preload" href="assets/vendor/d3.min.js" as="script">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body class="page-navy">
+<a class="skip" href="#n-list" data-i18n="a11y.skip">İçeriğe geç</a>
+
+<header class="n-head">
+  <a class="brand" href="./" aria-label="Greater Türkiye">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13.5" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/><circle cx="16" cy="16" r="7.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M16 .5v6M16 25.5v6M.5 16h6M25.5 16h6" stroke="currentColor" stroke-width="1.2"/><circle cx="16" cy="16" r="2.6" fill="#c8002a"/></svg>
+    <span class="brand-word">GREATER<b>TÜRKİYE</b></span>
+  </a>
+  <span class="n-title" data-i18n="n.title">Deniz paneli</span>
+  <div class="n-tools">
+    <a href="panel.html" data-i18n="nav.panel">Panel</a>
+    <a href="ticaret.html" data-i18n="nav.trade">İsrail ticareti</a>
+    <a href="sicil.html" data-i18n="nav.register">Ege sicili</a>
+    <span class="mono">UTC <span class="clock" id="n-utc">--:--:--Z</span></span>
+    <div class="lang" role="group" data-i18n-aria="a11y.lang" aria-label="Dil"><button type="button" data-lang="tr">TR</button><button type="button" data-lang="en">EN</button></div>
+  </div>
+</header>
+
+<div class="n-shell">
+  <aside class="n-side" aria-labelledby="n-list-title">
+    <section class="n-sit" aria-labelledby="n-sit-title">
+      <h2 class="n-kicker" id="n-sit-title" data-i18n="n.situation">Durum</h2>
+      <div class="n-stats" id="n-stats"></div>
+      <p class="n-pulse mono" id="n-pulse"></p>
+    </section>
+
+    <section class="n-board" aria-labelledby="n-seas-title">
+      <div class="n-board-head">
+        <h2 class="n-kicker" id="n-seas-title" data-i18n="n.seas">Denizler</h2>
+        <button type="button" id="n-clear" class="n-clear" hidden data-i18n="n.clear">Seçimi kaldır</button>
+      </div>
+      <div class="n-cols" role="presentation">
+        <span data-i18n="n.col.sea">Deniz</span>
+        <span data-i18n="n.col.act">Faaliyet ’15–’21</span>
+        <span data-i18n="n.col.sites">Tesis</span>
+      </div>
+      <div class="n-rows" id="n-seas"></div>
+      <p class="n-fine"><span data-i18n="n.seasNote"></span> <a href="method.html#faaliyet" data-i18n="n.how">Nasıl sayılıyor?</a></p>
+    </section>
+
+    <details class="n-layers" id="n-layers">
+      <summary class="n-layers-sum"><span data-i18n="n.layers">Katmanlar</span><span class="n-count mono" id="n-layers-n"></span></summary>
+      <div class="n-layers-grid">
+        <label class="n-tog"><input type="checkbox" id="l-jur" checked><span data-i18n="n.l.jur">Deniz yetki alanları</span></label>
+        <label class="n-tog"><input type="checkbox" id="l-straits" checked><span data-i18n="n.l.straits">Boğazlar ve iç sular</span></label>
+        <label class="n-tog"><input type="checkbox" id="l-lic" checked><span data-i18n="n.l.lic">KKTC ruhsat sahaları</span></label>
+        <label class="n-tog"><input type="checkbox" id="l-act" checked><span data-i18n="n.l.act">İlan edilen faaliyet</span></label>
+        <label class="n-tog"><input type="checkbox" id="l-isl" checked><span data-i18n="n.l.isl">Türk adaları</span></label>
+        <label class="n-tog"><input type="checkbox" id="l-sites" checked><span data-i18n="n.l.sites">Ege sicili</span></label>
+      </div>
+    </details>
+
+    <div class="n-list-head"><span id="n-list-title" data-i18n="n.records">Sicil kayıtları</span><span id="n-count" class="mono"></span></div>
+    <div id="n-list" class="n-list" role="list" tabindex="-1"></div>
+
+    <div class="n-side-foot">
+      <a href="https://github.com/Greater-Turkiye/platform/blob/main/apps/web/assets/data/MARITIME-SOURCES.md" data-i18n="s.src.maritime">Deniz alanları kaynakları</a>
+      <a href="https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0022-trade-compliance-not-vessel-tracking.md">ADR 0022</a>
+    </div>
+  </aside>
+
+  <section class="n-map-wrap" aria-label="Harita / Map">
+    <div id="n-map" class="n-map"></div>
+    <p id="n-state" class="n-state" data-i18n="s.loading">Yükleniyor…</p>
+    <div id="n-tip" class="n-tip" hidden></div>
+    <div class="n-hud"><span><span data-i18n="p.cursor">İmleç</span> <b id="n-coords">—</b></span><span><span data-i18n="p.zoom">Ölçek</span> <b id="n-scale">1.0×</b></span></div>
+    <div class="n-zoom">
+      <button type="button" id="n-in" data-i18n-aria="p.zoomIn" aria-label="Yakınlaştır"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.4"/></svg></button>
+      <button type="button" id="n-out" data-i18n-aria="p.zoomOut" aria-label="Uzaklaştır"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1 7h12" stroke="currentColor" stroke-width="1.4"/></svg></button>
+      <button type="button" id="n-reset" data-i18n-aria="p.reset" aria-label="Görünümü sıfırla"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 0v4M8 12v4M0 8h4M12 8h4" stroke="currentColor" stroke-width="1.2"/></svg></button>
+    </div>
+    <details class="n-legend" id="n-legend">
+      <summary class="n-legend-sum" data-i18n="p.key">Harita anahtarı</summary>
+      <div class="n-legend-body">
+        <span class="n-lg" data-lyr="l-jur"><i class="agreed"></i><span data-i18n="s.lg.agreed">Anlaşmayla belirlenmiş</span></span>
+        <span class="n-lg" data-lyr="l-jur"><i class="claimed"></i><span data-i18n="s.lg.claimed">Türkiye'nin bildirdiği sınır</span></span>
+        <span class="n-lg" data-lyr="l-straits"><i class="straits"></i><span data-i18n="s.lg.straits">Boğazlar ve iç sular</span></span>
+        <span class="n-lg" data-lyr="l-lic"><i class="licence"></i><span data-i18n="s.lg.licence">KKTC ruhsat sahaları</span></span>
+        <span class="n-lg" data-lyr="l-act"><i class="cell"></i><span data-i18n="s.lg.cell">İlan edilen faaliyet (2015–2021)</span></span>
+        <span class="n-lg" data-lyr="l-isl"><i class="island"></i><span data-i18n="s.lg.island">Türk adası</span></span>
+        <span class="n-lg" data-lyr="l-sites"><i class="site"></i><span data-i18n="n.lg.site">Sicil kaydı</span></span>
+        <span class="n-lg" data-lyr="l-sites"><i class="unc"></i><span data-i18n="n.lg.unc">Hata payı dairesi</span></span>
+      </div>
+    </details>
+  </section>
+
+  <aside id="n-drawer" class="n-drawer" aria-hidden="true" aria-labelledby="n-d-title" inert>
+    <button type="button" id="n-close" class="n-close" data-i18n-aria="p.close" aria-label="Kapat"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.4"/></svg></button>
+    <div id="n-drawer-body"></div>
+  </aside>
+</div>
+
+<script src="assets/vendor/d3.min.js"></script>
+<script src="assets/vendor/topojson-client.min.js"></script>
+<script src="assets/js/gt.js"></script>
+<script src="assets/js/deniz.js"></script>
+</body>
+</html>

@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ege sicili / Aegean register — Greater Türkiye</title>
-<meta name="description" content="Lozan 1923 ve Paris 1947 antlaşmalarıyla askerden arındırılmış Ege adalarında bugün ne var: antlaşma maddesine bağlanmış, kaynaklı, koordinatsız bir uyum sicili. / What stands today on the Aegean islands demilitarised by the 1923 Lausanne and 1947 Paris treaties: a sourced compliance register, tied to the treaty article, with no coordinates.">
+<title>İsrail ticareti / Trade with Israel — Greater Türkiye</title>
+<meta name="description" content="Türkiye 2024'te İsrail'le ticareti durdurduğunu açıkladı. İki devletin kendi aylık istatistikleri ne kaydediyor? Gemi takibi yok; iki resmî kaynağın rakamları yan yana. / Türkiye announced a halt to trade with Israel in 2024. What do both states' own monthly statistics record? No vessel tracking: two official sources, side by side.">
 <meta name="theme-color" content="#050505">
 <meta name="color-scheme" content="dark">
-<meta property="og:title" content="Ege askerîleştirme sicili / Aegean militarisation register">
-<meta property="og:description" content="Antlaşmayla askerden arındırılmış adalarda ne var, hangi maddeye karşı, hangi kaynakla · What is on the treaty-demilitarised islands, against which article, on whose evidence">
+<meta property="og:title" content="Durdurulan ticaret / The halted trade">
+<meta property="og:description" content="Türkiye'nin defterinde İsrail satırı yok; İsrail'in defterinde Türkiye menşeli ithalat duruyor · Türkiye's books carry no Israel line; Israel's carry imports of Turkish origin">
 <meta property="og:type" content="article">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/montserrat-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -26,8 +26,8 @@
     <a href="panel.html" data-i18n="nav.panel">Panel</a>
     <a href="./#bolgeler" data-i18n="nav.data">Veri</a>
     <a href="method.html" data-i18n="nav.method">Yöntem</a>
-    <a href="sicil.html" aria-current="page" data-i18n="nav.register">Ege sicili</a>
-    <a href="ticaret.html" data-i18n="nav.trade">İsrail ticareti</a>
+    <a href="sicil.html" data-i18n="nav.register">Ege sicili</a>
+    <a href="ticaret.html" aria-current="page" data-i18n="nav.trade">İsrail ticareti</a>
     <a href="deniz.html" data-i18n="nav.sea">Deniz</a>
     <a href="https://github.com/Greater-Turkiye/handbook" data-i18n="nav.handbook">El Kitabı</a>
     <a href="./#katil" data-i18n="nav.join">Katıl</a>
@@ -40,59 +40,89 @@
 </header>
 
 <main id="main">
-  <section class="sec doc-hero" aria-labelledby="h-reg">
+  <section class="sec doc-hero" aria-labelledby="h-tr">
     <div class="doc-hero-in">
-      <p class="eyebrow" data-i18n="r.eyebrow">Ege sicili</p>
-      <h1 class="sec-title" id="h-reg"><span data-i18n="r.title1">Antlaşmayla silahsız adalarda</span> <b data-i18n="r.title2">bugün ne var?</b></h1>
-      <p class="doc-lead" data-i18n="r.lead"></p>
-      <p class="doc-note" data-i18n="r.not"></p>
+      <p class="eyebrow" data-i18n="t.eyebrow">İsrail ticareti</p>
+      <h1 class="sec-title" id="h-tr"><span data-i18n="t.title1">Ticaret durduruldu.</span> <b data-i18n="t.title2">İki defter ne diyor?</b></h1>
+      <p class="doc-lead" data-i18n="t.lead"></p>
+      <p class="doc-note" data-i18n="t.not"></p>
     </div>
   </section>
 
-  <section class="sec" id="sicil" aria-labelledby="h-list">
+  <section class="sec" id="seri" aria-labelledby="h-series">
     <div class="sec-head rv">
       <div>
-        <p class="eyebrow" data-i18n="r.listk">Kayıtlar</p>
-        <h2 class="sec-title" id="h-list" data-i18n="r.list">Adalar</h2>
+        <p class="eyebrow" data-i18n="t.seriesk">Aylık seri</p>
+        <h2 class="sec-title" id="h-series" data-i18n="t.series">İki devletin kendi rakamları</h2>
       </div>
-      <p class="sec-lead" data-i18n="r.listlead"></p>
+      <p class="sec-lead" data-i18n="t.serieslead"></p>
     </div>
-    <p class="doc-p" id="r-state" data-i18n="r.loading">Yükleniyor…</p>
-    <div class="r-grid" id="r-cards"></div>
-  </section>
-
-  <section class="sec" id="faaliyet" aria-labelledby="h-act" hidden>
-    <div class="sec-head rv">
-      <div>
-        <p class="eyebrow" data-i18n="r.actk">İlan edilen faaliyet</p>
-        <h2 class="sec-title" id="h-act" data-i18n="r.act">Denizde ne ilan ediliyor?</h2>
-      </div>
-      <p class="sec-lead" data-i18n="r.actlead"></p>
-    </div>
+    <p class="doc-p" id="t-state" data-i18n="t.loading">Yükleniyor…</p>
+    <div class="t-stats" id="t-stats" hidden></div>
     <figure class="r-chart">
-      <div id="r-chart" role="img"></div>
+      <div id="t-chart" role="img"></div>
       <figcaption class="r-capt">
-        <p class="doc-p" id="r-chart-note"></p>
-        <p class="r-src" id="r-chart-src"></p>
+        <p class="doc-p" id="t-chart-note"></p>
+        <p class="r-src" id="t-chart-src"></p>
       </figcaption>
     </figure>
   </section>
 
-  <section class="sec" id="kaynak" aria-labelledby="h-src">
+  <section class="sec" id="rota" aria-labelledby="h-routes" hidden>
     <div class="sec-head rv">
       <div>
-        <p class="eyebrow" data-i18n="r.howk">Okuma kılavuzu</p>
-        <h2 class="sec-title" id="h-src" data-i18n="r.how">Bu sicil nasıl okunur</h2>
+        <p class="eyebrow" data-i18n="t.routesk">Komşu satırları</p>
+        <h2 class="sec-title" id="h-routes" data-i18n="t.routes">Hangi satır büyüdü?</h2>
+      </div>
+      <p class="sec-lead" data-i18n="t.routeslead"></p>
+    </div>
+    <div class="t-routes" id="t-routes"></div>
+    <p class="doc-note" data-i18n="t.routesnote"></p>
+  </section>
+
+  <section class="sec" id="urunler" aria-labelledby="h-goods" hidden>
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="t.goodsk">Ürünler</p>
+        <h2 class="sec-title" id="h-goods" data-i18n="t.goods">Hangi mallar gidiyor?</h2>
+      </div>
+      <p class="sec-lead" data-i18n="t.goodslead"></p>
+    </div>
+    <div class="t-routes" id="t-goods"></div>
+    <p class="doc-note" data-i18n="t.goodsnote"></p>
+    <p class="r-src" id="t-goods-src"></p>
+  </section>
+
+  <section class="sec" id="bayrak" aria-labelledby="h-flag" hidden>
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="t.flagk">Bayrak</p>
+        <h2 class="sec-title" id="h-flag" data-i18n="t.flag">Bayrak değişikliği belgelenebilir mi?</h2>
+      </div>
+      <p class="sec-lead" data-i18n="t.flaglead"></p>
+    </div>
+    <p class="doc-note" data-i18n="t.flagnot"></p>
+    <div class="t-stats" id="t-flag-stats"></div>
+    <div class="t-routes" id="t-flag-routes"></div>
+    <p class="r-src" id="t-flag-src"></p>
+  </section>
+
+  <section class="sec" id="kaynak" aria-labelledby="h-how">
+    <div class="sec-head rv">
+      <div>
+        <p class="eyebrow" data-i18n="t.howk">Okuma kılavuzu</p>
+        <h2 class="sec-title" id="h-how" data-i18n="t.how">Bu seri nasıl okunur</h2>
       </div>
     </div>
     <div class="doc-body">
-      <p class="doc-p" data-i18n="r.how1"></p>
-      <p class="doc-p" data-i18n="r.how2"></p>
-      <p class="doc-p" data-i18n="r.how3"></p>
+      <p class="doc-p" data-i18n="t.how1"></p>
+      <p class="doc-p" data-i18n="t.how2"></p>
+      <p class="doc-p" data-i18n="t.how3"></p>
+      <p class="doc-p" data-i18n="t.how4"></p>
       <p class="doc-src"><span data-i18n="r.decision">Karar</span>
-        <a href="https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0019-foreign-installations-register.md">ADR 0019</a>
-        <a href="https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0013-map-layers-turkiye-perspective.md">ADR 0013</a>
-        <a href="https://github.com/Greater-Turkiye/datasets/tree/main/data/sites">data/sites</a>
+        <a href="https://github.com/Greater-Turkiye/handbook/blob/main/decisions/0022-trade-compliance-not-vessel-tracking.md">ADR 0022</a>
+        <a href="https://comtradeapi.un.org/public/v1/preview/C/M/HS?reporterCode=792&amp;period=202403&amp;partnerCode=376&amp;flowCode=X&amp;cmdCode=TOTAL">UN Comtrade</a>
+        <a href="https://github.com/Greater-Turkiye/platform/blob/main/tools/trade/build_trade.py">build_trade.py</a>
       </p>
     </div>
   </section>
@@ -110,6 +140,7 @@
     <div class="foot-col">
       <h4 data-i18n="foot.community">Topluluk</h4>
       <a href="method.html" data-i18n="nav.method">Yöntem</a>
+      <a href="ticaret.html" data-i18n="nav.trade">İsrail ticareti</a>
       <a href="https://github.com/Greater-Turkiye/handbook/blob/main/tr/02-red-lines.md" data-i18n="foot.redlines">Kırmızı çizgiler</a>
       <a href="https://github.com/Greater-Turkiye/handbook/blob/main/tr/04-opsec.md" data-i18n="foot.opsec">OPSEC</a>
       <a href="https://github.com/Greater-Turkiye/.github/blob/main/CODE_OF_CONDUCT.md" data-i18n="foot.coc">Davranış kuralları</a>
@@ -134,6 +165,6 @@
 </footer>
 
 <script src="assets/js/gt.js"></script>
-<script src="assets/js/sicil.js"></script>
+<script src="assets/js/ticaret.js"></script>
 </body>
 </html>
