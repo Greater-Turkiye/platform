@@ -686,6 +686,8 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .p-stat:not(:first-child) b { font-size: 12.5px; }
 .p-stat span { font: 500 8.5px var(--m); letter-spacing: .2em; text-transform: uppercase; color: var(--t3); }
 .p-stats.is-empty b { color: var(--t3); }
+/* The data's own account of itself: when it was built and how much it holds. */
+.p-pulse { margin: 10px 0 0; font-size: 9.5px; letter-spacing: .06em; color: var(--t3); }
 
 /* ---- the region board: one row per watch region, sorted by what the reader is asking. The bar is
    a share of the busiest region, never an absolute rate, and a region with no counted sea shows a

@@ -773,11 +773,28 @@
     document.getElementById('p-sum-last').textContent = newest ? GT.fmtTime(newest, "day") : '—';
   }
 
+  /* Whether the thing is alive is the first question anyone asks of a feed, and it should not need
+     a second click. The line is the data's own account of itself: when it was built, and how much
+     of each kind it holds — no estimate, no "live" claim we cannot keep. */
+  function renderPulse() {
+    const el = document.getElementById('p-pulse');
+    if (!el) return;
+    const m = data && data.manifest;
+    if (!m) { el.textContent = ''; return; }
+    const c = m.counts || {};
+    el.textContent = GT.t('p.pulse', {
+      // an ISO stamp, not a localised date: this line is a timestamp, and it has to fit on one
+      at: m.built_at ? m.built_at.slice(0, 16).replace('T', ' ') + 'Z' : '—',
+      e: c.event || 0, s: c.site || 0, src: c.source || 0,
+    });
+  }
+
   function render() {
     const list = filtered();
     els.count.textContent = GT.t('p.count', { n: list.length });
     renderSummary(list);
     renderBoard(filtered({ anyRegion: true }));
+    renderPulse();
     syncControlsCount();
     els.banner.hidden = !lyr.examples.checked;
     renderFeed(list);
