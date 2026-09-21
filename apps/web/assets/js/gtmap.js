@@ -283,6 +283,19 @@
       return api.goto([(box[0][0] + box[1][0]) / 2, (box[0][1] + box[1][1]) / 2], kk, ms);
     };
 
+    /** Apply a transform the page worked out itself (a fly-to, or restoring a view after a redraw). */
+    api.transform = function transform(t, ms) {
+      if (!zoom) return;
+      const sel = d3.select(container);
+      (ms ? sel.transition().duration(ms) : sel).call(zoom.transform, t);
+    };
+
+    /** The transform currently in force. */
+    api.current = () => d3.zoomTransform(container);
+
+    /** The zoom's scale limits, which a page may change when a basemap arrives. */
+    api.scaleExtent = (ext) => { if (zoom) zoom.scaleExtent(ext); };
+
     api.reset = (ms) => {
       if (!zoom) return;
       const sel = d3.select(container);

@@ -50,7 +50,7 @@ Farklı bir veri kökü için sayfada `window.GT_DATA_BASE = 'https://…/'` tan
 |---|---|
 | `assets/css/site.css` | Tasarım belirteçleri ve tüm stiller / design tokens and all styles |
 | `assets/js/gt.js` | Ortak: i18n (TR/EN), veri yükleme, coğrafya, harita yardımcıları / shared helpers |
-| `assets/js/gtmap.js` | Harita motoru, tek kopya: çerçeveleme, zoom, ters-ölçeklenen işaretler, hata payı dairesi ve **kara maskesi**. Deniz paneli kullanır; panel ve gelecekteki hava paneli de buraya taşınır / the map engine, written once: framing, zoom, marks that keep their size, the uncertainty circle and the land mask |
+| `assets/js/gtmap.js` | Harita motoru, **tek kopya**: çerçeveleme, zoom (ağır haritalarda `live: true` ile ertelenmiş çizim), ters-ölçeklenen işaretler, hata payı dairesi ve **kara maskesi**. `panel.js` ve `deniz.js` bunu kullanır; yeni bir harita sayfası da bunu kullanır / the map engine, written once: framing, zoom with deferred rendering for heavy maps, marks that keep their size, the uncertainty circle and the land mask |
 | `assets/js/home.js`, `assets/js/panel.js`, `assets/js/deniz.js`, `assets/js/ticaret.js`, `assets/js/method.js`, `assets/js/sicil.js` | Sayfa mantığı / page logic |
 | `assets/js/basemap.js` | Vektör altlık (MapLibre); panelde varsayılan açık, `?basemap=0` ile kapanır / the vector basemap, on by default in the panel |
 | `assets/vendor/`, `assets/fonts/`, `assets/data/` | Barındırılan üçüncü taraf varlıklar — [LICENSES.md](assets/LICENSES.md) |

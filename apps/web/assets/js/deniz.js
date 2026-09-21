@@ -91,6 +91,11 @@
       viewNarrow: VIEW_NARROW,
       scaleExtent: [1, 24],
       ariaLabel: GT.t('s.mapAria'),
+      /* Flying from sea to sea re-placed every island, every sea name and every register mark on
+         each frame of the animation, which measured as 1.35 s of layout across five transitions.
+         Deferred, the drawn map is moved by one CSS transform and re-placed once, when it lands. */
+      live: true,
+      onFrame: (t) => { $('n-scale').textContent = t.k.toFixed(1) + '×'; },
       onZoom: (kk) => { k = kk; rescale(); $('n-scale').textContent = kk.toFixed(1) + '×'; },
       onCursor: (ll) => { $('n-coords').textContent = ll ? GT.fmtLL(ll) : '—'; },
       onBackground: closeDrawer,
