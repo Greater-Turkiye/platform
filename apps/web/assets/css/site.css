@@ -651,6 +651,8 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
   align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--t2); }
 .t-route-head { font: 500 9px var(--m); letter-spacing: .2em; text-transform: uppercase; color: var(--t3); }
 .t-route-name { color: var(--t1); }
+/* One delivery, not a flow: the mark is small because the caveat is in the note. */
+.t-lump { color: var(--warn); font-size: 9px; vertical-align: 2px; }
 .t-route .mono { font-variant-numeric: tabular-nums; color: var(--t2); }
 .t-route-ch { display: grid; grid-template-columns: minmax(0, 1fr) 54px; align-items: center; gap: 10px; min-width: 0; }
 .t-route-ch b { text-align: right; }  /* the bar may fill its track; the figure never leaves the row */

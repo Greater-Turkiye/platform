@@ -244,11 +244,63 @@
     document.getElementById('bayrak').hidden = false;
   }
 
+  /* What arrives, by HS chapter. Both windows come from Israel's own returns, because taking
+     Türkiye's chapters before the halt and Israel's after it would compare two accounting bases
+     and call the difference a finding.
+
+     A chapter whose window is one delivery is marked: 105 M$ of ships in a single month of eleven
+     averages to 10 M$ a month and would otherwise read as a trade that is still running. */
+  function goods(block) {
+    if (!block || !block.chapters) return;
+    const rows = block.chapters.filter((c) => c.after > 0).slice(0, 12);
+    if (!rows.length) return;
+    const peak = Math.max(...rows.map((c) => c.after));
+    const box = $('t-goods');
+    const head = GT.el('div', 't-route t-route-head');
+    head.append(
+      GT.el('span', null, GT.t('t.g.chapter')), GT.el('span', null, GT.t('t.g.before')),
+      GT.el('span', null, GT.t('t.g.after')), GT.el('span', null, GT.t('t.g.share')),
+    );
+    box.replaceChildren(head, ...rows.map((c) => {
+      const r = GT.el('div', 't-route');
+      const bar = GT.el('span', 't-route-bar');
+      bar.style.setProperty('--w', (100 * c.after / peak).toFixed(1) + '%');
+      const share = GT.el('span', 't-route-ch');
+      const pct = c.change_pct == null ? '—'
+        : new Intl.NumberFormat(GT.lang === 'tr' ? 'tr-TR' : 'en-GB',
+          { maximumFractionDigits: 0, signDisplay: 'always' }).format(c.change_pct) + '%';
+      share.append(bar, GT.el('b', 'mono', pct));
+
+      /* The UN's chapter text is a full legal definition — "Electrical machinery and equipment and
+         parts thereof; sound recorders and reproducers; television image and sound recorders…" is
+         one chapter. The row takes what comes before the first semicolon, which is the chapter as
+         anyone refers to it; the full text stays in the data file. */
+      const full = (GT.lang === 'tr' && c.name_tr) ? c.name_tr : c.name;
+      const short = full.split(';')[0].trim();
+      const name = GT.el('span', 't-route-name', short);
+      name.title = full;
+      if (c.lumpy) {
+        name.append(' ', GT.el('span', 't-lump', '▲'));
+        r.title = GT.t('t.g.lumpyTip', { n: c.months_present });
+      }
+      r.append(name, GT.el('span', 'mono', usd(c.before)), GT.el('span', 'mono', usd(c.after)), share);
+      return r;
+    }));
+    const total = block.chapters.reduce((a, c) => a + c.after, 0);
+    const wasTotal = block.chapters.reduce((a, c) => a + c.before, 0);
+    $('t-goods-src').textContent = GT.t('t.g.src', {
+      a: block.windows.after.join(' – '), b: block.windows.before.join(' – '),
+      was: usd(wasTotal), now: usd(total),
+    });
+    document.getElementById('urunler').hidden = false;
+  }
+
   function render() {
     if (!data) return;
     const s = renderStats(data.series);
     chart(data.series);
     routes(data.routes);
+    goods(data.chapters);
     const last = data.series[data.series.length - 1];
     $('t-chart-note').textContent = GT.t('t.note', { n: s.months, d: s.ofMonths, v: usd(s.total) });
     $('t-chart-src').textContent = GT.t('t.src', { p: monthLabel(last.period) });

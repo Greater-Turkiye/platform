@@ -37,6 +37,18 @@ Bir ayda Türkiye'nin beyanında İsrail satırının bulunmaması iki şey anla
 
 **Büyüyen bir satır rota değildir.** Hiçbir mal bir istatistikten ötekine izlenmez; her ekonomi kendi nedenleriyle büyür. Karşılaştırmanın söyleyebileceği tek şey, bir sonraki bakışın nereye yöneleceği ve nereye yönelmeyeceğidir.
 
+### Ürün kırılımı (fasıl)
+
+`chapters` bölümü, İsrail'e Türkiye menşeli olarak varan malları **armonize sistem faslı** (HS 2 hane) bazında verir: yasaktan önceki 12 ayın (2023-05 – 2024-04) ve sonraki 12 ayın (2025-08 – 2026-07) aylık ortalaması.
+
+**İki pencere de İsrail'in beyanından okunur.** Yasak öncesi için Türkiye'nin fasıllarını, sonrası için İsrail'inkini almak iki farklı muhasebe tabanını karşılaştırmak ve aradaki farka "bulgu" demek olurdu.
+
+**Tek teslimat, akış değildir.** Bir fasıl penceredeki değerinin neredeyse tamamını tek bir ayda taşıyabilir: gemiler faslında (HS 89) 11 ayın birinde 105,2 M$ kayıtlıdır ve aylık ortalaması 9,6 M$ çıkar — grafikte süren bir ticaret gibi okunurdu. Bu yüzden her fasıl `months_present` (kaç ayda kayıt var) ve `top_month_share` (en büyük ayın penceredeki payı) taşır; payı %60'ı aşan ve üç aydan az görülen fasıl `lumpy: true` ile işaretlenir ve sayfada ▲ ile gösterilir.
+
+**Fasıl geniş bir kategoridir.** "Demir ve çelik" tek bir ürün değildir; rakamlar neyin vardığını söyler, hangi yoldan ya da hangi gemiyle geldiğini söylemez.
+
+Bugünkü çıktı: tüm fasılların toplamı **408 M$/ay → 177 M$/ay**. Süreklilik gösterenlerin başında **demir-çelik (HS 72) 44,7 → 27,8 M$/ay, 11 ayın hepsinde** ve **taş-alçı-çimento mamulleri (HS 68) 11,6 → 10,2 M$/ay** gelir.
+
 ### Politika tarihleri
 
 9 Nisan 2024 (54 ürün grubunda kısıtlama) ve 2 Mayıs 2024 (iki yönlü durdurma) tarihleri dosyada **birincil kaynağı eklenmemiş** olarak taşınır: bakanlığın duyuru sayfaları düz bir HTTP istemcisine yanıt vermiyor ve kaynaksız bir tarih, kaynaklı rakamların yanında dosyanın en zayıf yeri olurdu. Rakamlar bu tarihlere bağlı değildir: seri, Türk satırının nerede durduğunu kendisi gösterir.
@@ -86,7 +98,7 @@ The data is UN Comtrade monthly merchandise trade, taken from the public preview
 
 Türkiye reports exports by country of **destination** and Israel reports imports by country of **origin**, which is the whole reason for the comparison: before the halt the two lines agree to within a few per cent, and a Turkish-made good routed through a third country afterwards is an export to that country in Türkiye's books and an import of Turkish origin in Israel's. The gap therefore measures **routing**, not smuggling.
 
-A month with no Israel line in Türkiye's returns is checked against the same month's Germany line; only when Türkiye reported other partners is the absence recorded as a reported absence. The `routes` section compares Türkiye's own exports to a fixed list of neighbours and transit economies, twelve months before against twelve months after — a line that grew is not a route, and nothing is traced from one statistic to another.
+A month with no Israel line in Türkiye's returns is checked against the same month's Germany line; only when Türkiye reported other partners is the absence recorded as a reported absence. The `chapters` section breaks the same flow down by Harmonized System chapter, both windows read from Israel's returns so they are comparable. A chapter that carries almost its whole window in one month is marked `lumpy` — 105 M$ of ships in a single month averages to 10 M$ and would read as a trade that is still running. The `routes` section compares Türkiye's own exports to a fixed list of neighbours and transit economies, twelve months before against twelve months after — a line that grew is not a route, and nothing is traced from one statistic to another.
 
 The two policy dates are carried without a primary source attached, because the ministry's announcement pages do not answer a plain HTTP client and an unsourced date next to sourced figures would be the weakest thing in the file.
 

@@ -93,14 +93,15 @@ def months(first_year: int, first_month: int) -> list[str]:
     return out
 
 
-def fetch(period: str, reporter: int, partner: int, flow: str, cache: Path, refresh: bool) -> list[dict]:
+def fetch(period: str, reporter: int, partner: int, flow: str, cache: Path, refresh: bool,
+          cmd: str = "TOTAL") -> list[dict]:
     cache.mkdir(parents=True, exist_ok=True)
-    path = cache / f"{reporter}-{partner}-{flow}-{period}.json"
+    path = cache / f"{reporter}-{partner}-{flow}-{period}-{cmd}.json"
     if path.exists() and not refresh:
         return json.loads(path.read_text(encoding="utf-8")).get("data", [])
     url = (
         f"{API}?reporterCode={reporter}&period={period}&partnerCode={partner}"
-        f"&flowCode={flow}&cmdCode=TOTAL"
+        f"&flowCode={flow}&cmdCode={cmd}"
     )
     for attempt in range(6):
         try:
@@ -168,6 +169,174 @@ def mean_exports(partner: int, window: list[str], cache: Path, refresh: bool) ->
         if total is not None:
             values.append(total)
     return (round(sum(values) / len(values)) if values else None), len(values)
+
+
+# Which goods, not just how much. Israel reports both windows, so the comparison is like with like:
+# taking Türkiye's own chapters before the halt and Israel's after it would compare two different
+# accounting bases and call the difference a finding.
+CHAPTERS_URL = "https://comtradeapi.un.org/files/v1/app/reference/HS.json"
+CHAPTER_BEFORE = [f"{y}{m:02d}" for y, m in
+                  [(2023, m) for m in range(5, 13)] + [(2024, m) for m in range(1, 5)]]
+CHAPTER_AFTER = [f"{y}{m:02d}" for y, m in
+                 [(2025, m) for m in range(8, 13)] + [(2026, m) for m in range(1, 8)]]
+
+# Turkish names for the chapters this series actually carries. The English text is the official one
+# the UN publishes; the Turkish is the customs tariff's own wording, shortened to what fits a row.
+CHAPTER_TR = {
+    "08": "Meyveler ve sert kabuklu meyveler",
+    "15": "Hayvansal ve bitkisel yağlar",
+    "19": "Hububat, un ve nişasta müstahzarları",
+    "20": "Sebze, meyve ve bitki müstahzarları",
+    "22": "İçecekler, alkollü içkiler ve sirke",
+    "25": "Tuz, kükürt, toprak, taş, alçı, kireç ve çimento",
+    "30": "Eczacılık ürünleri",
+    "26": "Metal cevherleri, cüruf ve kül",
+    "27": "Mineral yakıtlar ve yağlar",
+    "28": "İnorganik kimyasallar",
+    "29": "Organik kimyasallar",
+    "31": "Gübreler",
+    "32": "Boya, vernik ve pigmentler",
+    "33": "Uçucu yağlar, parfümeri ve kozmetik",
+    "34": "Sabun, yüzey aktif maddeler, mumlar",
+    "35": "Albüminoid maddeler, tutkallar, enzimler",
+    "38": "Muhtelif kimyasal ürünler",
+    "39": "Plastikler ve mamulleri",
+    "40": "Kauçuk ve mamulleri",
+    "44": "Ağaç ve ahşap eşya",
+    "48": "Kâğıt, karton ve mamulleri",
+    "49": "Basılı kitap, gazete ve matbuat",
+    "52": "Pamuk",
+    "54": "Sentetik ve suni filamentler",
+    "55": "Sentetik ve suni devamsız lifler",
+    "56": "Vatka, keçe, ip ve halat",
+    "57": "Halılar ve diğer yer kaplamaları",
+    "58": "Özel dokumalar, dantel, işlemeler",
+    "59": "Emdirilmiş, kaplanmış dokumalar",
+    "60": "Örme kumaşlar",
+    "61": "Örme giyim eşyası",
+    "62": "Örme olmayan giyim eşyası",
+    "63": "Diğer hazır tekstil eşyası",
+    "64": "Ayakkabı ve aksamı",
+    "68": "Taş, alçı, çimento ve amyant mamulleri",
+    "69": "Seramik ürünleri",
+    "70": "Cam ve cam eşya",
+    "71": "Kıymetli taş ve metaller, mücevherat",
+    "72": "Demir ve çelik",
+    "73": "Demir veya çelikten eşya",
+    "74": "Bakır ve bakırdan eşya",
+    "76": "Alüminyum ve alüminyumdan eşya",
+    "82": "Aletler, bıçakçı eşyası, çatal-kaşık",
+    "83": "Adi metallerden çeşitli eşya",
+    "84": "Makineler, mekanik cihazlar, kazanlar",
+    "85": "Elektrikli makine ve cihazlar",
+    "86": "Demiryolu taşıtları ve donanımı",
+    "87": "Kara taşıtları ve aksamı",
+    "89": "Gemiler ve suda yüzen araçlar",
+    "90": "Optik, ölçü ve tıbbi cihazlar",
+    "94": "Mobilya, yatak, aydınlatma cihazları",
+    "95": "Oyuncaklar, oyun ve spor malzemeleri",
+    "96": "Çeşitli mamul eşya",
+    "99": "Türü belirtilmemiş eşya",
+}
+
+
+def chapter_names(cache: Path, refresh: bool) -> dict[str, str]:
+    """The UN's own text for each two-digit chapter, cached with the rest of the downloads."""
+    cache.mkdir(parents=True, exist_ok=True)
+    path = cache / "hs-chapters.json"
+    if not path.exists() or refresh:
+        req = urllib.request.Request(CHAPTERS_URL, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(req, timeout=120) as r:
+            path.write_bytes(r.read())
+    rows = json.loads(path.read_text(encoding="utf-8")).get("results", [])
+    out = {}
+    for row in rows:
+        code = str(row.get("id") or "")
+        if len(code) != 2:
+            continue
+        text = str(row.get("text") or "")
+        # the reference prints "72 - Iron and steel"; the code is already the key
+        out[code] = text.split(" - ", 1)[-1].strip()
+    return out
+
+
+def chapters_of(rows: list[dict]) -> dict[str, float]:
+    """The undivided figure for each two-digit chapter in one month's reply."""
+    out: dict[str, float] = {}
+    for r in rows:
+        if str(r.get("customsCode") or "C00") != "C00":
+            continue
+        if str(r.get("partner2Code") or "0") != "0":
+            continue
+        if str(r.get("motCode")) != "0":
+            continue
+        code = str(r.get("cmdCode") or "")
+        if len(code) != 2 or not code.isdigit():
+            continue
+        value = r.get("primaryValue")
+        if value is not None:
+            out[code] = out.get(code, 0.0) + float(value)
+    return out
+
+
+def build_chapters(cache: Path, refresh: bool) -> dict:
+    """What arrives, by chapter, before and after the halt — both from Israel's own returns."""
+    names = chapter_names(cache, refresh)
+    windows = {"before": CHAPTER_BEFORE, "after": CHAPTER_AFTER}
+    totals: dict[str, dict[str, float]] = {}
+    months = {"before": 0, "after": 0}
+    by_month: dict[str, list[float]] = {}  # the after window, kept month by month
+    for label, window in windows.items():
+        for period in window:
+            rows = fetch(period, ISR, TUR, "M", cache, refresh, cmd="AG2")
+            month = chapters_of(rows)
+            if not month:
+                continue
+            months[label] += 1
+            for code, value in month.items():
+                totals.setdefault(code, {"before": 0.0, "after": 0.0})[label] += value
+            if label == "after":
+                for code in set(list(totals) + list(month)):
+                    by_month.setdefault(code, []).append(month.get(code, 0.0))
+
+    out = []
+    for code, sums in totals.items():
+        before = sums["before"] / months["before"] if months["before"] else None
+        after = sums["after"] / months["after"] if months["after"] else None
+        series = by_month.get(code, [])
+        present = sum(1 for v in series if v > 0)
+        top_share = max(series) / sums["after"] if series and sums["after"] else 0.0
+        out.append({
+            "chapter": code,
+            "name": names.get(code, code),
+            "name_tr": CHAPTER_TR.get(code, names.get(code, code)),
+            "before": round(before) if before else 0,
+            "after": round(after) if after else 0,
+            "change_pct": round(100 * (after - before) / before, 1) if (before and after is not None) else None,
+            # A chapter can be a flow or a single delivery, and a monthly average hides which:
+            # 105 M$ of ships in one month of eleven averages to 10 M$ a month and reads as trade.
+            "months_present": present,
+            "top_month_share": round(top_share, 3),
+            "lumpy": bool(top_share > 0.6 and present <= 3),
+        })
+    out.sort(key=lambda c: -c["after"])
+    return {
+        "about": (
+            "What still arrives in Israel recorded as Turkish origin, by HS chapter, as monthly "
+            "averages. Both windows are read from Israel's own returns so they are comparable: "
+            "taking Türkiye's chapters before the halt and Israel's after it would compare two "
+            "accounting bases and call the difference a finding. A chapter is a wide category — "
+            "'iron and steel' is not a single product — and the figures say what arrived, never "
+            "by which route or on whose ship. `lumpy` marks a chapter whose window is one delivery "
+            "rather than a flow: a single 105 M$ month of ships averages to 10 M$ a month and would "
+            "otherwise read as trade."
+        ),
+        "windows": {"before": [CHAPTER_BEFORE[0], CHAPTER_BEFORE[-1]],
+                    "after": [CHAPTER_AFTER[0], CHAPTER_AFTER[-1]]},
+        "months_with_data": months,
+        "reporter": "Israel (376), imports from Türkiye (792)",
+        "chapters": out,
+    }
 
 
 def build_routes(cache: Path, refresh: bool) -> dict:
@@ -265,6 +434,7 @@ def build(cache: Path, refresh: bool) -> dict:
         },
         "series": series,
         "routes": build_routes(cache, refresh),
+        "chapters": build_chapters(cache, refresh),
     }
 
 
