@@ -31,6 +31,18 @@ Bu fark, dosyanın tamamının nedenidir. Yasaktan önce iki çizgi birbirini y�
 
 Bir ayda Türkiye'nin beyanında İsrail satırının bulunmaması iki şey anlamına gelebilirdi: ticaret yok ya da rapor yok. Her böyle ay, **aynı ayın Almanya satırıyla** denetlenir. Türkiye o ay başka ortakları raporlamışsa, yokluk raporlanmış bir yokluktur ve dosyada `tur_reported_that_month: true` ile işaretlenir. Bu denetimi geçmeyen hiçbir ay "sıfıra indi" diye yayımlanmaz.
 
+> **Düzeltme (2026-09-21).** Bu denetim, yazıldığı hâliyle ters çalışıyordu. İfade, kontrol satırının *kendisi de yoksa* `true` döndürüyordu; yani Türkiye'nin Comtrade'e hiçbir şey yayımlamadığı bir ay, "Türkiye o ay raporladı" diye işaretleniyordu. Sonuç olarak yasak sonrası **26 ayın hepsi** raporlanmış yokluk sayılmış ve sayfa da bunu söylemişti.
+>
+> Doğrusu: 26 ayın **19 tanesi** raporlanmış yokluktur (3.24 milyar $ tutarını kapsar), **7 tanesinde** (2026-01 – 2026-07) Türkiye Comtrade'e hiç yayın yapmamıştır. O aylar sessizliktir, yokluk değil; bu seri onlar hakkında bir şey söylemez. İsrail'in kaydettiği 4.30 milyar $'ın 75%'i raporlanmış yokluk aylarına düşer.
+>
+> Sayfa artık iki sayıyı ayrı gösterir ve sessiz ayları ayrıca yazar.
+
+### Karşılaştırma pencereleri
+
+Yasak öncesi pencere tarihseldir ve yerinden kıpırdamaz: yasağın ilan edildiği aya kadarki 12 ay (`202305` – `202404`). Yasak sonrası pencere **her koşuda veriye sorularak** belirlenir: her raportörün Comtrade'e yayımladığı son aya kadarki 12 ay. UN'in yayın gecikmesi raportöre göre değiştiği için ikisi aynı ay değildir — bugün rotalar `202501` – `202512` (Türkiye'nin beyanı), ürünler `202508` – `202607` (İsrail'in beyanı) penceresindedir. Kullanılan pencereler dosyanın `windows` bölümünde yazılıdır.
+
+Bu daha önce kaynak dosyaya elle yazılıydı; aylık tazeleme seriye bir ay ekleyip geçen ayki pencereleri karşılaştırıyordu, yani hiçbir şeyi tazelemiyordu.
+
 ### Komşu satırları
 
 `routes` bölümü, Türkiye'nin **kendi** ihracatını komşu ve transit ekonomilere göre, yasaktan önceki 12 ayın (2023-05 – 2024-04) ve sonraki 12 ayın (2024-06 – 2025-05) ortalamasıyla karşılaştırır. Liste önceden sabittir: soru, cevabı beğenilen satıra değil, her makul satıra sorulur.
