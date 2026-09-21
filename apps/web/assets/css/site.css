@@ -97,7 +97,7 @@ img, svg { display: block; max-width: 100%; }
   animation: globe-sweep 7s linear infinite; }
 @keyframes globe-sweep { to { rotate: 1turn; } }
 /* panel: pan/zoom moves the drawn map with a transform on this box (panel.js liveZoom) */
-.p-mover { position: absolute; inset: 0; transform-origin: 0 0; will-change: transform; }
+.p-mover, .gm-mover { position: absolute; inset: 0; transform-origin: 0 0; will-change: transform; }
 .hero-fade { position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(90deg, var(--bg) 0%, rgba(5, 5, 5, .92) 26%, rgba(5, 5, 5, .35) 50%, rgba(5, 5, 5, 0) 66%),
               linear-gradient(0deg, var(--bg) 0%, rgba(5, 5, 5, 0) 22%); }
@@ -879,7 +879,7 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .n-board-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .n-clear { padding: 0; border: 0; background: none; color: var(--navy); cursor: pointer;
   font: 500 9px var(--m); letter-spacing: .14em; text-transform: uppercase; }
-.n-cols, .n-row { display: grid; grid-template-columns: minmax(0, 1fr) 92px 28px; align-items: center; gap: 10px; }
+.n-cols, .n-row { display: grid; grid-template-columns: minmax(0, 1fr) 118px 30px; align-items: center; gap: 10px; }
 .n-cols { margin: 12px 0 4px; font: 500 8px var(--m); letter-spacing: .14em; text-transform: uppercase; color: var(--t3); }
 .n-cols > :last-child { justify-self: end; }
 .n-row { width: 100%; padding: 7px 0; border: 0; border-top: 1px solid var(--line); background: none;
@@ -889,7 +889,14 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .n-name { font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .n-val { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; }
 .n-val b { font-size: 11px; color: var(--t1); font-variant-numeric: tabular-nums; }
-.n-bar { width: var(--w, 0%); min-width: 2px; height: 5px; background: var(--navy); opacity: .5; }
+.n-bar { width: var(--w, 0%); min-width: 2px; height: 5px; background: var(--navy); opacity: .55;
+  border-radius: 1px; }
+/* The track behind the bar: without it a short bar reads as a rendering fault rather than
+   as a small number. */
+.n-val { position: relative; }
+.n-val::before { content: ''; position: absolute; left: 0; right: 44px; height: 5px;
+  top: 50%; transform: translateY(-50%); background: var(--t4); border-radius: 1px; }
+.n-bar { position: relative; }
 .n-sub { justify-self: end; font-size: 10.5px; color: var(--t3); }
 .n-fine { margin: 12px 0 0; font-size: 10.5px; line-height: 1.55; color: var(--t3); }
 .n-fine a { color: var(--navy); }
@@ -943,6 +950,14 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .n-limit-agreed { stroke: rgba(31, 111, 178, .9); }
 .n-limit-claimed { stroke: rgba(31, 111, 178, .8); stroke-dasharray: 6 4; }
 .n-cell { fill: var(--amber); }
+/* Announced activity, in five bands. The steps are opacity rather than five colours so the wash
+   still reads as one quantity, and so a cell costs one class instead of its own style rule. */
+.n-cell-1 { opacity: .12; }
+.n-cell-2 { opacity: .24; }
+.n-cell-3 { opacity: .38; }
+.n-cell-4 { opacity: .54; }
+.n-cell-5 { opacity: .72; }
+.n-sub.none { color: var(--t3); }
 .n-island { fill: var(--navy-deep); stroke: #fff; stroke-width: .8; vector-effect: non-scaling-stroke; }
 /* How much of the map a coarse position covers: in map units, so it grows with the zoom the way
    the doubt it represents does. */

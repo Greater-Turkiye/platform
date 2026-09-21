@@ -30,7 +30,7 @@
   let regionActivity = null; // assets/data/msi-regions.json, loaded once, absent is not zero
 
   let world = null, data = null, loadError = false;
-  let svg = null, gRoot, gCountries, gLabels, gUnc, gSites, gEvents, proj, geoPath, zoom, k = 1, W = 0, H = 0;
+  let svg = null, gRoot, gCountries, gLabels, gUnc, gSites, gEvents, proj, geoPath, gmap = null, k = 1, W = 0, H = 0;
   let lastFocus = null;
 
   /* ---------------- vector basemap ----------------
@@ -67,10 +67,10 @@
       // The map is redrawn once, so the fills become a tint and our own city labels step aside.
       // drawMap() rebuilds the zoom behaviour from scratch, so the view the reader is looking at
       // has to be put back afterwards — otherwise their zoom would snap to the overview.
-      const t = d3.zoomTransform(els.map);
+      const t = gmap.current();
       drawMap();
       render();
-      mapSel().call(zoom.transform, t);
+      gmap.transform(t);
     }));
   }
   async function initBase() {
@@ -112,10 +112,10 @@
      coordinate at a chosen zoom. It reads nothing and changes no state the map does not already own. */
   window.GT_PANEL = {
     goto(lon, lat, kk) {
-      if (!zoom || !proj) return false;
+      if (!gmap || !proj) return false;
       const c = proj([lon, lat]);
       const t = d3.zoomIdentity.translate(viewW() / 2, H / 2).scale(kk).translate(-c[0], -c[1]);
-      mapSel().call(zoom.transform, t);
+      gmap.transform(t);
       return true;
     },
     zoom: () => k,
@@ -230,23 +230,32 @@
   /* ---------------- map ---------------- */
   function drawMap() {
     if (!world) return;
-    W = els.map.clientWidth; H = els.map.clientHeight;
-    if (!W || !H) return;
+    gmap = GT.map.create(els.map, {
+      // Balkans to Pakistan, Black Sea to the Gulf
+      view: [[13, 22], [74, 48]],
+      pad: 24,
+      live: true, // this map is too heavy to redraw inside a gesture; see the engine
+      ariaLabel: GT.t('hero.mapAria'),
+      // k 192 is about zoom 11, where our tiles stop. Without tiles the 1:50m coastline is the
+      // whole map, and past ~24x it is a generalisation pretending to be a survey.
+      scaleExtent: [1, baseMode ? 192 : 24],
+      onMoveStart: hideTip,
+      onFrame: (t) => { syncBase(t); if (els.scale) els.scale.textContent = t.k.toFixed(1) + '\u00d7'; },
+      onCommit: syncBase,
+      onZoom: (kk) => { k = kk; rescale(); },
+      onCursor: (ll) => { if (els.coords) els.coords.textContent = ll ? GT.fmtLL(ll) : '\u2014'; },
+    });
+    if (!gmap.frame()) return;
+    proj = gmap.proj;
+    geoPath = gmap.path; // the marker layers draw geometry too, outside this function
+    const path = gmap.path;
+    svg = gmap.svg;
     k = 1;
-    // Balkans to Pakistan, Black Sea to the Gulf
-    proj = d3.geoMercator().fitExtent([[24, 24], [W - 24, H - 24]], { type: 'MultiPoint', coordinates: [[13, 22], [74, 48]] });
-    const path = d3.geoPath(proj);
-    geoPath = path; // the marker layers draw geometry too, outside this function
-
-    // the <svg> sits in a plain box that carries the pan/zoom transform while the map moves (see liveZoom)
-    mover = d3.select(els.map).selectAll('div.p-mover').data([0]).join('div').attr('class', 'p-mover');
-    svg = mover.selectAll('svg').data([0]).join('svg')
-      .attr('viewBox', `0 0 ${W} ${H}`).attr('aria-label', GT.t('hero.mapAria'))
-      .classed('with-base', !!base); // thematic fills become a tint so the basemap reads through
-    svg.selectAll('*').remove();
+    W = gmap.W; H = gmap.H;
+    svg.classed('with-base', !!base); // thematic fills become a tint so the basemap reads through
     GT.mapDefs(svg);
 
-    gRoot = svg.append('g');
+    gRoot = gmap.gRoot;
     gRoot.append('path').datum(d3.geoGraticule().step([5, 5])()).attr('class', 'm-grat').attr('d', path);
     gActivity = gRoot.append('g').attr('class', 'm-act-g');
     drawActivity();
@@ -347,65 +356,18 @@
     gEvents = gRoot.append('g');
     drawLabels();
 
-    // the zoom behaviour lives on the map's container, so its coordinates don't move with the map (see liveZoom)
-    pending.zoom = null; rendered = d3.zoomIdentity; moving = false; clearTimeout(settle);
-    mover.style('transform', null);
-    // k 192 is about zoom 11, where our tiles stop. Without tiles the 1:50m coastline is the whole
-    // map, and past ~24x it is a generalisation pretending to be a survey, so the range is shorter.
-    zoom = d3.zoom().scaleExtent([1, baseMode ? 192 : 24])
-      .translateExtent([[-W * 0.3, -H * 0.3], [W * 1.3, H * 1.3]])
-      .on('zoom', (ev) => {
-        pending.zoom = ev.transform;
-        clearTimeout(settle);
-        if (!moving) { moving = true; hideTip(); if (svg) svg.classed('moving', true); }
-        schedule();
-      })
-      // re-render once a gesture has rested for a moment (or right after an animated zoom)
-      .on('end', (ev) => { clearTimeout(settle); settle = setTimeout(() => requestAnimationFrame(commitZoom), ev.sourceEvent ? 150 : 0); });
-    mapSel().property('__zoom', d3.zoomIdentity).call(zoom).on('dblclick.zoom', null);
-    svg.on('pointermove.coords', (ev) => { pending.coords = d3.pointer(ev, els.map); schedule(); });
+    gmap.ready();
     if (base) { base.resize(); syncBase(d3.zoomIdentity); }
   }
-  const mapSel = () => d3.select(els.map);
 
-  /* Input-driven DOM writes (zoom transform, cursor read-out, tooltip) are applied once per animation frame.
-     Several pointer/wheel/touch events can arrive per frame, and a write between two of them makes the next
-     d3.pointer() read force a synchronous layout of the whole map. */
-  const pending = { zoom: null, coords: null, tip: undefined };
-  /* Zooming and panning move the already-drawn map with a CSS transform on its box (compositor work only): re-laying
-     out and repainting the map's text, strokes and markers at every step is what made them stutter. The map is drawn
-     again at the new zoom once the gesture or animation rests (commitZoom). The map is its own layer (will-change,
-     site.css): a pan is a pure offset, a zoom scales the drawn map until it is redrawn sharp at the end. The
-     transform sits on a plain box, not on the <svg> itself: a transform on the SVG root makes Chrome lay the SVG out
-     again, and every SVG label with it, since SVG text follows the on-screen scale. */
-  let rendered = d3.zoomIdentity, moving = false, settle = 0, mover = null;
-  function liveZoom(t) {
-    const s = t.k / rendered.k;
-    mover.style('transform', `translate(${t.x - s * rendered.x}px,${t.y - s * rendered.y}px) scale(${s})`);
-    if (els.scale) els.scale.textContent = t.k.toFixed(1) + '×';
-  }
-  function commitZoom() {
-    if (!svg) return;
-    const t = d3.zoomTransform(els.map);
-    moving = false;
-    svg.classed('moving', false);
-    rendered = t;
-    syncBase(t);
-    gRoot.attr('transform', t);
-    // labels and markers only depend on the zoom level: a pan leaves them untouched
-    if (t.k !== k) { k = t.k; rescale(); }
-    mover.style('transform', null);
-  }
+  /* The engine batches the transform and the cursor read-out into one animation frame. The
+     tooltip is the page's own, and batched for the same reason: a DOM write between two pointer
+     events makes the next d3.pointer() read force a synchronous layout of the whole map. */
+  const pending = { tip: undefined };
   let frameReq = 0;
   function schedule() { if (!frameReq) frameReq = requestAnimationFrame(flush); }
   function flush() {
     frameReq = 0;
-    if (pending.zoom && svg) { liveZoom(pending.zoom); syncBase(pending.zoom); pending.zoom = null; }
-    if (pending.coords && svg) {
-      const ll = proj.invert(d3.zoomTransform(els.map).invert(pending.coords));
-      if (ll) els.coords.textContent = GT.fmtLL(ll);
-      pending.coords = null;
-    }
     applyTip();
   }
 
@@ -683,26 +645,26 @@
 
   function zoomToRegion(code, animate) {
     const r = GT.REGIONS[code];
-    if (!zoom || !r) return;
+    if (!gmap || !r) return;
     const a = proj(r.bbox[0]), b = proj(r.bbox[1]);
     const x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]);
     // the map now goes to 192x; a region may use a good part of that, but not all of it — a region
     // shown at its tightest fit loses the context that makes it a region
     const kk = Math.max(1, Math.min(48, 0.82 / Math.max((x1 - x0) / viewW(), (y1 - y0) / H)));
     const t = d3.zoomIdentity.translate(viewW() / 2, H / 2).scale(kk).translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
-    mapSel().transition().duration(animate && !reduce ? 900 : 0).call(zoom.transform, t);
+    gmap.transform(t, animate && !reduce ? 900 : 0);
   }
   // Visible map width: the open drawer covers the right side on wide screens.
   const viewW = () => (els.drawer.classList.contains('open') && window.innerWidth > 860 ? Math.max(200, W - els.drawer.offsetWidth) : W);
 
   function flyTo(rec) {
     const g = rec.location && rec.location.geometry;
-    if (!zoom) return;
+    if (!gmap) return;
     if (!g) { if (rec.regions && rec.regions.length) zoomToRegion(rec.regions[0], true); return; }
     const [x, y] = proj(g.type === 'Point' ? g.coordinates : d3.geoCentroid(g));
     const kk = Math.max(k, rec.id.startsWith('sit_') ? 6 : 4);
     const t = d3.zoomIdentity.translate(viewW() / 2, H / 2).scale(kk).translate(-x, -y);
-    mapSel().transition().duration(reduce ? 0 : 900).call(zoom.transform, t);
+    gmap.transform(t, reduce ? 0 : 900);
   }
 
   function setRegion(code) {
@@ -710,7 +672,7 @@
     els.region.value = code;
     render();
     if (code) zoomToRegion(code, true);
-    else if (svg) mapSel().transition().duration(reduce ? 0 : 700).call(zoom.transform, d3.zoomIdentity);
+    else if (gmap) gmap.reset(reduce ? 0 : 700);
   }
 
   /* ---------------- the board ----------------
@@ -1098,8 +1060,8 @@
     Object.values(lyr).forEach((c) => c.addEventListener('change', render));
     const pb = $('p-brief');
     if (pb) pb.addEventListener('click', () => { printHeader(); window.print(); });
-    $('z-in').addEventListener('click', () => svg && mapSel().transition().duration(reduce ? 0 : 350).call(zoom.scaleBy, 1.7));
-    $('z-out').addEventListener('click', () => svg && mapSel().transition().duration(reduce ? 0 : 350).call(zoom.scaleBy, 1 / 1.7));
+    $('z-in').addEventListener('click', () => gmap && gmap.zoomBy(1.7));
+    $('z-out').addEventListener('click', () => gmap && gmap.zoomBy(1 / 1.7));
     $('z-reset').addEventListener('click', () => setRegion(''));
     els.close.addEventListener('click', closeDrawer);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
