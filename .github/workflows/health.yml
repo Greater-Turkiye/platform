@@ -1,0 +1,105 @@
+name: health
+
+# Does the pipeline still work?
+#
+# The monthly announced-activity refresh was broken for months: it downloaded 112 MB, failed on a
+# missing import, and stopped — every month, unnoticed, because a scheduled job that nobody
+# watches fails where nobody is looking. It was found by dispatching it for an unrelated reason.
+#
+# This asks, every day, the four questions a person would ask if they checked by hand: did each
+# scheduled run succeed and has it run recently enough for its own cadence; is the collector still
+# publishing batches; is each published data file younger than the cadence meant to refresh it; do
+# the pages and the files they load actually answer.
+#
+# When something is wrong it opens one issue and keeps commenting on that same issue rather than
+# opening a new one each day, because a hundred identical issues is a way of not being read. When
+# everything recovers it closes the issue itself.
+#
+# It reads nothing private and needs no secret beyond the token a workflow already has.
+on:
+  schedule:
+    - cron: "37 7 * * *" # daily, 07:37 UTC — off the hour; Actions queues are longest on it
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: health
+  cancel-in-progress: false
+
+env:
+  TITLE: "Boru hattı sağlık kontrolü düştü / The pipeline health check is failing"
+  LABEL: saglik
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      issues: write # say so when something stops, and say so when it comes back
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+
+      - name: Ask
+        id: check
+        run: |
+          set +e
+          python tools/ops/health.py --format md > "$RUNNER_TEMP/report.md"
+          echo "failed=$?" >> "$GITHUB_OUTPUT"
+          cat "$RUNNER_TEMP/report.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Find the open report, if there is one
+        id: existing
+        run: |
+          set -euo pipefail
+          number=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --label "$LABEL" \
+                     --json number,title \
+                   | python3 -c 'import json,os,sys; t=os.environ["TITLE"]; print(next((str(i["number"]) for i in json.load(sys.stdin) if i["title"] == t), ""))')
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+
+      - name: Say what stopped
+        if: steps.check.outputs.failed != '0'
+        run: |
+          set -euo pipefail
+          {
+            echo "Günlük sağlık kontrolü bir ya da daha fazla soruya \`ok\` diyemedi."
+            echo "The daily health check could not answer \`ok\` to one or more questions."
+            echo
+            cat "$RUNNER_TEMP/report.md"
+            echo
+            echo "Koşu / run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo "<sub>Bu issue her gün yeniden açılmaz; aynı issue'ya yorum düşer ve her şey"
+            echo "düzeldiğinde kendisi kapanır. / This issue is not reopened daily: the check"
+            echo "comments on it and closes it itself once everything answers again.</sub>"
+          } > "$RUNNER_TEMP/issue.md"
+          gh label create "$LABEL" --description "Boru hattının kendi durumu" --color D93F0B 2>/dev/null || true
+          if [ -n "${{ steps.existing.outputs.number }}" ]; then
+            gh issue comment "${{ steps.existing.outputs.number }}" -R "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/issue.md"
+          else
+            gh issue create -R "$GITHUB_REPOSITORY" --title "$TITLE" --label "$LABEL" --body-file "$RUNNER_TEMP/issue.md"
+          fi
+
+      - name: Close it when everything answers again
+        if: steps.check.outputs.failed == '0' && steps.existing.outputs.number != ''
+        run: |
+          set -euo pipefail
+          {
+            echo "Her şey yeniden cevap veriyor; kapatılıyor."
+            echo "Everything answers again; closing."
+            echo
+            cat "$RUNNER_TEMP/report.md"
+          } > "$RUNNER_TEMP/closed.md"
+          gh issue close "${{ steps.existing.outputs.number }}" -R "$GITHUB_REPOSITORY" --comment "$(cat "$RUNNER_TEMP/closed.md")"
+
+      - name: Fail the run when the pipeline is unhealthy
+        if: steps.check.outputs.failed != '0'
+        run: exit 1

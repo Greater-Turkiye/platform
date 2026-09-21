@@ -390,6 +390,28 @@ an exclusion hides a rotted citation as effectively as it hides a firewall. The 
 the Wayback archive whether each excluded source has a copy at all, because an excluded source is
 otherwise entirely unwatched.
 
+### Boru hattı kendi durumunu söyler / the pipeline reports itself
+
+```bash
+python tools/ops/health.py          # rapor; bir sorun varsa sıfırdan farklı çıkar
+```
+
+`health.yml` bunu her gün çalıştırır ve dört soruyu sorar: zamanlanmış her koşu başarılı mı ve kendi
+ritmine göre yeterince yakın zamanda çalışmış mı; toplayıcı hâlâ parti yayımlıyor mu; yayımlanan her
+veri dosyası onu tazelemesi gereken ritimden genç mi; sayfalar ve yükledikleri dosyalar cevap veriyor
+mu. Cevaplayamadığı hiçbir şeyi **geçti saymaz**.
+
+Bir şey durduğunda tek bir issue açar ve sonraki günlerde aynı issue'ya yorum düşer — her gün yeni
+issue açmak, okunmamanın bir biçimidir. Her şey düzeldiğinde issue'yu kendisi kapatır.
+
+Buna ihtiyaç vardı: aylık `msi-activity` koşusu aylarca bozuktu. Her ay 112 MB indiriyor, eksik bir
+`import` yüzünden düşüyor ve susuyordu. *Kimsenin bakmadığı zamanlanmış bir iş, kimsenin bakmadığı
+yerde başarısız olur.* Alakasız bir sebeple elle tetiklenince ortaya çıktı.
+
+Asked daily. Anything it cannot determine is reported as unknown, never as a pass. It opens one
+issue and comments on that same issue rather than opening a new one each day, and closes it itself
+once everything answers again.
+
 ### Dışarıdan gelen bir PR'da nelere bakılır / reviewing an outside pull request
 
 1. **Tetikleyici.** `pull_request` mi, `pull_request_target` mı? İkincisi fork kodunu sırlarla aynı
