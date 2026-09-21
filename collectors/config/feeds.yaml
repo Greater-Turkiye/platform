@@ -1,13 +1,41 @@
 # Official RSS/Atom feeds confirmed on 2026-09-13 (fetched and parsed; see ../sources.md).
-# Every feed stays `enabled: false` until its terms of use are confirmed by a maintainer and it
-# has a `source_id` in the datasets source registry (datasets issue #4). Disabled feeds can
-# still be tried locally:  gt-collect --feed <id> --dry-run
+#
+# Two gates, and neither implies the other (see ../src/gt_collectors/config.py):
+#   queue:   the feed is collected into the human review queue. A maintainer sets it only after
+#            reading the source's terms, and `terms:` must point at the page they read.
+#   enabled: the feed may be sent straight to the ingest Worker. Everything now has a `source_id`
+#            from the datasets registry, but this stays false: for now every candidate passes a
+#            human first (ADR 0007).
+#
+# Terms review of 2026-09-20 — what was actually fetched and read, not assumed:
+#
+#   kremlin.ru          Creative Commons Attribution 4.0, stated in writing on the copyrights
+#                       page: reproduction without limit, on condition of a reference. -> queue
+#   un.org              "News-related material can be used as long as the appropriate credit is
+#                       given and the United Nations is advised." -> queue (all five UN feeds)
+#   hnhs.gr             "Viewing and printing ... permitted ... solely for information purposes.
+#                       The exchange, modification, sale, transmission or other commercial use of
+#                       any information contained in this site is prohibited." An excerpt in a
+#                       public queue issue is a transmission, and a summary is a modification, so
+#                       the NAVTEX messages are NOT taken as text. Their *facts* — position,
+#                       activity class, time, message number — are not copyrightable and are read
+#                       by a separate collector that stores no wording. -> stays off here
+#   iaea.org            terms-of-use answers 403 to our descriptive client; terms unconfirmed,
+#                       so no excerpt is stored. -> stays off
+#   gov.cy (mod, mfa)   feed and robots.txt both answer 403 to our descriptive client. We do not
+#                       send a browser User-Agent to get past a block. -> stays off
+#   mae.ro              terms page answers 503; unconfirmed. -> stays off
+#   lebarmy.gov.lb      no terms page found (404). -> stays off
+#   mod.gov.az          no terms page; footer asserts ministry copyright. -> stays off
+#   sana.sy             terms page exists but states no reuse permission. -> stays off
+#
+# Disabled feeds can still be tried locally:  gt-collect --feed <id> --dry-run
 feeds:
   - id: rss-aze-mod
     kind: rss
     name: Azerbaijan Ministry of Defence — news
     country: AZE
-    source_id: null
+    source_id: src_01m2c8144sf3sbbjka9rw21q02
     url: https://mod.gov.az/az/rss/
     cadence_minutes: 60
     lang: az
@@ -23,12 +51,14 @@ feeds:
     kind: rss
     name: President of Russia — news (English)
     country: RUS
-    source_id: null
+    source_id: src_01m2yh2451e85sj52c9pt9z1b7
     url: http://en.kremlin.ru/events/president/news/feed
     cadence_minutes: 30
     lang: en
     regions: [global]
     enabled: false
+    queue: true
+    terms: http://en.kremlin.ru/about/copyrights
     secrets: []
     terms: http://en.kremlin.ru/about/copyrights
     notes: >-
@@ -39,12 +69,14 @@ feeds:
     kind: rss
     name: Президент России — новости (Russian)
     country: RUS
-    source_id: null
+    source_id: src_01m2yh2451e85sj52c9pt9z1b7
     url: http://kremlin.ru/events/president/news/feed
     cadence_minutes: 30
     lang: ru
     regions: [global]
     enabled: false
+    queue: true
+    terms: http://en.kremlin.ru/about/copyrights
     secrets: []
     terms: http://en.kremlin.ru/about/copyrights
     notes: Atom, 20 entries, ~5/day. Same caveats as the English feed.
@@ -53,7 +85,7 @@ feeds:
     kind: rss
     name: Lebanese Army — news (English)
     country: LBN
-    source_id: null
+    source_id: src_01m2yh2456em0rngwszethn9g2
     url: https://www.lebarmy.gov.lb/en/rss.xml
     cadence_minutes: 60
     lang: en
@@ -71,7 +103,7 @@ feeds:
     kind: rss
     name: الجيش اللبناني — أخبار (Arabic)
     country: LBN
-    source_id: null
+    source_id: src_01m2yh2456em0rngwszethn9g2
     url: https://www.lebarmy.gov.lb/ar/rss.xml
     cadence_minutes: 60
     lang: ar
@@ -85,7 +117,7 @@ feeds:
     kind: rss
     name: SANA (Syrian Arab News Agency, state agency) — English
     country: SYR
-    source_id: null
+    source_id: src_01m2c7mdg3ekb9qfhbj79zcnpk
     url: https://sana.sy/en/feed/
     cadence_minutes: 120
     lang: en
@@ -101,7 +133,7 @@ feeds:
     kind: rss
     name: Cyprus Ministry of Defence — announcements (Greek)
     country: CYP
-    source_id: null
+    source_id: src_01m2c8133dfsw8byhcq3wb44ef
     url: https://www.gov.cy/mod/feed/
     cadence_minutes: 180
     lang: el
@@ -117,7 +149,7 @@ feeds:
     kind: rss
     name: Cyprus Ministry of Foreign Affairs — announcements (Greek)
     country: CYP
-    source_id: null
+    source_id: src_01m2c8133dfsw8byhcq3wb44ef
     url: https://www.gov.cy/mfa/feed/
     cadence_minutes: 360
     lang: el
@@ -130,7 +162,7 @@ feeds:
     kind: rss
     name: Romania Ministry of Foreign Affairs — news (Romanian)
     country: ROU
-    source_id: null
+    source_id: src_01m2yh2457f8ntkxcpt64g7xyf
     url: https://www.mae.ro/rss.xml
     cadence_minutes: 120
     lang: ro
@@ -150,7 +182,7 @@ feeds:
   - id: un-news-en
     kind: rss
     name: UN News — all news (English)
-    source_id: null
+    source_id: src_01m2yh2453f48a5kyphajfwmp1
     url: https://news.un.org/feed/subscribe/en/news/all/rss.xml
     cadence_minutes: 120
     lang: en
@@ -167,13 +199,15 @@ feeds:
   - id: un-news-ar
     kind: rss
     name: أخبار الأمم المتحدة — UN News (Arabic)
-    source_id: null
+    source_id: src_01m2yh2453f48a5kyphajfwmp1
     url: https://news.un.org/feed/subscribe/ar/news/all/rss.xml
     cadence_minutes: 120
     lang: ar
     regions: [global]
     enabled: false
     queue: false
+    queue: true
+    terms: https://www.un.org/en/about-us/copyright
     secrets: []
     terms: https://www.un.org/en/about-us/copyright
     notes: >-
@@ -184,13 +218,15 @@ feeds:
   - id: un-news-ru
     kind: rss
     name: Новости ООН — UN News (Russian)
-    source_id: null
+    source_id: src_01m2yh2453f48a5kyphajfwmp1
     url: https://news.un.org/feed/subscribe/ru/news/all/rss.xml
     cadence_minutes: 120
     lang: ru
     regions: [global]
     enabled: false
     queue: false
+    queue: true
+    terms: https://www.un.org/en/about-us/copyright
     secrets: []
     terms: https://www.un.org/en/about-us/copyright
     notes: RSS 2.0, 30 items (~48 kB). Russian edition of the all-news feed; same terms, same reason.
@@ -198,7 +234,7 @@ feeds:
   - id: un-press-en
     kind: rss
     name: UN Meetings Coverage and Press Releases (English)
-    source_id: null
+    source_id: src_01m2yh2454f6zv26djw564f16j
     url: https://press.un.org/en/rss.xml
     cadence_minutes: 120
     lang: en
@@ -215,13 +251,15 @@ feeds:
   - id: un-sg-en
     kind: rss
     name: UN Secretary-General — statements and messages (English)
-    source_id: null
+    source_id: src_01m2yh2453f48a5kyphajfwmp1
     url: https://www.un.org/sg/en/rss.xml
     cadence_minutes: 180
     lang: en
     regions: [global]
     enabled: false
     queue: false
+    queue: true
+    terms: https://www.un.org/en/about-us/copyright
     secrets: []
     terms: https://www.un.org/en/about-us/copyright
     notes: >-
@@ -242,7 +280,7 @@ feeds:
     kind: rss
     name: Hellenic Navy Hydrographic Service — NAVTEX messages (English)
     country: GRC
-    source_id: null
+    source_id: src_01m2c7maswet3b4yyazqwtqzs0
     url: https://hnhs.gr/en/category/navtex-messages/feed/
     cadence_minutes: 360
     lang: en
@@ -265,7 +303,7 @@ feeds:
   - id: iaea-news-en
     kind: rss
     name: IAEA — news (English)
-    source_id: null
+    source_id: src_01m2yh2455e2ba62pzzh9jn0ym
     url: https://www.iaea.org/feeds/news
     cadence_minutes: 180
     lang: en
