@@ -1,0 +1,17 @@
+# What the Python builders under tools/ need beyond the standard library.
+#
+# There was no such file, and it showed: the monthly msi-activity workflow had been failing on
+# `ModuleNotFoundError: No module named 'shapely'` since the builder gained its density grid,
+# every month, unnoticed — because a scheduled job that nobody watches fails in private.
+#
+# Anything under tools/ that imports a third-party module belongs here, and every workflow that
+# runs a builder installs this file. tools/trade and tools/vessels are standard library only and
+# stay that way on purpose: a builder that needs nothing installed is a builder that cannot fail
+# to install.
+#
+#   python -m pip install -r tools/requirements.txt
+#
+# Pinned loosely: these are mature libraries and a monthly job should pick up their fixes, but a
+# major version is a change worth noticing rather than absorbing.
+shapely>=2.1,<3      # tools/msi density grid, tools/geo, tools/air
+pyproj>=3.8,<4       # equal-area and geodesic measurement: tools/geo, tools/air

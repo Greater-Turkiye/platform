@@ -320,6 +320,25 @@ The three Workers pin `sharp` to `>=0.35.4` through `overrides`. It is not used 
 arrives with `wrangler` → `miniflare` for local development, and miniflare still pins a version
 carrying two high-severity libheif advisories. Remove the override once upstream moves.
 
+### Derleyici bağımlılıkları / builder dependencies
+
+```bash
+python -m pip install -r tools/requirements.txt
+```
+
+`tools/` altındaki derleyicilerden standart kütüphanenin dışına çıkanların ihtiyaç listesi budur ve
+bir derleyici çalıştıran her iş akışı bunu kurar. Böyle bir dosya yoktu ve bunun bedeli görüldü:
+`msi-activity` iş akışı, derleyici yoğunluk ızgarasını kazandığından beri **her ay**
+`ModuleNotFoundError: No module named 'shapely'` ile, 112 MB indirdikten sonra düşüyordu — kimse
+görmeden, çünkü kimsenin bakmadığı zamanlanmış bir iş gizlice başarısız olur.
+
+`tools/trade` ve `tools/vessels` yalnızca standart kütüphane kullanır ve bilerek öyle kalır: hiçbir
+şey kurmayan bir derleyici, kurulumda başarısız olamaz.
+
+This is what the builders under `tools/` need beyond the standard library, and every workflow that
+runs one installs it. There was no such file, and the monthly `msi-activity` job had been failing on
+a missing `shapely` ever since the builder gained its density grid.
+
 ### Veri kendini indirir / data lands itself
 
 `msi-activity` ve `trade-vessels` iş akışları, kaynaklarındaki rakamlar oynadığında dosyayı

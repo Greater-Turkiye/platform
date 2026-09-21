@@ -47,6 +47,12 @@ jobs:
         with:
           python-version: "3.13"
 
+      # The density grid needs shapely. Without this step the job failed every month on
+      # ModuleNotFoundError, after downloading 112 MB, and nobody saw it: a scheduled job that
+      # nobody watches fails in private.
+      - name: Install what the builders need
+        run: python -m pip install --disable-pip-version-check -r tools/requirements.txt
+
       - name: Keep the committed series for comparison
         run: cp "$DATA" "$RUNNER_TEMP/previous.json"
 
