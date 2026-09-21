@@ -378,8 +378,14 @@ python tools/web/check_archives.py --max-age-days 400
 
 `.lycheeignore` içindeki her adres için Wayback'e "bunun bir kopyası var mı, ne kadar eski" diye
 sorar. Hiçbir yerde kopyası olmayan bir kaynak, başarısız olmuş bir atıftır ve bunu okuyucudan önce
-bizim görmemiz gerekir. Hesap ya da sır istemez. Cevap alamadığı adresi **başarı saymaz**: sonuçsuz
-ama "geçti" diyen bir denetim, hiç denetim olmamasından kötüdür çünkü inanılır.
+bizim görmemiz gerekir. Hesap ya da sır istemez.
+
+Availability API tutarlı cevap vermiyor — aynı belge bir koşuda "775 gün önce arşivlendi", dakikalar
+sonra "hiç arşivlenmemiş" diyebiliyor. Bu yüzden olumsuz cevap, yakalama listesini doğrudan okuyan
+CDX dizinine karşı yeniden denenerek **doğrulanır**. Üç şık ayrı tutulur: doğrulanmış eksik hata
+sayılır, **eski** kopya uyarıdır, cevap alınamayan adres ise ne geçti ne kaldı sayılır. Arşiv
+sunucusunun kötü bir dakikası yüzünden her sabah kırmızıya dönen bir denetim, kimsenin okumadığı bir
+denetimdir.
 
 Pull request'lerde çalışmaz, yalnızca haftalık koşuda ve elle: katkıcının değişikliğinden önce
 var olan bir boşluk, onun PR'ını kırmızıya çevirmemeli.
