@@ -28,8 +28,8 @@
   /* The frame: Ionian to the Caucasus, Libya to Ukraine on a wide screen. A phone is portrait, so
      fitting that box would spend half the height on land nobody came for; the narrow frame keeps
      the seas and drops the margins. */
-  const VIEW_WIDE = [[18.5, 29.5], [45.5, 48.5]];
-  const VIEW_NARROW = [[22.0, 30.5], [42.0, 47.5]];
+  const VIEW_WIDE = [[21.0, 30.2], [42.5, 47.3]];
+  const VIEW_NARROW = [[23.0, 30.8], [40.5, 46.8]];
   let VIEW = VIEW_WIDE;
 
   /* The seas, as boxes. A cell or a site counts for a sea when it falls inside the box. The boxes
@@ -49,11 +49,11 @@
 
   const state = { sea: params.get('sea') || '', selected: params.get('id') || '' };
   let world = null, density = null, vessels = null, trade = null, records = null;
-  let svg = null, gRoot = null, gUnc = null, gMark = null, gStatic = null, gCells = null, proj = null, path = null;
-  let zoom = null, k = 1, W = 0, H = 0, lastFocus = null;
+  let map = null, gUnc = null, gMark = null, gStatic = null, gCells = null;
+  let proj = null, path = null, gRoot = null, k = 1, W = 0, H = 0, lastFocus = null;
+  let onLand = () => false; // filled per frame by the shared land mask
 
   const mapBox = $('n-map');
-  const mapSel = () => d3.select(mapBox);
 
   /* ---------------- data helpers ---------------- */
 
@@ -86,61 +86,42 @@
 
   function drawMap() {
     if (!world || !mapBox) return;
-    W = mapBox.clientWidth;
-    H = mapBox.clientHeight;
-    if (!W || !H) return;
-
-    /* Two corners rather than a rectangle: d3-geo reads a ring's winding on the sphere, and a box
-       drawn the wrong way round means "everything except this" — which once framed the whole
-       world. A MultiPoint has no winding to get wrong. */
-    VIEW = W / H < 1.1 ? VIEW_NARROW : VIEW_WIDE;
-    proj = d3.geoMercator().fitExtent([[10, 10], [W - 10, H - 10]], {
-      type: 'MultiPoint', coordinates: [VIEW[0], VIEW[1]],
+    map = GT.map.create(mapBox, {
+      view: VIEW_WIDE,
+      viewNarrow: VIEW_NARROW,
+      scaleExtent: [1, 24],
+      ariaLabel: GT.t('s.mapAria'),
+      onZoom: (kk) => { k = kk; rescale(); $('n-scale').textContent = kk.toFixed(1) + '×'; },
+      onCursor: (ll) => { $('n-coords').textContent = ll ? GT.fmtLL(ll) : '—'; },
+      onBackground: closeDrawer,
     });
-    path = d3.geoPath(proj);
-    mapSel().select('svg').remove();
+    if (!map.frame()) return;
+    proj = map.proj; path = map.path; gRoot = map.gRoot;
+    W = map.W; H = map.H; VIEW = map.view; k = 1;
 
-    svg = mapSel().append('svg')
-      .attr('viewBox', `0 0 ${W} ${H}`)
-      .attr('role', 'img')
-      .attr('aria-label', GT.t('s.mapAria'));
-    gRoot = svg.append('g');
-
-    gRoot.append('rect').attr('class', 'n-water').attr('width', W).attr('height', H);
-
-    const land = gRoot.append('g');
-    land.selectAll('path').data(world.countries).join('path')
-      .attr('d', path)
-      .attr('class', (f) => 'n-land' + (GT.a3(f) === 'TUR' ? ' is-tur' : ''));
-    gRoot.append('path').datum(world.borders).attr('d', path).attr('class', 'n-border');
+    map.land(world);
+    /* The wash is about the sea, so it is masked to the sea. Half a cell of margin keeps a square
+       whose centre sits just offshore from bleeding over the coast. */
+    onLand = map.landMask(world, cellPx() / 2);
 
     drawActivity();
     drawAreas();
-    gUnc = gRoot.append('g').attr('class', 'n-unc-layer');
-    gStatic = gRoot.append('g');
+    gUnc = map.layer('n-unc-layer');
+    gStatic = map.layer();
     drawIslands();
-    gMark = gRoot.append('g');
+    gMark = map.layer();
     drawSites();
     drawSeaLabels();
     rescale();
+    map.ready();
+  }
 
-    zoom = d3.zoom().scaleExtent([1, 24])
-      .translateExtent([[-W * 0.2, -H * 0.2], [W * 1.2, H * 1.2]])
-      .on('zoom', (ev) => {
-        gRoot.attr('transform', ev.transform);
-        if (ev.transform.k !== k) { k = ev.transform.k; rescale(); }
-        $('n-scale').textContent = k.toFixed(1) + '×';
-      });
-    svg.call(zoom).on('dblclick.zoom', null);
-    svg.on('pointermove.coords', (ev) => {
-      if (!proj) return;
-      const t = d3.zoomTransform(mapBox);
-      const [mx, my] = d3.pointer(ev, mapBox);
-      const ll = proj.invert(t.invert([mx, my]));
-      $('n-coords').textContent = ll ? GT.fmtLL(ll) : '—';
-    });
-    svg.on('pointerleave.coords', () => { $('n-coords').textContent = '—'; });
-    svg.on('click', (ev) => { if (!ev.target.closest('.n-mk')) closeDrawer(); });
+  /* One grid cell in pixels at the overview, used to size the coastal margin of the land mask. */
+  function cellPx() {
+    const step = (density && density.method && density.method.cell_deg) || 0.25;
+    const a = proj([VIEW[0][0], VIEW[0][1]]);
+    const b = proj([VIEW[0][0] + step, VIEW[0][1]]);
+    return Math.max(1, Math.abs(b[0] - a[0]));
   }
 
   /* Where activity was announced, as a wash under the limits rather than over them. Only the
@@ -155,14 +136,22 @@
     const peak = Math.max(1, ...cells.map((c) => c[2]));
     for (const [lon, lat, mil] of cells) {
       const share = mil / peak;
-      if (share < 0.02) continue;
+      if (share < 0.05) continue;
       const a = proj([lon, lat]);
       const b = proj([lon + step, lat + step]);
+      /* A warning is broadcast to mariners, so its cell belongs on the water. The grid is coarse
+         enough that a quarter-degree square anchored at sea still reaches inland, and a wash over
+         Anatolia or Ukraine reads as a claim about the land that nothing here supports. */
+      if (onLand((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)) continue;
+      /* Five steps, not a smooth fade. A continuous opacity put the weakest cells at eight per
+         cent over blue water, which is not "a little activity" but a grey haze the eye reads as
+         dirt on the chart. Banded, a cell either says something or is not drawn, and the legend
+         can name what each band means. */
+      const tier = Math.min(5, 1 + Math.floor(Math.sqrt(share) * 5));
       g.append('rect')
         .attr('x', Math.min(a[0], b[0])).attr('y', Math.min(a[1], b[1]))
         .attr('width', Math.abs(b[0] - a[0])).attr('height', Math.abs(b[1] - a[1]))
-        .attr('class', 'n-cell')
-        .attr('opacity', (0.08 + 0.5 * Math.sqrt(share)).toFixed(3));
+        .attr('class', 'n-cell n-cell-' + tier);
     }
   }
 
@@ -196,9 +185,8 @@
   function drawIslands() {
     if (!lyr.isl.checked) return;
     for (const f of world.islands || []) {
-      const [x, y] = proj(f.geometry.coordinates);
       const name = GT.lang === 'tr' ? f.properties.name_tr : f.properties.name_en;
-      const g = gStatic.append('g').attr('class', 'n-fixed').attr('data-x', x).attr('data-y', y);
+      const g = map.fixed(gStatic, f.geometry.coordinates);
       g.append('circle').attr('r', 2.8).attr('class', 'n-island')
         .on('pointermove', (ev) => showTip(ev, name, GT.t('s.lg.island')))
         .on('pointerleave', hideTip);
@@ -209,7 +197,6 @@
      known to the island is drawn as the island-wide circle it is, never as a point like one known
      to a few hundred metres (ADR 0021 §5). */
   const UNC_FROM = 1500;
-  const uncircle = d3.geoCircle();
 
   function drawSites() {
     if (!gUnc || !gMark) return;
@@ -220,15 +207,12 @@
       const loc = r.location;
       const [lon, lat] = loc.geometry.coordinates;
       if (loc.uncertainty_m >= UNC_FROM) {
-        const shape = uncircle.center([lon, lat]).radius((loc.uncertainty_m / 6371008.8) * 180 / Math.PI)();
         gUnc.append('path')
-          .attr('d', path(shape))
+          .attr('d', map.uncertainty([lon, lat], loc.uncertainty_m))
           .attr('class', 'n-unc' + (r.id === state.selected ? ' sel' : ''));
       }
-      const [x, y] = proj([lon, lat]);
-      const g = gMark.append('g')
-        .attr('class', 'n-mk' + (r.id === state.selected ? ' sel' : ''))
-        .attr('data-x', x).attr('data-y', y)
+      const g = map.fixed(gMark, [lon, lat], 'n-mk' + (r.id === state.selected ? ' sel' : ''))
+        .attr('data-gm-mark', '')
         .attr('tabindex', 0).attr('role', 'button')
         .attr('aria-label', GT.txt(r.name));
       g.append('path').attr('class', 'n-mk-dot').attr('d', d3.symbol(d3.symbolDiamond, 72)());
@@ -251,8 +235,7 @@
       { at: [28.0, 40.75], tr: 'MARMARA', en: 'MARMARA' },
     ];
     for (const n of NAMES) {
-      const [x, y] = proj(n.at);
-      gStatic.append('g').attr('class', 'n-fixed').attr('data-x', x).attr('data-y', y)
+      map.fixed(gStatic, n.at)
         .append('text').attr('class', 'n-sea-label')
         .attr('text-anchor', 'middle').text(GT.lang === 'tr' ? n.tr : n.en);
     }
@@ -261,11 +244,7 @@
   /* Markers keep their size as the map zooms; the uncertainty circles do not, because their size
      is the claim. */
   function rescale() {
-    const place = function () {
-      return `translate(${this.dataset.x},${this.dataset.y}) scale(${1 / k})`;
-    };
-    if (gMark) gMark.selectAll('.n-mk').attr('transform', place);
-    if (gStatic) gStatic.selectAll('.n-fixed').attr('transform', place);
+    if (map) map.rescale();
     /* The wash is a seven-year aggregate on a quarter-degree grid: at the overview it shows where
        activity concentrates, and the closer the map gets the less a cell of that size can mean, so
        it steps back rather than becoming a field of grey squares over the coast. The fade is one
@@ -331,6 +310,11 @@
   function renderSeas() {
     const rows = seaRows();
     const peak = Math.max(1, ...rows.map((r) => r.mil));
+    /* The Black Sea has eighteen thousand warnings and the Marmara has two. On a linear bar the
+       Marmara is a fifth of a pixel: the reader sees an empty row and concludes the data is
+       missing. The square root keeps the order and the ratio readable, and the number beside it
+       stays the exact one. */
+    const width = (v) => (v <= 0 ? 0 : Math.max(2.5, 100 * Math.sqrt(v / peak)));
     const nf = new Intl.NumberFormat(GT.lang === 'tr' ? 'tr-TR' : 'en-GB');
     $('n-seas').replaceChildren(...rows.map((r) => {
       const b = GT.el('button', 'n-row' + (state.sea === r.key ? ' on' : ''));
@@ -338,9 +322,9 @@
       b.setAttribute('aria-pressed', String(state.sea === r.key));
       const val = GT.el('span', 'n-val');
       const bar = GT.el('span', 'n-bar');
-      bar.style.setProperty('--w', (100 * r.mil / peak).toFixed(1) + '%');
+      bar.style.setProperty('--w', width(r.mil).toFixed(1) + '%');
       val.append(bar, GT.el('b', 'mono', nf.format(r.mil)));
-      b.append(GT.el('span', 'n-name', r.name), val, GT.el('span', 'n-sub mono', r.sites || '·'));
+      b.append(GT.el('span', 'n-name', r.name), val, GT.el('span', 'n-sub mono' + (r.sites ? '' : ' none'), String(r.sites)));
       b.title = GT.t('n.seaTip', { c: nf.format(r.cells) });
       b.addEventListener('click', () => setSea(state.sea === r.key ? '' : r.key));
       return b;
@@ -391,18 +375,9 @@
     renderSeas();
     renderList();
     syncUrl();
-    if (!zoom) return;
-    if (!key) {
-      mapSel().transition().duration(reduce ? 0 : 600).call(zoom.transform, d3.zoomIdentity);
-      return;
-    }
-    const box = SEAS[key].box;
-    const a = proj(box[0]), b = proj(box[1]);
-    const x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]);
-    const y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]);
-    const kk = Math.max(1, Math.min(18, 0.85 / Math.max((x1 - x0) / W, (y1 - y0) / H)));
-    const t = d3.zoomIdentity.translate(W / 2, H / 2).scale(kk).translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
-    mapSel().transition().duration(reduce ? 0 : 750).call(zoom.transform, t);
+    if (!map) return;
+    if (!key) { map.reset(reduce ? 0 : 600); return; }
+    map.gotoBox(SEAS[key].box, reduce ? 0 : 750);
   }
 
   function select(rec, fly) {
@@ -417,11 +392,8 @@
     drawSites();
     renderList();
     syncUrl();
-    if (fly && zoom && rec.location && rec.location.geometry) {
-      const [x, y] = proj(rec.location.geometry.coordinates);
-      const kk = Math.max(k, 6);
-      const t = d3.zoomIdentity.translate(W / 2, H / 2).scale(kk).translate(-x, -y);
-      mapSel().transition().duration(reduce ? 0 : 750).call(zoom.transform, t);
+    if (fly && map && rec.location && rec.location.geometry) {
+      map.goto(rec.location.geometry.coordinates, Math.max(k, 6), reduce ? 0 : 750);
     }
   }
 
@@ -540,8 +512,8 @@
   $('n-clear').addEventListener('click', () => setSea(''));
   $('n-close').addEventListener('click', closeDrawer);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
-  $('n-in').addEventListener('click', () => svg && mapSel().transition().duration(reduce ? 0 : 300).call(zoom.scaleBy, 1.7));
-  $('n-out').addEventListener('click', () => svg && mapSel().transition().duration(reduce ? 0 : 300).call(zoom.scaleBy, 1 / 1.7));
+  $('n-in').addEventListener('click', () => map && map.zoomBy(1.7));
+  $('n-out').addEventListener('click', () => map && map.zoomBy(1 / 1.7));
   $('n-reset').addEventListener('click', () => setSea(''));
   window.addEventListener('resize', GT.debounce(() => { render(); if (state.sea) setSea(state.sea); }, 220));
   document.addEventListener('gt:lang', render);
