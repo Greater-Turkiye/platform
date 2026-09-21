@@ -1059,3 +1059,45 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
   .n-tools a { display: none; }
   .n-legend { max-width: calc(100% - 28px); }
 }
+
+/* ---- air dashboard ---- */
+/* Every region is the same colour: a palette per state would read as a map of who owns what,
+   which is the one reading a FIR layer must not invite. */
+.a-fir { fill: rgba(31, 111, 178, .05); stroke: rgba(20, 69, 110, .55); stroke-width: 1;
+  stroke-dasharray: 7 4; vector-effect: non-scaling-stroke; cursor: pointer; }
+.a-fir:hover { fill: rgba(31, 111, 178, .12); }
+.a-fir.on { fill: rgba(200, 0, 42, .10); stroke: rgba(200, 0, 42, .8); stroke-width: 1.6;
+  stroke-dasharray: none; }
+.a-fir-label { fill: rgba(20, 69, 110, .65); font: 600 9px var(--m); letter-spacing: .14em;
+  pointer-events: none; }
+.a-lg-fir { border: 1px dashed rgba(20, 69, 110, .55); background: rgba(31, 111, 178, .05); }
+.a-lg-on { border: 1px solid rgba(200, 0, 42, .8); background: rgba(200, 0, 42, .10); }
+.a-lg-land { background: var(--land); border: 1px solid var(--landline); }
+
+/* The warning sits in the reading order, not in the footnotes. */
+.a-warn { margin: 0; padding: 10px 14px; border-top: 1px solid var(--line);
+  border-left: 2px solid var(--warn); background: var(--s2);
+  font-size: 11px; line-height: 1.55; color: var(--t2); }
+
+.a-rows { display: flex; flex-direction: column; }
+.a-row { width: 100%; padding: 9px 0; border: 0; border-top: 1px solid var(--line);
+  background: none; text-align: left; color: var(--t2); cursor: pointer; font: inherit;
+  display: flex; flex-direction: column; gap: 5px; }
+.a-row:hover { background: var(--s2); color: var(--t1); }
+.a-row.on { color: var(--t1); box-shadow: inset 2px 0 0 var(--navy); padding-left: 8px; }
+.a-row-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.a-row-name { font-size: 12.5px; }
+.a-row-top { font-size: 10px; color: var(--t3); }
+/* One bar per sea, split between the regions that cover it: the shape is the finding. */
+.a-track { display: flex; height: 7px; width: 100%; background: var(--t4); overflow: hidden; }
+.a-seg { width: var(--w, 0%); background: var(--navy); opacity: .55;
+  border-right: 1px solid var(--s1); }
+.a-seg:last-child { border-right: 0; }
+.a-seg.on { background: #c8002a; opacity: .85; }
+.a-seg-rest { background: repeating-linear-gradient(45deg, var(--line2) 0 3px, transparent 3px 6px);
+  opacity: 1; }
+.a-row-parts { font-size: 9.5px; color: var(--t3); line-height: 1.5; }
+
+@media (max-width: 860px) {
+  .a-warn { font-size: 10.5px; }
+}
