@@ -5,11 +5,10 @@ name: trade-vessels
 #   apps/web/assets/data/trade-il.json          UN Comtrade, both reporters, by month
 #   apps/web/assets/data/vessels-sanctioned.json + vessels-summary.json   OFAC SDN + UN list
 #
-# Why this opens an issue instead of a pull request: this organisation does not allow Actions to
-# create pull requests, and `main` is protected, so a workflow cannot land the files itself. It
-# rebuilds them, compares them with the committed ones and — when the figures move — attaches the
-# new files and tells a maintainer, who lands them with one command. That also keeps a human
-# between a third party's figures and what the site publishes, which is what ADR 0007 asks for.
+# When the figures move it commits them to a branch of their own and opens the pull request that
+# lands them, falling back to an issue with a one-click compare link if this organisation does not
+# allow Actions to open pull requests. What is left for a maintainer is to look at the diff and
+# decide, which is what ADR 0007 asks for and all it asks for. It never pushes to `main`.
 #
 # The run needs no secret and no account: the Comtrade preview API takes no key, and the sanctions
 # lists are published for exactly this use.
@@ -40,7 +39,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:
-      issues: write # tell a maintainer that the figures moved
+      contents: write # push the rebuilt files to a branch of their own
+      pull-requests: write # and open the pull request that lands them
+      issues: write # or say so in an issue, if the organisation does not allow that
     env:
       GH_TOKEN: ${{ github.token }}
       GT_TRADE_CACHE: ${{ github.workspace }}/.comtrade-cache
@@ -48,7 +49,9 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: false
+          # kept on purpose: this run pushes the rebuilt files to a branch of their own.
+          # It never pushes to `main`, which the ruleset protects anyway.
+          persist-credentials: true
 
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
@@ -137,22 +140,8 @@ jobs:
           pathlib.Path(tmp / "summary.md").write_text("\n".join(lines), encoding="utf-8")
           PY
 
-      - name: Attach the rebuilt files
+      - name: Write what moved
         if: steps.diff.outputs.changed == 'true'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: trade-vessels
-          path: |
-            apps/web/assets/data/trade-il.json
-            apps/web/assets/data/vessels-sanctioned.json
-            apps/web/assets/data/vessels-summary.json
-          retention-days: 30
-
-      - name: Tell a maintainer
-        if: steps.diff.outputs.changed == 'true'
-        env:
-          TITLE: "Ticaret ve gemi verisi güncellendi / The trade and vessel figures moved"
-          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
           {
@@ -161,26 +150,31 @@ jobs:
             echo
             cat "$RUNNER_TEMP/summary.md"
             echo
-            echo "Yeni dosyalar bu çalışmanın \`trade-vessels\` artefaktındadır / the new files are the \`trade-vessels\` artifact of [this run]($RUN)."
+            echo "Hiçbir rakam henüz bir insan tarafından yargılanmadı; bu PR'ı incelemek tam olarak onun içindir (ADR 0007)."
+            echo "No figure here has been judged by a person yet: reviewing this pull request is exactly what that is for."
             echo
-            echo "Yerelde almak için / to take them locally:"
+            echo "- [ ] Pencere kaydıysa \`TRADE-SOURCES.md\` içindeki rakamlar ve fasıl tablosu güncellendi / if the window rolled, the figures and the chapter table updated"
+            echo "- [ ] Raporlanmış yokluk sayısı düştüyse sebebi Türkiye'nin yayın gecikmesi mi, ticaretin kendisi mi ayırt edildi / if reported absences fell, checked whether that is Türkiye's publishing lag or the trade itself"
+            echo "- [ ] Gemi sayısı sıçradıysa yeni listeleme mi, kaynak biçimi değişikliği mi bakıldı / if the vessel count jumped, checked for a new designation against a change in the source format"
+            echo
+            echo "Yerelde aynı dosyaları üretmek için / to reproduce the same files locally:"
             echo '```bash'
             echo "python tools/trade/build_trade.py"
             echo "python tools/vessels/build_vessels.py --refresh"
             echo '```'
-            echo
-            echo "- [ ] Pencere kaydıysa \`TRADE-SOURCES.md\` içindeki rakamlar ve fasıl tablosu güncellendi / if the window rolled, the figures and the chapter table in the source document updated"
-            echo "- [ ] Raporlanmış yokluk sayısı düştüyse sebebi Türkiye'nin yayın gecikmesi mi, ticaretin kendisi mi ayırt edildi / if reported absences fell, checked whether that is Türkiye's publishing lag or the trade itself"
-            echo "- [ ] Gemi sayısı sıçradıysa yeni listeleme mi, kaynak biçimi değişikliği mi bakıldı / if the vessel count jumped, checked for a new designation against a change in the source format"
-          } > "$RUNNER_TEMP/issue.md"
-          gh label create "$LABEL" --description "Bir veri dosyası kaynağında değişti" --color BFD4F2 2>/dev/null || true
-          number=$(gh issue list --state open --label "$LABEL" --json number,title \
-            | python3 -c 'import json,os,sys; t=os.environ["TITLE"]; print(next((str(i["number"]) for i in json.load(sys.stdin) if i["title"] == t), ""))')
-          if [ -n "$number" ]; then
-            gh issue comment "$number" --body-file "$RUNNER_TEMP/issue.md"
-          else
-            gh issue create --title "$TITLE" --label "$LABEL" --body-file "$RUNNER_TEMP/issue.md"
-          fi
+          } > "$RUNNER_TEMP/body.md"
+
+      - name: Land them
+        if: steps.diff.outputs.changed == 'true'
+        uses: ./.github/actions/land-data
+        with:
+          name: trade-vessels
+          paths: |
+            apps/web/assets/data/trade-il.json
+            apps/web/assets/data/vessels-sanctioned.json
+            apps/web/assets/data/vessels-summary.json
+          title: "Ticaret ve gemi verisi güncellendi / The trade and vessel figures moved"
+          body-file: ${{ runner.temp }}/body.md
 
       - name: Nothing moved
         if: steps.diff.outputs.changed != 'true'

@@ -1,0 +1,136 @@
+name: Land rebuilt data
+description: >
+  Put rebuilt data files on a branch and get them in front of a maintainer as something they can
+  merge, rather than as an artifact they have to download and rebuild by hand.
+
+# Why this exists
+#
+# A refresh workflow used to end by uploading the rebuilt file and opening an issue. Landing it
+# then meant: read the issue, download the artifact, run the builder locally, check the diff,
+# commit, push, open a pull request, merge. Seven steps, all of them mechanical, none of them a
+# judgement — and the judgement (is this change real?) was the only part that needed a person.
+#
+# This action does the six mechanical steps. It commits the rebuilt files to a branch, pushes it,
+# and tries to open a pull request. What is left for the maintainer is to look at the diff and
+# decide, which is what ADR 0007 asks for and all it asks for.
+#
+# On the pull request: this organisation may or may not allow Actions to open one — the setting
+# lives at org level and a workflow cannot read it. So the action *tries*, and when GitHub refuses
+# it falls back to an issue carrying the compare link, which is one click from the same place. It
+# reports which path it took instead of guessing, so nobody has to wonder.
+#
+# What it never does: touch `main`, merge anything, or decide that a change is worth landing.
+
+inputs:
+  name:
+    description: Short slug for the branch and the issue label, e.g. "trade-vessels".
+    required: true
+  paths:
+    description: Newline-separated paths to commit. Anything unchanged is skipped.
+    required: true
+  title:
+    description: Title for the pull request or issue.
+    required: true
+  body-file:
+    description: Path to a file holding the pull request or issue body.
+    required: true
+  label:
+    description: Label to put on the issue when a pull request cannot be opened.
+    required: false
+    default: veri-guncellemesi
+
+outputs:
+  landed:
+    description: '"pr", "issue", or "nothing" when no file changed.'
+    value: ${{ steps.land.outputs.landed }}
+  url:
+    description: The pull request or issue that was opened, if any.
+    value: ${{ steps.land.outputs.url }}
+
+runs:
+  using: composite
+  steps:
+    - id: land
+      shell: bash
+      env:
+        IN_NAME: ${{ inputs.name }}
+        IN_PATHS: ${{ inputs.paths }}
+        IN_TITLE: ${{ inputs.title }}
+        IN_BODY: ${{ inputs.body-file }}
+        IN_LABEL: ${{ inputs.label }}
+      run: |
+        set -euo pipefail
+
+        # Only the named paths, and only if git thinks they actually differ. A workflow that
+        # opens an empty pull request every month teaches everyone to ignore it.
+        changed=0
+        while IFS= read -r p; do
+          [ -n "$p" ] || continue
+          if ! git diff --quiet -- "$p"; then changed=1; fi
+        done <<< "$IN_PATHS"
+
+        if [ "$changed" = "0" ]; then
+          echo "landed=nothing" >> "$GITHUB_OUTPUT"
+          echo "::notice::no file changed; nothing to land"
+          exit 0
+        fi
+
+        branch="data/${IN_NAME}-$(date -u +%Y%m%d-%H%M)"
+        git config user.name  "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git checkout -b "$branch"
+
+        while IFS= read -r p; do
+          [ -n "$p" ] || continue
+          git add -- "$p"
+        done <<< "$IN_PATHS"
+
+        # The commit message says where the figures came from and that nobody has judged them yet.
+        {
+          echo "Refresh ${IN_NAME} from its sources"
+          echo
+          echo "Rebuilt by the ${IN_NAME} workflow from the sources the builder names. No"
+          echo "figure here has been judged by a person yet: that is what reviewing this"
+          echo "pull request is for (ADR 0007)."
+          echo
+          echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+        } > "$RUNNER_TEMP/land-commit.txt"
+        git commit -q -F "$RUNNER_TEMP/land-commit.txt"
+
+        git push -q origin "$branch"
+        echo "::notice::pushed $branch"
+
+        compare="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${branch}?expand=1"
+
+        # Try the pull request. A refusal here is a policy answer, not a fault, so it is reported
+        # and handled rather than allowed to fail the run.
+        if url=$(gh pr create --base main --head "$branch" \
+                   --title "$IN_TITLE" --body-file "$IN_BODY" 2>"$RUNNER_TEMP/pr-err"); then
+          echo "landed=pr" >> "$GITHUB_OUTPUT"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "::notice::opened $url"
+          exit 0
+        fi
+
+        echo "::warning::could not open a pull request; falling back to an issue"
+        sed -n '1,6p' "$RUNNER_TEMP/pr-err" || true
+
+        {
+          echo "Yeniden üretilen dosyalar \`$branch\` dalına konuldu."
+          echo "The rebuilt files are on the \`$branch\` branch."
+          echo
+          echo "**[Pull request olarak aç / open it as a pull request]($compare)**"
+          echo
+          cat "$IN_BODY"
+          echo
+          echo "<sub>Bu iş akışı pull request açamadı — bu kuruluşta Actions'ın PR açması kapalı."
+          echo "Yukarıdaki bağlantı aynı yere tek tıkla götürür. / This workflow could not open a"
+          echo "pull request: Actions are not allowed to in this organisation. The link above is"
+          echo "one click from the same place.</sub>"
+        } > "$RUNNER_TEMP/land-issue.md"
+
+        gh label create "$IN_LABEL" --description "Bir veri dosyası kaynağında değişti" --color BFD4F2 2>/dev/null || true
+        url=$(gh issue create --title "$IN_TITLE" --label "$IN_LABEL" --body-file "$RUNNER_TEMP/land-issue.md")
+        echo "landed=issue" >> "$GITHUB_OUTPUT"
+        echo "url=$url" >> "$GITHUB_OUTPUT"
+        echo "::notice::opened $url"
