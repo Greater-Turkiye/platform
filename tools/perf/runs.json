@@ -1,0 +1,48 @@
+{
+  "//": "What is measured, and what it may cost. `budget` fails the run when it is exceeded.",
+  "//cpu": "4x throttling stands in for a modest laptop; the numbers are meaningless without it.",
+  "runs": [
+    {
+      "name": "home-idle",
+      "url": "{base}/index.html",
+      "width": 1400,
+      "height": 900,
+      "cpu": 4,
+      "settle": 7000,
+      "seconds": 8,
+      "budget": { "p90": 100, "longTaskMs": 4500 }
+    },
+    {
+      "name": "panel-idle",
+      "url": "{base}/panel.html?examples=0",
+      "width": 1400,
+      "height": 900,
+      "cpu": 4,
+      "settle": 7000,
+      "seconds": 6,
+      "budget": { "p90": 34, "longTaskMs": 500 }
+    },
+    {
+      "name": "panel-zoom",
+      "url": "{base}/panel.html?examples=0",
+      "width": 1400,
+      "height": 900,
+      "cpu": 4,
+      "settle": 7000,
+      "seconds": 11,
+      "script": "(async()=>{const s=[2,5,9,14,20,26,14,5,1];for(const k of s){GT_PANEL.goto(26.5,39.1,k);await new Promise(r=>setTimeout(r,900));}return 'done';})()",
+      "budget": { "p90": 60, "scriptMs": 1600, "layoutMs": 1400 }
+    },
+    {
+      "name": "panel-phone",
+      "url": "{base}/panel.html?examples=0",
+      "width": 390,
+      "height": 844,
+      "mobile": true,
+      "cpu": 6,
+      "settle": 8000,
+      "seconds": 6,
+      "budget": { "p90": 50, "longTaskMs": 2500 }
+    }
+  ]
+}

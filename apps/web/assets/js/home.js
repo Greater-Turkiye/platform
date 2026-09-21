@@ -118,6 +118,12 @@
        down by 0.25 while frames take longer than ~21 ms (down to 1, or 0.75 on phones: a moving globe hides it) */
     const mv = { x: 0, y: 0, w: 0, h: 0 };
     let moveCap = 1, moveDpr = 1, slowFrames = 0, moveWall = 0;
+    /* When the resolution is already at its floor and the frames are still late, the only thing
+       left to give is how often the moving frame is redrawn. The camera keeps moving at full rate
+       — the overlay, the halo and the sweep all follow it — but the globe under them is redrawn
+       every second or third frame. On a machine that keeps up this stays 1 and nothing changes;
+       the hold frame, which is the one a reader actually looks at, is never touched. */
+    let moveEvery = 1, moveTick = 0, parked = false;
     function placeMove(s) {
       const m = s * 1.17 + 4, q = 32;
       const x0 = Math.max(0, Math.floor((cx - m) / q) * q), y0 = Math.max(0, Math.floor((cy - m) / q) * q);
@@ -135,6 +141,9 @@
       slowFrames = dt > 21 ? slowFrames + 1 : Math.max(0, slowFrames - 1);
       const floor = narrow ? 0.75 : 1;
       if (slowFrames >= 8 && moveDpr > floor) { moveDpr = Math.max(floor, moveDpr - 0.25); slowFrames = 0; }
+      else if (slowFrames >= 12 && moveEvery < 3) { moveEvery += 1; slowFrames = 0; }
+      else if (slowFrames >= 12 && moveEvery >= 3) park(); // nothing left to give: stop moving
+      else if (slowFrames === 0 && moveEvery > 1 && dt < 14) { moveEvery -= 1; }
     }
 
     function resize() {
@@ -584,7 +593,8 @@
       placeHalo(cam.s, hA < 1 && cam.s < Math.hypot(W, H));
       // moving frame: only when the camera moved and the still frame doesn't cover it
       const key = cam.rot[0] + ',' + cam.rot[1] + ',' + cam.s + ',' + moveDpr;
-      if (hA < 1 && key !== moveKey) {
+      moveTick += 1;
+      if (hA < 1 && key !== moveKey && moveTick % moveEvery === 0) {
         moveKey = key;
         placeMove(cam.s);
         run(drawGlobe(mctx, G.lo, false, moveDpr, mv.x, mv.y));
@@ -621,10 +631,36 @@
     }, 40));
     cvOver.addEventListener('pointerleave', () => { hover = null; if (hudRegion) hudRegion.textContent = '—'; });
 
+    /* The last resort. Lowering the resolution and then the redraw rate is how the globe keeps
+       up on a slow machine; when both are exhausted and the frames are still late, a stuttering
+       globe is worse than a still one. So it parks on the hold frame — the same view the reduced
+       motion path shows, drawn at full quality — and stops. A machine that can afford the motion
+       never reaches this, and the view a reader ends up looking at is the one the cycle was
+       heading for anyway. */
+    function park() {
+      if (parked || !holdReady) return;
+      parked = true;
+      t = T.hold / 2;
+      const cam = camera(t);
+      setCamera(cam, true);
+      holdAlpha = 1;
+      cvHold.style.opacity = '1';
+      cvMove.style.visibility = 'hidden';
+      placeHalo(cam.s, false);
+      overlay(cam, 1, performance.now());
+      sweepEl.style.display = 'none';
+      running = false;
+      cancelAnimationFrame(rafId);
+    }
+
+    // What the quality controller has decided so far; the performance harness reads it, and it is
+    // the only way to tell a slow machine from a slow frame after the fact.
+    window.GT_GLOBE = { state: () => ({ moveDpr, moveEvery, parked, slowFrames, holdReady, phase: camera(t).phase }) };
+
     // stop everything (including the compositor sweep) while the hero is scrolled away or the tab is hidden
     let running = false, rafId = 0;
     const update = () => {
-      const on = visible && !document.hidden;
+      const on = visible && !document.hidden && !parked;
       if (on === running) return;
       running = on;
       if (on) { overA = -1; moveWall = 0; rafId = requestAnimationFrame((n) => { last = n; frame(n); }); }
@@ -647,7 +683,7 @@
     resize();
     update();
     return {
-      resize() { resize(); moveDpr = moveCap; },
+      resize() { resize(); moveDpr = moveCap; moveEvery = 1; },
       setDetail(world) { G.next = group(world); startJob(); },
       // new data: only the overlay shows it
       refresh() { labelsKey = ''; },
