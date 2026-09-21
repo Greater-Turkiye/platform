@@ -44,7 +44,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GT_TRADE_CACHE: ${{ github.workspace }}/.comtrade-cache
-      GT_VESSEL_CACHE: ${{ runner.temp }}/vessel-cache
+      GT_VESSEL_CACHE: ${{ github.workspace }}/.vessel-cache
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
