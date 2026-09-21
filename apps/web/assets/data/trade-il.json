@@ -1,5 +1,22 @@
 {
  "about": "Türkiye's declared halt of trade with Israel against both states' own monthly returns. Türkiye reports exports by country of destination and Israel reports imports by country of origin, so a gap between them measures routing through third countries, not smuggling: a Turkish-made good shipped via a third country is an export to that country in Türkiye's books and an import of Turkish origin in Israel's. Figures are US dollars. A month with no Israel line in Türkiye's returns is marked reported when Türkiye reported other partners that month, so an absent line is not read as a fall to zero unless the check passed.",
+ "windows": {
+  "halt": "202405",
+  "months": 12,
+  "before": [
+   "202305",
+   "202404"
+  ],
+  "routes_after": [
+   "202501",
+   "202512"
+  ],
+  "goods_after": [
+   "202508",
+   "202607"
+  ],
+  "note": "The window after the halt ends at the last month each reporter has published, asked of the data rather than taken from the calendar, because the UN's publishing lag is not the same for every reporter."
+ },
  "source": {
   "name": "UN Comtrade — monthly merchandise trade, HS, all commodities",
   "url": "https://comtradeapi.un.org/public/v1/preview/C/M/HS",
@@ -519,7 +536,7 @@
    "tur_exports_to_isr": null,
    "tur_imports_from_isr": null,
    "isr_imports_from_tur": 165822000.0,
-   "tur_reported_that_month": true,
+   "tur_reported_that_month": false,
    "by_mode": {
     "tur_exports": {},
     "isr_imports": {}
@@ -530,7 +547,7 @@
    "tur_exports_to_isr": null,
    "tur_imports_from_isr": null,
    "isr_imports_from_tur": null,
-   "tur_reported_that_month": true,
+   "tur_reported_that_month": false,
    "by_mode": {
     "tur_exports": {},
     "isr_imports": {}
@@ -541,7 +558,7 @@
    "tur_exports_to_isr": null,
    "tur_imports_from_isr": null,
    "isr_imports_from_tur": 164218000.0,
-   "tur_reported_that_month": true,
+   "tur_reported_that_month": false,
    "by_mode": {
     "tur_exports": {},
     "isr_imports": {}
@@ -552,7 +569,7 @@
    "tur_exports_to_isr": null,
    "tur_imports_from_isr": null,
    "isr_imports_from_tur": 154502000.0,
-   "tur_reported_that_month": true,
+   "tur_reported_that_month": false,
    "by_mode": {
     "tur_exports": {},
     "isr_imports": {}
@@ -563,7 +580,7 @@
    "tur_exports_to_isr": null,
    "tur_imports_from_isr": null,
    "isr_imports_from_tur": 169535000.0,
-   "tur_reported_that_month": true,
+   "tur_reported_that_month": false,
    "by_mode": {
     "tur_exports": {},
     "isr_imports": {}
@@ -574,7 +591,7 @@
    "tur_exports_to_isr": null,
    "tur_imports_from_isr": null,
    "isr_imports_from_tur": 186700000.0,
-   "tur_reported_that_month": true,
+   "tur_reported_that_month": false,
    "by_mode": {
     "tur_exports": {},
     "isr_imports": {}
@@ -585,7 +602,7 @@
    "tur_exports_to_isr": null,
    "tur_imports_from_isr": null,
    "isr_imports_from_tur": 214682000.0,
-   "tur_reported_that_month": true,
+   "tur_reported_that_month": false,
    "by_mode": {
     "tur_exports": {},
     "isr_imports": {}
@@ -600,14 +617,14 @@
     "202404"
    ],
    "after": [
-    "202406",
-    "202505"
+    "202501",
+    "202512"
    ]
   },
   "all_exports": {
    "before": 21528440978,
-   "after": 21151878615,
-   "change_pct": -1.7
+   "after": 21837195121,
+   "change_pct": 1.4
   },
   "partners": {
    "300": {
@@ -615,144 +632,144 @@
     "name_tr": "Yunanistan",
     "before": 370476951,
     "before_months": 12,
-    "after": 441603235,
+    "after": 446724445,
     "after_months": 12,
-    "change_pct": 19.2,
-    "change_usd": 71126284,
-    "excess_pct": 20.9,
-    "excess_usd": 77424392
+    "change_pct": 20.6,
+    "change_usd": 76247494,
+    "excess_pct": 19.2,
+    "excess_usd": 71060817
    },
    "470": {
     "name": "Malta",
     "name_tr": "Malta",
     "before": 102688998,
     "before_months": 12,
-    "after": 68884399,
+    "after": 70092334,
     "after_months": 12,
-    "change_pct": -32.9,
-    "change_usd": -33804599,
-    "excess_pct": -31.2,
-    "excess_usd": -32058886
+    "change_pct": -31.7,
+    "change_usd": -32596664,
+    "excess_pct": -33.1,
+    "excess_usd": -34034310
    },
    "196": {
     "name": "Cyprus",
     "name_tr": "GKRY",
     "before": 198975372,
     "before_months": 12,
-    "after": 222017975,
+    "after": 219304182,
     "after_months": 12,
-    "change_pct": 11.6,
-    "change_usd": 23042603,
-    "excess_pct": 13.3,
-    "excess_usd": 26425184
+    "change_pct": 10.2,
+    "change_usd": 20328810,
+    "excess_pct": 8.8,
+    "excess_usd": 17543155
    },
    "818": {
     "name": "Egypt",
     "name_tr": "Mısır",
     "before": 302897862,
     "before_months": 12,
-    "after": 344883580,
+    "after": 339913776,
     "after_months": 12,
-    "change_pct": 13.9,
-    "change_usd": 41985718,
-    "excess_pct": 15.6,
-    "excess_usd": 47134982
+    "change_pct": 12.2,
+    "change_usd": 37015914,
+    "excess_pct": 10.8,
+    "excess_usd": 32775344
    },
    "400": {
     "name": "Jordan",
     "name_tr": "Ürdün",
     "before": 67582313,
     "before_months": 12,
-    "after": 123016201,
+    "after": 158057369,
     "after_months": 12,
-    "change_pct": 82.0,
-    "change_usd": 55433888,
-    "excess_pct": 83.7,
-    "excess_usd": 56582787
+    "change_pct": 133.9,
+    "change_usd": 90475056,
+    "excess_pct": 132.5,
+    "excess_usd": 89528904
    },
    "784": {
     "name": "United Arab Emirates",
     "name_tr": "BAE",
     "before": 736778539,
     "before_months": 12,
-    "after": 764005476,
+    "after": 773457350,
     "after_months": 12,
-    "change_pct": 3.7,
-    "change_usd": 27226937,
-    "excess_pct": 5.4,
-    "excess_usd": 39752172
+    "change_pct": 5.0,
+    "change_usd": 36678811,
+    "excess_pct": 3.6,
+    "excess_usd": 26363911
    },
    "100": {
     "name": "Bulgaria",
     "name_tr": "Bulgaristan",
     "before": 362426733,
     "before_months": 12,
-    "after": 457958582,
+    "after": 464657385,
     "after_months": 12,
-    "change_pct": 26.4,
-    "change_usd": 95531849,
-    "excess_pct": 28.1,
-    "excess_usd": 101693103
+    "change_pct": 28.2,
+    "change_usd": 102230652,
+    "excess_pct": 26.8,
+    "excess_usd": 97156678
    },
    "642": {
     "name": "Romania",
     "name_tr": "Romanya",
     "before": 628491896,
     "before_months": 12,
-    "after": 664481271,
+    "after": 713961355,
     "after_months": 12,
-    "change_pct": 5.7,
-    "change_usd": 35989375,
-    "excess_pct": 7.4,
-    "excess_usd": 46673737
+    "change_pct": 13.6,
+    "change_usd": 85469459,
+    "excess_pct": 12.2,
+    "excess_usd": 76670572
    },
    "275": {
     "name": "Palestine",
     "name_tr": "Filistin",
     "before": 11809175,
     "before_months": 12,
-    "after": 75710270,
+    "after": 44317078,
     "after_months": 12,
-    "change_pct": 541.1,
-    "change_usd": 63901095,
-    "excess_pct": 542.8,
-    "excess_usd": 64101851
+    "change_pct": 275.3,
+    "change_usd": 32507903,
+    "excess_pct": 273.9,
+    "excess_usd": 32342575
    },
    "268": {
     "name": "Georgia",
     "name_tr": "Gürcistan",
     "before": 221533563,
     "before_months": 12,
-    "after": 224512889,
+    "after": 225411054,
     "after_months": 12,
-    "change_pct": 1.3,
-    "change_usd": 2979326,
-    "excess_pct": 3.0,
-    "excess_usd": 6745397
+    "change_pct": 1.8,
+    "change_usd": 3877491,
+    "excess_pct": 0.4,
+    "excess_usd": 776021
    },
    "422": {
     "name": "Lebanon",
     "name_tr": "Lübnan",
     "before": 121867459,
     "before_months": 12,
-    "after": 101777644,
+    "after": 110446793,
     "after_months": 12,
-    "change_pct": -16.5,
-    "change_usd": -20089815,
-    "excess_pct": -14.8,
-    "excess_usd": -18018068
+    "change_pct": -9.4,
+    "change_usd": -11420666,
+    "excess_pct": -10.8,
+    "excess_usd": -13126810
    },
    "760": {
     "name": "Syria",
     "name_tr": "Suriye",
     "before": 173197520,
     "before_months": 12,
-    "after": 215182520,
+    "after": 291135694,
     "after_months": 12,
-    "change_pct": 24.2,
-    "change_usd": 41985000,
-    "excess_pct": 25.9,
-    "excess_usd": 44929358
+    "change_pct": 68.1,
+    "change_usd": 117938174,
+    "excess_pct": 66.7,
+    "excess_usd": 115513409
    }
   }
  },

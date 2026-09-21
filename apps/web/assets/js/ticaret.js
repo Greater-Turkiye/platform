@@ -55,6 +55,15 @@
       meanBefore,
       seaShare,
       turLines: after.filter((s) => s.tur_exports_to_isr != null).length,
+      /* A month with no Israel line in Türkiye's returns means one of two different things, and
+         the difference is the whole method. If Türkiye reported other partners that month, the
+         absence is a reported absence. If Türkiye published nothing at all, it is silence, and
+         silence is not evidence of anything. The two are counted apart and shown apart. */
+      absentReported: after.filter((s) => s.tur_exports_to_isr == null && s.tur_reported_that_month).length,
+      absentSilent: after.filter((s) => s.tur_exports_to_isr == null && !s.tur_reported_that_month).length,
+      totalReported: withLine
+        .filter((s) => s.tur_reported_that_month)
+        .reduce((a, s) => a + s.isr_imports_from_tur, 0),
     };
   }
 
@@ -70,7 +79,8 @@
     };
     box.replaceChildren(
       tile(usd(s.total), GT.t('t.stat.total'), GT.t('t.stat.totalTip', { n: s.months })),
-      tile(`${s.turLines} / ${s.ofMonths}`, GT.t('t.stat.turLines')),
+      tile(`${s.absentReported} / ${s.ofMonths}`, GT.t('t.stat.absent'),
+        s.absentSilent ? GT.t('t.stat.silentTip', { n: s.absentSilent }) : ''),
       tile(usd(s.meanBefore), GT.t('t.stat.before')),
       tile(s.seaShare == null ? '—' : Math.round(s.seaShare * 100) + '%', GT.t('t.stat.sea')),
     );
@@ -368,7 +378,10 @@
     routes(data.routes);
     goods(Object.assign({}, data.chapters, { headings: data.headings }));
     const last = data.series[data.series.length - 1];
-    $('t-chart-note').textContent = GT.t('t.note', { n: s.months, d: s.ofMonths, v: usd(s.total) });
+    $('t-chart-note').textContent = GT.t('t.note', {
+      n: s.months, d: s.ofMonths, v: usd(s.total),
+      r: s.absentReported, q: usd(s.totalReported),
+    }) + (s.absentSilent ? ' ' + GT.t('t.noteSilent', { n: s.absentSilent }) : '');
     $('t-chart-src').textContent = GT.t('t.src', { p: monthLabel(last.period) });
     $('t-state').hidden = true;
   }

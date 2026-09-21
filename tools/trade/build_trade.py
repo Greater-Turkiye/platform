@@ -34,6 +34,7 @@ piece of information that turns a compliance record into a target list.
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import json
 import os
 import sys
@@ -81,8 +82,6 @@ POLICY = [
 
 
 def months(first_year: int, first_month: int) -> list[str]:
-    import datetime as dt
-
     out, cur = [], dt.date(first_year, first_month, 1)
     # Comtrade publishes a month some weeks after it ends; ask up to two months back from today
     end = dt.datetime.now(tz=dt.UTC).date().replace(day=1) - dt.timedelta(days=62)
@@ -156,10 +155,51 @@ ROUTE_PARTNERS = {
     "642": ("Romania", "Romanya"), "275": ("Palestine", "Filistin"),
     "268": ("Georgia", "Gürcistan"), "422": ("Lebanon", "Lübnan"), "760": ("Syria", "Suriye"),
 }
-WINDOW_BEFORE = [f"{y}{m:02d}" for y, m in
-                 [(2023, m) for m in range(5, 13)] + [(2024, m) for m in range(1, 5)]]
-WINDOW_AFTER = [f"{y}{m:02d}" for y, m in
-                [(2024, m) for m in range(6, 13)] + [(2025, m) for m in range(1, 6)]]
+# Filled once per run by `resolve_windows`, from the halt and from the last month each reporter
+# has actually published. They are module-level because every section compares the same two.
+WINDOW_BEFORE: list[str] = []
+WINDOW_AFTER: list[str] = []
+CHAPTER_BEFORE: list[str] = []
+CHAPTER_AFTER: list[str] = []
+
+
+# The halt was announced in May 2024, so the twelve months before it are a fact about history and
+# do not move. What comes after does: each month the UN publishes adds a month that should be in
+# the comparison, and the oldest should drop out of it.
+HALT_PERIOD = "202405"
+WINDOW_MONTHS = 12
+
+
+def shift(period: str, months_back: int) -> str:
+    """The period `months_back` months before `period`, as YYYYMM."""
+    y, m = int(period[:4]), int(period[4:])
+    total = y * 12 + (m - 1) - months_back
+    return f"{total // 12}{total % 12 + 1:02d}"
+
+
+def window_ending(last: str, n: int = WINDOW_MONTHS) -> list[str]:
+    """The n periods ending at `last`, oldest first."""
+    return [shift(last, i) for i in range(n - 1, -1, -1)]
+
+
+def latest_reported(reporter: int, partner: int, flow: str, cache: Path, refresh: bool) -> str | None:
+    """The most recent month for which this reporter actually published a figure.
+
+    The UN publishes with a lag that is not the same for every reporter, so the end of the window
+    is asked of the data rather than assumed from the calendar. It walks back from last month and
+    stops at the first month with a line; a run of empty months at the end means the reporter is
+    simply behind, not that trade stopped, which is why nothing here reads an absence as a zero.
+    """
+    today = dt.datetime.now(tz=dt.UTC)
+    cursor = f"{today.year}{today.month:02d}"
+    for _ in range(24):  # a reporter can be a year behind; walk far enough to find it
+        cursor = shift(cursor, 1)
+        if cursor <= HALT_PERIOD:
+            return None
+        total, _ = total_and_modes(fetch(cursor, reporter, partner, flow, cache, refresh))
+        if total is not None:
+            return cursor
+    return None
 
 
 def mean_exports(partner: int, window: list[str], cache: Path, refresh: bool) -> tuple[int | None, int]:
@@ -175,10 +215,7 @@ def mean_exports(partner: int, window: list[str], cache: Path, refresh: bool) ->
 # taking Türkiye's own chapters before the halt and Israel's after it would compare two different
 # accounting bases and call the difference a finding.
 CHAPTERS_URL = "https://comtradeapi.un.org/files/v1/app/reference/HS.json"
-CHAPTER_BEFORE = [f"{y}{m:02d}" for y, m in
-                  [(2023, m) for m in range(5, 13)] + [(2024, m) for m in range(1, 5)]]
-CHAPTER_AFTER = [f"{y}{m:02d}" for y, m in
-                 [(2025, m) for m in range(8, 13)] + [(2026, m) for m in range(1, 8)]]
+
 
 # Turkish names for the chapters this series actually carries. The English text is the official one
 # the UN publishes; the Turkish is the customs tariff's own wording, shortened to what fits a row.
@@ -560,23 +597,62 @@ def build_routes(cache: Path, refresh: bool) -> dict:
     }
 
 
+def resolve_windows(cache: Path, refresh: bool) -> dict:
+    """Work out the two comparison windows for this run, and say so in the output.
+
+    `routes` reads Türkiye's own exports and `chapters`/`headings` read Israel's imports, and the
+    two reporters publish at different times, so each gets a window ending where its own data ends.
+    Both "before" windows are the same fixed twelve months ending at the halt.
+    """
+    global WINDOW_BEFORE, WINDOW_AFTER, CHAPTER_BEFORE, CHAPTER_AFTER
+    before = window_ending(shift(HALT_PERIOD, 1))
+    tur_last = latest_reported(TUR, DEU, "X", cache, refresh)
+    isr_last = latest_reported(ISR, TUR, "M", cache, refresh)
+    WINDOW_BEFORE = before
+    CHAPTER_BEFORE = before
+    WINDOW_AFTER = window_ending(tur_last) if tur_last else []
+    CHAPTER_AFTER = window_ending(isr_last) if isr_last else []
+    return {
+        "halt": HALT_PERIOD,
+        "months": WINDOW_MONTHS,
+        "before": [before[0], before[-1]],
+        "routes_after": [WINDOW_AFTER[0], WINDOW_AFTER[-1]] if WINDOW_AFTER else None,
+        "goods_after": [CHAPTER_AFTER[0], CHAPTER_AFTER[-1]] if CHAPTER_AFTER else None,
+        "note": (
+            "The window after the halt ends at the last month each reporter has published, asked "
+            "of the data rather than taken from the calendar, because the UN's publishing lag is "
+            "not the same for every reporter."
+        ),
+    }
+
+
 def build(cache: Path, refresh: bool) -> dict:
+    windows = resolve_windows(cache, refresh)
+    print(f"  windows: before {windows['before']}, routes after {windows['routes_after']}, "
+          f"goods after {windows['goods_after']}", flush=True)
     series = []
     for period in months(FIRST_YEAR, FIRST_MONTH):
         tr_x, tr_x_modes = total_and_modes(fetch(period, TUR, ISR, "X", cache, refresh))
         tr_m, _ = total_and_modes(fetch(period, TUR, ISR, "M", cache, refresh))
         il_m, il_m_modes = total_and_modes(fetch(period, ISR, TUR, "M", cache, refresh))
         # Absence is only a reported absence when the same month carries other partners.
+        #
+        # This used to read `control is not None and control > 0 if control is not None else True`,
+        # which returns True when the control itself is missing — that is, it called a month in
+        # which Türkiye published nothing at all a month in which Türkiye reported. Every month of
+        # 2026 was marked as a reported absence on the strength of it, and the page said so. A
+        # missing control is the one case where the answer has to be no.
         control = None
-        if tr_x is None or tr_m is None:
+        if tr_x is None and tr_m is None:
             control, _ = total_and_modes(fetch(period, TUR, DEU, "X", cache, refresh))
+        reported = True if (tr_x is not None or tr_m is not None) else bool(control and control > 0)
         series.append(
             {
                 "period": period,
                 "tur_exports_to_isr": tr_x,
                 "tur_imports_from_isr": tr_m,
                 "isr_imports_from_tur": il_m,
-                "tur_reported_that_month": control is not None and control > 0 if control is not None else True,
+                "tur_reported_that_month": reported,
                 "by_mode": {"tur_exports": tr_x_modes, "isr_imports": il_m_modes},
             }
         )
@@ -593,6 +669,7 @@ def build(cache: Path, refresh: bool) -> dict:
             "Israel line in Türkiye's returns is marked reported when Türkiye reported other partners "
             "that month, so an absent line is not read as a fall to zero unless the check passed."
         ),
+        "windows": windows,
         "source": {
             "name": "UN Comtrade — monthly merchandise trade, HS, all commodities",
             "url": "https://comtradeapi.un.org/public/v1/preview/C/M/HS",
