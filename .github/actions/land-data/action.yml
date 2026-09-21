@@ -63,10 +63,13 @@ runs:
 
         # Only the named paths, and only if git thinks they actually differ. A workflow that
         # opens an empty pull request every month teaches everyone to ignore it.
+        # `git status --porcelain`, not `git diff`: a builder that produces a file for the first
+        # time leaves it untracked, and `git diff` does not see an untracked file. That would have
+        # skipped a genuinely new data file without saying so.
         changed=0
         while IFS= read -r p; do
           [ -n "$p" ] || continue
-          if ! git diff --quiet -- "$p"; then changed=1; fi
+          if [ -n "$(git status --porcelain --untracked-files=all -- "$p")" ]; then changed=1; fi
         done <<< "$IN_PATHS"
 
         if [ "$changed" = "0" ]; then

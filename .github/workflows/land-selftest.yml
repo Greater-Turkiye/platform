@@ -1,0 +1,108 @@
+name: land-selftest
+
+# Does the landing path still work?
+#
+# The refresh workflows only exercise `.github/actions/land-data` when their source figures happen
+# to move, which may be months apart — so the one part of the pipeline that touches branches and
+# pull requests is also the part that goes longest without being run. The first time anyone finds
+# out it is broken would be the month it was needed.
+#
+# This runs it on purpose, against a scratch file nobody reads, and then removes every trace:
+# the pull request is closed and the branch deleted in the same run. What it leaves behind is the
+# answer in the log — whether a pull request could be opened here, or whether the action had to
+# fall back to an issue — which is a fact about this organisation's settings that nothing else
+# reports and that the workflow comments used to assert without checking.
+#
+# Dispatch only. It is never scheduled: it exists to be run before trusting the path, or after
+# changing it.
+on:
+  workflow_dispatch:
+    inputs:
+      keep:
+        description: Leave the pull request and branch in place instead of cleaning up
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: land-selftest
+  cancel-in-progress: false
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SCRATCH: .github/land-selftest.txt
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Write the scratch file
+        run: |
+          set -euo pipefail
+          # Deliberately a file that does not exist on main: this also checks that the action
+          # notices a brand-new file, which `git diff` alone does not.
+          {
+            echo "This file exists only on a self-test branch and is never merged."
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "At:  $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } > "$SCRATCH"
+
+      - name: Write the body
+        run: |
+          set -euo pipefail
+          {
+            echo "İniş yolunun kendi testi. Bu PR birleştirilmemelidir; iş akışı kendisi kapatır."
+            echo "Self-test of the landing path. This pull request is not for merging; the run closes it."
+            echo
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          } > "$RUNNER_TEMP/body.md"
+
+      - name: Land it
+        id: land
+        uses: ./.github/actions/land-data
+        with:
+          name: selftest
+          paths: .github/land-selftest.txt
+          title: "[self-test] iniş yolu / landing path"
+          body-file: ${{ runner.temp }}/body.md
+          label: self-test
+
+      - name: Say what happened
+        run: |
+          set -euo pipefail
+          case "${{ steps.land.outputs.landed }}" in
+            pr)
+              echo "::notice::pull requests CAN be opened by Actions here — ${{ steps.land.outputs.url }}" ;;
+            issue)
+              echo "::notice::pull requests CANNOT be opened by Actions here; fell back to an issue — ${{ steps.land.outputs.url }}" ;;
+            *)
+              echo "::error::the action landed nothing, which means it did not see the scratch file as a change"
+              exit 1 ;;
+          esac
+
+      - name: Clean up
+        if: always() && inputs.keep != true
+        run: |
+          set -euo pipefail
+          url='${{ steps.land.outputs.url }}'
+          kind='${{ steps.land.outputs.landed }}'
+          if [ "$kind" = "pr" ] && [ -n "$url" ]; then
+            gh pr close "$url" --comment "Self-test finished; closing and deleting the branch." --delete-branch || true
+          elif [ "$kind" = "issue" ] && [ -n "$url" ]; then
+            gh issue close "$url" --comment "Self-test finished." || true
+          fi
+          # the branch, whichever path was taken; `gh pr close --delete-branch` may already have it
+          git ls-remote --exit-code --heads origin "data/selftest-*" >/dev/null 2>&1 || exit 0
+          for b in $(git ls-remote --heads origin "data/selftest-*" | awk '{print $2}' | sed 's#refs/heads/##'); do
+            git push -q origin --delete "$b" || true
+            echo "::notice::deleted $b"
+          done
