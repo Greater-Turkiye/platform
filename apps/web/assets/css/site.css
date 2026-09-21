@@ -97,7 +97,7 @@ img, svg { display: block; max-width: 100%; }
   animation: globe-sweep 7s linear infinite; }
 @keyframes globe-sweep { to { rotate: 1turn; } }
 /* panel: pan/zoom moves the drawn map with a transform on this box (panel.js liveZoom) */
-.p-mover { position: absolute; inset: 0; transform-origin: 0 0; will-change: transform; }
+.p-mover, .gm-mover { position: absolute; inset: 0; transform-origin: 0 0; will-change: transform; }
 .hero-fade { position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(90deg, var(--bg) 0%, rgba(5, 5, 5, .92) 26%, rgba(5, 5, 5, .35) 50%, rgba(5, 5, 5, 0) 66%),
               linear-gradient(0deg, var(--bg) 0%, rgba(5, 5, 5, 0) 22%); }

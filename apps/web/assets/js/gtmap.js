@@ -83,7 +83,7 @@
     const o = opts || {};
     const pad = o.pad == null ? 10 : o.pad;
     const api = {};
-    let svg = null, gRoot = null, zoom = null, proj = null, path = null;
+    let svg = null, gRoot = null, zoom = null, proj = null, path = null, mover = null;
     let W = 0, H = 0, k = 1, view = null;
     const fixedGroups = new Set(); // groups whose children are counter-scaled
 
@@ -94,8 +94,15 @@
       view = (o.viewNarrow && W / H < 1.1) ? o.viewNarrow : o.view;
       proj = d3.geoMercator().fitExtent([[pad, pad], [W - pad, H - pad]], corners(view));
       path = d3.geoPath(proj);
-      d3.select(container).select('svg').remove();
-      svg = d3.select(container).append('svg')
+      /* With deferred rendering the SVG sits inside a plain box that the gesture moves, and the
+         zoom behaviour is attached to the container, which never moves — so `d3.pointer` keeps
+         reading coordinates in a frame that is standing still. */
+      const host = o.live
+        ? d3.select(container).selectAll('div.gm-mover').data([0]).join('div').attr('class', 'gm-mover')
+        : d3.select(container);
+      mover = o.live ? host.node() : null;
+      host.selectAll('svg').remove();
+      svg = host.append('svg')
         .attr('viewBox', `0 0 ${W} ${H}`)
         .attr('role', 'img')
         .attr('aria-label', o.ariaLabel || '');
@@ -156,6 +163,57 @@
       return path(c);
     };
 
+    /* Deferred rendering, for maps heavy enough that redrawing them inside a gesture stutters.
+     *
+     * While the reader is dragging, the already-drawn map is moved with a CSS transform on its
+     * box — compositor work only. It is drawn again, sharp, once the gesture rests. The transform
+     * goes on a plain box and never on the <svg>: a transform on an SVG root makes the browser lay
+     * the SVG out again, and every piece of SVG text with it, because SVG text follows the
+     * on-screen scale. That distinction is why this is worth the machinery.
+     *
+     * A page turns it on with `opts.mover` (the box to move) and reads it through `opts.onCommit`.
+     * A page that leaves `mover` out gets the plain immediate path above, which is right for a map
+     * that is cheap to redraw.
+     */
+    let pending = null, moving = false, settleTimer = 0, frameReq = 0, rendered = d3.zoomIdentity;
+    let pendingPointer = null;
+    const schedule = () => { if (!frameReq) frameReq = requestAnimationFrame(flush); };
+
+    function liveMove(t) {
+      const s = t.k / rendered.k;
+      mover.style.transform =
+        `translate(${t.x - s * rendered.x}px,${t.y - s * rendered.y}px) scale(${s})`;
+    }
+
+    function flush() {
+      frameReq = 0;
+      if (pending) {
+        if (mover) liveMove(pending);
+        else gRoot.attr('transform', pending);
+        if (o.onFrame) o.onFrame(pending);
+        pending = null;
+      }
+      if (pendingPointer && o.onCursor) {
+        const t = d3.zoomTransform(container);
+        o.onCursor(proj.invert(t.invert(pendingPointer)));
+        pendingPointer = null;
+      }
+    }
+
+    function commit() {
+      const t = d3.zoomTransform(container);
+      moving = false;
+      rendered = t;
+      if (svg) svg.classed('moving', false);
+      gRoot.attr('transform', t);
+      mover.style.transform = '';
+      if (t.k !== k) { k = t.k; api.k = k; api.rescale(); if (o.onZoom) o.onZoom(k); }
+      if (o.onCommit) o.onCommit(t);
+    }
+
+    /** Re-apply the current transform after the page has redrawn its layers itself. */
+    api.settled = () => { rendered = d3.zoomTransform(container); };
+
     /**
      * Wire the zoom, the cursor read-out and the background click. Called once the layers exist,
      * because the zoom's translate extent is expressed in the frame they were drawn in.
@@ -163,9 +221,25 @@
     api.ready = function ready() {
       zoom = d3.zoom()
         .scaleExtent(o.scaleExtent || [1, 24])
-        .translateExtent([[-W * 0.2, -H * 0.2], [W * 1.2, H * 1.2]])
-        .on('zoom', (ev) => {
-          gRoot.attr('transform', ev.transform);
+        .translateExtent([[-W * 0.2, -H * 0.2], [W * 1.2, H * 1.2]]);
+      if (o.live) {
+        pending = null; moving = false; rendered = d3.zoomIdentity;
+        clearTimeout(settleTimer);
+        mover.style.transform = '';
+        zoom.on('zoom', (ev) => {
+          pending = ev.transform;
+          clearTimeout(settleTimer);
+          if (!moving) { moving = true; if (o.onMoveStart) o.onMoveStart(); if (svg) svg.classed('moving', true); }
+          schedule();
+        }).on('end', (ev) => {
+          clearTimeout(settleTimer);
+          // a gesture gets a moment to rest; an animated zoom is already where it meant to be
+          settleTimer = setTimeout(() => requestAnimationFrame(commit), ev.sourceEvent ? 150 : 0);
+        });
+      } else {
+        zoom.on('zoom', (ev) => {
+          pending = ev.transform;
+          schedule();
           if (ev.transform.k !== k) {
             k = ev.transform.k;
             api.k = k;
@@ -173,17 +247,15 @@
             if (o.onZoom) o.onZoom(k);
           }
         });
-      svg.call(zoom).on('dblclick.zoom', null);
+      }
+      d3.select(container).property('__zoom', d3.zoomIdentity).call(zoom).on('dblclick.zoom', null);
       if (o.onCursor) {
-        svg.on('pointermove.gm', (ev) => {
-          const t = d3.zoomTransform(container);
-          const [mx, my] = d3.pointer(ev, container);
-          o.onCursor(proj.invert(t.invert([mx, my])));
-        });
-        svg.on('pointerleave.gm', () => o.onCursor(null));
+        d3.select(container)
+          .on('pointermove.gm', (ev) => { pendingPointer = d3.pointer(ev, container); schedule(); })
+          .on('pointerleave.gm', () => { pendingPointer = null; o.onCursor(null); });
       }
       if (o.onBackground) {
-        svg.on('click.gm', (ev) => { if (!ev.target.closest('[data-gm-mark]')) o.onBackground(ev); });
+        d3.select(container).on('click.gm', (ev) => { if (!ev.target.closest('[data-gm-mark]')) o.onBackground(ev); });
       }
       api.k = k;
       return api;
@@ -194,8 +266,8 @@
       if (!zoom || !proj) return false;
       const c = proj(lonlat);
       const t = d3.zoomIdentity.translate(W / 2, H / 2).scale(kk).translate(-c[0], -c[1]);
-      const sel = ms ? svg.transition().duration(ms) : svg;
-      sel.call(zoom.transform, t);
+      const sel = d3.select(container);
+      (ms ? sel.transition().duration(ms) : sel).call(zoom.transform, t);
       return true;
     };
 
@@ -211,8 +283,12 @@
       return api.goto([(box[0][0] + box[1][0]) / 2, (box[0][1] + box[1][1]) / 2], kk, ms);
     };
 
-    api.reset = (ms) => { if (zoom) (ms ? svg.transition().duration(ms) : svg).call(zoom.transform, d3.zoomIdentity); };
-    api.zoomBy = (f) => { if (zoom) svg.transition().duration(180).call(zoom.scaleBy, f); };
+    api.reset = (ms) => {
+      if (!zoom) return;
+      const sel = d3.select(container);
+      (ms ? sel.transition().duration(ms) : sel).call(zoom.transform, d3.zoomIdentity);
+    };
+    api.zoomBy = (f) => { if (zoom) d3.select(container).transition().duration(180).call(zoom.scaleBy, f); };
     api.level = () => k;
 
     return api;
