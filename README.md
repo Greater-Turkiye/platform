@@ -304,3 +304,16 @@ Start with the [contributing guide](https://github.com/Greater-Turkiye/.github/b
 ### Licence
 
 Code is [MIT](LICENSE). Data is published in the `datasets` repository under CC BY 4.0. Third-party data and fonts are credited in [apps/web/assets/LICENSES.md](apps/web/assets/LICENSES.md).
+
+### Bağımlılık geçersiz kılmaları / dependency overrides
+
+`apps/ingest`, `apps/review-bot` ve `apps/scheduler` içindeki `package.json` dosyaları
+`overrides.sharp` alanında `>=0.35.4` taşır. Sebebi: `sharp` bu depoda doğrudan kullanılmaz, yerel
+geliştirme için `wrangler` → `miniflare` zinciriyle gelir. `miniflare` hâlâ `sharp@0.35.2`
+sabitliyor ve o sürüm libheif üzerinden iki yüksek önemli açık taşıyor (GHSA-g89c-p67h-r497,
+GHSA-2jg2-4ch7-h545, düzeltme 0.35.4). Üst akış sabitlemesini gevşetince bu satır kaldırılmalıdır
+— duran bir geçersiz kılma, çözülmüş bir sorunu gizler.
+
+The three Workers pin `sharp` to `>=0.35.4` through `overrides`. It is not used here directly: it
+arrives with `wrangler` → `miniflare` for local development, and miniflare still pins a version
+carrying two high-severity libheif advisories. Remove the override once upstream moves.
