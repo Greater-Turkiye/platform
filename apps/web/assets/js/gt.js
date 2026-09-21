@@ -142,6 +142,15 @@
       'm.s4.l5': 'Hedef gösteren, şiddete çağıran veya nefret içeren dil kullanılmaz. Koordinatlar bir olayın gerçekleştiği yeri belgelemek içindir; asla gelecekteki bir eylem için sunulmaz. Bir örgütün eylemleri o örgüte aittir, bir halka değil.',
       'm.s4.l6': 'Kaynaksız bilgi yazılmaz; telifli metin ve görsel kopyalanmaz. Tartışmalı her nitelendirme iddia olarak, sahibine atfedilerek kaydedilir.',
       'm.s4.note': 'Bu kuralların makinece denetlenebilenleri her değişiklikte otomatik olarak uygulanır, ama otomatik denetim insan incelemesinin yerine geçmez ve son sorumluluk insanındır. Bir ihlal fark ederseniz herkese açık bir yorumla dikkat çekmeyin — bu, içeriği daha görünür yapar; özel kanalı kullanın.',
+      'm.sa.k': 'Faaliyet', 'm.sa.t': '“İlan edilen faaliyet” nasıl sayılıyor?',
+      'm.sa.lead': 'Paneldeki “Faaliyet” sütunu bizim gözlemimiz değildir: başka devletlerin denizcilere kendi ilan ettiği duyuruların sayımıdır. Kimsenin konumunu vermez, kimseyi işaret etmez; yalnızca hangi denizde ne sıklıkla duyuru yapıldığını gösterir.',
+      'm.sa.l1': 'Kaynak: ABD NGA seyir ihbarları arşivi (kamu malı). İhbar metnini kopyalamıyoruz; sayıyor ve sınıflandırıyoruz.',
+      'm.sa.l2': 'Pencere 2015–2021: arşivin bu bölgedeki kapsamı bu yıllarda istikrarlı. 2021 sonrası aktarım seyreldiği için sayım orada biter — dosyadaki hiçbir sayı güncel değildir.',
+      'm.sa.l3': '“Askerî” ne demek: atış, tehlikeli faaliyet, füze denemesi, denizaltı faaliyeti ve tatbikat olarak duyurulanlar — ihbarın kendi sözcüklerinden.',
+      'm.sa.l4': 'Türk ihbarları hiçbir sütunda sayılmaz. Türkiye’nin ilan ettiği atış ve tatbikat sahalarının serisini yayımlamak kırmızı çizgidir (ADR 0013); kural kodda ve testlerde zorlanır.',
+      'm.sa.l5': 'Bölge kutuları örtüşür (Doğu Akdeniz ile Kıbrıs aynı suyu paylaşır), bu yüzden bölgelerin toplamı genel toplamı vermez. Sayılan denizi olmayan bölge “—” okunur: ölçülmedi, “sıfır” değil.',
+      'm.sa.note': 'Bu bir tehdit ölçüsü değil, bir ilan yoğunluğu ölçüsüdür. Çok duyuru yapılan deniz, tehlikeli deniz anlamına gelmez; duyurulmayan faaliyet de bu sayıma girmez.',
+      'm.lnk.msi': 'İlan edilen faaliyet: kaynaklar ve yöntem', 'm.lnk.nga': 'NGA seyir ihbarları arşivi',
       'm.s5.k': 'Harita', 'm.s5.t': 'Harita katmanları nereden geliyor?',
       'm.s5.lead': 'Harita Türkiye’nin bakış açısını açıkça gösterir, ama her unsur bir kaynağa ve açık bir etikete dayanır: okur, neyin resmî belge, neyin Türkiye’nin tutumu, neyin bizim çizimimiz olduğunu ayırt edebilmelidir.',
       'm.s5.l1': 'Her katmanın kaynaklı bir resmî belgesi olmalıdır: imzalı bir anlaşma, resmî koordinat listesi, Resmî Gazete veya bir BM belgesi. Kaynağı bulunamayan ülke boyanmaz; niyet beyanı, ziyaret veya basın yorumu yeterli değildir.',
@@ -325,6 +334,15 @@
       'm.s4.l5': 'No language that designates targets, calls for violence or spreads hatred. Coordinates document where an event happened; they are never presented for a future action. An organisation’s actions belong to that organisation, not to a people.',
       'm.s4.l6': 'Nothing is written without a source, and copyrighted text or imagery is never copied. Every contested characterisation is recorded as a claim, attributed to whoever makes it.',
       'm.s4.note': 'The machine-checkable part of these rules is enforced automatically on every change, but automated checks never replace human review and final responsibility lies with people. If you notice a violation, do not draw attention to it in a public comment — that makes the content more visible; use the private channel.',
+      'm.sa.k': 'Activity', 'm.sa.t': 'How “announced activity” is counted',
+      'm.sa.lead': 'The “Activity” column in the panel is not our observation: it is a count of what other states announced to mariners themselves. It places nobody and points at nobody; it shows how often notices were issued in which sea.',
+      'm.sa.l1': 'Source: the US NGA broadcast-warnings archive (public domain). We copy no warning text; we count and classify.',
+      'm.sa.l2': 'A 2015–2021 window: the archive’s coverage of this region is steady over those years. The relay thins out after 2021, so the count stops there — nothing in the file is current.',
+      'm.sa.l3': 'What “military” means: warnings announcing firing, hazardous operations, missile tests, submarine activity and exercises — taken from the warning’s own wording.',
+      'm.sa.l4': 'Turkish warnings are never counted, in any column. Publishing a series of Türkiye’s own announced firing and exercise areas is a red line (ADR 0013); the rule is enforced in code and in tests.',
+      'm.sa.l5': 'The region boxes overlap — the Eastern Mediterranean and Cyprus share water — so the regions do not sum to the total. A region with no counted sea reads “—”: not measured, not “zero”.',
+      'm.sa.note': 'This measures how much was announced, not how dangerous a sea is. A sea with many notices is not a dangerous sea, and activity nobody announced is not in this count at all.',
+      'm.lnk.msi': 'Announced activity: sources and method', 'm.lnk.nga': 'NGA broadcast warnings archive',
       'm.s5.k': 'Map', 'm.s5.t': 'Where the map layers come from',
       'm.s5.lead': 'The map shows Türkiye’s perspective openly, but every element rests on a source and an explicit label: a reader must be able to tell what is an official document, what is Türkiye’s position and what is our own drawing.',
       'm.s5.l1': 'Every layer needs a sourced official document: a signed agreement, an official coordinate list, the Official Gazette or a UN document. A country for which no source can be found is not coloured; a declaration of intent, a visit or press commentary is not enough.',
@@ -979,6 +997,31 @@
     'p.sum.last': 'Newest record', 'p.sum.inDays': '{n} records · last {d} days', 'p.sum.all': '{n} records · all time',
     'lg.activity': "Announced activity at sea (2015–2021, other states' navigational warnings; Turkish ones are not counted)",
   });
+  Object.assign(I18N.tr, {
+    'p.sit.title': 'Durum', 'p.controls': 'Süzgeç ve katmanlar',
+    'p.sum.verified': 'Doğrulanmış', 'p.sum.recordsAll': 'Kayıt · tüm dönem', 'p.sum.recordsIn': 'Kayıt · son {d} gün', 'p.sum.recordsYear': 'Kayıt · son 12 ay',
+    'p.chip.all': 'Tümü', 'p.chip.days': '{n}g', 'p.chip.year': '1y',
+    'p.board.title': 'Bölge durumu', 'p.board.region': 'Bölge', 'p.board.records': 'Kayıt',
+    'p.board.activity': 'Faaliyet', 'p.board.last': 'Son', 'p.board.clear': 'Seçimi kaldır',
+    'p.board.sortRecords': 'Kayıt sayısına göre sırala', 'p.board.sortActivity': 'İlan edilen faaliyete göre sırala',
+    'p.board.note': 'Faaliyet: 2015–2021 arası yabancı seyir ihbarlarında ilan edilen askerî faaliyet sayısı; Türk ihbarları sayılmaz.',
+    'p.board.how': 'Nasıl sayılıyor?',
+    'p.board.actTip': '{n} ihbar (2015–2021, askerî sınıflı)',
+    'p.board.nosea': 'Bu bölgede sayılan deniz alanı yok — ölçülmedi, “sıfır” değil.',
+  });
+  Object.assign(I18N.en, {
+    'p.sit.title': 'Situation', 'p.controls': 'Filters and layers',
+    'p.sum.verified': 'Verified', 'p.sum.recordsAll': 'Records · all time', 'p.sum.recordsIn': 'Records · last {d} days', 'p.sum.recordsYear': 'Records · last 12 months',
+    'p.chip.all': 'All', 'p.chip.days': '{n}d', 'p.chip.year': '1y',
+    'p.board.title': 'Regions', 'p.board.region': 'Region', 'p.board.records': 'Rec.',
+    'p.board.activity': 'Activity', 'p.board.last': 'Newest', 'p.board.clear': 'Clear selection',
+    'p.board.sortRecords': 'Sort by records', 'p.board.sortActivity': 'Sort by announced activity',
+    'p.board.note': "Activity: military activity announced in other states' navigational warnings, 2015–2021; Turkish warnings are not counted.",
+    'p.board.how': 'How is it counted?',
+    'p.board.actTip': '{n} warnings (2015–2021, classed as military)',
+    'p.board.nosea': 'No counted sea area in this region — not measured, not "zero".',
+  });
+
   Object.assign(I18N.tr, { 'lg.blue': "Mavi Vatan · deniz yetki alanları (Türkiye'nin tutumu)", 'lg.agreed': 'Anlaşmayla belirlenmiş', 'lg.position': "Türkiye'nin tutumu (itiraz edilen)", 'lg.island': 'Türk adası' });
   Object.assign(I18N.en, { 'lg.blue': "Blue Homeland · maritime jurisdiction (Türkiye's position)", 'lg.agreed': 'Delimited by agreement', 'lg.position': "Türkiye's position (disputed)", 'lg.island': 'Turkish island' });
 

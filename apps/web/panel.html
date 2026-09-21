@@ -32,49 +32,62 @@
 </header>
 
 <div class="panel">
-  <aside class="p-side" aria-labelledby="p-feed-title">
-    <div class="p-filters">
-      <label class="fld fld-search"><span class="sr-only" data-i18n="p.search">Ara</span><input id="f-search" type="search" data-i18n-placeholder="p.searchPh" placeholder="Kayıtlarda ara…" autocomplete="off"></label>
-      <div class="fld-row">
-        <label class="fld"><span data-i18n="p.region">Bölge</span><select id="f-region"></select></label>
-        <label class="fld"><span data-i18n="p.type">Tür</span><select id="f-type"></select></label>
-        <label class="fld"><span data-i18n="p.status">Durum</span><select id="f-status"></select></label>
-        <label class="fld"><span data-i18n="p.period">Dönem</span><select id="f-period"></select></label>
+  <aside class="p-side" aria-labelledby="p-sit-title">
+    <section class="p-sit" aria-labelledby="p-sit-title">
+      <div class="p-sit-head">
+        <h2 id="p-sit-title" data-i18n="p.sit.title">Durum</h2>
+        <div class="p-periods" id="p-periods" role="group" data-i18n-aria="p.period" aria-label="Dönem"></div>
       </div>
-      <fieldset class="layers">
-        <legend data-i18n="p.layers">Katmanlar</legend>
-        <p class="layers-sub" data-i18n="p.lyr.records">Kayıtlar</p>
-        <div class="layers-grid">
-          <label class="tog"><input type="checkbox" id="l-events" checked><span data-i18n="p.lyr.events">Olaylar</span></label>
-          <label class="tog"><input type="checkbox" id="l-sites" checked><span data-i18n="p.lyr.sites">Tesisler</span></label>
-          <label class="tog"><input type="checkbox" id="l-examples"><span data-i18n="p.lyr.examples">Örnek veriler</span></label>
+      <div class="p-stats" id="p-sum">
+        <div class="p-stat"><b class="mono" id="p-sum-window">—</b><span id="p-sum-window-k">Kayıt</span></div>
+        <div class="p-stat"><b class="mono" id="p-sum-status">—</b><span data-i18n="p.sum.verified">Doğrulanmış</span></div>
+        <div class="p-stat"><b class="mono" id="p-sum-top">—</b><span data-i18n="p.sum.top">Öne çıkan bölge</span></div>
+        <div class="p-stat"><b class="mono" id="p-sum-last">—</b><span data-i18n="p.sum.last">Son kayıt</span></div>
+      </div>
+    </section>
+
+    <section class="p-board" aria-labelledby="p-board-title">
+      <div class="p-board-head">
+        <h2 id="p-board-title" data-i18n="p.board.title">Bölge durumu</h2>
+        <button type="button" id="p-board-clear" class="p-board-clear" hidden data-i18n="p.board.clear">Seçimi kaldır</button>
+      </div>
+      <div class="p-board-cols" role="presentation">
+        <span data-i18n="p.board.region">Bölge</span>
+        <button type="button" class="p-board-sort" data-sort="records" data-i18n-aria="p.board.sortRecords" aria-label="Kayda göre sırala"><span data-i18n="p.board.records">Kayıt</span></button>
+        <button type="button" class="p-board-sort" data-sort="activity" data-i18n-aria="p.board.sortActivity" aria-label="Faaliyete göre sırala"><span data-i18n="p.board.activity">Faaliyet</span></button>
+        <span data-i18n="p.board.last">Son</span>
+      </div>
+      <div class="p-board-rows" id="p-board-rows"></div>
+      <p class="p-board-note"><span data-i18n="p.board.note">Faaliyet: 2015–2021 yabancı seyir ihbarlarında ilan edilen askerî faaliyet. Türk ihbarları sayılmaz.</span> <a href="method.html#faaliyet" data-i18n="p.board.how">Nasıl sayılıyor?</a></p>
+    </section>
+
+    <details class="p-controls" id="p-controls">
+      <summary class="p-controls-sum"><span data-i18n="p.controls">Süzgeç ve katmanlar</span><span class="p-controls-n mono" id="p-controls-n"></span></summary>
+      <div class="p-filters">
+        <label class="fld fld-search"><span class="sr-only" data-i18n="p.search">Ara</span><input id="f-search" type="search" data-i18n-placeholder="p.searchPh" placeholder="Kayıtlarda ara…" autocomplete="off"></label>
+        <div class="fld-row">
+          <label class="fld"><span data-i18n="p.region">Bölge</span><select id="f-region"></select></label>
+          <label class="fld"><span data-i18n="p.type">Tür</span><select id="f-type"></select></label>
+          <label class="fld"><span data-i18n="p.status">Durum</span><select id="f-status"></select></label>
         </div>
-        <p class="layers-sub" data-i18n="p.lyr.map">Harita</p>
-        <div class="layers-grid">
-          <label class="tog"><input type="checkbox" id="l-regions" checked><span data-i18n="p.lyr.regions">Bölgeler</span></label>
-          <label class="tog"><input type="checkbox" id="l-missions" checked><span data-i18n="p.lyr.missions">Temsilcilikler</span></label>
-          <label class="tog"><input type="checkbox" id="l-activity"><span data-i18n="p.lyr.activity">İlan edilen faaliyet</span></label>
-        </div>
-      </fieldset>
-    </div>
-    <div class="p-sum" id="p-sum" hidden>
-      <div class="p-sum-row">
-        <span class="p-sum-k" data-i18n="p.sum.window">Seçili dönem</span>
-        <span class="p-sum-v mono" id="p-sum-window">—</span>
+        <fieldset class="layers">
+          <legend data-i18n="p.layers">Katmanlar</legend>
+          <p class="layers-sub" data-i18n="p.lyr.records">Kayıtlar</p>
+          <div class="layers-grid">
+            <label class="tog"><input type="checkbox" id="l-events" checked><span data-i18n="p.lyr.events">Olaylar</span></label>
+            <label class="tog"><input type="checkbox" id="l-sites" checked><span data-i18n="p.lyr.sites">Tesisler</span></label>
+            <label class="tog"><input type="checkbox" id="l-examples"><span data-i18n="p.lyr.examples">Örnek veriler</span></label>
+          </div>
+          <p class="layers-sub" data-i18n="p.lyr.map">Harita</p>
+          <div class="layers-grid">
+            <label class="tog"><input type="checkbox" id="l-regions" checked><span data-i18n="p.lyr.regions">Bölgeler</span></label>
+            <label class="tog"><input type="checkbox" id="l-missions" checked><span data-i18n="p.lyr.missions">Temsilcilikler</span></label>
+            <label class="tog"><input type="checkbox" id="l-activity"><span data-i18n="p.lyr.activity">İlan edilen faaliyet</span></label>
+          </div>
+        </fieldset>
       </div>
-      <div class="p-sum-row">
-        <span class="p-sum-k" data-i18n="p.sum.status">Doğrulama</span>
-        <span class="p-sum-v mono" id="p-sum-status">—</span>
-      </div>
-      <div class="p-sum-row">
-        <span class="p-sum-k" data-i18n="p.sum.top">Öne çıkan bölge</span>
-        <span class="p-sum-v mono" id="p-sum-top">—</span>
-      </div>
-      <div class="p-sum-row">
-        <span class="p-sum-k" data-i18n="p.sum.last">Son kayıt</span>
-        <span class="p-sum-v mono" id="p-sum-last">—</span>
-      </div>
-    </div>
+    </details>
+
     <div class="p-feed-head"><span id="p-feed-title" data-i18n="p.feed">Kayıtlar</span><span id="p-count" class="mono"></span></div>
     <p id="p-banner" class="p-banner" hidden data-i18n="p.demo"></p>
     <div id="p-feed" class="p-feed" role="list" tabindex="-1"></div>

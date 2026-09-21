@@ -8,7 +8,9 @@
   const $ = (id) => document.getElementById(id);
   const els = {
     map: $('p-map'), feed: $('p-feed'), count: $('p-count'), drawer: $('p-drawer'), body: $('p-drawer-body'), close: $('p-close'),
-    search: $('f-search'), region: $('f-region'), type: $('f-type'), status: $('f-status'), period: $('f-period'),
+    search: $('f-search'), region: $('f-region'), type: $('f-type'), status: $('f-status'),
+    periods: $('p-periods'), board: $('p-board-rows'), boardClear: $('p-board-clear'),
+    controls: $('p-controls'), controlsN: $('p-controls-n'),
     banner: $('p-banner'),
     coords: $('p-coords'), scale: $('p-scale'), tip: $('p-tip'), stateBox: $('p-state'),
   };
@@ -21,6 +23,11 @@
   /* A period is the first thing anyone reading a situation asks for, and the dataset is ordered by
      time anyway. Days, not months: a record's time is a day at best (`time.precision`). */
   const PERIODS = { '7': 7, '30': 30, '90': 90, '365': 365 };
+  /* The board can be read two ways and a reader should not have to choose one for good: by how
+     much we have recorded, or by how much activity the sea is told about. Sorting is a view, so
+     it stays in memory and out of the URL. */
+  let boardSort = 'records';
+  let regionActivity = null; // assets/data/msi-regions.json, loaded once, absent is not zero
 
   let world = null, data = null, loadError = false;
   let svg = null, gRoot, gCountries, gLabels, gSites, gEvents, proj, zoom, k = 1, W = 0, H = 0;
@@ -144,6 +151,7 @@
     buildFilters();
     drawMap();
     render();
+    loadRegionActivity(); // 1 KB, after the first paint: the column fills in when it arrives
     if (state.region) zoomToRegion(state.region, false);
     const pre = state.selected && data && data.byId.get(state.selected);
     if (pre) {
@@ -165,12 +173,13 @@
   const haystack = (e) => fold([e.id, e.event_type, e.title && e.title.tr, e.title && e.title.en, e.summary && e.summary.tr, e.summary && e.summary.en,
     ...e.regions, ...e.regions.map((r) => GT.label('regions', r))].join(' '));
 
-  function filtered() {
+  function filtered(opts) {
     const q = fold(state.q.trim());
     const days = PERIODS[state.period];
     const since = days ? new Date(Date.now() - days * 864e5).toISOString().slice(0, 10) : null;
+    const anyRegion = !!(opts && opts.anyRegion);
     return allEvents()
-      .filter((e) => (!state.region || e.regions.includes(state.region))
+      .filter((e) => (anyRegion || !state.region || e.regions.includes(state.region))
         && (!state.type || e.event_type.split('.')[0] === state.type)
         && (!state.status || e.assessment.status === state.status)
         && (!since || (e.time.start || '').slice(0, 10) >= since)
@@ -186,8 +195,24 @@
     if (!domains.size) Object.keys(GT.DOMAIN).forEach((d) => domains.add(d));
     fillSelect(els.type, [['', GT.t('p.all')], ...[...domains].map((d) => [d, GT.DOMAIN[d] ? GT.txt(GT.DOMAIN[d]) : d])], state.type);
     fillSelect(els.status, [['', GT.t('p.all')], ...Object.keys(GT.STATUS).map((s) => [s, GT.txt(GT.STATUS[s])])], state.status);
-    fillSelect(els.period, [['', GT.t('p.all')], ...Object.keys(PERIODS).map((d) => [d, GT.t('p.days', { n: d })])], state.period);
+    renderPeriods();
   }
+  /* The period is the one control that belongs above the fold: everything under it — the counts,
+     the board, the list — answers "as of when". Chips rather than a select, because the answer is
+     read as often as it is set. */
+  function renderPeriods() {
+    const opts = [['', GT.t('p.all')], ...Object.keys(PERIODS).map((d) => [d, d === '365' ? GT.t('p.year') : GT.t('p.days', { n: d })])];
+    els.periods.replaceChildren(...opts.map(([v, label]) => {
+      const b = GT.el('button', 'p-chip', v ? (v === '365' ? GT.t('p.chip.year') : GT.t('p.chip.days', { n: v })) : GT.t('p.chip.all'));
+      b.type = 'button';
+      b.dataset.period = v;
+      b.title = label;
+      b.setAttribute('aria-pressed', String(state.period === v));
+      b.addEventListener('click', () => { state.period = v; renderPeriods(); render(); });
+      return b;
+    }));
+  }
+
   function fillSelect(sel, opts, value) {
     sel.replaceChildren(...opts.map(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; return o; }));
     sel.value = value || '';
@@ -607,6 +632,85 @@
     else if (svg) mapSel().transition().duration(reduce ? 0 : 700).call(zoom.transform, d3.zoomIdentity);
   }
 
+  /* ---------------- the board ----------------
+     The first thing on the page is not a control but an answer: for each watch region, how much we
+     have recorded in the selected period, how much activity other states announced at sea there,
+     and how fresh the newest record is. A row is a filter, so reading and narrowing are the same
+     gesture.
+
+     The two columns are deliberately not mixed into one score. Records are what this project has
+     verified and stands behind; announced activity is a count of other states' navigational
+     warnings 2015-2021 (msi-regions.json, built by tools/msi/build_activity.py). One is our work,
+     the other is theirs, and a reader who sees them side by side can tell which is which. A region
+     with no counted sea — the inland ones — reads "—", never "0": nobody measured, which is not
+     the same as nothing happened. */
+  const nf = () => new Intl.NumberFormat(GT.lang === 'tr' ? 'tr-TR' : 'en-GB', { notation: 'compact', maximumFractionDigits: 1 });
+  const activityOf = (code) => (regionActivity && regionActivity[code] && regionActivity[code].cells ? regionActivity[code].military : null);
+
+  function loadRegionActivity() {
+    fetch('assets/data/msi-regions.json', { cache: 'force-cache' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d && d.regions) { regionActivity = d.regions; renderBoard(filtered({ anyRegion: true })); } })
+      .catch(() => {}); // the board still reads without it; the column shows "—"
+  }
+
+  function renderBoard(list) {
+    if (!els.board) return;
+    const count = {}, newest = {};
+    for (const e of list) {
+      for (const r of e.regions || []) {
+        count[r] = (count[r] || 0) + 1;
+        const t = (e.time && e.time.start) || '';
+        if (t > (newest[r] || '')) newest[r] = t;
+      }
+    }
+    const rows = GT.REGION_CODES.filter((c) => c !== 'global').map((code) => ({ code, n: count[code] || 0, act: activityOf(code), last: newest[code] || '' }));
+    const peak = Math.max(1, ...rows.map((r) => r.act || 0));
+    const by = boardSort === 'activity'
+      ? (a, b) => (b.act || 0) - (a.act || 0) || b.n - a.n
+      : (a, b) => b.n - a.n || (b.act || 0) - (a.act || 0);
+    rows.sort((a, b) => by(a, b) || GT.label('regions', a.code).localeCompare(GT.label('regions', b.code), GT.lang === 'tr' ? 'tr' : 'en'));
+
+    const fmt = nf();
+    els.board.replaceChildren(...rows.map((r) => {
+      const b = GT.el('button', 'p-rb' + (r.n ? '' : ' is-quiet') + (state.region === r.code ? ' on' : ''));
+      b.type = 'button';
+      b.dataset.region = r.code;
+      b.setAttribute('aria-pressed', String(state.region === r.code));
+      const bar = GT.el('span', 'p-rb-act');
+      if (r.act === null) {
+        bar.append(GT.el('span', 'p-rb-dash', '—'));
+        bar.title = GT.t('p.board.nosea');
+      } else {
+        const fill = GT.el('span', 'p-rb-bar');
+        fill.style.setProperty('--w', (100 * r.act / peak).toFixed(1) + '%');
+        bar.append(fill, GT.el('span', 'p-rb-num mono', fmt.format(r.act)));
+        bar.title = GT.t('p.board.actTip', { n: new Intl.NumberFormat(GT.lang === 'tr' ? 'tr-TR' : 'en-GB').format(r.act) });
+      }
+      const name = GT.el('span', 'p-rb-name', GT.label('regions', r.code));
+      name.title = GT.label('regions', r.code); // the column is narrow; the long names are clipped
+      b.append(
+        name,
+        GT.el('span', 'p-rb-n mono', r.n ? String(r.n) : '·'),
+        bar,
+        GT.el('span', 'p-rb-last mono', r.last ? GT.fmtTime(r.last, 'day').replace(/\s\d{4}$/, '') : '—'),
+      );
+      b.addEventListener('click', () => setRegion(state.region === r.code ? '' : r.code));
+      return b;
+    }));
+    els.boardClear.hidden = !state.region;
+    document.querySelectorAll('.p-board-sort').forEach((el) => el.setAttribute('aria-pressed', String(el.dataset.sort === boardSort)));
+  }
+
+  /* How many narrowings are folded away under the controls, so nothing is hidden silently. */
+  function syncControlsCount() {
+    const n = [state.q.trim(), state.type, state.status].filter(Boolean).length
+      + (lyr.examples.checked ? 1 : 0)
+      + Object.entries(lyr).filter(([key, el]) => key !== 'examples' && !el.checked).length;
+    els.controlsN.textContent = n ? String(n) : '';
+    els.controls.classList.toggle('has-n', !!n);
+  }
+
   /* ---------------- rendering ---------------- */
   /* The four lines above the list answer, in order, the questions a reader asks before reading any
      record: how many in the window, how sure are they, where are they, and how fresh is the newest.
@@ -614,8 +718,7 @@
   function renderSummary(list) {
     const box = document.getElementById('p-sum');
     if (!box) return;
-    box.hidden = !list.length;
-    if (!list.length) return;
+    box.classList.toggle('is-empty', !list.length);
     const byStatus = {};
     const byRegion = {};
     for (const e of list) {
@@ -623,13 +726,20 @@
       for (const r of e.regions || []) byRegion[r] = (byRegion[r] || 0) + 1;
     }
     const days = PERIODS[state.period];
-    document.getElementById('p-sum-window').textContent = days
-      ? GT.t('p.sum.inDays', { n: list.length, d: days })
-      : GT.t('p.sum.all', { n: list.length });
-    document.getElementById('p-sum-status').textContent = Object.keys(GT.STATUS)
+    /* The number is the value and the window is its label, not the other way round: a reader scans
+       the figures down the left edge and reads the caption only when a figure surprises them. */
+    document.getElementById('p-sum-window').textContent = String(list.length);
+    document.getElementById('p-sum-window-k').textContent = days
+      ? (days === 365 ? GT.t('p.sum.recordsYear') : GT.t('p.sum.recordsIn', { d: days }))
+      : GT.t('p.sum.recordsAll');
+    /* One figure, not a breakdown: how much of what is on screen the project actually stands
+       behind. The full tally is a hover away rather than four words wide. */
+    const statusEl = document.getElementById('p-sum-status');
+    statusEl.textContent = list.length ? (byStatus.verified || 0) + ' / ' + list.length : '—';
+    statusEl.title = Object.keys(GT.STATUS)
       .filter((key) => byStatus[key])
       .map((key) => GT.txt(GT.STATUS[key]) + ' ' + byStatus[key])
-      .join(' · ') || '—';
+      .join(' · ');
     const top = Object.entries(byRegion).sort((a, b) => b[1] - a[1])[0];
     document.getElementById('p-sum-top').textContent = top ? GT.label('regions', top[0]) + ' ' + top[1] : '—';
     const newest = list[0] && list[0].time && list[0].time.start;
@@ -640,6 +750,8 @@
     const list = filtered();
     els.count.textContent = GT.t('p.count', { n: list.length });
     renderSummary(list);
+    renderBoard(filtered({ anyRegion: true }));
+    syncControlsCount();
     els.banner.hidden = !lyr.examples.checked;
     renderFeed(list);
     drawMarkers(list);
@@ -873,6 +985,11 @@
     els.region.addEventListener('change', () => setRegion(els.region.value));
     els.type.addEventListener('change', () => { state.type = els.type.value; render(); });
     els.status.addEventListener('change', () => { state.status = els.status.value; render(); });
+    els.boardClear.addEventListener('click', () => setRegion(''));
+    document.querySelectorAll('.p-board-sort').forEach((el) => el.addEventListener('click', () => {
+      boardSort = el.dataset.sort;
+      renderBoard(filtered({ anyRegion: true }));
+    }));
     Object.values(lyr).forEach((c) => c.addEventListener('change', render));
     const pb = $('p-brief');
     if (pb) pb.addEventListener('click', () => { printHeader(); window.print(); });
