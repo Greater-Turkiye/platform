@@ -147,6 +147,11 @@ img, svg { display: block; max-width: 100%; }
 .m-sweep, .m-sweep-slice { pointer-events: none; }
 .m-sweep-edge { stroke: rgba(200, 0, 42, .55); stroke-width: 1; }
 .mk { cursor: pointer; }
+/* How much of the map a coarse position covers: drawn in map units, so it grows with the zoom
+   the way the doubt it represents does. */
+.m-unc { fill: rgba(232, 227, 220, .045); stroke: rgba(232, 227, 220, .3); stroke-width: 1;
+  stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; pointer-events: none; }
+.m-unc.sel { fill: rgba(200, 0, 42, .1); stroke: var(--rb); }
 .mk-site { fill: var(--t1); stroke: var(--bg); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .mk-ev { fill: var(--rb); stroke: var(--bg); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
 .mk-ev.st-verified { fill: var(--ok); }
@@ -245,7 +250,8 @@ a.ticker-item:hover { color: #fff; }
 .panel-tools { margin-left: auto; display: flex; align-items: center; gap: 18px; font: 500 10.5px var(--m); letter-spacing: .16em; color: var(--t3); }
 .panel-tools .clock { color: var(--t1); font-variant-numeric: tabular-nums; }
 .panel { position: absolute; inset: var(--nh) 0 0 0; display: grid; grid-template-columns: 380px minmax(0, 1fr); }
-.p-side { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line); background: var(--s1); }
+.p-side { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  border-right: 1px solid var(--line); background: var(--s1); scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
 .p-filters { padding: 18px 18px 16px; border-bottom: 1px solid var(--line); display: grid; gap: 14px; }
 .fld { display: grid; gap: 6px; min-width: 0; }
 .fld > span { font: 500 9.5px var(--m); letter-spacing: .22em; text-transform: uppercase; color: var(--t3); }
@@ -268,7 +274,7 @@ a.ticker-item:hover { color: #fff; }
 .p-feed-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--line); font: 500 10px var(--m); letter-spacing: .24em; text-transform: uppercase; color: var(--t3); }
 .p-feed-head .mono { color: var(--t1); letter-spacing: .1em; }
 .p-banner { margin: 12px 12px 0; padding: 12px 14px; border: 1px dashed rgba(214, 161, 58, .6); background: rgba(214, 161, 58, .06); color: #eed3a0; font-size: 12px; line-height: 1.55; }
-.p-feed { flex: 1; overflow-y: auto; padding: 6px 0 20px; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
+.p-feed { flex: 1 0 auto; padding: 6px 0 20px; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
 .fi { display: grid; gap: 8px; width: 100%; text-align: left; padding: 16px 18px; background: none; border: 0; border-bottom: 1px solid var(--line); border-left: 2px solid transparent; cursor: pointer; transition: background .25s var(--e), border-color .25s var(--e); }
 .fi:hover { background: var(--s2); }
 .fi[aria-current="true"] { background: var(--s3); border-left-color: var(--rb); }
@@ -282,6 +288,8 @@ a.ticker-item:hover { color: #fff; }
 .badge.st-partially_verified::before, .badge.st-disputed::before { background: var(--warn); }
 .badge.st-false::before { background: #6b6b6b; }
 .badge.st-unverified::before { background: var(--rb); }
+/* One publisher, said plainly: a report, not yet a finding. */
+.chip-thin { border-style: dashed; color: var(--warn); border-color: rgba(214, 161, 58, .5); }
 .ex-tag { padding: 2px 6px; background: rgba(214, 161, 58, .15); color: var(--warn); font: 600 9px var(--m); letter-spacing: .2em; }
 .p-empty { padding: 36px 22px; color: var(--t2); font-size: 14px; line-height: 1.7; }
 .p-empty a, .p-empty button { display: inline-flex; margin-top: 16px; }
@@ -317,6 +325,7 @@ a.ticker-item:hover { color: #fff; }
 .lg i.ok { background: var(--ok); } .lg i.warn { background: var(--warn); }
 .lg i.ex { background: transparent; border: 1px dashed var(--warn); }
 .lg i.site { border-radius: 0; background: var(--t1); transform: rotate(45deg) scale(.8); }
+.lg i.unc { background: rgba(232, 227, 220, .06); border: 1px dashed rgba(232, 227, 220, .45); border-radius: 50%; }
 .lg i.tr { border-radius: 0; background: var(--r); outline: 1px solid var(--rb); }
 .p-tip { position: absolute; z-index: 5; padding: 8px 11px; background: rgba(8, 8, 8, .95); border: 1px solid var(--line2); font: 500 10.5px var(--m); letter-spacing: .12em; text-transform: uppercase; color: var(--t1); pointer-events: none; transform: translate(-50%, calc(-100% - 14px)); white-space: nowrap; }
 .p-tip small { display: block; margin-top: 3px; color: var(--rb); font-size: 9.5px; }
@@ -703,11 +712,83 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .p-map svg.flat-sea .m-ops { fill-opacity: .12; }
 .p-map svg.flat-sea .m-sea { opacity: .5; }
 
-/* The four lines a reader wants before the list: how many, how sure, where, how fresh. */
-.p-sum { display: grid; gap: 6px; padding: 14px 18px; border-top: 1px solid var(--line); background: var(--s2); }
-.p-sum-row { display: flex; align-items: baseline; gap: 10px; justify-content: space-between; }
-.p-sum-k { font: 500 9px var(--m); letter-spacing: .22em; text-transform: uppercase; color: var(--t3); }
-.p-sum-v { font-size: 11px; color: var(--t2); text-align: right; }
+/* ---- what a moving frame does not have to be ----
+   Profiling a zoom (4x CPU throttle, 1400x900) put 46% of the time in rasterisation, not in
+   script: the maritime areas carry a drop-shadow and the Türkiye outline an SVG blur, and both
+   are re-rasterised for every intermediate scale. The settled frame is the one a reader looks
+   at, so it keeps all of it; while the map is actually moving the two filters come off and the
+   glow is not drawn at all. Nothing moves, nothing is re-laid out, and the frame the gesture
+   ends on is identical to the frame before it started. */
+.p-map svg.moving .m-blue-area, .p-map svg.moving .m-blue-line { filter: none; }
+.p-map svg.moving .m-tr-glow { display: none; }
+.p-map svg.moving .m-unc { display: none; }
+.p-map { contain: layout paint; }
+
+/* ---- the situation block: the first thing on the page, and the only thing that is not a control.
+   Four numbers answer how many, how sure, where and how fresh; the period chips above them say as
+   of when. Everything that narrows the view sits below, folded away. ---- */
+.p-sit { position: sticky; top: 0; z-index: 3; padding: 14px 18px 12px; border-bottom: 1px solid var(--line); background: var(--s2); }
+.p-sit-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.p-sit-head h2 { margin: 0; font: 500 9.5px var(--m); letter-spacing: .24em; text-transform: uppercase; color: var(--t3); }
+.p-periods { display: flex; gap: 2px; }
+.p-chip { min-height: 26px; padding: 0 8px; border: 1px solid var(--line2); background: none; color: var(--t3);
+  font: 500 10px var(--m); letter-spacing: .1em; cursor: pointer; }
+.p-chip + .p-chip { border-left: 0; }
+.p-chip:hover { color: var(--t1); }
+.p-chip[aria-pressed="true"] { background: var(--rg); border-color: var(--rb); color: #fff; }
+.p-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.p-stat { display: grid; gap: 2px; min-width: 0; }
+.p-stat b { font: 600 15px var(--m); line-height: 1.25; color: var(--t1); font-variant-numeric: tabular-nums;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.p-stat:not(:first-child) b { font-size: 12.5px; }
+.p-stat span { font: 500 8.5px var(--m); letter-spacing: .2em; text-transform: uppercase; color: var(--t3); }
+.p-stats.is-empty b { color: var(--t3); }
+/* The data's own account of itself: when it was built and how much it holds. */
+.p-pulse { margin: 10px 0 0; font-size: 9.5px; letter-spacing: .06em; color: var(--t3); }
+
+/* ---- the region board: one row per watch region, sorted by what the reader is asking. The bar is
+   a share of the busiest region, never an absolute rate, and a region with no counted sea shows a
+   dash rather than a zero. A row is also the region filter. ---- */
+.p-board { padding: 12px 18px 14px; border-bottom: 1px solid var(--line); }
+.p-board-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.p-board-head h2 { margin: 0; font: 500 9.5px var(--m); letter-spacing: .24em; text-transform: uppercase; color: var(--t3); }
+.p-board-clear { padding: 0; border: 0; background: none; color: var(--info); cursor: pointer; font: 500 9px var(--m); letter-spacing: .14em; text-transform: uppercase; }
+.p-board-cols, .p-rb { display: grid; grid-template-columns: minmax(0, 1fr) 32px 84px 52px; align-items: center; gap: 8px; }
+.p-board-cols { margin: 10px 0 4px; font: 500 8px var(--m); letter-spacing: .16em; text-transform: uppercase; color: var(--t3); }
+.p-board-cols > :nth-child(2), .p-board-cols > :nth-child(3) { justify-self: start; }
+.p-board-cols > :last-child { justify-self: end; }
+.p-board-sort { padding: 0; border: 0; background: none; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; }
+.p-board-sort:hover { color: var(--t1); }
+.p-board-sort[aria-pressed="true"] { color: var(--t1); }
+.p-board-sort[aria-pressed="true"]::after { content: ' ▾'; }
+.p-rb { width: 100%; padding: 4px 0; border: 0; border-top: 1px solid var(--line); background: none; color: var(--t2); text-align: left; cursor: pointer; font: inherit; }
+.p-rb:hover { background: var(--s3); color: var(--t1); }
+.p-rb.on { color: #fff; box-shadow: inset 2px 0 0 var(--rb); padding-left: 8px; }
+.p-rb.is-quiet .p-rb-name, .p-rb.is-quiet .p-rb-n { color: var(--t3); }
+.p-rb-name { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.p-rb-n { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--t1); }
+.p-rb-act { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 6px;
+  background: linear-gradient(to right, var(--t4) 44px, transparent 44px); }
+.p-rb-bar { width: var(--w, 0%); min-width: 1px; height: 5px; background: linear-gradient(90deg, var(--rg), var(--rb)); }
+.p-rb-num, .p-rb-dash { font-size: 10px; color: var(--t3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.p-rb-dash { grid-column: 1 / -1; }
+.p-rb-last { font-size: 10px; color: var(--t3); justify-self: end; white-space: nowrap; }
+.p-board-note { margin: 10px 0 0; font-size: 10px; line-height: 1.5; color: var(--t3); }
+.p-board-note a { color: var(--info); }
+
+/* ---- the controls, folded: nothing here is hidden silently, the count says how many narrowings
+   are in force. ---- */
+.p-controls { border-bottom: 1px solid var(--line); }
+.p-controls-sum { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 18px;
+  font: 500 9.5px var(--m); letter-spacing: .22em; text-transform: uppercase; color: var(--t3); cursor: pointer; list-style: none; }
+.p-controls-sum::-webkit-details-marker { display: none; }
+.p-controls-sum::after { content: '+'; margin-left: auto; font-size: 13px; color: var(--t3); }
+.p-controls[open] .p-controls-sum::after { content: '−'; }
+.p-controls-sum:hover { color: var(--t1); }
+.p-controls-n { min-width: 16px; padding: 1px 5px; text-align: center; background: var(--rg); color: #fff; font-size: 9px; }
+.p-controls:not(.has-n) .p-controls-n { display: none; }
+.p-controls .p-filters { border-bottom: 0; padding-top: 0; }
+.p-feed-head { position: sticky; top: 0; z-index: 2; background: var(--s1); }
 
 /* A briefing on paper: the header the panel builds at print time, then the map, the summary and the
    list. Everything a reader cannot act on from paper — filters, switches, buttons, the drawer — is
@@ -719,7 +800,7 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 @media print {
   @page { margin: 12mm; }
   html, body { background: #fff !important; color: #111 !important; height: auto; overflow: visible; }
-  .site-header, .panel-tools, .p-zoom, .p-hud, .p-tip, .p-legend, .p-drawer, .p-filters, .p-banner,
+  .site-header, .panel-tools, .p-zoom, .p-hud, .p-tip, .p-legend, .p-drawer, .p-controls, .p-periods, .p-banner,
   .nav-tools, .site-footer, .p-empty .btn { display: none !important; }
   /* header, then the map, then the numbers and the list — the order a briefing is read in */
   .panel { display: flex !important; flex-direction: column; height: auto !important; }
@@ -729,9 +810,13 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
   .p-map-wrap { order: -1; height: 105mm !important; page-break-inside: avoid; border: 1px solid #bbb; }
   .p-map, .p-map svg { background: #050505 !important; }  /* the map prints as it is read on screen */
   .p-side { order: 0; width: auto !important; height: auto !important; border: 0 !important; background: #fff !important; }
-  .p-sum { background: #fff !important; border-top: 1px solid #bbb; padding: 4mm 0 2mm; }
-  .p-sum-k { color: #555 !important; }
-  .p-sum-v { color: #111 !important; }
+  .p-sit, .p-board { background: #fff !important; border-color: #bbb !important; padding: 4mm 0 2mm; }
+  .p-sit-head h2, .p-board-head h2, .p-stat span, .p-board-cols, .p-board-note { color: #555 !important; }
+  .p-stat b, .p-rb-name, .p-rb-n { color: #111 !important; }
+  .p-rb { border-top-color: #ddd !important; }
+  .p-rb-bar { background: #444 !important; }
+  .p-rb-num, .p-rb-dash, .p-rb-last { color: #555 !important; }
+  .p-board-clear { display: none !important; }
   .p-feed-head { background: #fff !important; color: #111 !important; border-bottom: 1px solid #bbb; padding: 2mm 0; }
   .p-feed { overflow: visible !important; background: #fff !important; }
   .fi { page-break-inside: avoid; padding: 3mm 0 !important; background: #fff !important;

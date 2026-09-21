@@ -8,7 +8,9 @@
   const $ = (id) => document.getElementById(id);
   const els = {
     map: $('p-map'), feed: $('p-feed'), count: $('p-count'), drawer: $('p-drawer'), body: $('p-drawer-body'), close: $('p-close'),
-    search: $('f-search'), region: $('f-region'), type: $('f-type'), status: $('f-status'), period: $('f-period'),
+    search: $('f-search'), region: $('f-region'), type: $('f-type'), status: $('f-status'),
+    periods: $('p-periods'), board: $('p-board-rows'), boardClear: $('p-board-clear'),
+    controls: $('p-controls'), controlsN: $('p-controls-n'),
     banner: $('p-banner'),
     coords: $('p-coords'), scale: $('p-scale'), tip: $('p-tip'), stateBox: $('p-state'),
   };
@@ -21,9 +23,14 @@
   /* A period is the first thing anyone reading a situation asks for, and the dataset is ordered by
      time anyway. Days, not months: a record's time is a day at best (`time.precision`). */
   const PERIODS = { '7': 7, '30': 30, '90': 90, '365': 365 };
+  /* The board can be read two ways and a reader should not have to choose one for good: by how
+     much we have recorded, or by how much activity the sea is told about. Sorting is a view, so
+     it stays in memory and out of the URL. */
+  let boardSort = 'records';
+  let regionActivity = null; // assets/data/msi-regions.json, loaded once, absent is not zero
 
   let world = null, data = null, loadError = false;
-  let svg = null, gRoot, gCountries, gLabels, gSites, gEvents, proj, zoom, k = 1, W = 0, H = 0;
+  let svg = null, gRoot, gCountries, gLabels, gUnc, gSites, gEvents, proj, geoPath, zoom, k = 1, W = 0, H = 0;
   let lastFocus = null;
 
   /* ---------------- vector basemap ----------------
@@ -43,10 +50,19 @@
      first load byte for byte what it was before the basemap existed. */
   const BASE_FROM = 1.6;
   let base = null, baseStarted = false;
+  /* Run something once the browser has a moment. Loading MapLibre and rebuilding the map from
+     inside a zoom commit is a second of work in the middle of a gesture; profiling a zoom put the
+     worst frame at 1,517 ms with the basemap and 533 ms without it. None of that work is urgent —
+     the reader is looking at a map that is already drawn — so it waits for an idle slot, with a
+     timeout so a busy page still gets its basemap. */
+  const whenIdle = (fn) => (window.requestIdleCallback
+    ? window.requestIdleCallback(fn, { timeout: 1200 })
+    : setTimeout(fn, 200));
+
   function maybeInitBase(kk) {
     if (baseStarted || !baseMode || kk < BASE_FROM) return;
     baseStarted = true;
-    initBase().then(() => {
+    whenIdle(() => initBase().then(() => {
       if (!base || !svg) return;
       // The map is redrawn once, so the fills become a tint and our own city labels step aside.
       // drawMap() rebuilds the zoom behaviour from scratch, so the view the reader is looking at
@@ -55,7 +71,7 @@
       drawMap();
       render();
       mapSel().call(zoom.transform, t);
-    });
+    }));
   }
   async function initBase() {
     if (!baseMode) return;
@@ -144,6 +160,7 @@
     buildFilters();
     drawMap();
     render();
+    loadRegionActivity(); // 1 KB, after the first paint: the column fills in when it arrives
     if (state.region) zoomToRegion(state.region, false);
     const pre = state.selected && data && data.byId.get(state.selected);
     if (pre) {
@@ -165,12 +182,13 @@
   const haystack = (e) => fold([e.id, e.event_type, e.title && e.title.tr, e.title && e.title.en, e.summary && e.summary.tr, e.summary && e.summary.en,
     ...e.regions, ...e.regions.map((r) => GT.label('regions', r))].join(' '));
 
-  function filtered() {
+  function filtered(opts) {
     const q = fold(state.q.trim());
     const days = PERIODS[state.period];
     const since = days ? new Date(Date.now() - days * 864e5).toISOString().slice(0, 10) : null;
+    const anyRegion = !!(opts && opts.anyRegion);
     return allEvents()
-      .filter((e) => (!state.region || e.regions.includes(state.region))
+      .filter((e) => (anyRegion || !state.region || e.regions.includes(state.region))
         && (!state.type || e.event_type.split('.')[0] === state.type)
         && (!state.status || e.assessment.status === state.status)
         && (!since || (e.time.start || '').slice(0, 10) >= since)
@@ -186,8 +204,24 @@
     if (!domains.size) Object.keys(GT.DOMAIN).forEach((d) => domains.add(d));
     fillSelect(els.type, [['', GT.t('p.all')], ...[...domains].map((d) => [d, GT.DOMAIN[d] ? GT.txt(GT.DOMAIN[d]) : d])], state.type);
     fillSelect(els.status, [['', GT.t('p.all')], ...Object.keys(GT.STATUS).map((s) => [s, GT.txt(GT.STATUS[s])])], state.status);
-    fillSelect(els.period, [['', GT.t('p.all')], ...Object.keys(PERIODS).map((d) => [d, GT.t('p.days', { n: d })])], state.period);
+    renderPeriods();
   }
+  /* The period is the one control that belongs above the fold: everything under it — the counts,
+     the board, the list — answers "as of when". Chips rather than a select, because the answer is
+     read as often as it is set. */
+  function renderPeriods() {
+    const opts = [['', GT.t('p.all')], ...Object.keys(PERIODS).map((d) => [d, d === '365' ? GT.t('p.year') : GT.t('p.days', { n: d })])];
+    els.periods.replaceChildren(...opts.map(([v, label]) => {
+      const b = GT.el('button', 'p-chip', v ? (v === '365' ? GT.t('p.chip.year') : GT.t('p.chip.days', { n: v })) : GT.t('p.chip.all'));
+      b.type = 'button';
+      b.dataset.period = v;
+      b.title = label;
+      b.setAttribute('aria-pressed', String(state.period === v));
+      b.addEventListener('click', () => { state.period = v; renderPeriods(); render(); });
+      return b;
+    }));
+  }
+
   function fillSelect(sel, opts, value) {
     sel.replaceChildren(...opts.map(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; return o; }));
     sel.value = value || '';
@@ -202,6 +236,7 @@
     // Balkans to Pakistan, Black Sea to the Gulf
     proj = d3.geoMercator().fitExtent([[24, 24], [W - 24, H - 24]], { type: 'MultiPoint', coordinates: [[13, 22], [74, 48]] });
     const path = d3.geoPath(proj);
+    geoPath = path; // the marker layers draw geometry too, outside this function
 
     // the <svg> sits in a plain box that carries the pan/zoom transform while the map moves (see liveZoom)
     mover = d3.select(els.map).selectAll('div.p-mover').data([0]).join('div').attr('class', 'p-mover');
@@ -307,6 +342,7 @@
     ensurePlaces();
     const c = proj([35, 39]);
     sweepG = GT.sweep(gRoot.append('g').attr('transform', `translate(${c[0]},${c[1]})`), Math.hypot(W, H) * 1.1, reduce, 16);
+    gUnc = gRoot.append('g').attr('class', 'm-unc-layer');
     gSites = gRoot.append('g');
     gEvents = gRoot.append('g');
     drawLabels();
@@ -321,7 +357,7 @@
       .on('zoom', (ev) => {
         pending.zoom = ev.transform;
         clearTimeout(settle);
-        if (!moving) { moving = true; hideTip(); }
+        if (!moving) { moving = true; hideTip(); if (svg) svg.classed('moving', true); }
         schedule();
       })
       // re-render once a gesture has rested for a moment (or right after an animated zoom)
@@ -352,6 +388,7 @@
     if (!svg) return;
     const t = d3.zoomTransform(els.map);
     moving = false;
+    svg.classed('moving', false);
     rendered = t;
     syncBase(t);
     gRoot.attr('transform', t);
@@ -471,15 +508,32 @@
   function addPlaceTier(tier) {
     if (base || !gLabels || !places.length || placeTiers.has(tier)) return;
     placeTiers.add(tier);
+    /* A tier is a few hundred groups, and appending them one at a time makes the browser lay the
+       map out a few hundred times. They are built in a fragment, off the document, and inserted
+       in one go — the same nodes, one layout. */
+    const NS = 'http://www.w3.org/2000/svg';
+    const frag = document.createDocumentFragment();
+    const size = tier === 1 ? '7.5' : '6.5';
     for (const f of places) {
       const q = f.properties;
       if (placeTierOf(q) !== tier) continue;
       const at = proj(f.geometry.coordinates);
-      const g = gLabels.append('g').attr('class', 'm-place t' + tier)
-        .attr('data-x', at[0]).attr('data-y', at[1]);
-      g.append('path').attr('class', 'm-place-dot').attr('d', 'M0,0h0');
-      g.append('text').attr('x', 4.5).attr('y', 2.6).attr('font-size', tier === 1 ? 7.5 : 6.5).text(q.tr || q.n);
+      const g = document.createElementNS(NS, 'g');
+      g.setAttribute('class', 'm-place t' + tier);
+      g.dataset.x = at[0];
+      g.dataset.y = at[1];
+      const dot = document.createElementNS(NS, 'path');
+      dot.setAttribute('class', 'm-place-dot');
+      dot.setAttribute('d', 'M0,0h0');
+      const text = document.createElementNS(NS, 'text');
+      text.setAttribute('x', '4.5');
+      text.setAttribute('y', '2.6');
+      text.setAttribute('font-size', size);
+      text.textContent = q.tr || q.n;
+      g.append(dot, text);
+      frag.append(g);
     }
+    gLabels.node().append(frag);
     scaleLabels();
   }
 
@@ -519,17 +573,45 @@
     if (els.scale) els.scale.textContent = k.toFixed(1) + '×';
   }
 
+  /* A point is only as good as its uncertainty, and a record whose position is known to the island
+     must not look like one known to the metre. Anything coarser than UNC_FROM is drawn as the circle
+     the source actually supports, under the marker, in map coordinates so it keeps its real size as
+     the map zooms (ADR 0021 §5). The marker stays where it is: the circle says how much of the map
+     around it the claim covers. */
+  const UNC_FROM = 1500; // metres: below this the circle would be smaller than the marker at any zoom
+  const uncircle = d3.geoCircle();
+
+  function drawUncertainty(records) {
+    if (!gUnc) return;
+    gUnc.selectAll('*').remove();
+    for (const r of records) {
+      const g = r.location && r.location.geometry;
+      const m = r.location && r.location.uncertainty_m;
+      if (!g || g.type !== 'Point' || !(m >= UNC_FROM)) continue;
+      const shape = uncircle.center(g.coordinates).radius((m / 6371008.8) * 180 / Math.PI)();
+      gUnc.append('path')
+        .attr('class', 'm-unc' + (r.id === state.selected ? ' sel' : ''))
+        .attr('d', geoPath(shape))
+        .append('title')
+        .text(GT.t('p.uncCircle', { n: m >= 1000 ? (m / 1000).toFixed(m >= 10000 ? 0 : 1) + ' km' : m + ' m' }));
+    }
+  }
+
   function drawMarkers(list) {
     if (!gSites) return;
     gSites.selectAll('*').remove();
     gEvents.selectAll('*').remove();
+    drawUncertainty(lyr.sites.checked ? allSites() : []);
+    wireMarkerEvents();
+    /* Markers are rebuilt whenever the list changes, and there are a few hundred of them with the
+       missions layer on. Binding four listeners to each one meant a thousand listeners per draw,
+       all of them garbage a moment later: a census after load counted 11,983 live listeners.
+       One set on the map, installed once (wireMarkerEvents), reads the record id off the group
+       instead. The behaviour is identical; the allocation is not. */
     const bind = (m, rec, title, sub) => m
       .attr('class', 'mk' + (rec.id === state.selected ? ' sel' : ''))
       .attr('tabindex', 0).attr('role', 'button').attr('aria-label', title)
-      .on('click', (ev) => { ev.stopPropagation(); select(rec, true); })
-      .on('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); select(rec, true); } })
-      .on('pointermove', (ev) => showTip(ev, title, sub))
-      .on('pointerleave', hideTip);
+      .attr('data-id', rec.id).attr('data-tip', title).attr('data-sub', sub || '');
 
     if (lyr.sites.checked) {
       for (const s of allSites()) {
@@ -565,6 +647,30 @@
       }
     }
     rescale();
+  }
+
+  /* One set of handlers for every marker, on the map itself. `closest` finds the group a pointer
+     or a key landed in, and the record comes from the id on it. */
+  let markerEventsWired = false;
+  function wireMarkerEvents() {
+    if (markerEventsWired || !els.map) return;
+    markerEventsWired = true;
+    const groupAt = (ev) => (ev.target && ev.target.closest ? ev.target.closest('.mk[data-id]') : null);
+    const recordOf = (g) => (g && data ? data.byId.get(g.getAttribute('data-id')) : null);
+    els.map.addEventListener('click', (ev) => {
+      const rec = recordOf(groupAt(ev));
+      if (rec) { ev.stopPropagation(); select(rec, true); }
+    });
+    els.map.addEventListener('keydown', (ev) => {
+      if (ev.key !== 'Enter' && ev.key !== ' ') return;
+      const rec = recordOf(groupAt(ev));
+      if (rec) { ev.preventDefault(); select(rec, true); }
+    });
+    els.map.addEventListener('pointermove', (ev) => {
+      const g = groupAt(ev);
+      if (g) showTip(ev, g.getAttribute('data-tip') || '', g.getAttribute('data-sub') || '');
+    });
+    els.map.addEventListener('pointerleave', hideTip);
   }
 
   function applyRegionClass() {
@@ -607,6 +713,85 @@
     else if (svg) mapSel().transition().duration(reduce ? 0 : 700).call(zoom.transform, d3.zoomIdentity);
   }
 
+  /* ---------------- the board ----------------
+     The first thing on the page is not a control but an answer: for each watch region, how much we
+     have recorded in the selected period, how much activity other states announced at sea there,
+     and how fresh the newest record is. A row is a filter, so reading and narrowing are the same
+     gesture.
+
+     The two columns are deliberately not mixed into one score. Records are what this project has
+     verified and stands behind; announced activity is a count of other states' navigational
+     warnings 2015-2021 (msi-regions.json, built by tools/msi/build_activity.py). One is our work,
+     the other is theirs, and a reader who sees them side by side can tell which is which. A region
+     with no counted sea — the inland ones — reads "—", never "0": nobody measured, which is not
+     the same as nothing happened. */
+  const nf = () => new Intl.NumberFormat(GT.lang === 'tr' ? 'tr-TR' : 'en-GB', { notation: 'compact', maximumFractionDigits: 1 });
+  const activityOf = (code) => (regionActivity && regionActivity[code] && regionActivity[code].cells ? regionActivity[code].military : null);
+
+  function loadRegionActivity() {
+    fetch('assets/data/msi-regions.json', { cache: 'force-cache' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d && d.regions) { regionActivity = d.regions; renderBoard(filtered({ anyRegion: true })); } })
+      .catch(() => {}); // the board still reads without it; the column shows "—"
+  }
+
+  function renderBoard(list) {
+    if (!els.board) return;
+    const count = {}, newest = {};
+    for (const e of list) {
+      for (const r of e.regions || []) {
+        count[r] = (count[r] || 0) + 1;
+        const t = (e.time && e.time.start) || '';
+        if (t > (newest[r] || '')) newest[r] = t;
+      }
+    }
+    const rows = GT.REGION_CODES.filter((c) => c !== 'global').map((code) => ({ code, n: count[code] || 0, act: activityOf(code), last: newest[code] || '' }));
+    const peak = Math.max(1, ...rows.map((r) => r.act || 0));
+    const by = boardSort === 'activity'
+      ? (a, b) => (b.act || 0) - (a.act || 0) || b.n - a.n
+      : (a, b) => b.n - a.n || (b.act || 0) - (a.act || 0);
+    rows.sort((a, b) => by(a, b) || GT.label('regions', a.code).localeCompare(GT.label('regions', b.code), GT.lang === 'tr' ? 'tr' : 'en'));
+
+    const fmt = nf();
+    els.board.replaceChildren(...rows.map((r) => {
+      const b = GT.el('button', 'p-rb' + (r.n ? '' : ' is-quiet') + (state.region === r.code ? ' on' : ''));
+      b.type = 'button';
+      b.dataset.region = r.code;
+      b.setAttribute('aria-pressed', String(state.region === r.code));
+      const bar = GT.el('span', 'p-rb-act');
+      if (r.act === null) {
+        bar.append(GT.el('span', 'p-rb-dash', '—'));
+        bar.title = GT.t('p.board.nosea');
+      } else {
+        const fill = GT.el('span', 'p-rb-bar');
+        fill.style.setProperty('--w', (100 * r.act / peak).toFixed(1) + '%');
+        bar.append(fill, GT.el('span', 'p-rb-num mono', fmt.format(r.act)));
+        bar.title = GT.t('p.board.actTip', { n: new Intl.NumberFormat(GT.lang === 'tr' ? 'tr-TR' : 'en-GB').format(r.act) });
+      }
+      const name = GT.el('span', 'p-rb-name', GT.label('regions', r.code));
+      name.title = GT.label('regions', r.code); // the column is narrow; the long names are clipped
+      b.append(
+        name,
+        GT.el('span', 'p-rb-n mono', r.n ? String(r.n) : '·'),
+        bar,
+        GT.el('span', 'p-rb-last mono', r.last ? GT.fmtTime(r.last, 'day').replace(/\s\d{4}$/, '') : '—'),
+      );
+      b.addEventListener('click', () => setRegion(state.region === r.code ? '' : r.code));
+      return b;
+    }));
+    els.boardClear.hidden = !state.region;
+    document.querySelectorAll('.p-board-sort').forEach((el) => el.setAttribute('aria-pressed', String(el.dataset.sort === boardSort)));
+  }
+
+  /* How many narrowings are folded away under the controls, so nothing is hidden silently. */
+  function syncControlsCount() {
+    const n = [state.q.trim(), state.type, state.status].filter(Boolean).length
+      + (lyr.examples.checked ? 1 : 0)
+      + Object.entries(lyr).filter(([key, el]) => key !== 'examples' && !el.checked).length;
+    els.controlsN.textContent = n ? String(n) : '';
+    els.controls.classList.toggle('has-n', !!n);
+  }
+
   /* ---------------- rendering ---------------- */
   /* The four lines above the list answer, in order, the questions a reader asks before reading any
      record: how many in the window, how sure are they, where are they, and how fresh is the newest.
@@ -614,8 +799,7 @@
   function renderSummary(list) {
     const box = document.getElementById('p-sum');
     if (!box) return;
-    box.hidden = !list.length;
-    if (!list.length) return;
+    box.classList.toggle('is-empty', !list.length);
     const byStatus = {};
     const byRegion = {};
     for (const e of list) {
@@ -623,23 +807,49 @@
       for (const r of e.regions || []) byRegion[r] = (byRegion[r] || 0) + 1;
     }
     const days = PERIODS[state.period];
-    document.getElementById('p-sum-window').textContent = days
-      ? GT.t('p.sum.inDays', { n: list.length, d: days })
-      : GT.t('p.sum.all', { n: list.length });
-    document.getElementById('p-sum-status').textContent = Object.keys(GT.STATUS)
+    /* The number is the value and the window is its label, not the other way round: a reader scans
+       the figures down the left edge and reads the caption only when a figure surprises them. */
+    document.getElementById('p-sum-window').textContent = String(list.length);
+    document.getElementById('p-sum-window-k').textContent = days
+      ? (days === 365 ? GT.t('p.sum.recordsYear') : GT.t('p.sum.recordsIn', { d: days }))
+      : GT.t('p.sum.recordsAll');
+    /* One figure, not a breakdown: how much of what is on screen the project actually stands
+       behind. The full tally is a hover away rather than four words wide. */
+    const statusEl = document.getElementById('p-sum-status');
+    statusEl.textContent = list.length ? (byStatus.verified || 0) + ' / ' + list.length : '—';
+    statusEl.title = Object.keys(GT.STATUS)
       .filter((key) => byStatus[key])
       .map((key) => GT.txt(GT.STATUS[key]) + ' ' + byStatus[key])
-      .join(' · ') || '—';
+      .join(' · ');
     const top = Object.entries(byRegion).sort((a, b) => b[1] - a[1])[0];
     document.getElementById('p-sum-top').textContent = top ? GT.label('regions', top[0]) + ' ' + top[1] : '—';
     const newest = list[0] && list[0].time && list[0].time.start;
     document.getElementById('p-sum-last').textContent = newest ? GT.fmtTime(newest, "day") : '—';
   }
 
+  /* Whether the thing is alive is the first question anyone asks of a feed, and it should not need
+     a second click. The line is the data's own account of itself: when it was built, and how much
+     of each kind it holds — no estimate, no "live" claim we cannot keep. */
+  function renderPulse() {
+    const el = document.getElementById('p-pulse');
+    if (!el) return;
+    const m = data && data.manifest;
+    if (!m) { el.textContent = ''; return; }
+    const c = m.counts || {};
+    el.textContent = GT.t('p.pulse', {
+      // an ISO stamp, not a localised date: this line is a timestamp, and it has to fit on one
+      at: m.built_at ? m.built_at.slice(0, 16).replace('T', ' ') + 'Z' : '—',
+      e: c.event || 0, s: c.site || 0, src: c.source || 0,
+    });
+  }
+
   function render() {
     const list = filtered();
     els.count.textContent = GT.t('p.count', { n: list.length });
     renderSummary(list);
+    renderBoard(filtered({ anyRegion: true }));
+    renderPulse();
+    syncControlsCount();
     els.banner.hidden = !lyr.examples.checked;
     renderFeed(list);
     drawMarkers(list);
@@ -683,6 +893,13 @@
       top.append(GT.el('span', null, GT.fmtTime(e.time.start, e.time.precision)), GT.el('span', 'chip', GT.label('event-types', e.event_type)),
         GT.el('span', 'badge st-' + e.assessment.status, GT.txt(GT.STATUS[e.assessment.status])));
       if (e._example) top.append(GT.el('span', 'ex-tag', GT.upper(GT.t('p.example'))));
+      /* How many independent publishers stand behind this, in the list rather than two clicks
+         away. A single-source claim and a corroborated one look the same otherwise, and the
+         difference is the whole of the verification scale: one source is a report, two are a
+         finding. The registry id is the publisher when there is one; the hostname otherwise,
+         so two articles from the same outlet still count once. */
+      const publishers = new Set((e.sources || []).map((c) => c.ref || (c.url || '').split('/')[2]).filter(Boolean));
+      if (publishers.size === 1) top.append(GT.el('span', 'chip chip-thin', GT.t('p.oneSource')));
       const where = e.location && e.location.geometry ? GT.txt(GT.PRECISION[e.location.precision]) : GT.t('p.nogeo');
       b.append(top, GT.el('div', 'fi-title', GT.txt(e.title)), GT.el('div', 'fi-meta', e.regions.map((r) => GT.label('regions', r)).join(' · ') + ' — ' + where));
       b.addEventListener('click', () => select(e, true));
@@ -873,6 +1090,11 @@
     els.region.addEventListener('change', () => setRegion(els.region.value));
     els.type.addEventListener('change', () => { state.type = els.type.value; render(); });
     els.status.addEventListener('change', () => { state.status = els.status.value; render(); });
+    els.boardClear.addEventListener('click', () => setRegion(''));
+    document.querySelectorAll('.p-board-sort').forEach((el) => el.addEventListener('click', () => {
+      boardSort = el.dataset.sort;
+      renderBoard(filtered({ anyRegion: true }));
+    }));
     Object.values(lyr).forEach((c) => c.addEventListener('change', render));
     const pb = $('p-brief');
     if (pb) pb.addEventListener('click', () => { printHeader(); window.print(); });

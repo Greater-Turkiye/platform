@@ -51,6 +51,29 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 OUT = ROOT / "apps" / "web" / "assets" / "data" / "msi-activity.json"
 OUT_DENSITY = ROOT / "apps" / "web" / "assets" / "data" / "msi-density.json"
+OUT_REGIONS = ROOT / "apps" / "web" / "assets" / "data" / "msi-regions.json"
+
+# The watch regions, as `GT.REGIONS` in assets/js/gt.js defines them: [[west, south], [east, north]].
+# They are repeated here rather than imported because the panel's regions are a product decision that
+# belongs in one place per language; if one moves, this list moves with it (the builder asserts the
+# count so a region added there and forgotten here is caught).
+REGION_BBOX = {
+    "syria": ((35.5, 32.3), (42.4, 37.4)),
+    "iraq": ((38.8, 29.0), (48.6, 37.4)),
+    "iran": ((44.0, 25.0), (63.4, 39.8)),
+    "levant": ((34.2, 29.2), (39.3, 34.7)),
+    "caucasus": ((39.9, 38.3), (50.5, 43.7)),
+    "aegean": ((22.5, 35.0), (28.5, 41.0)),
+    "east-med": ((27.0, 31.0), (36.5, 37.0)),
+    "cyprus": ((32.2, 34.5), (34.7, 35.8)),
+    "black-sea": ((27.4, 40.8), (41.8, 47.3)),
+    "libya-north-africa": ((-9.0, 19.5), (37.0, 37.5)),
+    "gulf-red-sea": ((32.0, 10.0), (60.0, 30.5)),
+    "balkans": ((13.4, 39.6), (29.8, 48.3)),
+    "central-asia": ((46.5, 35.0), (87.0, 55.5)),
+}
+# `global` is deliberately absent: it is not a place, and a region with no box reads as "—" in the
+# panel rather than as a zero, which is the honest answer for water nobody counted.
 # The window the density map is drawn from: the years when the archive's coverage of this region is
 # steady. Mixing in a year when NAVAREA III was not relayed would map the archive, not the sea.
 DENSITY_YEARS = (2015, 2021)
@@ -214,6 +237,37 @@ def build_density(cache: Path, refresh: bool) -> dict:
     }
 
 
+def build_regions(grid_file: dict) -> dict:
+    """Each watch region's share of the announced activity, from the same grid the map draws.
+
+    A cell counts for a region when its centre is inside that region's box. Boxes overlap — the
+    Eastern Mediterranean and Cyprus share water — so the shares do not sum to the total, and the
+    file says so rather than hiding it behind a normalisation nobody asked for."""
+    half = msi.CELL_DEG / 2
+    out = {}
+    for code, ((west, south), (east, north)) in REGION_BBOX.items():
+        mil = survey = other = cells = 0
+        for lon, lat, m, s_, o in grid_file["cells"]:
+            x, y = lon + half, lat + half
+            if west <= x <= east and south <= y <= north:
+                mil += m
+                survey += s_
+                other += o
+                cells += 1
+        out[code] = {"military": mil, "survey": survey, "other": other, "cells": cells}
+    return {
+        "about": (
+            "Announced activity per watch region, counted from the same grid the map draws "
+            f"({grid_file['method']['window'][0]}-{grid_file['method']['window'][1]}). A cell counts for a "
+            "region when its centre is inside that region's box; the boxes overlap, so the regions do not "
+            "sum to the total. Turkish warnings are not counted (ADR 0013)."
+        ),
+        "source": grid_file["source"],
+        "window": grid_file["method"]["window"],
+        "regions": out,
+    }
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--cache", default=os.environ.get("GT_MSI_CACHE", Path(tempfile.gettempdir()) / "gt-msi-cache"))
@@ -229,11 +283,22 @@ def main() -> None:
     )
     grid = build_density(cache, False)  # the same cache; never a second download
     OUT_DENSITY.write_text(
-        json.dumps(grid, ensure_ascii=False, separators=(",", ":")) + chr(10), encoding="utf-8"
+        json.dumps(grid, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8"
     )
     print(
         f"{len(grid['cells'])} cells, {grid['totals']} in {grid['method']['window']} "
         f"-> {OUT_DENSITY.relative_to(ROOT)}"
+    )
+    regions = build_regions(grid)
+    OUT_REGIONS.write_text(
+        json.dumps(regions, ensure_ascii=False, indent=1) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    top = sorted(regions["regions"].items(), key=lambda kv: -kv[1]["military"])[:3]
+    print(
+        f"{len(regions['regions'])} regions -> {OUT_REGIONS.relative_to(ROOT)}; "
+        + ", ".join(f"{k} {v['military']}" for k, v in top)
     )
 
 
