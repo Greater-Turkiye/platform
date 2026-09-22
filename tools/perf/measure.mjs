@@ -4,7 +4,8 @@
  *     node tools/perf/measure.mjs --base http://127.0.0.1:8778/web
  *     node tools/perf/measure.mjs --base http://127.0.0.1:8778/web --only panel-zoom --out out/
  *
- * It drives a headless Chrome over the DevTools Protocol, throttles the CPU (4x stands in for a
+ * It drives a headless Chrome over the DevTools Protocol **with the GPU on** (`--no-gpu` for
+ * the software renderer), throttles the CPU (4x stands in for a
  * modest laptop; without throttling every number reads fine and tells you nothing), runs the
  * scripted interaction in `runs.json`, and reports three things per run:
  *
@@ -30,6 +31,7 @@ const BASE = args.get('base') || 'http://127.0.0.1:8778/web';
 const OUT = args.get('out') || path.join(process.cwd(), 'perf-out');
 const ONLY = args.get('only');
 const PORT = Number(args.get('port') || 9347);
+const NO_GPU = args.has('no-gpu');
 const CHROME = args.get('chrome') || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const CONFIG = JSON.parse(fs.readFileSync(args.get('runs') || new URL('runs.json', import.meta.url), 'utf8'));
 const runs = CONFIG.runs.filter((r) => !ONLY || r.name === ONLY);
@@ -43,7 +45,19 @@ let child = null;
 try {
   await fetch(`http://127.0.0.1:${PORT}/json/version`); // a browser is already listening: use it
 } catch {
-  child = spawn(CHROME, ['--headless=new', '--disable-gpu', '--hide-scrollbars',
+  /* `--disable-gpu` was here from the first version and it quietly invalidated every number this
+     tool ever produced about the basemap: with no GPU, WebGL falls back to software rasterisation,
+     so MapLibre's shader compilation and every frame it draws were being measured against a
+     renderer no reader will ever use. Measuring a GPU workload without a GPU is not a pessimistic
+     measurement, it is a different measurement.
+
+     The default is now the GPU, because that is what a reader has. `--no-gpu` keeps the old
+     behaviour for the one thing it was honestly good for: showing what the site costs somebody
+     whose driver has been blocklisted. Whichever was used is recorded in the report. */
+  const gpuFlags = NO_GPU
+    ? ['--disable-gpu']
+    : ['--use-angle=default', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
+  child = spawn(CHROME, ['--headless=new', ...gpuFlags, '--hide-scrollbars',
     `--remote-debugging-port=${PORT}`, `--user-data-dir=${profileDir}`, '--window-size=1600,1000',
     'about:blank'], { stdio: 'ignore' });
 }
@@ -148,7 +162,7 @@ for (const run of runs) {
   );
 }
 
-fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify({ base: BASE, at: new Date().toISOString(), report }, null, 1));
+fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify({ base: BASE, gpu: !NO_GPU, at: new Date().toISOString(), report }, null, 1));
 ws.close();
 if (child) child.kill();
 process.exit(failed ? 1 : 0);
