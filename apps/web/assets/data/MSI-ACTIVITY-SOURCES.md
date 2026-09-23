@@ -128,3 +128,25 @@ python tools/msi/build_activity.py --refresh  # yeniden indirir (~112 MB) / down
 
 İndirme depo dışında önbelleğe alınır (`GT_MSI_CACHE`, varsayılan geçici dizin). Dosya yalnızca
 sayılar taşır: hiçbir ihbar metni kopyalanmaz.
+
+## Haritada nasıl çizilir / how it is drawn
+
+Sayım 0,25 derecelik bir ızgarada tutulur; bir hücre yerde yaklaşık 21 km'dir. Deniz paneli bu
+hücreleri **kare olarak çizmez**. Bir kutu kenarı, sayımın aritmetiğinden kalan bir iz; bir olayın
+durduğu çizgi değil. Kare olarak çizmek, verinin taşımadığı bir kesinliği iddia etmek olurdu.
+
+Onun yerine ızgara, olduğu şey gibi ele alınır: sürekli bir alanın örnekleri. Üç kat üst-örneklenir,
+yaklaşık bir hücre yarıçapıyla yumuşatılır (`d3.blur2`) ve marching squares ile iç içe bantlara
+ayrılır (`d3.contours`). Eşikler sayının kareköküne göre konur, çünkü sayımın büyük kısmını birkaç
+hücre taşır ve doğrusal bir merdiven beş bandın dördünü onların içine sıkıştırırdı.
+
+**Bu bir ara değerlemedir ve öyle söylenir.** Verinin desteklediği şey "burada şuradan daha çok"tur;
+yumuşatılmış bir yüzey tam olarak bunu söyler. İki bant arasındaki sınır bir çizim eşiğidir, bir
+sınır değil. Yüzey ayrıca su maskesiyle kesilir (bkz. `apps/web/README.md`) ve yakınlaştıkça geri
+çekilir: 21 km'lik kutulardan türetilmiş bir yüzey bir kıyı hakkında hiçbir şey bilmez.
+
+The count is kept on a 0.25° grid (about 21 km per cell). The sea dashboard does not draw those
+cells as squares: a box edge is an artefact of the tally, not a line anything happened along.
+The grid is upsampled, smoothed and cut into nested bands with marching squares, with thresholds on
+the square root of the count. This is interpolation and is stated as such — what the data supports
+is "more here than there", and a band edge is a drawing threshold rather than a boundary.
