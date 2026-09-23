@@ -46,9 +46,9 @@
     map = GT.map.create(mapBox, {
       view: VIEW_WIDE,
       viewNarrow: VIEW_NARROW,
-      scaleExtent: [1, 16],
+      // FIR boundaries are schematic and the land under them is 1:10m; see HONEST_ZOOM
+      scaleExtent: [1, GT.map.HONEST_ZOOM['ne-10m']],
       ariaLabel: GT.t('h.mapAria'),
-      live: true,
       onFrame: (t) => { $('n-scale').textContent = t.k.toFixed(1) + '×'; },
       onZoom: (kk) => { k = kk; map.rescale(); $('n-scale').textContent = kk.toFixed(1) + '×'; },
       onCursor: (ll) => { $('n-coords').textContent = ll ? GT.fmtLL(ll) : '—'; },

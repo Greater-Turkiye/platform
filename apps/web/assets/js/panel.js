@@ -234,7 +234,6 @@
       // Balkans to Pakistan, Black Sea to the Gulf
       view: [[13, 22], [74, 48]],
       pad: 24,
-      live: true, // this map is too heavy to redraw inside a gesture; see the engine
       ariaLabel: GT.t('hero.mapAria'),
       // k 192 is about zoom 11, where our tiles stop. Without tiles the 1:50m coastline is the
       // whole map, and past ~24x it is a generalisation pretending to be a survey.

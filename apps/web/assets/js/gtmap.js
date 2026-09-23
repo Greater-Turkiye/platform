@@ -72,6 +72,27 @@
     };
   }
 
+  /* How far a coastline may honestly be zoomed.
+   *
+   * Natural Earth 1:10m is drawn for maps at about 1:10,000,000. Measured on the file this project
+   * ships: around the Sea of Marmara the median coastline segment is 1,564 m and the p90 is 4,773 m.
+   * At 24x one pixel is 74 m, so the median segment is 21 pixels long and the shore is visibly a
+   * chain of straight lines — the map is claiming a precision the data does not have.
+   *
+   *     zoom   1 px      median segment
+   *       2x   886 m      1.8 px
+   *       4x   443 m      3.5 px
+   *       8x   222 m      7.1 px
+   *      24x    74 m     21.2 px
+   *
+   * So 1:10m is honest to about 4x, and a page that wants to go deeper needs a source that carries
+   * the detail — which is exactly what the dashboard does, bringing vector tiles in at 1.6x. This
+   * is not a limit the engine can enforce, because it depends on what the page draws; it is a
+   * number the page has to choose on purpose, which is why `scaleExtent` no longer has a generous
+   * default to fall into.
+   */
+  const HONEST_ZOOM = { 'ne-10m': 4, 'ne-50m': 1.5 };
+
   /**
    * create(container, opts) → a map handle.
    *
@@ -102,10 +123,9 @@
       /* With deferred rendering the SVG sits inside a plain box that the gesture moves, and the
          zoom behaviour is attached to the container, which never moves — so `d3.pointer` keeps
          reading coordinates in a frame that is standing still. */
-      const host = o.live
-        ? d3.select(container).selectAll('div.gm-mover').data([0]).join('div').attr('class', 'gm-mover')
-        : d3.select(container);
-      mover = o.live ? host.node() : null;
+      const host = d3.select(container).selectAll('div.gm-mover').data([0]).join('div')
+        .attr('class', 'gm-mover');
+      mover = host.node();
       host.selectAll('svg').remove();
       svg = host.append('svg')
         .attr('viewBox', `0 0 ${W} ${H}`)
@@ -246,8 +266,7 @@
     function flush() {
       frameReq = 0;
       if (pending) {
-        if (mover) liveMove(pending);
-        else gRoot.attr('transform', pending);
+        liveMove(pending);
         if (o.onFrame) o.onFrame(pending);
         pending = null;
       }
@@ -269,43 +288,27 @@
       if (o.onCommit) o.onCommit(t);
     }
 
-    /** Re-apply the current transform after the page has redrawn its layers itself. */
-    api.settled = () => { rendered = d3.zoomTransform(container); };
-
     /**
      * Wire the zoom, the cursor read-out and the background click. Called once the layers exist,
      * because the zoom's translate extent is expressed in the frame they were drawn in.
      */
     api.ready = function ready() {
       zoom = d3.zoom()
-        .scaleExtent(o.scaleExtent || [1, 24])
+        .scaleExtent(o.scaleExtent || [1, 4])
         .translateExtent([[-W * 0.2, -H * 0.2], [W * 1.2, H * 1.2]]);
-      if (o.live) {
-        pending = null; moving = false; rendered = d3.zoomIdentity;
+      pending = null; moving = false; rendered = d3.zoomIdentity;
+      clearTimeout(settleTimer);
+      mover.style.transform = '';
+      zoom.on('zoom', (ev) => {
+        pending = ev.transform;
         clearTimeout(settleTimer);
-        mover.style.transform = '';
-        zoom.on('zoom', (ev) => {
-          pending = ev.transform;
-          clearTimeout(settleTimer);
-          if (!moving) { moving = true; if (o.onMoveStart) o.onMoveStart(); if (svg) svg.classed('moving', true); }
-          schedule();
-        }).on('end', (ev) => {
-          clearTimeout(settleTimer);
-          // a gesture gets a moment to rest; an animated zoom is already where it meant to be
-          settleTimer = setTimeout(() => requestAnimationFrame(commit), ev.sourceEvent ? 150 : 0);
-        });
-      } else {
-        zoom.on('zoom', (ev) => {
-          pending = ev.transform;
-          schedule();
-          if (ev.transform.k !== k) {
-            k = ev.transform.k;
-            api.k = k;
-            api.rescale();
-            if (o.onZoom) o.onZoom(k);
-          }
-        });
-      }
+        if (!moving) { moving = true; if (o.onMoveStart) o.onMoveStart(); if (svg) svg.classed('moving', true); }
+        schedule();
+      }).on('end', (ev) => {
+        clearTimeout(settleTimer);
+        // a gesture gets a moment to rest; an animated zoom is already where it meant to be
+        settleTimer = setTimeout(() => requestAnimationFrame(commit), ev.sourceEvent ? 150 : 0);
+      });
       d3.select(container).property('__zoom', d3.zoomIdentity).call(zoom).on('dblclick.zoom', null);
       if (o.onCursor) {
         d3.select(container)
@@ -337,7 +340,7 @@
       const w = Math.abs(b[0] - a[0]);
       const h = Math.abs(b[1] - a[1]);
       if (!w || !h) return false;
-      const kk = Math.max(1, Math.min((o.scaleExtent || [1, 24])[1], 0.82 * Math.min(W / w, H / h)));
+      const kk = Math.max(1, Math.min((o.scaleExtent || [1, 4])[1], 0.82 * Math.min(W / w, H / h)));
       return api.goto([(box[0][0] + box[1][0]) / 2, (box[0][1] + box[1][1]) / 2], kk, ms);
     };
 
@@ -351,19 +354,15 @@
     /** The transform currently in force. */
     api.current = () => d3.zoomTransform(container);
 
-    /** The zoom's scale limits, which a page may change when a basemap arrives. */
-    api.scaleExtent = (ext) => { if (zoom) zoom.scaleExtent(ext); };
-
     api.reset = (ms) => {
       if (!zoom) return;
       const sel = d3.select(container);
       (ms ? sel.transition().duration(ms) : sel).call(zoom.transform, d3.zoomIdentity);
     };
     api.zoomBy = (f) => { if (zoom) d3.select(container).transition().duration(180).call(zoom.scaleBy, f); };
-    api.level = () => k;
 
     return api;
   }
 
-  GT.map = { create, corners, EARTH };
+  GT.map = { create, corners, EARTH, HONEST_ZOOM };
 })();
