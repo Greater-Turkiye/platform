@@ -50,6 +50,7 @@
   const state = { sea: params.get('sea') || '', selected: params.get('id') || '' };
   let world = null, density = null, vessels = null, trade = null, records = null;
   let map = null, gUnc = null, gMark = null, gStatic = null, gCells = null;
+  let coast = null, waterMask = null;
   let proj = null, path = null, gRoot = null, k = 1, W = 0, H = 0, lastFocus = null;
   let onLand = () => false; // filled per frame by the shared land mask
 
@@ -104,7 +105,11 @@
     proj = map.proj; path = map.path; gRoot = map.gRoot;
     W = map.W; H = map.H; VIEW = map.view; k = 1;
 
-    map.land(world);
+    map.land(world, null, coast);
+    /* Water only. The wash and the maritime areas are both about the sea, and both come from
+       geometry whose coastline is not the one drawn here; the mask is what keeps either from
+       painting the shore, at any zoom. */
+    waterMask = map.waterMask(coast);
     /* The wash is about the sea, so it is masked to the sea. Half a cell of margin keeps a square
        whose centre sits just offshore from bleeding over the coast. */
     onLand = map.landMask(world, cellPx() / 2);
@@ -133,6 +138,7 @@
      military class is drawn, which is what the sea board counts. */
   function drawActivity() {
     gCells = gRoot.append('g').attr('class', 'n-cells');
+    if (waterMask) gCells.attr('mask', waterMask);
     const g = gCells;
     if (!density || !lyr.act.checked) return;
     const step = (density.method && density.method.cell_deg) || 0.25;
@@ -162,6 +168,7 @@
 
   function drawAreas() {
     const g = gRoot.append('g').attr('class', 'n-areas');
+    if (waterMask) g.attr('mask', waterMask);
     for (const f of world.maritime || []) {
       const p = f.properties;
       const straits = p.kind === 'internal-waters';
@@ -490,18 +497,20 @@
     } catch { return null; }
   };
 
-  const [w, d, v, t, recs] = await Promise.allSettled([
+  const [w, d, v, t, recs, cst] = await Promise.allSettled([
     GT.loadWorld('assets/data/countries-50m.json'),
     optional('assets/data/msi-density.json'),
     optional('assets/data/vessels-summary.json'),
     optional('assets/data/trade-il.json'),
     GT.loadData(['site']),
+    optional('assets/data/coast-10m.json'),
   ]);
   if (w.status === 'fulfilled') world = w.value; else console.warn(w.reason);
   density = d.status === 'fulfilled' ? d.value : null;
   vessels = v.status === 'fulfilled' ? v.value : null;
   trade = t.status === 'fulfilled' ? t.value : null;
   records = recs.status === 'fulfilled' ? recs.value : null;
+  coast = cst.status === 'fulfilled' ? cst.value : null;
 
   if (!world) {
     $('n-state').textContent = GT.t('s.err');

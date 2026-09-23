@@ -122,11 +122,28 @@
     /** A new <g> inside the zoom root, in call order. */
     api.layer = (cls) => gRoot.append('g').attr('class', cls || null);
 
-    /** The water rectangle, the countries and the borders, in that order. */
-    api.land = function land(world, cls) {
+    /**
+     * The water rectangle, the land, the countries and the borders, in that order.
+     *
+     * `coast` is the merged 1:10m coastline, and passing it matters for more than detail: the
+     * water mask is cut from the same file, so without it the drawn land (1:50m) and the mask
+     * disagree and a pale halo appears along every shore where one says land and the other says
+     * water. Drawn underneath the countries, it fills exactly those gaps and is hidden everywhere
+     * else, so it costs one path and nothing is lost where the two already agree.
+     */
+    api.land = function land(world, cls, coast) {
       const c = cls || {};
       gRoot.append('rect').attr('class', c.water || 'n-water').attr('width', W).attr('height', H);
-      const g = gRoot.append('g');
+      if (coast && coast.land) {
+        gRoot.append('path')
+          .attr('class', (c.land || 'n-land') + ' gm-coast')
+          .attr('d', path({ type: 'Feature', geometry: coast.land, properties: {} }));
+      }
+      /* With a coast underneath, a country outline is the *wrong* coastline drawn on top of the
+         right one: a thin pale line everywhere the two generalisations differ. The countries are
+         still wanted for what only they can say — which land is whose — so they keep their fill
+         and lose their stroke. Borders between countries come from `world.borders` regardless. */
+      const g = gRoot.append('g').classed('gm-has-coast', !!(coast && coast.land));
       g.selectAll('path').data(world.countries || []).join('path')
         .attr('d', path)
         .attr('class', (f) => (c.land || 'n-land') + (GT.a3 && GT.a3(f) === 'TUR' ? ' is-tur' : ''));
@@ -135,6 +152,42 @@
           .attr('class', c.border || 'n-border');
       }
       return g;
+    };
+
+    /**
+     * A mask that lets a layer paint water and never land.
+     *
+     * The maritime areas and the coastline the site draws are two generalisations of the same
+     * coast and they disagree: 2,668 km² of sea polygon sits on 1:50m land, spread over dozens of
+     * small fragments in the gulfs the coastline smooths across. Clipping the areas would degrade
+     * geometry that came from official coordinates to match a rendering asset, and would erase the
+     * Bosphorus and the Dardanelles, which are narrower than the drawn coastline and overlap it on
+     * purpose. So it is solved in rendering instead.
+     *
+     * One merged coastline (assets/data/coast-10m.json, 1:10m so the mask is finer than anything
+     * it masks), as a single path in an SVG mask: white everywhere, black over land. The compositor
+     * evaluates it once for the whole group rather than per feature, and because the mask lives in
+     * the same transformed group as the geometry it stays aligned at every zoom — which is what
+     * the old "hide the fills past 12x" rule was standing in for.
+     */
+    api.waterMask = function waterMask(coast, id) {
+      if (!coast || !coast.land) return null;
+      const name = id || 'gm-water';
+      let defs = svg.select('defs');
+      if (defs.empty()) defs = svg.insert('defs', ':first-child');
+      defs.select('#' + name).remove();
+      const m = defs.append('mask')
+        .attr('id', name)
+        .attr('maskUnits', 'userSpaceOnUse');
+      // generous enough that no pan can run off the white; the mask travels with the group
+      m.append('rect')
+        .attr('x', -W * 4).attr('y', -H * 4)
+        .attr('width', W * 9).attr('height', H * 9)
+        .attr('fill', '#fff');
+      m.append('path')
+        .attr('d', path({ type: 'Feature', geometry: coast.land, properties: {} }))
+        .attr('fill', '#000');
+      return `url(#${name})`;
     };
 
     /** A land test in screen pixels for this frame; `growCells` widens the coast. */
