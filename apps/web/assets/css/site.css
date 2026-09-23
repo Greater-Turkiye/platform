@@ -387,6 +387,25 @@ a.ticker-item:hover { color: #fff; }
 .lg i.blue { border-radius: 0; background: rgba(38, 120, 220, .32); outline: 1px solid rgba(90, 165, 255, .9); }
 @media (max-width: 860px) { .hero-inner { padding-bottom: 196px; } }
 .lg i.kin { border-radius: 0; background: #1c0c10; outline: 1px solid rgba(200, 0, 42, .5); }
+/* A programme partner is not drawn in the red family: red is what stands with Türkiye, and this is
+   a counterparty. Amber, hatched with the same dashes the framework tier uses for "signed, not
+   allied", so the map cannot be read as Russia being an ally. */
+.lg i.strategic { border-radius: 0; background: rgba(214, 161, 58, .18); outline: 1px dashed rgba(214, 161, 58, .8); }
+.m-land.m-strategic { fill: #1f1a10; stroke: rgba(214, 161, 58, .55); stroke-width: .7; stroke-dasharray: 3 2; }
+.m-land.m-strategic:hover { fill: #2a2214; }
+.m-land.m-disputed.m-strategic { stroke: #1f1a10; }
+/* Badges under a country's name: one glyph per fact, 9 px, on the label layer so they keep their
+   size. Colour says the family — blue for NATO, red for the Turkish-aligned tiers, amber for a
+   programme — and the shape says which. */
+.bd { width: 9px; height: 9px; fill: rgba(232, 227, 220, .85); opacity: .92; pointer-events: none; }
+.bd-nato { fill: rgba(120, 180, 255, .95); }
+.bd-ally { fill: rgba(220, 40, 70, .95); }
+.bd-coop, .bd-frame, .bd-kin { fill: rgba(200, 90, 110, .9); }
+.bd-presence { fill: rgba(232, 227, 220, .9); }
+.bd-nuclear, .bd-arms { fill: rgba(214, 161, 58, .95); }
+.p-map svg.moving .m-badges { display: none; }
+.lg .bd-key { display: inline-flex; gap: 6px; align-items: center; margin-left: 4px; }
+.lg .bd-key svg { width: 9px; height: 9px; }
 .lg i.presence { border-radius: 0; background: transparent; outline: 1px dashed rgba(232, 227, 220, .85); }
 .lg i.ally { border-radius: 0; background: rgba(153, 0, 28, .6); outline: 1px solid rgba(200, 0, 42, .8); }
 .lg i.coop { border-radius: 0; background: #26070e; outline: 1px solid rgba(153, 0, 28, .7); }

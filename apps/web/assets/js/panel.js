@@ -389,6 +389,21 @@
       add('m-rlabel', r.at, 9, GT.upper(GT.label('regions', code)), 14).attr('data-region', code);
     }
     for (const pl of GT.PLACE_LABELS || []) add('m-label sm', pl.at, 7, GT.upper(pl[GT.lang]));
+    /* Badges sit under the country name and scale with the labels, not with the map: a glyph that
+       grew with the zoom would be a shape on the ground. One <g> per country, one <use> per mark,
+       so the glyph paths exist once in <defs> (GT.mapDefs) and the layer is a few dozen nodes. */
+    for (const [a3, at] of Object.entries(GT.COUNTRY_LABELS)) {
+      const marks = GT.partnerBadges(a3);
+      if (!marks.length) continue;
+      const p = proj(at);
+      const g = gLabels.append('g').attr('class', 'm-badges').attr('data-x', p[0]).attr('data-y', p[1] + 9);
+      g.append('title').text(GT.countryName(a3) + ' — ' + marks.map((m) => GT.t('bd.' + m)).join(' · '));
+      /* width and height are attributes, not CSS: a <use> of a <symbol> with a viewBox and no
+         size renders at the whole viewport, which is how a nine-pixel star became a mountain. */
+      marks.forEach((m, i) => g.append('use').attr('href', '#bd-' + m).attr('class', 'bd bd-' + m)
+        .attr('width', 9).attr('height', 9)
+        .attr('x', (i - (marks.length - 1) / 2) * 11 - 4.5).attr('y', 0));
+    }
     placeTiers.clear(); // the city tiers are built as the map is zoomed into them (addPlaceTier)
     // centred on Türkiye's centroid; letters spaced with thin spaces (CSS letter-spacing would add a trailing gap)
     const trF = world.countries.find((f) => GT.a3(f) === 'TUR');
@@ -504,6 +519,7 @@
     const label = function () { return `translate(${this.dataset.x},${this.dataset.y}) scale(${1 / f})`; };
     gLabels.selectAll(':scope > text').attr('transform', label);
     gLabels.selectAll('g.m-place').attr('transform', label);
+    gLabels.selectAll('g.m-badges').attr('transform', label);
     gLabels.selectAll('.m-tr-label').style('stroke-width', 3 * f + 'px');
   }
 
