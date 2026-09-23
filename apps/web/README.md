@@ -153,3 +153,34 @@ The basemap's boundary and country-label layers are dropped from the style **bef
 - Kayıt başına statik sayfalar (SEO, paylaşım önizlemesi) / per-record static pages (SEO, share previews)
 - Zaman çizelgesi ve yoğunluk görünümü / timeline and density views
 - Cloudflare Access arkasında `/admin` (bkz. ARCHITECTURE.md) / `/admin` behind Cloudflare Access
+
+### Deniz kara boyamaz / the sea does not paint the land
+
+Deniz alanları ile haritada çizilen kıyı, aynı kıyının iki farklı genelleştirmesidir ve
+uyuşmazlar. Ölçüldü: **2.668 km² deniz poligonu 1:50m karanın üstünde** — tek bir yerde değil,
+her alanda 36–61 küçük parçaya yayılmış hâlde, 1:50m kıyısının düzleştirdiği körfez ve girintilerde
+(İzmit, Erdek, Gökova). 1:10m karaya göre ölçüldüğünde 2.875 km² çıkıyor; yani mesele bir dosyanın
+kaba olması değil, ikisinin birbirinin aynısı olmaması.
+
+Alanları çizilen kıyıya kırpmak iki kez yanlış olurdu: resmî koordinatlardan gelen geometriyi bir
+çizim varlığına uydurmak için bozardı, **ve İstanbul ile Çanakkale boğazlarını haritadan silerdi**
+— ikisi de 1:50m kıyı çizgisinden dar ve oradaki taşma kasıtlı.
+
+Bu yüzden ait olduğu yerde, çizimde çözüldü:
+
+- `assets/data/coast-10m.json` — `tools/geo/build_coast.py` ile üretilen, çerçeveye kırpılmış tek
+  birleşik 1:10m kıyı çizgisi (292 KB, gzip 95 KB). Ülke katmanı değildir, sınır taşımaz.
+- `GT.map.waterMask(coast)` bundan bir SVG maskesi keser: her yer beyaz, kara siyah. Deniz
+  katmanları bu maskeyle çizilir, dolayısıyla **hiçbir zoom'da karaya boya gitmez**.
+- Aynı dosya karanın kendisi olarak da çizilir (`map.land(world, null, coast)`), çünkü maske ile
+  çizilen kara farklı kıyılardan gelirse aralarında soluk bir hale kalır.
+- Kıyı verisi varken ülke yolları konturlarını bırakır (`.gm-has-coast .n-land`): altta doğru kıyı
+  dururken üstüne kaba kıyıyı çizmek, ince soluk bir dikiş izinden başka bir şey değildir.
+
+Bunun yerini aldığı şey, panel'deki `flat-sea` kuralıydı: 12×'ten sonra dolguları kapatıp sorunu
+gizliyordu.
+
+The maritime areas and the drawn coastline are two generalisations of the same coast and they
+disagree. Rather than clip official geometry to a rendering asset — which would also erase the
+Straits — the sea layers are drawn through a mask cut from one merged 1:10m coastline, and the same
+file draws the land, so mask and land can never disagree.

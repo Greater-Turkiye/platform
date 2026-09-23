@@ -954,6 +954,9 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .n-map svg:active { cursor: grabbing; }
 .n-water { fill: var(--water); }
 .n-land { fill: var(--land); stroke: var(--landline); stroke-width: .7; vector-effect: non-scaling-stroke; }
+/* The coastline is drawn once, underneath; a country's own outline on top of it is the
+   coarser coastline showing through as a pale seam. */
+.gm-has-coast .n-land { stroke: none; }
 .n-land.is-tur { fill: #efe9df; }
 .n-border { fill: none; stroke: var(--landline); stroke-width: .8; vector-effect: non-scaling-stroke; }
 /* Anything without a status of its own is drawn as a claimed area, never as the SVG default. */
