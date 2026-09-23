@@ -102,3 +102,35 @@ def test_queue_requires_recorded_terms() -> None:
 def test_queue_defaults_to_false() -> None:
     (feed,) = parse_feeds(VALID)
     assert feed.queue is False
+
+
+
+from gt_collectors import config as _cfg
+
+
+def _queue_feed(**extra):
+    raw = {"id": "rss-x", "kind": "rss", "url": "https://example.org/feed", "cadence_minutes": 60,
+           "lang": "en", "enabled": False, "queue": True, "terms": "https://example.org/terms"}
+    raw.update(extra)
+    return raw
+
+
+def test_a_source_graded_below_the_floor_cannot_be_queued() -> None:
+    # The blacklist: a grade with a reason in the source record, and a gate that reads it.
+    for grade in ("E", "F"):
+        with pytest.raises(ConfigError, match="below the queue floor"):
+            _cfg._feed(_queue_feed(reliability=grade), "feeds[0]")
+
+
+def test_the_floor_itself_is_allowed_and_carried() -> None:
+    feed = _cfg._feed(_queue_feed(reliability="D"), "feeds[0]")
+    assert feed.reliability == "D"
+
+
+def test_an_ungraded_queue_feed_still_loads() -> None:
+    assert _cfg._feed(_queue_feed(), "feeds[0]").reliability is None
+
+
+def test_reliability_must_be_an_admiralty_grade() -> None:
+    with pytest.raises(ConfigError, match="Admiralty"):
+        _cfg._feed(_queue_feed(reliability="G"), "feeds[0]")

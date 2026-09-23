@@ -47,7 +47,14 @@ ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{2,63}$")
 COUNTRY_RE = re.compile(r"^[A-Z]{3}$")
 SECRET_RE = re.compile(r"^[A-Z][A-Z0-9_]{1,63}$")
 REQUIRED = ("id", "kind", "url", "cadence_minutes", "lang", "enabled")
-OPTIONAL = ("name", "country", "source_id", "regions", "queue", "secrets", "terms", "notes")
+OPTIONAL = ("name", "country", "source_id", "regions", "queue", "secrets", "terms", "notes", "reliability")
+# Admiralty source-reliability grades (ADR 0006). A and B are records of accuracy; C is fairly
+# reliable; D is not usually reliable; E is unreliable and F is a source with no track record.
+RELIABILITY = frozenset({"A", "B", "C", "D", "E", "F"})
+# A source graded E or F is not sent to reviewers at all. The queue is where a person spends
+# attention; a source we already grade as unreliable does not get to spend it for them. This is
+# the project's blacklist, and it is a grade with a reason, never a list of names.
+QUEUE_MIN_RELIABILITY = "D"
 
 
 class ConfigError(ValueError):
@@ -70,6 +77,7 @@ class FeedConfig:
     secrets: tuple[str, ...] = ()
     terms: str | None = None
     notes: str | None = None
+    reliability: str | None = None
 
 
 def _feed(raw: Any, where: str) -> FeedConfig:
@@ -108,6 +116,12 @@ def _feed(raw: Any, where: str) -> FeedConfig:
     country = raw.get("country")
     if country is not None and (not isinstance(country, str) or not COUNTRY_RE.match(country)):
         raise ConfigError(f"{where}: country must be ISO 3166-1 alpha-3")
+    reliability = raw.get("reliability")
+    if reliability is not None and reliability not in RELIABILITY:
+        raise ConfigError(f"{where}: reliability must be one of {sorted(RELIABILITY)} (Admiralty scale)")
+    if queue and reliability is not None and reliability > QUEUE_MIN_RELIABILITY:
+        raise ConfigError(f"{where}: a source graded {reliability} is below the queue floor ({QUEUE_MIN_RELIABILITY}); "
+                          "grade it in the source record with the reason, and leave queue false")
     regions = raw.get("regions") or []
     if not isinstance(regions, list) or not all(isinstance(r, str) and CODE_RE.match(r) for r in regions):
         raise ConfigError(f"{where}: regions must be a list of codes")
@@ -132,6 +146,7 @@ def _feed(raw: Any, where: str) -> FeedConfig:
         secrets=tuple(secrets),
         terms=raw.get("terms"),
         notes=raw.get("notes"),
+        reliability=reliability,
     )
 
 

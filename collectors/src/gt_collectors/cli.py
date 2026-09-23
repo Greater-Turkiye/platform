@@ -279,6 +279,7 @@ def _collect_feeds(
                     signal=_with_region(signal, score.region),
                     redline_check=review.redline_check(signal),
                     relevance=score,
+                    reliability=feed.reliability,
                     status="queued" if score.relevant else "off-topic",
                 )
                 if score.relevant:

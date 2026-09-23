@@ -50,6 +50,14 @@
 #   mod.mil.gr, geetha.mil.gr, mfa.gr, mod.gov.ge, msb.gov.tr, gov.il, timesofisrael: 403 to
 #   our client; we do not send a browser User-Agent to get past a block.
 #
+# reliability: the Admiralty source-reliability grade (ADR 0006), A-F. It grades the *source's
+#   record of accuracy*, never the party's politics: a state press office that publishes what the
+#   state did is C (fairly reliable, interested party); a wire that corrects its errors is B.
+#   Every feed with `queue: true` here carries one, and a source graded E or F cannot be queued —
+#   that is the project's blacklist. It is a grade with a reason written in the source record, not
+#   a list of names, because "who is behind it" is an allegation and "how often it was wrong" is
+#   a record. Downgrade a source by writing down what it got wrong; the gate does the rest.
+#
 # Disabled feeds can still be tried locally:  gt-collect --feed <id> --dry-run
 feeds:
   - id: atom-gbr-mod
@@ -62,6 +70,7 @@ feeds:
     regions: [global]
     enabled: false
     queue: true
+    reliability: B
     terms: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
     secrets: []
     notes: >-
@@ -81,6 +90,7 @@ feeds:
     regions: [global]
     enabled: false
     queue: true
+    reliability: B
     terms: https://www.law.cornell.edu/uscode/text/17/105
     secrets: []
     notes: >-
@@ -100,6 +110,7 @@ feeds:
     regions: [global]
     enabled: false
     queue: true
+    reliability: B
     terms: https://www.law.cornell.edu/uscode/text/17/105
     secrets: []
     notes: Same basis as rss-usa-dod-releases; feature stories, lower signal, longer cadence.
@@ -131,6 +142,7 @@ feeds:
     regions: [global]
     enabled: false
     queue: true
+    reliability: C
     terms: http://en.kremlin.ru/about/copyrights
     secrets: []
     terms: http://en.kremlin.ru/about/copyrights
@@ -149,6 +161,7 @@ feeds:
     regions: [global]
     enabled: false
     queue: true
+    reliability: C
     terms: http://en.kremlin.ru/about/copyrights
     secrets: []
     terms: http://en.kremlin.ru/about/copyrights
@@ -262,6 +275,7 @@ feeds:
     regions: [global]
     enabled: false
     queue: true
+    reliability: B
     secrets: []
     terms: https://www.un.org/en/about-us/copyright
     notes: >-
@@ -280,6 +294,7 @@ feeds:
     enabled: false
     queue: false
     queue: true
+    reliability: B
     terms: https://www.un.org/en/about-us/copyright
     secrets: []
     terms: https://www.un.org/en/about-us/copyright
@@ -299,6 +314,7 @@ feeds:
     enabled: false
     queue: false
     queue: true
+    reliability: B
     terms: https://www.un.org/en/about-us/copyright
     secrets: []
     terms: https://www.un.org/en/about-us/copyright
@@ -314,6 +330,7 @@ feeds:
     regions: [global]
     enabled: false
     queue: true
+    reliability: B
     secrets: []
     terms: https://www.un.org/en/about-us/copyright
     notes: >-
@@ -332,6 +349,7 @@ feeds:
     enabled: false
     queue: false
     queue: true
+    reliability: B
     terms: https://www.un.org/en/about-us/copyright
     secrets: []
     terms: https://www.un.org/en/about-us/copyright
