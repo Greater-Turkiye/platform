@@ -160,6 +160,7 @@ def test_candidate_json_keeps_the_signal_contract() -> None:
         "archive_url",
         "redline_check",
         "relevance",
+        "reliability",
         "signal",
     }
     assert line["status"] == "queued" and line["relevance"] is None
@@ -200,3 +201,13 @@ def test_archive_lookup_survives_a_network_failure() -> None:
         raise fetch.FetchError("offline")
 
     assert archive_lookup("https://x.example/a", fetcher=fetcher) is None
+
+
+
+def test_the_line_carries_the_source_grade_and_flags_the_floor() -> None:
+    body = render_issue([candidate(7, reliability="D")], day=DAY)
+    line = next(line for line in body.splitlines() if line.startswith("- [ ]"))
+    assert "güvenilirlik / reliability: `D`" in line
+    assert "düşük güvenilirlik / low reliability" in line
+    clean = render_issue([candidate(7, reliability="B")], day=DAY)
+    assert "low reliability" not in clean

@@ -369,3 +369,20 @@ DROP if record has a position and point_in(position, TR_GEOFENCE)    # Türkiye 
 2. Northern Cyprus (TRNC) and Turkish forces deployed abroad (Syria, Iraq, Qatar, Libya, Somalia, Azerbaijan…) are **not** in the geofence; only the identifier rules cover them. Should N. Cyprus (Natural Earth has it as a separate feature) be added?
 3. Natural Earth 1:50m omits small islands (Bozcaada, the Marmara islands…). The mainland buffer covers them, but not their full territorial sea.
 - Metin içeriği için: Türk kuvvetlerinin konum veya hareketinden söz eden öğeler triyajda `redline_check` ile işaretlenir ve asla otomatik olarak bülten önerisine dönüşmez. / For text: items mentioning Turkish forces positions or movements are flagged `redline_check` in triage and never auto-suggested as bulletins.
+
+### Güvenilirlik kapısı / the reliability gate
+
+Her akış isteğe bağlı bir `reliability` derecesi taşır — Admiralty ölçeği (ADR 0006), A–F. Derece
+**kaynağın doğruluk sicilini** notlar, tarafın siyasetini değil: devletin ne yaptığını yayımlayan
+bir devlet basın ofisi C'dir (oldukça güvenilir, taraf), hatasını düzelten bir ajans B.
+
+Kural tektir ve kodda durur (`config.QUEUE_MIN_RELIABILITY = "D"`): **E ya da F dereceli bir kaynak
+kuyruğa alınamaz.** Bu, projenin kara listesidir — ama bir isim listesi değil, gerekçesi kaynak
+kaydında yazılı bir derece. "Arkasında kim var" bir iddiadır; "kaç kez yanlış çıktı" bir sicildir.
+Bir kaynağı düşürmek için neyi yanlış yaptığını yazarsın; kapı gerisini yapar. D dereceli bir
+kaynağın öğeleri kuyruğa girer ama satırda `🔶 düşük güvenilirlik` ile işaretlenir, böylece
+inceleyen kişi iddiayı değil kaynağı tartar.
+
+Every feed may carry an Admiralty reliability grade. A source graded E or F cannot be queued: that
+is the blacklist, as a grade with a written reason rather than a list of names. D is queued and
+flagged so the reviewer weighs the source, not just the claim.

@@ -82,6 +82,7 @@ class Candidate:
     archive_url: str | None = None
     redline_check: bool = False
     relevance: Relevance | None = None
+    reliability: str | None = None  # Admiralty grade of the source feed, A-F
     status: str = "queued"
 
     def __post_init__(self) -> None:
@@ -101,6 +102,7 @@ class Candidate:
             "archive_url": self.archive_url,
             "redline_check": self.redline_check,
             "relevance": self.relevance.to_dict() if self.relevance else None,
+            "reliability": self.reliability,
             "signal": self.signal.to_dict(),
         }
 
@@ -159,6 +161,8 @@ def _line(candidate: Candidate) -> str:
         parts.append(f"bölge / region: `{signal.geo.region}`")
     if candidate.relevance is not None:
         parts.append(f"ilgi / relevance: `{candidate.relevance.score:.2f}`")
+    if candidate.reliability:
+        parts.append(f"güvenilirlik / reliability: `{candidate.reliability}`")
     when = signal.published_at or signal.fetched_at
     parts.append(f"{when:%Y-%m-%d %H:%M} UTC")
     parts.append(f"`{candidate.queue_id}`")
@@ -167,6 +171,9 @@ def _line(candidate: Candidate) -> str:
         flags += " ❓ `sınırda / borderline`"
     if candidate.redline_check:
         flags += " ⚠️ `redline_check`"
+    if candidate.reliability == "D":
+        # D is the floor for the queue: the reviewer is told to weigh the source, not just the claim
+        flags += " 🔶 `düşük güvenilirlik / low reliability`"
     return f"- [ ] **{title}** — " + " · ".join(parts) + flags
 
 
