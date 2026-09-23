@@ -12,6 +12,7 @@
    "seconds": 8,
    "budget": {
     "p90": 100,
+    "p99": 160,
     "longTaskMs": 4500
    }
   },
@@ -25,6 +26,7 @@
    "seconds": 6,
    "budget": {
     "p90": 34,
+    "p99": 40,
     "longTaskMs": 500
    }
   },
@@ -39,6 +41,8 @@
    "script": "(async()=>{const s=[2,5,9,14,20,26,14,5,1];for(const k of s){GT_PANEL.goto(26.5,39.1,k);await new Promise(r=>setTimeout(r,900));}return 'done';})()",
    "budget": {
     "p90": 60,
+    "p99": 200,
+    "longTaskMs": 5500,
     "scriptMs": 1600,
     "layoutMs": 1400
    }
@@ -54,6 +58,7 @@
    "seconds": 6,
    "budget": {
     "p90": 50,
+    "p99": 60,
     "longTaskMs": 2500
    }
   },
@@ -68,6 +73,8 @@
    "script": "(async()=>{for(const s of ['aegean','blacksea','eastmed','cyprus','']){GT_SEA.setSea(s);await new Promise(r=>setTimeout(r,1100));}return 'done';})()",
    "budget": {
     "p90": 40,
+    "p99": 100,
+    "longTaskMs": 600,
     "scriptMs": 500,
     "layoutMs": 700
    }
@@ -83,6 +90,8 @@
    "script": "(async()=>{for(const f of ['LGGG','LTBB','LCCC','LTAA','']){GT_AIR.setFir(f);await new Promise(r=>setTimeout(r,1100));}return 'done';})()",
    "budget": {
     "p90": 40,
+    "p99": 80,
+    "longTaskMs": 400,
     "scriptMs": 700,
     "layoutMs": 900
    }
