@@ -147,3 +147,26 @@ Searched on 2026-09-20 and not found; recorded so the search is not repeated. Th
    `queue: true` for `iaea-news-en`.
 7. Retry Spain's IHM NAVAREA III pages from a GitHub runner; if they answer, that is the live warning feed the panel is missing.
 8. Many ministries publish mainly on Telegram/X. The planned `telegram-web` collector (public `t.me/s/…` previews) may cover them better than RSS.
+
+## 2026-09-23 — kaynak taraması / source survey
+
+35 aday akış, toplayıcının kendi kimliğiyle (`GreaterTurkiyeCollectors/…`, tarayıcı taklidi yok)
+sorgulandı; şartları okunabilen ve alıntıya izin verenler kuyruğa alındı.
+
+| kaynak | akış | şartlar | karar |
+|---|---|---|---|
+| gov.uk — Ministry of Defence | Atom, 20 öğe/çekim | Open Government Licence v3: kopyala, yayımla, uyarla; atıf şartıyla | **kuyruk** |
+| defense.gov (war.gov'a yönlendiriyor) | RSS ×2, 20 öğe/çekim | ABD hükümeti eseri, telif dışı (17 U.S.C. § 105); sitenin kendi şartlar sayfası 403 | **kuyruk** |
+| tass.com | RSS, 100 öğe | "RSS akışlarında, veri tabanlarında … yazılı izin olmadan kullanım yasaktır" | kapalı |
+| icrc.org | RSS, 100 öğe | yalnızca "bütünüyle" ve "değişiklik yapmadan" kopyalama; alıntı bir değişikliktir | kapalı |
+| reliefweb.int | RSS, 20 öğe | üçüncü taraf içeriği kendi hakları altında toplar; şartlar sayfası 403 | kapalı |
+| en.irna.ir | RSS, 30 öğe | şartlar sayfası bulunamadı | kapalı |
+| kyivindependent.com | RSS, 15 öğe | şartlar sayfası 404 | kapalı |
+| aa.com.tr | RSS, 11–21 öğe | şartlar sayfası 404; ücretli ajans | kapalı |
+| iaea.org | RSS, 15 öğe | şartlar sayfası 402/403 | kapalı |
+| nato.int, defense.gouv.fr, bmvg.de, mod.bg, mapn.ro, mod.gov.ua, gov.kz, osce.org, eeas.europa.eu, peacekeeping.un.org | — | otomatik keşifle de bilinen yollarla da akış bulunamadı | — |
+| mod.mil.gr, geetha.mil.gr, mfa.gr, mod.gov.ge, msb.gov.tr, gov.il, timesofisrael.com | — | istemcimize 403 | — |
+
+Ölçülen verim (gerçek skorlayıcı, eşik 0,5): İngiltere MSB 20 öğeden **4** kuyruğa; ABD 40 öğeden
+**0** — filtre bölge kapılı, bu haftanın ABD duyuruları yurt içi. Yani darboğaz filtre değil,
+kaynak: bölgedeki savunma bakanlıklarının çoğu ya akış sunmuyor ya da dürüst istemciyi engelliyor.

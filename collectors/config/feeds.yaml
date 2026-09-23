@@ -29,8 +29,81 @@
 #   mod.gov.az          no terms page; footer asserts ministry copyright. -> stays off
 #   sana.sy             terms page exists but states no reuse permission. -> stays off
 #
+#
+# Terms review of 2026-09-23 — 35 candidate feeds probed with our own client; what passed and why:
+#
+#   gov.uk (MoD)        Open Government Licence v3: "copy, publish, distribute and transmit",
+#                       "adapt", commercial or not, on condition of attribution. -> queue
+#   defense.gov         Works of the United States Government are not subject to copyright
+#                       (17 U.S.C. § 105). The site's own terms page answers 403 to a reader, so
+#                       the statute is the page cited. -> queue (releases + news)
+#   tass.com            "prohibited to Use the Text Materials ... in RSS feeds, or databases
+#                       without the written consent of TASS" -> off
+#   icrc.org            copying permitted only "entirely" with "no modifications"; an excerpt is
+#                       a modification -> off
+#   reliefweb.int       aggregates third-party content under those parties' rights; terms page
+#                       403 to a reader -> off
+#   irna.ir             feed answers (30 items/day) but no terms page could be found -> off
+#   kyivindependent.com terms page 404 -> off      aa.com.tr  terms page 404, paid wire -> off
+#   nato.int, defense.gouv.fr, bmvg.de, mod.bg, mapn.ro (410), mod.gov.ua, gov.kz, osce.org,
+#   eeas.europa.eu, peacekeeping.un.org: no feed found by autodiscovery or on known paths
+#   mod.mil.gr, geetha.mil.gr, mfa.gr, mod.gov.ge, msb.gov.tr, gov.il, timesofisrael: 403 to
+#   our client; we do not send a browser User-Agent to get past a block.
+#
 # Disabled feeds can still be tried locally:  gt-collect --feed <id> --dry-run
 feeds:
+  - id: atom-gbr-mod
+    kind: rss
+    name: UK Ministry of Defence — news and communications
+    country: GBR
+    url: https://www.gov.uk/search/news-and-communications.atom?organisations%5B%5D=ministry-of-defence
+    cadence_minutes: 60
+    lang: en
+    regions: [global]
+    enabled: false
+    queue: true
+    terms: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+    secrets: []
+    notes: >-
+      Open Government Licence v3. ~20 items per fetch, updated several times a day; carries
+      deployments, exercises and procurement announcements across NATO's eastern and southern
+      flanks. Attribution: "Contains public sector information licensed under the OGL v3.0."
+      Measured 2026-09-23: 4 of 20 items reached the queue (Saudi support, Ukraine air defence,
+      Poland air defence).
+
+  - id: rss-usa-dod-releases
+    kind: rss
+    name: US Department of Defense — news releases
+    country: USA
+    url: https://www.defense.gov/DesktopModules/ArticleCS/RSS.ashx?ContentType=1&Site=945&max=20
+    cadence_minutes: 60
+    lang: en
+    regions: [global]
+    enabled: false
+    queue: true
+    terms: https://www.law.cornell.edu/uscode/text/17/105
+    secrets: []
+    notes: >-
+      Public domain as a work of the US Government (17 U.S.C. § 105); defense.gov's own terms
+      page answers 403 to our client, so the statute is cited. The feed redirects to war.gov
+      (the department's current name); items link there. Contracts, deployments, CENTCOM and
+      EUCOM releases. 20 items per fetch. Measured 2026-09-23: 0 of 20 items matched a watch
+      region — the filter is region-gated and this week's releases were domestic.
+
+  - id: rss-usa-dod-news
+    kind: rss
+    name: US Department of Defense — news stories
+    country: USA
+    url: https://www.defense.gov/DesktopModules/ArticleCS/RSS.ashx?ContentType=800&Site=945&max=20
+    cadence_minutes: 120
+    lang: en
+    regions: [global]
+    enabled: false
+    queue: true
+    terms: https://www.law.cornell.edu/uscode/text/17/105
+    secrets: []
+    notes: Same basis as rss-usa-dod-releases; feature stories, lower signal, longer cadence.
+
   - id: rss-aze-mod
     kind: rss
     name: Azerbaijan Ministry of Defence — news
