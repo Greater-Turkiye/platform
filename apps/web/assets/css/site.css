@@ -969,6 +969,9 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .n-limit { fill: none; stroke-width: 1.6; }
 .n-limit-agreed { stroke: rgba(31, 111, 178, .9); }
 .n-limit-claimed { stroke: rgba(31, 111, 178, .8); stroke-dasharray: 6 4; }
+/* A layer whose usefulness depends on the zoom should say so where it is switched on. */
+.n-lyr-note { display: block; font-size: 10px; line-height: 1.45; color: var(--t3);
+  margin-top: 2px; }
 .n-cell { fill: var(--amber); }
 /* Announced activity, in five bands. The steps are opacity rather than five colours so the wash
    still reads as one quantity, and so a cell costs one class instead of its own style rule. */
