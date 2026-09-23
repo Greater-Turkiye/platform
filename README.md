@@ -396,6 +396,23 @@ an exclusion hides a rotted citation as effectively as it hides a firewall. The 
 the Wayback archive whether each excluded source has a copy at all, because an excluded source is
 otherwise entirely unwatched.
 
+### Performans bütçeleri neyi ölçer / what the budgets measure
+
+`tools/perf/runs.json` içindeki her koşu `p90`, `p99` ve `longTaskMs` ile sınırlanır. Bütçelerde
+**`worst` yok** ve bu bilerek: koşular adımlar arasında boşta kaldığında `requestAnimationFrame`
+tetiklenmeyi bırakır — sunulacak bir şey yoktur — ve arada kalan boşluk tek bir dev kare olarak
+kaydedilir. Kanıt sayıların kendisinde: kesintisiz küre çeviren `home-idle` en kötü **133 ms**
+ölçerken, yüklendikten sonra duran `panel-phone` **bloke süresi sıfırken 1.767 ms** ölçüyor. Hiçbir
+şey, hiç iş yapmadan bir kareyi 1,7 saniye tutamaz.
+
+Yani `worst` çoğu zaman donmayı değil, **rAF açlığını** ölçer; ona bütçe koymak hareketsizliği
+cezalandırmak olurdu. Dürüst çift `p99` ve `longTaskMs`'tir: p99 okuyucunun gerçekten beklediği bir
+karedir, bloke süre ise ana iş parçacığının gerçekten meşgul olduğu süredir.
+
+Every run is bounded by `p90`, `p99` and `longTaskMs`. `worst` is reported but never budgeted: in a
+run that goes idle, rAF stops firing and the gap is recorded as one enormous frame. p99 and blocked
+time are the honest pair.
+
 ### Boru hattı kendi durumunu söyler / the pipeline reports itself
 
 ```bash

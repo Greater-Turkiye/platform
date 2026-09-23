@@ -10,6 +10,17 @@
  * scripted interaction in `runs.json`, and reports three things per run:
  *
  *   frame times      p50 / p90 / p99 and the worst frame, from requestAnimationFrame
+ *
+ * A word on `worst`, which is reported but deliberately not budgeted. In a run that goes idle —
+ * and most of these do, between scripted steps — requestAnimationFrame stops firing, because
+ * nothing is animating and there is nothing to present. The gap that leaves is recorded as one
+ * enormous frame. The evidence is in the numbers themselves: home-idle animates a globe without
+ * pause and its worst frame is 133 ms, while panel-phone sits still after load and reports 1,767 ms
+ * with zero blocked time. Nothing can hold a frame for 1.7 seconds without doing any work.
+ *
+ * So `worst` measures rAF starvation more often than it measures jank, and a budget on it would
+ * fail on stillness. `p99` and `longTaskMs` are the honest pair: p99 is a frame the reader waited
+ * for, and blocked time is the main thread actually being busy.
  *   long tasks       how much of the wall clock the main thread was blocked, from PerformanceObserver
  *   where it went    script, layout and style time, layout and restyle counts, from Performance.getMetrics
  *
