@@ -154,6 +154,36 @@ The basemap's boundary and country-label layers are dropped from the style **bef
 - Zaman çizelgesi ve yoğunluk görünümü / timeline and density views
 - Cloudflare Access arkasında `/admin` (bkz. ARCHITECTURE.md) / `/admin` behind Cloudflare Access
 
+### Zoom, verinin taşıyabileceği kadar / zoom is a promise about the data
+
+`GT.map.HONEST_ZOOM`, bir kıyı çizgisinin dürüstçe ne kadar yakınlaştırılabileceğini tutar ve
+sayfalar `scaleExtent`'lerini oradan alır.
+
+Natural Earth 1:10m, adı üstünde 1:10.000.000 ölçekli haritalar için çizilmiştir. Gönderdiğimiz
+dosya üzerinde ölçüldü: Marmara çevresinde kıyı çizgisinin **ortanca kenarı 1.564 m**, p90'ı
+4.773 m.
+
+| zoom | 1 piksel | ortanca kenar |
+|---|---|---|
+| 2× | 886 m | 1,8 px |
+| **4×** | **443 m** | **3,5 px** |
+| 8× | 222 m | 7,1 px |
+| 24× | 74 m | **21,2 px** |
+
+24×'te kıyı, gözle görülür bir düz çizgiler zinciri hâline geliyordu: harita, verinin sahip olmadığı
+bir hassasiyeti iddia ediyordu. Deniz paneli 24×'e, hava paneli 16×'ya izin veriyordu; ikisi de
+**4×**'e indi.
+
+Daha derine inmek mümkün ama bedava değil: detayı taşıyan bir kaynak gerekir. Panel bunu zaten doğru
+yapıyor — 1,6×'ta vektör karolarını devreye sokuyor ve 192×'e kadar çıkıyor. Deniz ve hava panelleri
+için aynı yol açık; o yapılana kadar sınır verinin sınırıdır.
+
+Bu motorun zorlayabileceği bir şey değil, çünkü sayfanın ne çizdiğine bağlı. Bu yüzden `scaleExtent`
+artık cömert bir varsayılana düşmüyor: sayfa sayıyı bilerek seçer.
+
+`scaleExtent` no longer has a generous default to fall into. The honest maximum is a fact about the
+page's own data, measured and recorded, not a property of the engine.
+
 ### Deniz kara boyamaz / the sea does not paint the land
 
 Deniz alanları ile haritada çizilen kıyı, aynı kıyının iki farklı genelleştirmesidir ve
