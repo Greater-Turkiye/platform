@@ -262,7 +262,15 @@
        it steps back rather than becoming a field of grey squares over the coast. The fade is one
        opacity on the group — setting it per cell meant fifteen hundred style recalculations on
        every frame of a zoom, which measured as 1.2 s of style time across five transitions. */
-    if (gCells) gCells.attr('opacity', Math.max(0.2, Math.min(1, 1.25 - k / 10)).toFixed(3));
+    /* The grid is a 0.25 degree raster: each cell is 21 km on the ground, 12 px at the overview
+       and 49 px at 4x. At the overview that is a picture of where activity concentrates; zoomed
+       in it is a row of blocks the size of a province, which says nothing the reader can use and
+       covers the coast while saying it. So it is an overview layer and fades out by 2.5x.
+
+       The old curve (1.25 - k/10) was written for a map that went to 24x and only reached its
+       floor near the top. Capping the zoom at 4x left it at 0.85 everywhere — the blocks never
+       went away. */
+    if (gCells) gCells.attr('opacity', Math.max(0, Math.min(1, (2.5 - k) / 1.5)).toFixed(3));
   }
 
   function fmtUnc(m) {
