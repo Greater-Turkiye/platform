@@ -666,6 +666,24 @@
      add a country only with a signed agreement and a primary or reputable source.
      tier "ally" = mutual defence commitment, "coop" = defence / military cooperation agreement. */
   GT.AGREEMENTS = {
+    /* Russia is neither an ally nor a defence-cooperation partner and is not drawn as one. It is
+       the counterparty of two strategic programmes that are matters of public record: the Akkuyu
+       nuclear power plant (intergovernmental agreement, Ankara, 12 May 2010, approved by Law 6007,
+       Official Gazette 27721 of 6 Oct 2010) and the S-400 air defence system (contract 2017, first
+       deliveries to Mürted, 12 Jul 2019). A tier of its own, so the map can say "programme partner"
+       without saying "partner". */
+    'akkuyu-2010': {
+      tr: 'Akkuyu Nükleer Güç Santrali · hükûmetler arası anlaşma, 12 May 2010 (6007 sayılı Kanun; RG 27721, 6 Eki 2010)',
+      en: 'Akkuyu nuclear power plant · intergovernmental agreement, 12 May 2010 (Law 6007; Official Gazette 27721, 6 Oct 2010)',
+      sources: ['https://www5.tbmm.gov.tr/tutanaklar/KANUNLAR_KARARLAR/kanuntbmmc094/kanuntbmmc094/kanuntbmmc09406007.pdf',
+        'https://policy.asiapacificenergy.org/sites/default/files/Akkuyu%20Nuclear%20Power%20Plant%20Agreement%20(TR).pdf'],
+    },
+    's400-2017': {
+      tr: 'S-400 hava ve füze savunma sistemi · sözleşme 2017; ilk teslimat Mürted, 12 Tem 2019',
+      en: 'S-400 air and missile defence system · contract 2017; first delivery at Mürted, 12 Jul 2019',
+      sources: ['https://www.msb.gov.tr/SlaytHaber/1592019-20338',
+        'https://www.aa.com.tr/tr/turkiye/s-400-teslimati-basladi/1529681'],
+    },
     mecca: {
       tr: 'Mekke Ortak Savunma Anlaşması · 7 Ağu 2026 (imzalandı; TBMM onayı bekleniyor)',
       en: 'Mecca Joint Defence Agreement · 7 Aug 2026 (signed; awaiting approval by the Turkish parliament)',
@@ -927,6 +945,7 @@
     BFA: { tier: 'frame', agreement: 'tbmm-ind' },
     MDA: { tier: 'frame', agreement: 'tbmm-edu' },
     MLI: { tier: 'frame', agreement: 'tbmm-sec' },
+    RUS: { tier: 'strategic', agreement: 'akkuyu-2010', also: ['s400-2017'], badges: ['nuclear', 'arms'] },
     KAZ: { tier: 'kin', agreement: 'ots' },
     KGZ: { tier: 'kin', agreement: 'ots' },
     UZB: { tier: 'kin', agreement: 'ots' },
@@ -953,11 +972,26 @@
     const p = GT.PARTNERS[a3];
     return (p ? ' m-' + p.tier + (p.presence ? ' m-presence' : '') : '') + (GT.NATO.has(a3) ? ' m-nato' : '');
   };
+  /* The small marks beside a country's name. Each one is a fact already on the map — the tier,
+     NATO membership, an official presence, a programme — drawn as a glyph so a reader can tell at
+     a glance what kind of relationship it is without decoding four shades of red. Nothing here is
+     a claim the fills do not already make; it is the same table read twice. At most three marks,
+     in a fixed order, so the row means the same thing under every country. */
+  GT.partnerBadges = (a3) => {
+    const p = GT.PARTNERS[a3];
+    const out = [];
+    if (GT.NATO.has(a3)) out.push('nato');
+    if (p && p.tier !== 'strategic') out.push(p.tier);
+    if (p && p.presence) out.push('presence');
+    for (const b of (p && p.badges) || []) out.push(b);
+    return out.slice(0, 3);
+  };
   GT.partnerLabel = (a3) => {
     const p = GT.PARTNERS[a3];
     const bits = [];
     if (p) {
       bits.push(GT.txt(GT.AGREEMENTS[p.agreement]));
+      for (const a of p.also || []) bits.push(GT.txt(GT.AGREEMENTS[a]));
       if (p.kin && p.agreement !== 'ots') bits.push(GT.txt(GT.AGREEMENTS.ots));
       if (p.observer) bits[bits.length - 1] += GT.lang === 'tr' ? ' (gözlemci)' : ' (observer)';
       if (p.presence) bits.push(GT.t('lg.presence'));
@@ -969,6 +1003,8 @@
     }
     return bits.join(' · ');
   };
+  Object.assign(I18N.tr, { 'lg.strategic': 'Stratejik program ortağı (nükleer, silah) · ittifak değil', 'lg.badges': 'Rozetler: ittifak türü ve program', 'bd.nato': 'NATO', 'bd.ally': 'Müttefik', 'bd.coop': 'Savunma işbirliği', 'bd.frame': 'Çerçeve anlaşması', 'bd.kin': 'Türk Devletleri Teşkilatı', 'bd.presence': 'TSK varlığı', 'bd.nuclear': 'Nükleer program', 'bd.arms': 'Silah sistemi programı' });
+  Object.assign(I18N.en, { 'lg.strategic': 'Strategic programme partner (nuclear, arms) · not an alliance', 'lg.badges': 'Marks: kind of alliance and programme', 'bd.nato': 'NATO', 'bd.ally': 'Ally', 'bd.coop': 'Defence cooperation', 'bd.frame': 'Framework agreement', 'bd.kin': 'Organization of Turkic States', 'bd.presence': 'Turkish military presence', 'bd.nuclear': 'Nuclear programme', 'bd.arms': 'Arms-system programme' });
   Object.assign(I18N.tr, { 'lg.ally': 'Müttefik · karşılıklı savunma', 'lg.coop': 'Savunma işbirliği anlaşması', 'lg.kin': 'Türk Devletleri Teşkilatı', 'lg.presence': 'Resmî TSK varlığı (ülke düzeyi)' });
   Object.assign(I18N.en, { 'lg.ally': 'Ally · mutual defence', 'lg.coop': 'Defence cooperation agreement', 'lg.kin': 'Organization of Turkic States', 'lg.presence': 'Official Turkish military presence (country level)' });
   Object.assign(I18N.tr, {
@@ -1448,6 +1484,24 @@
     tg.append('stop').attr('offset', '100%').attr('stop-color', '#99001c');
     const f = defs.append('filter').attr('id', 'glow').attr('x', '-30%').attr('y', '-30%').attr('width', '160%').attr('height', '160%');
     f.append('feGaussianBlur').attr('stdDeviation', 7);
+    /* Badge glyphs, drawn once and referenced by <use>. Plain geometry, 10x10, no brand marks:
+       the NATO star and the OTS emblem are trademarks, so these are the generic shapes a chart
+       would use — a compass rose for the alliance, an eight-point star for the Turkic states. */
+    const sym = (id, d, extra) => {
+      const s = defs.append('symbol').attr('id', 'bd-' + id).attr('viewBox', '0 0 10 10');
+      s.append('path').attr('d', d);
+      if (extra) extra(s);
+    };
+    sym('nato', 'M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z');
+    sym('ally', 'M5 0.5 L9 2 V5.2 C9 7.6 7.2 9 5 9.7 C2.8 9 1 7.6 1 5.2 V2 Z');
+    sym('coop', 'M2.2 5 A2.8 2.8 0 1 0 7.8 5 A2.8 2.8 0 1 0 2.2 5 Z M4 5 A1 1 0 1 0 6 5 A1 1 0 1 0 4 5 Z');
+    sym('frame', 'M1.5 1.5 H8.5 V8.5 H1.5 Z M3 3 H7 V7 H3 Z');
+    sym('kin', 'M5 0 L6 3.6 L9.5 1.5 L7.4 5 L10 6 L6.4 6.4 L5 10 L3.6 6.4 L0 6 L2.6 5 L0.5 1.5 L4 3.6 Z');
+    sym('presence', 'M2 0.5 H3 V9.5 H2 Z M3 1 L9 3 L3 5 Z');
+    // the trefoil as ISO 21482 draws it: three 60-degree sectors and a hub
+    sym('nuclear', 'M5 5 L5 0.5 A4.5 4.5 0 0 1 8.9 2.75 Z M5 5 L8.9 7.25 A4.5 4.5 0 0 1 1.1 7.25 Z M5 5 L1.1 2.75 A4.5 4.5 0 0 1 5 0.5 Z',
+      (s) => s.append('circle').attr('cx', 5).attr('cy', 5).attr('r', 1.1));
+    sym('arms', 'M5 0 L6.6 3 V7 L8 9 H6.2 L5 7.6 L3.8 9 H2 L3.4 7 V3 Z');
     // hatch for territory under occupation (Palestine, Golan, Crimea)
     const h = defs.append('pattern').attr('id', 'occHatch').attr('width', 6).attr('height', 6)
       .attr('patternUnits', 'userSpaceOnUse').attr('patternTransform', 'rotate(45)');
