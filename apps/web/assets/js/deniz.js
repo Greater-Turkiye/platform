@@ -136,34 +136,80 @@
 
   /* Where activity was announced, as a wash under the limits rather than over them. Only the
      military class is drawn, which is what the sea board counts. */
+  /* Where activity was announced, as a density surface rather than the boxes it was counted in.
+   *
+   * The tally is a 0.25 degree grid: a cell is 21 km on the ground. Drawing those cells — as
+   * squares or as discs — draws a boundary the data does not have. The box edge is an artefact of
+   * the arithmetic, not a line anything happened along, and at any zoom it reads as a claim about
+   * exactly where activity stopped.
+   *
+   * So the grid is treated as what it is, samples of a continuous field, and drawn the way a
+   * topographic map draws one: upsampled, smoothed, and cut into nested bands with no hard edge
+   * between them. Marching squares (d3.contours) does the cutting.
+   *
+   * This is interpolation and it is stated as such in the legend and in MSI-ACTIVITY-SOURCES.md.
+   * What the data supports is "more here than there", and a smoothed surface says exactly that,
+   * where a grid of tiles says something sharper than the tally can carry.
+   */
+  const SUPERSAMPLE = 3;   // samples per grid cell; enough that the bands are curves, not staircases
+  const BLUR = 2.5;        // in samples, so about one cell: smooths the bin edges, keeps the shape
+  const BANDS = 5;
+
   function drawActivity() {
     gCells = gRoot.append('g').attr('class', 'n-cells');
     if (waterMask) gCells.attr('mask', waterMask);
-    const g = gCells;
     if (!density || !lyr.act.checked) return;
     const step = (density.method && density.method.cell_deg) || 0.25;
     const cells = density.cells.filter(([lon, lat, mil]) =>
       mil > 0 && lon >= VIEW[0][0] && lon <= VIEW[1][0] && lat >= VIEW[0][1] && lat <= VIEW[1][1]);
-    const peak = Math.max(1, ...cells.map((c) => c[2]));
+    if (!cells.length) return;
+
+    const sub = step / SUPERSAMPLE;
+    const lon0 = VIEW[0][0];
+    const lat0 = VIEW[0][1];
+    const w = Math.ceil((VIEW[1][0] - lon0) / sub) + 1;
+    const h = Math.ceil((VIEW[1][1] - lat0) / sub) + 1;
+    const values = new Float64Array(w * h);
+
+    // each cell's count spread over the samples it covers, so upsampling does not invent height
     for (const [lon, lat, mil] of cells) {
-      const share = mil / peak;
-      if (share < 0.05) continue;
-      const a = proj([lon, lat]);
-      const b = proj([lon + step, lat + step]);
-      /* A warning is broadcast to mariners, so its cell belongs on the water. The grid is coarse
-         enough that a quarter-degree square anchored at sea still reaches inland, and a wash over
-         Anatolia or Ukraine reads as a claim about the land that nothing here supports. */
-      if (onLand((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)) continue;
-      /* Five steps, not a smooth fade. A continuous opacity put the weakest cells at eight per
-         cent over blue water, which is not "a little activity" but a grey haze the eye reads as
-         dirt on the chart. Banded, a cell either says something or is not drawn, and the legend
-         can name what each band means. */
-      const tier = Math.min(5, 1 + Math.floor(Math.sqrt(share) * 5));
-      g.append('rect')
-        .attr('x', Math.min(a[0], b[0])).attr('y', Math.min(a[1], b[1]))
-        .attr('width', Math.abs(b[0] - a[0])).attr('height', Math.abs(b[1] - a[1]))
-        .attr('class', 'n-cell n-cell-' + tier);
+      const i0 = Math.round((lon - lon0) / sub);
+      const j0 = Math.round((lat - lat0) / sub);
+      for (let dj = 0; dj < SUPERSAMPLE; dj += 1) {
+        const jj = j0 + dj;
+        if (jj < 0 || jj >= h) continue;
+        for (let di = 0; di < SUPERSAMPLE; di += 1) {
+          const ii = i0 + di;
+          if (ii < 0 || ii >= w) continue;
+          values[jj * w + ii] = mil;
+        }
+      }
     }
+    d3.blur2({ data: values, width: w, height: h }, BLUR);
+
+    const peak = Math.max(...values);
+    if (!(peak > 0)) return;
+    // thresholds on the square root, because a handful of cells carry most of the count and a
+    // linear ladder would put four of the five bands inside them
+    const thresholds = d3.range(1, BANDS + 1).map((n) => peak * (n / (BANDS + 1)) ** 2);
+    const bands = d3.contours().size([w, h]).thresholds(thresholds)(values);
+
+    /* Grid space is not screen space: a sample index becomes a lon/lat, and Mercator is not linear
+       in latitude, so every vertex is projected rather than the ring being scaled. */
+    const toScreen = (ring) => {
+      let d = '';
+      for (let n = 0; n < ring.length; n += 1) {
+        const p = proj([lon0 + ring[n][0] * sub, lat0 + ring[n][1] * sub]);
+        d += (n ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+      }
+      return d + 'Z';
+    };
+
+    bands.forEach((band, n) => {
+      let d = '';
+      for (const poly of band.coordinates) for (const ring of poly) d += toScreen(ring);
+      if (d) gCells.append('path').attr('class', 'n-cell n-cell-' + (n + 1)).attr('d', d);
+    });
   }
 
   function drawAreas() {
@@ -262,15 +308,11 @@
        it steps back rather than becoming a field of grey squares over the coast. The fade is one
        opacity on the group — setting it per cell meant fifteen hundred style recalculations on
        every frame of a zoom, which measured as 1.2 s of style time across five transitions. */
-    /* The grid is a 0.25 degree raster: each cell is 21 km on the ground, 12 px at the overview
-       and 49 px at 4x. At the overview that is a picture of where activity concentrates; zoomed
-       in it is a row of blocks the size of a province, which says nothing the reader can use and
-       covers the coast while saying it. So it is an overview layer and fades out by 2.5x.
-
-       The old curve (1.25 - k/10) was written for a map that went to 24x and only reached its
-       floor near the top. Capping the zoom at 4x left it at 0.85 everywhere — the blocks never
-       went away. */
-    if (gCells) gCells.attr('opacity', Math.max(0, Math.min(1, (2.5 - k) / 1.5)).toFixed(3));
+    /* The surface is interpolated from 21 km bins, so it is honest about where activity
+       concentrates and says nothing trustworthy about a coastline. It stays legible through the
+       useful range and recedes rather than disappearing: at a close zoom the register marks and
+       the limits are what the reader came for, and the wash should be behind them. */
+    if (gCells) gCells.attr('opacity', Math.max(0.22, Math.min(1, (4.2 - k) / 2)).toFixed(3));
   }
 
   function fmtUnc(m) {

@@ -184,6 +184,32 @@ artık cömert bir varsayılana düşmüyor: sayfa sayıyı bilerek seçer.
 `scaleExtent` no longer has a generous default to fall into. The honest maximum is a fact about the
 page's own data, measured and recorded, not a property of the engine.
 
+### Faaliyet katmanı: kutular değil, yüzey / the activity layer is a surface
+
+Sayım 0,25 derecelik bir ızgaradadır — bir hücre yerde ~21 km. Bu hücreleri **kare olarak
+çizmiyoruz**, çünkü kutu kenarı sayımın aritmetiğinden kalan bir izdir; bir olayın durduğu çizgi
+değil. Kare çizmek, verinin taşımadığı bir kesinliği iddia etmektir.
+
+Izgara olduğu şey gibi ele alınır: sürekli bir alanın örnekleri. Üç kat üst-örneklenir, ~bir hücre
+yarıçapıyla yumuşatılır (`d3.blur2`), marching squares ile iç içe bantlara ayrılır (`d3.contours`).
+Eşikler sayının kareköküne konur; sayımın büyük kısmını birkaç hücre taşıdığı için doğrusal bir
+merdiven beş bandın dördünü onların içine sıkıştırırdı.
+
+Denenip bırakılanlar, sırasıyla: **kare** (kutu kenarı yalan söylüyordu), **disk** (her hücre ayrı
+eleman olduğu için üst üste binenler koyulaşıyor, baloncuk gibi duruyordu), **kademe başına tek
+path'te birleşik diskler** (koyulaşma bitti ama köşegen aralarda delikler kaldı). Yüzey üçünü de
+çözdü.
+
+Yan kazanç: **beş eleman**, önceki ~1.500 yerine. `deniz-zoom` en kötü kare 1.100 → **267 ms**,
+SVG düğümü 11.919 → 2.198.
+
+Bu bir ara değerlemedir ve legend ile `MSI-ACTIVITY-SOURCES.md` bunu söyler: iki bant arasındaki
+sınır bir çizim eşiğidir, bir sınır değil.
+
+Counts live on a 0.25° grid. Drawing those cells as squares draws a boundary the data does not
+have, so the grid is upsampled, smoothed and cut into nested bands with marching squares. Five
+elements replace about fifteen hundred.
+
 ### Deniz kara boyamaz / the sea does not paint the land
 
 Deniz alanları ile haritada çizilen kıyı, aynı kıyının iki farklı genelleştirmesidir ve
