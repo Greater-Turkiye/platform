@@ -14,6 +14,11 @@ on:
         description: Feed URLs, separated by spaces or newlines
         required: true
         type: string
+      show:
+        description: Also print the first N bytes of each body (0 = none)
+        required: false
+        default: "0"
+        type: string
 
 permissions:
   contents: read
@@ -30,7 +35,8 @@ jobs:
       - name: Probe
         env:
           URLS: ${{ inputs.urls }}
+          SHOW: ${{ inputs.show }}
         run: |
           printf '%s\n' "$URLS" | tr ' ' '\n' > "$RUNNER_TEMP/urls.txt"
-          python tools/collectors/probe_feeds.py --file "$RUNNER_TEMP/urls.txt" | tee "$RUNNER_TEMP/probe.txt"
+          python tools/collectors/probe_feeds.py --show "${SHOW:-0}" --file "$RUNNER_TEMP/urls.txt" | tee "$RUNNER_TEMP/probe.txt"
           { echo '### Probe'; echo; echo '```'; cat "$RUNNER_TEMP/probe.txt"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"

@@ -28,7 +28,7 @@ ITEM = re.compile(rb"<item[\s>]|<entry[\s>]")
 ACCEPT = "application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.5"
 
 
-def probe(url: str) -> tuple[str, str, int, str]:
+def probe(url: str, show: int = 0) -> tuple[str, str, int, str, str]:
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": ACCEPT})
     try:
         with urllib.request.urlopen(req, timeout=25, context=ssl.create_default_context()) as r:
@@ -36,9 +36,9 @@ def probe(url: str) -> tuple[str, str, int, str]:
             final = r.geturl()
             status = str(r.status)
     except urllib.error.HTTPError as e:
-        return url, f"HTTP {e.code}", 0, ""
+        return url, f"HTTP {e.code}", 0, "", ""
     except Exception as e:  # noqa: BLE001 - a probe reports, it does not fail
-        return url, f"{type(e).__name__}: {str(e)[:60]}", 0, ""
+        return url, f"{type(e).__name__}: {str(e)[:60]}", 0, "", ""
     head = body[:600].lstrip().lower()
     if b"<feed" in head:
         kind = "atom"
@@ -48,13 +48,16 @@ def probe(url: str) -> tuple[str, str, int, str]:
         kind = "html"
     else:
         kind = "?"
-    return url, f"{status} {kind}", len(ITEM.findall(body)), final if final != url else ""
+    preview = body[:show].decode("utf-8", "replace").replace("
+", " ") if show else ""
+    return url, f"{status} {kind}", len(ITEM.findall(body)), final if final != url else "", preview
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("urls", nargs="*")
     ap.add_argument("--file", type=Path, help="one URL per line; blank lines and # comments skipped")
+    ap.add_argument("--show", type=int, default=0, metavar="N", help="also print the first N bytes of each body")
     args = ap.parse_args()
     urls = list(args.urls)
     if args.file:
@@ -67,9 +70,11 @@ def main() -> int:
         ap.error("no URLs")
     socket.setdefaulttimeout(25)
     with ThreadPoolExecutor(8) as ex:
-        rows = list(ex.map(probe, urls))
-    for url, status, n, final in rows:
+        rows = list(ex.map(lambda u: probe(u, args.show), urls))
+    for url, status, n, final, preview in rows:
         print(f"{status:<28} {n:>4}  {url}" + (f"  -> {final}" if final else ""))
+        if preview:
+            print(f"    | {preview}")
     return 0
 
 
