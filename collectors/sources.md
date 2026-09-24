@@ -205,3 +205,41 @@ Replayed the day's batch: 141 of 189 rejected items had a region and no topic. T
 Yöntem `collectors/README.md`'de: terim tahminle değil, partiyi yeniden puanlayıp kazanılanları
 okuyarak eklenir.
 
+## 2026-09-24 — üçüncü tarama / third survey
+
+115 aday, toplayıcının kendi kimliğiyle. 32'si akış verdi; şartları okunabilen ve bağlantı +
+alıntıya izin verenler kuyruğa alındı. Yayıncıya göre güvenilirlik notu `feeds.yaml`'da, gerekçesiyle.
+
+| kaynak | akış | şartlar | karar |
+|---|---|---|---|
+| government.ru (en, ru) | RSS, 20 öğe / 2 hafta | "Все материалы сайта доступны по лицензии: Creative Commons Attribution 4.0" | **kuyruk**, C |
+| ukrinform.net — savaş bölgesi | RSS, ~30/gün | alıntıda ukrinform.net bağlantısı "ilk paragraftan aşağıda olmamak üzere" zorunlu | **kuyruk**, C |
+| balkaninsight.com (BIRN) | RSS, 90 öğe | yeniden yayın politikası: kısa alıntı + atıf + bağlantı serbest; toplu kopyalama ve yapay zekâ eğitimi yasak | **kuyruk**, B; 3 saatte bir |
+| atlanticcouncil.org | RSS, 100 öğe | ticari olmayan kopyaya izin, telif notu korunarak; insan hızını aşan otomatik erişim yasak | **kuyruk**, C; 6 saatte bir |
+| aljazeera.com | RSS, 25 | "spider, scraper, bot" ile erişim yazılı izinsiz yasak | kapalı |
+| civil.ge | RSS, 10 | "kopyalama, yeniden yayın" ve "otomatik araçlar" yasak; lisans için iletişim | kapalı |
+| defensenews.com, twz.com (Recurrent) | RSS | izinsiz kopya/yeniden yayın yasak | kapalı |
+| cyprus-mail.com | RSS, 20 | içerik "yalnızca kişisel kullanım ve bilgi için" | kapalı |
+| csis.org | RSS, 10 | yalnızca sınıf/konferans için talep üzerine yeniden basım izni | kapalı |
+| crisisgroup.org | RSS, 7 | telif bildirimi sayfası istemcimize 403 | okunamadı |
+| esteri.it | RSS, 10 | yasal uyarı sayfası bot yöneticisine (Radware) yönlendiriyor | okunamadı |
+| president.az, akorda.kz, azertag.az, operationirini.eu (Fabaris SpA), navalnews.com, orsam.org.tr, savunmasanayist.com | RSS | şartlar sayfası yok; yalnızca "tüm hakları saklıdır" | şartlar yok, kapalı |
+| en.mehrnews.com | RSS, 30 | şartlar yok | kapalı; not sınırının altında kalırdı |
+| haaretz.com | RSS, 100 | kullanıcı içeriği şartları; yeniden kullanım maddesi yok | kapalı |
+| state.gov, whitehouse.gov, consilium, diplomatie.gouv.fr, gov.il, ispr.gov.pk, pib.gov.in, mfa.gr, primeminister.gr, pio.gov.cy, mfa.gov.ua, president.gov.ua, mod.gov.al, suna-sd.net, nna-leb.gov.lb, understandingwar.org, iiss.org, ecfr.eu, chathamhouse.org, timesofisrael.com, ekathimerini.com, arabnews.com, breakingdefense.com | — | istemcimize 403/404 | — |
+| navy.mil, centcom.mil, eucom.mil, africom.mil, c6f.navy.mil | — | ad çözümlenmiyor (üçüncü ağ) | runner'dan denenecek |
+| shape.nato.int, sis.gov.eg, gnu.gov.ly | — | TLS zinciri doğrulanmıyor | kapalı (doğrulama kapatılmaz) |
+| nato.int, osce.org, unifil/unficyp/unsmil, unocha, eeas, europarl, sipri, rusi, janes, trtworld, mfa.gov.tr, tccb.gov.tr, msb.gov.tr, resmigazete.gov.tr, spa.gov.sa, wam.ae, petra.gov.jo, mid.ru | — | bilinen yollarda akış yok ya da HTML | — |
+
+Ölçülen verim (gerçek skorlayıcı, eşik 0,5), beş akışın ilk çekimi: 260 öğeden **61** kuyruğa —
+Ukrinform 24/30, Balkan Insight 19/90, Atlantic Council 15/100, government.ru 3/20 (en), 0/20 (ru).
+Bir gün önce günlük kuyruk 6'ydı; konu tablosuyla 16; bu beş akışla ilk gün 60'ın üzerinde, sonra
+Ukrinform'un ~25/gün'ü ile Balkan Insight ve Atlantic Council'ın haftalık birkaç düzinesi. `--max-items 40`
+fazlasını sonraki çalıştırmaya erteler; sıralama puanla, karar gözden geçirenin.
+
+Third survey: 115 candidates, 32 served a feed, five queued (government.ru en/ru under CC BY 4.0,
+Ukrinform's war-zone rubric with the mandatory link, Balkan Insight under its excerpt-and-credit
+policy, the Atlantic Council under its noncommercial-copies clause). First fetch: 61 of 260 items
+reached the queue. The rest are closed by their terms, unreadable to our client, or have no terms
+page at all, which under the queue rule is the same as no.
+
