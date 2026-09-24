@@ -87,6 +87,29 @@ def test_topic_alone_is_not_enough() -> None:
     assert score.score == 0 and not score.relevant
 
 
+def test_a_statement_issued_about_a_watch_region_is_a_topic() -> None:
+    """Before 2026-09-24 the Council condemning attacks in the Red Sea matched a region and no topic."""
+    score = default_table().assess(
+        item("Security Council condemns Houthi attacks on Saudi Arabia", "Members issued a press statement.")
+    )
+    assert score.region == "gulf-red-sea"
+    assert "diplomatic.statement" in score.topics and score.relevant
+
+
+def test_talks_held_with_a_watch_region_are_a_topic() -> None:
+    """A phone call between presidents is held, not issued: its own code, not a statement."""
+    score = default_table().assess(
+        item("Telephone conversation with Crown Prince of Saudi Arabia", "Vladimir Putin had a call.")
+    )
+    assert score.region == "gulf-red-sea"
+    assert "diplomatic.talks" in score.topics and score.relevant
+
+
+def test_talks_alone_still_need_a_region() -> None:
+    score = default_table().assess(item("Telephone conversation with the President of Peru", ""))
+    assert "diplomatic.talks" in score.topics and score.region is None and not score.relevant
+
+
 def test_a_title_match_outweighs_an_excerpt_match() -> None:
     table = default_table()
     in_title = table.assess(item("Airstrike reported in Syria", "Officials commented."))
