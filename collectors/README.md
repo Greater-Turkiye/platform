@@ -38,7 +38,7 @@ Rules:
 
 ## İnceleme kuyruğu / Review queue
 
-[`.github/workflows/collect.yml`](../.github/workflows/collect.yml) her gün 05:23 UTC'de (ve elle `workflow_dispatch` ile) çalışır:
+[`.github/workflows/collect.yml`](../.github/workflows/collect.yml) altı saatte bir, 05:23, 11:23, 17:23 ve 23:23 UTC'de (ve elle `workflow_dispatch` ile) çalışır (ADR 0025):
 
 1. `queue: true` işaretli akışları çeker, ayrıştırır ve normalleştirir;
 2. **güvenlik süzgeci ve coğrafi çit** bellekte, hiçbir şey yazılmadan önce çalışır;
@@ -50,7 +50,7 @@ Rules:
 
 Konudaki her satır: başlık, kaynak bağlantısı, varsa Wayback arşiv bağlantısı, bölge tahmini, ilgi puanı, akış kimliği ve tekilleştirme kimliği. Çalışma başına en çok 40 aday; gerisi bir sonraki çalışmaya kalır. Konunun başındaki uyarı, öğelerin **doğrulanmamış aday** olduğunu söyler.
 
-`.github/workflows/collect.yml` runs every day at 05:23 UTC, and on demand through `workflow_dispatch`:
+`.github/workflows/collect.yml` runs every six hours (05:23, 11:23, 17:23, 23:23 UTC, ADR 0025), and on demand through `workflow_dispatch`:
 
 1. fetch, parse and normalize the feeds marked `queue: true`;
 2. the **safety filter and the geofence** run in memory, before anything is written;

@@ -32,7 +32,7 @@ name: collect
 # published batches live on the `collector-state` branch, created by the first run.
 on:
   schedule:
-    - cron: "23 5 * * *" # 05:23 UTC daily, off the hour (Actions queues are long on the hour)
+    - cron: "23 5,11,17,23 * * *" # every six hours, off the hour (ADR 0025); one issue a day, later runs comment
   workflow_dispatch:
     inputs:
       max_items:
