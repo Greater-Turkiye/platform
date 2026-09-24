@@ -243,3 +243,24 @@ policy, the Atlantic Council under its noncommercial-copies clause). First fetch
 reached the queue. The rest are closed by their terms, unreadable to our client, or have no terms
 page at all, which under the queue rule is the same as no.
 
+### Runner'dan yoklama / probed from the runner (2026-09-24)
+
+`probe-feeds.yml` ile GitHub runner'ından, aynı kimlikle. `.mil` adları orada çözümleniyor:
+`navy.mil`, `centcom.mil` ve `cusnc.navy.mil`'in `ArticleCS/RSS.ashx` uçları 200 döndürüyor ama
+denediğimiz `Site` kimlikleriyle gövde boş; `c6f.navy.mil` `Site=1000` başka bir kurumun (bir ordu
+kliniğinin) akışını veriyor, yani kimlik uzayı paylaşımlı ve doğru kimlik sitenin basın sayfasında —
+o sayfalar (`/Press-Office/`, `/MEDIA/PRESS-RELEASES/`, `/Press-Room/`) istemcimize 403. `eucom.mil`
+ve `africom.mil` runner'dan da 403. Sonuç: **çözümlenmiyor değil, kapalı**; doğru `Site` kimliğini
+yayıncıdan ya da bir bakımcının tarayıcısından öğrenmek gerekir, tahmin edilmez.
+Runner'dan da 403: state.gov, ISW, gov.il, mfa.gr, primeminister.gr, geetha, mod.mil.gr, msb.gov.tr,
+mfa.gov.ua, president.gov.ua, consilium, diplomatie.gouv.fr, ispr, timesofisrael, ekathimerini, IISS,
+Chatham House, ECFR, Breaking Defense, gov.cy. Romanya (presidency.ro, mae.ro) runner'dan "ağ
+erişilemez". Rudaw ve Kurdistan24 akış yolunda HTML. Yalnızca **arabnews.com** runner'dan akış verdi
+(RSS, 50 öğe; buradan 403).
+
+From the runner the `.mil` hosts resolve; the RSS endpoints answer 200 with an empty body for the
+site ids we tried, and the press pages that would name the right id are 403 to our client. Closed,
+not unresolved. Everything else that refused us here refused the runner too; only Arab News differed.
+Arab News: şartlar sayfası (`/terms-conditions`, `/termsandconditions`) `backup.arabnews.com`'a
+yönlendirip 404 veriyor; akışta telif ögesi yok. Şartlar okunmadan kuyruk yok — kapalı.
+
