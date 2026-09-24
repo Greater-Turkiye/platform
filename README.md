@@ -413,6 +413,20 @@ Every run is bounded by `p90`, `p99` and `longTaskMs`. `worst` is reported but n
 run that goes idle, rAF stops firing and the gap is recorded as one enormous frame. p99 and blocked
 time are the honest pair.
 
+### Aday akışı runner'dan yoklamak / probing a candidate feed from the runner
+
+```bash
+python tools/collectors/probe_feeds.py https://example.org/feed.xml   # yerelden
+gh workflow run probe-feeds.yml -f urls="https://example.org/feed.xml" # runner'dan
+```
+
+Bazı yayıncılar bakımcının ağından çözümlenmez ya da cevap vermez (ABD komutanlıklarının `.mil`
+adresleri gibi); `probe-feeds.yml` aynı yoklamayı GitHub runner'ından, toplayıcının kendi kimliğiyle
+yapar ve her adres için tek satır yazar: durum, gövdenin türü (rss/atom/html), öğe sayısı, yönlendirme.
+Hiçbir şey saklamaz ve tarayıcı taklidi yapmaz: runner'da da reddeden yayıncı reddetmiş sayılır.
+Some publishers do not answer from a maintainer's network; the workflow runs the survey's probe from
+a runner with the collector's own User-Agent and stores nothing.
+
 ### Boru hattı kendi durumunu söyler / the pipeline reports itself
 
 ```bash
