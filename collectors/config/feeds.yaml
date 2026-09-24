@@ -454,3 +454,109 @@ feeds:
       RSS 2.0, 150 items (~133 kB), sends an ETag, but no <pubDate> on any item. iaea.org/terms-of-use
       returns 403 to every User-Agent we tried, so the licence is unconfirmed: lead only until a
       maintainer reads the terms. Relevant for nuclear safeguards news in the region.
+
+  # --- Third survey, 2026-09-24 ---------------------------------------------------------------
+  # 115 candidates probed with the collector's own client; 32 served a feed; terms could be read
+  # and allow a link plus an excerpt for the six below. Log: collectors/sources.md.
+
+  - id: rss-rus-government-en
+    kind: rss
+    name: Government of Russia — news (English)
+    country: RUS
+    source_id: null
+    url: http://government.ru/en/all/rss/
+    cadence_minutes: 120
+    lang: en
+    regions: [global]
+    enabled: false
+    queue: true
+    reliability: C
+    terms: http://government.ru/about/
+    secrets: []
+    notes: >-
+      "Все материалы сайта доступны по лицензии: Creative Commons Attribution 4.0" (site footer
+      and the About page). Cabinet decisions, decrees, ministerial meetings; the Kremlin feed
+      carries the presidency, this one the government. Graded C like the Kremlin: an official
+      source that is a party to a conflict, accurate on what it decides, silent or shaped on why.
+      ~20 items per two weeks, no ETag or Last-Modified.
+
+  - id: rss-rus-government-ru
+    kind: rss
+    name: Правительство России — новости
+    country: RUS
+    source_id: null
+    url: http://government.ru/all/rss/
+    cadence_minutes: 120
+    lang: ru
+    regions: [global]
+    enabled: false
+    queue: true
+    reliability: C
+    terms: http://government.ru/about/
+    secrets: []
+    notes: >-
+      The Russian-language feed of the same site, CC BY 4.0. Broader than the English one, which
+      is a selection "of interest to an international audience".
+
+  - id: rss-ukr-ukrinform-war-en
+    kind: rss
+    name: Ukrinform — war zone news (English)
+    country: UKR
+    source_id: null
+    url: https://www.ukrinform.net/rss/rubric-ato
+    cadence_minutes: 60
+    lang: en
+    regions: [black-sea]
+    enabled: false
+    queue: true
+    reliability: C
+    terms: https://www.ukrinform.net/info/subscribe_conditions.html
+    secrets: []
+    notes: >-
+      Ukraine's state news agency. Terms: "While citing and using any materials on the Internet,
+      links to the website ukrinform.net not lower than the first paragraph are mandatory" — the
+      queue always leads with the link. Graded C: a state agency of a party at war, quick and
+      usually accurate on events, one-sided on framing; the reviewer reads it as such. ~30 items
+      per day, no ETag.
+
+  - id: rss-bih-balkaninsight
+    kind: rss
+    name: Balkan Insight (BIRN)
+    country: BIH
+    source_id: null
+    url: https://balkaninsight.com/feed/
+    cadence_minutes: 180
+    lang: en
+    regions: [balkans]
+    enabled: false
+    queue: true
+    reliability: B
+    terms: https://balkaninsight.com/republishing-policy/
+    secrets: []
+    notes: >-
+      Balkan Investigative Reporting Network, Sarajevo. The republishing policy allows "short
+      excerpts or summaries" with credit and a link, forbids "systematic copying, scraping,
+      archiving, or bulk redistribution" and AI training; the feed is offered by the site and the
+      queue keeps a link, a title and one excerpt for a person to read. Cadence kept low for the
+      same reason. 90 items per fetch, ETag and Last-Modified sent.
+
+  - id: rss-usa-atlanticcouncil
+    kind: rss
+    name: Atlantic Council — all content
+    country: USA
+    source_id: null
+    url: https://www.atlanticcouncil.org/feed/
+    cadence_minutes: 360
+    lang: en
+    regions: [global]
+    enabled: false
+    queue: true
+    reliability: C
+    terms: https://www.atlanticcouncil.org/terms-of-use/
+    secrets: []
+    notes: >-
+      Terms grant "permission to make copies of any part of the Website in any medium to use for
+      noncommercial purposes, provided that you retain Atlantic Council's marks and copyright
+      notices", and forbid automated access faster "than a human can reasonably produce" — hence
+      four fetches a day. Graded C: a sponsor-funded policy advocacy institution, reliable on
+      facts, with a line to push; analysis, not reporting. 100 items per fetch.
