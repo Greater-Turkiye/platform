@@ -170,3 +170,17 @@ sorgulandı; şartları okunabilen ve alıntıya izin verenler kuyruğa alındı
 Ölçülen verim (gerçek skorlayıcı, eşik 0,5): İngiltere MSB 20 öğeden **4** kuyruğa; ABD 40 öğeden
 **0** — filtre bölge kapılı, bu haftanın ABD duyuruları yurt içi. Yani darboğaz filtre değil,
 kaynak: bölgedeki savunma bakanlıklarının çoğu ya akış sunmuyor ya da dürüst istemciyi engelliyor.
+
+## 2026-09-24 — ikinci tarama / second survey
+
+40 aday daha. Geçenler: **İngiltere Dışişleri (FCDO)** — OGL v3, MSB ile aynı sayfa; **Avrupa
+Komisyonu basın köşesi** — 2011/833/EU kararı ve CC BY 4.0, yasal uyarı okundu. Geçmeyenler:
+regjeringen.no akış veriyor (99 öğe) ama telif sayfası iki istemciye de 403; consilium, EEAS,
+Parlamento ve OSCE okunabilir bir akış sunmuyor; canada.ca io-server atom döndürüyor ama bakanlık
+sorgusuyla sıfır öğe; gov.pl'nin belgelenmiş rss yolu HTML döndürüyor; centcom/eucom/navy.mil adları
+buradan da ikinci bir ağdan da çözümlenmiyor (sonuçlanmadı, runner'dan denenecek); Baltık ve Finlandiya
+bakanlıkları 403; Hollanda, Çekya, İsveç, Romanya, Bulgaristan, İtalya, İspanya akış sunmuyor.
+
+Ölçülen verim: FCDO 20 öğeden 1 (Bab-ül Mendep G7 açıklaması); Komisyon 10 öğeden 0. Dikkat: FCDO'nun
+"Ukrayna üzerine BMGK konuşması" bölgeyi (black-sea) tutturdu ama konu tablosuna takılıp 0 aldı —
+darboğazın bir kısmı elimizdeki konu terimlerinde, kaynakta değil.
