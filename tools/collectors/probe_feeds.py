@@ -48,8 +48,7 @@ def probe(url: str, show: int = 0) -> tuple[str, str, int, str, str]:
         kind = "html"
     else:
         kind = "?"
-    preview = body[:show].decode("utf-8", "replace").replace("
-", " ") if show else ""
+    preview = " ".join(body[:show].decode("utf-8", "replace").split()) if show else ""
     return url, f"{status} {kind}", len(ITEM.findall(body)), final if final != url else "", preview
 
 
