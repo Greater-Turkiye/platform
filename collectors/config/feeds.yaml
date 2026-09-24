@@ -50,6 +50,18 @@
 #   mod.mil.gr, geetha.mil.gr, mfa.gr, mod.gov.ge, msb.gov.tr, gov.il, timesofisrael: 403 to
 #   our client; we do not send a browser User-Agent to get past a block.
 #
+# Second survey of 2026-09-24 — 40 more candidates probed with our client:
+#   gov.uk (FCDO)         OGL v3, same page as the MoD feed -> queue
+#   ec.europa.eu          CC BY 4.0 by Decision 2011/833/EU, legal notice read -> queue
+#   regjeringen.no        feed answers (99 items) but the copyright page is 403 to a reader -> off
+#   consilium.europa.eu, eeas.europa.eu, europarl.europa.eu, osce.org: no feed a reader can reach
+#   canada.ca (io-server) atom answers but with zero items for the department query -> unresolved
+#   gov.pl (MON, MSZ)     the documented rss path returns HTML -> off
+#   centcom.mil, eucom.mil, navy.mil: the hostnames do not resolve from here or from a second
+#                         network; not concluded, retry from the runner
+#   defmin.fi, kaitseministeerium.ee, mil.ee, kam.lt, mod.gov.lv, consilium: 403 to our client
+#   defensie.nl, army.cz, forsvarsmakten.se, mapn.ro, mod.bg, difesa.it, defensa.gob.es: no feed
+#
 # reliability: the Admiralty source-reliability grade (ADR 0006), A-F. It grades the *source's
 #   record of accuracy*, never the party's politics: a state press office that publishes what the
 #   state did is C (fairly reliable, interested party); a wire that corrects its errors is B.
@@ -60,6 +72,42 @@
 #
 # Disabled feeds can still be tried locally:  gt-collect --feed <id> --dry-run
 feeds:
+  - id: atom-gbr-fcdo
+    kind: rss
+    name: UK Foreign, Commonwealth and Development Office — news and communications
+    country: GBR
+    url: https://www.gov.uk/search/news-and-communications.atom?organisations%5B%5D=foreign-commonwealth-development-office
+    cadence_minutes: 60
+    lang: en
+    regions: [global]
+    enabled: false
+    queue: true
+    reliability: B
+    terms: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+    secrets: []
+    notes: >-
+      Same licence as the MoD feed (OGL v3). Sanctions designations, statements on the Black
+      Sea, the Levant and the Gulf, and joint statements with allies; 20 items per fetch.
+
+  - id: rss-eu-commission-press
+    kind: rss
+    name: European Commission — press corner
+    country: null
+    url: https://ec.europa.eu/commission/presscorner/api/rss?language=en
+    cadence_minutes: 60
+    lang: en
+    regions: [global]
+    enabled: false
+    queue: true
+    reliability: B
+    terms: https://commission.europa.eu/legal-notice_en
+    secrets: []
+    notes: >-
+      Commission Decision 2011/833/EU and CC BY 4.0: "reuse is allowed, provided appropriate
+      credit is given and changes are indicated". 10 items per fetch, several a day; sanctions
+      packages, enlargement, Türkiye-EU statements. The Council and the EEAS publish no feed a
+      reader can reach (403 / none found), so the Commission is the EU voice here.
+
   - id: atom-gbr-mod
     kind: rss
     name: UK Ministry of Defence — news and communications
