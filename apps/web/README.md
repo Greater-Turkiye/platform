@@ -25,7 +25,7 @@ A static site with no build step: plain HTML, CSS and JavaScript (D3 + TopoJSON)
 
 - `index.html` — home page: Türkiye-centred globe, live record feed, watch regions, method, live counts, red lines and how to join.
 - `panel.html` — OSINT dashboard: situation figures, a region board, zoomable map, filters, search, layers, record list and detail drawer. Deep links: `panel.html?region=aegean`, `panel.html?id=evt_…`.
-- `method.html` — the methodology page: what the project does and does not claim to be, how a record is made (proposal → triage → sources and archive → verification scale → human approval), what the status values mean, the red lines in plain language, where the map layers come from and what "schematic" means, licensing, and how to report an error. Each section links to its handbook source, and handbook links follow the chosen language (`tr/` or `en/`).
+- `method.html` — the methodology page: what the project does and does not claim to be, how a record is made (proposal → triage → sources and archive → verification scale → human approval, and the automatic unverified records of ADR 0023), what the status values mean, the red lines in plain language, where the map layers come from and what "schematic" means, licensing, and how to report an error. Each section links to its handbook source, and handbook links follow the chosen language (`tr/` or `en/`).
 - Fictional example records appear only in the dashboard, only when the "Example data" layer is on, and are always clearly labelled. The layer is on by default while there are no real records.
 
 ---

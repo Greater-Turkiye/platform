@@ -982,6 +982,7 @@
       if (meta) wrap.append(GT.el('span', 'sub', meta));
       return wrap;
     }));
+    if (GT.isAuto(rec)) body.append(GT.el('p', 'doc-note-top', GT.t('d.auto')));
     if (rec.assessment) {
       const a = rec.assessment;
       row('d.assessment', withSub(`${GT.txt(GT.STATUS[a.status])} · ${a.credibility} — ${GT.txt(GT.CREDIBILITY[a.credibility])}`, a.method && a.method.length ? GT.t('d.method') + ': ' + a.method.join(', ') : ''));
