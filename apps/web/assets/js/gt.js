@@ -1410,8 +1410,8 @@
     'r.how2': "The OpenStreetMap counts are leads, not findings: a volunteer's tag does not prove a facility is in use today, and a Second World War position carries the same tag. The query is restricted to Greek territory, so nothing on Turkish soil enters these numbers.",
     'r.how3': 'If a record is wrong, open a correction: the register is written in the knowledge that one wrong line can discredit the whole table.',
   });
-  Object.assign(I18N.tr, { 'p.regional': 'bölge düzeyi, kesin konum yok', 'lg.regional': 'Olay (bölge düzeyi)' });
-  Object.assign(I18N.en, { 'p.regional': 'region level only; no precise location', 'lg.regional': 'Event (region level)' });
+  Object.assign(I18N.tr, { 'p.regionalN': '{region}: {n} kayıt, kesin konum yok — listeyi aç', 'p.regional': 'bölge düzeyi, kesin konum yok', 'lg.regional': 'Olay (bölge düzeyi)' });
+  Object.assign(I18N.en, { 'p.regionalN': '{region}: {n} records, no precise location — open the list', 'p.regional': 'region level only; no precise location', 'lg.regional': 'Event (region level)' });
   Object.assign(I18N.tr, { 'lg.mission': 'Türk dış temsilciliği (şehir düzeyi)', 'p.lyr.missions': 'Temsilcilikler','lg.schematic': "Şematik — Türkiye'nin tutumu esas alınarak çizildi, resmî koordinat değildir" });
   Object.assign(I18N.en, { 'lg.mission': 'Turkish diplomatic mission (city level)', 'p.lyr.missions': 'Missions', 'lg.schematic': "Schematic — based on Türkiye's position, not official coordinates" });
   Object.assign(I18N.tr, { 'lg.licence': 'KKTC ruhsat sahası (TPAO) · resmî koordinatlar, KKTC Resmî Gazete 161, 22.9.2011' });

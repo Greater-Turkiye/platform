@@ -602,25 +602,36 @@
     }
     if (lyr.events.checked) {
       const pulseAll = list.length <= 40;
-      const perRegion = {};
+      /* Records without coordinates are counted, not scattered. They used to fan out from the region's
+         anchor in a spiral; with forty automatic records in one region the spiral reached across
+         Anatolia and drew events on Turkish soil that no record puts there. One ring per region,
+         with the count, says what is known: this many records, somewhere in this region. */
+      const perRegion = new Map();
       for (const e of list) {
         const g = e.location && e.location.geometry;
-        let pt = g ? (g.type === 'Point' ? g.coordinates : d3.geoCentroid(g)) : null;
-        let regional = false;
+        const pt = g ? (g.type === 'Point' ? g.coordinates : d3.geoCentroid(g)) : null;
         if (!pt) {
-          // no coordinates in the record: show a hollow ring at the region's anchor, fanned out so rings don't stack
-          const r = GT.REGIONS[e.regions[0]];
-          if (!r || !r.at) continue;
-          const n = (perRegion[e.regions[0]] = (perRegion[e.regions[0]] || 0) + 1) - 1;
-          const ang = n * 2.4, rad = n ? 0.55 + 0.18 * n : 0;
-          pt = [r.at[0] + rad * Math.cos(ang), r.at[1] + rad * Math.sin(ang)];
-          regional = true;
+          const code = e.regions[0];
+          if (GT.REGIONS[code] && GT.REGIONS[code].at) perRegion.set(code, (perRegion.get(code) || []).concat(e));
+          continue;
         }
         const [x, y] = proj(pt);
         const m = gEvents.append('g').attr('data-x', x).attr('data-y', y);
-        bind(m, e, GT.txt(e.title), GT.upper(GT.label('event-types', e.event_type)) + (regional ? ' · ' + GT.t('p.regional') : ''));
-        if (!reduce && !regional && (pulseAll || e.id === state.selected)) m.append('circle').attr('class', 'mk-pulse').attr('r', 6);
-        m.append('circle').attr('class', 'mk-ev st-' + e.assessment.status + (e._example ? ' is-example' : '') + (regional ? ' is-regional' : '')).attr('r', regional ? 5 : 5.5);
+        bind(m, e, GT.txt(e.title), GT.upper(GT.label('event-types', e.event_type)));
+        if (!reduce && (pulseAll || e.id === state.selected)) m.append('circle').attr('class', 'mk-pulse').attr('r', 6);
+        m.append('circle').attr('class', 'mk-ev st-' + e.assessment.status + (e._example ? ' is-example' : '')).attr('r', 5.5);
+      }
+      for (const [code, recs] of perRegion) {
+        const [x, y] = proj(GT.REGIONS[code].at);
+        const n = recs.length;
+        const worst = recs.some((r) => r.assessment.status === 'unverified') ? 'unverified' : recs[0].assessment.status;
+        const title = GT.t('p.regionalN', { n, region: GT.txt(GT.REGIONS[code].label) });
+        const m = gEvents.append('g').attr('data-x', x).attr('data-y', y)
+          .attr('class', 'mk mk-group' + (state.region === code ? ' sel' : '')).attr('tabindex', 0).attr('role', 'button')
+          .attr('aria-label', title).attr('data-region-group', code).attr('data-tip', title).attr('data-sub', GT.t('p.regional'));
+        const r = n === 1 ? 5 : Math.min(16, 7 + 1.6 * Math.sqrt(n));
+        m.append('circle').attr('class', 'mk-ev is-regional st-' + worst).attr('r', r);
+        if (n > 1) m.append('text').attr('class', 'mk-count').attr('dy', '0.35em').text(n);
       }
     }
     rescale();
@@ -634,17 +645,24 @@
     markerEventsWired = true;
     const groupAt = (ev) => (ev.target && ev.target.closest ? ev.target.closest('.mk[data-id]') : null);
     const recordOf = (g) => (g && data ? data.byId.get(g.getAttribute('data-id')) : null);
+    // a regional count ring opens its region's list, the same as choosing the region on the board
+    const regionGroupAt = (ev) => (ev.target && ev.target.closest ? ev.target.closest('.mk[data-region-group]') : null);
+    const openRegion = (g) => { const c = g.getAttribute('data-region-group'); setRegion(state.region === c ? '' : c); };
     els.map.addEventListener('click', (ev) => {
+      const rg = regionGroupAt(ev);
+      if (rg) { ev.stopPropagation(); openRegion(rg); return; }
       const rec = recordOf(groupAt(ev));
       if (rec) { ev.stopPropagation(); select(rec, true); }
     });
     els.map.addEventListener('keydown', (ev) => {
       if (ev.key !== 'Enter' && ev.key !== ' ') return;
+      const rg = regionGroupAt(ev);
+      if (rg) { ev.preventDefault(); openRegion(rg); return; }
       const rec = recordOf(groupAt(ev));
       if (rec) { ev.preventDefault(); select(rec, true); }
     });
     els.map.addEventListener('pointermove', (ev) => {
-      const g = groupAt(ev);
+      const g = groupAt(ev) || regionGroupAt(ev);
       if (g) showTip(ev, g.getAttribute('data-tip') || '', g.getAttribute('data-sub') || '');
     });
     els.map.addEventListener('pointerleave', hideTip);

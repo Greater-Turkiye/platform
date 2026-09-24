@@ -474,6 +474,9 @@ a.ticker-item:hover { color: #fff; }
 .hide-missions .m-mission-g { display: none; }
 /* events without coordinates: hollow ring at the region anchor */
 .mk-ev.is-regional { fill: rgba(5, 5, 5, .55); stroke-width: 2; stroke: var(--rb); }
+.mk-count { fill: #fff; font: 700 10px/1 var(--mono, monospace); text-anchor: middle; pointer-events: none; }
+.mk-group { cursor: pointer; }
+.mk-group.sel .mk-ev { stroke: #fff; }
 .mk-ev.is-regional.st-verified { stroke: var(--ok); }
 .mk-ev.is-regional.st-partially_verified, .mk-ev.is-regional.st-disputed { stroke: var(--warn); }
 /* Türkiye label: spacing comes from thin spaces in the text so text-anchor:middle centres exactly */
