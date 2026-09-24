@@ -89,8 +89,8 @@
       'm.s2.3.d': 'Her bilgi bir kaynağa bağlanır; kaynak sicile girer ve bir güvenilirlik notu alır. Her kaynağın arşiv bağlantısı olmadan bir kayıt doğrulanmış sayılamaz. Birincil kaynaklar — Resmî Gazete, TBMM, bakanlıklar, BM — medyaya tercih edilir. Üçüncü taraf metni kopyalanmaz: kendi cümlelerimizle özetlenir, bağlantısı ve arşiv bağlantısı verilir.',
       'm.s2.4.t': 'Ölçek ve otomatik kapılar',
       'm.s2.4.d': 'Kayda kaynak güvenilirliği (A–F), bilgi inandırıcılığı (1–6) ve bir durum yazılır. Otomatik denetimler her değişiklikte kişisel veri kalıplarını, gizlilik derecesi işaretlerini, Türk kuvvetleri kapısını, kısıtlı kaynak kuralını ve biçim kurallarını uygular. Bu denetimler anlamı değerlendiremez: kaynakların gerçekten bağımsız olup olmadığına insan karar verir.',
-      'm.s2.5.t': 'İnsan onayı — Kapı 2',
-      'm.s2.5.d': 'Kayıt, herkese açık bir inceleme geçmeden veri setine giremez; hassas konular ayrıca bir bakımcı onayı ister. Hiçbir içerik insan onayı olmadan yayımlanmaz. Bakımcılar tüm otomatik yayını tek bir ayarla durdurabilir. Bir kayda düzeltme girildiğinde veya kayıt geri çekildiğinde, ilk paylaşımın yapıldığı kanallara düzeltme notu gönderilir.',
+      'm.s2.5.t': 'İnsan onayı ve otomatik kayıtlar',
+      'm.s2.5.d': 'Doğrulanmış ya da kısmen doğrulanmış her kayıt herkese açık bir incelemeden geçer; hassas konular ayrıca bir bakımcı onayı ister. Toplayıcının ilgi süzgecinden geçen adaylar ise kimse okumadan, “otomatik” ve “doğrulanmamış” etiketiyle yayımlanır; başlık ve özetleri makineyle yazılır ve kayıt bunu söyler (ADR 0023). Türk kuvvetleriyle ilgili hiçbir aday bu yoldan geçmez. Bakımcılar tüm otomatik yayını tek bir ayarla durdurabilir. Bir kayda düzeltme girildiğinde veya kayıt geri çekildiğinde, ilk paylaşımın yapıldığı kanallara düzeltme notu gönderilir.',
       'm.s2.note': 'Bülten ile kayıt aynı şey değildir: bülten kısa, atfedilmiş ve her zaman “doğrulanmadı” etiketli bir duyurudur, veri setinin parçası değildir. Her bülten ya bir kayda dönüşür ya da geri çekme notuyla kapanır.',
       'm.s3.k': 'Doğrulama', 'm.s3.t': 'Doğrulama ölçeği',
       'm.s3.lead': 'Doğrulama iki ayrı soruya cevap verir ve ikisi birbirinden bağımsızdır: güvenilir bir kaynak yanlış bilgi aktarabilir, güvenilmez bir kaynak doğru bilgi verebilir. Kullandığımız ölçek, OSINT ve analiz topluluğunun bildiği Admiralty (NATO) ölçeğidir.',
@@ -200,7 +200,7 @@
       'p.err': 'Veri yüklenemedi.', 'p.retry': 'Tekrar dene', 'p.loading': 'Yükleniyor',
       'p.zoomIn': 'Yakınlaştır', 'p.zoomOut': 'Uzaklaştır', 'p.reset': 'Görünümü sıfırla', 'p.close': 'Kapat',
       'p.nogeo': 'koordinat yok', 'p.example': 'Örnek',
-      'lg.unverified': 'Doğrulanmamış', 'lg.verified': 'Doğrulandı', 'lg.partial': 'Kısmen / tartışmalı', 'lg.example': 'Örnek (kurgusal)', 'lg.unc': 'Belirsizlik dairesi: konum bu dairenin içinde bir yerde (kayıttaki hata payı)', 'lg.site': 'Tesis', 'lg.tr': 'Türkiye',
+      'd.auto': 'Otomatik kayıt: kimse okumadan yayımlandı, başlık ve özet makineyle yazıldı. Kaynağa bakın.', 'lg.unverified': 'Doğrulanmamış', 'lg.verified': 'Doğrulandı', 'lg.partial': 'Kısmen / tartışmalı', 'lg.example': 'Örnek (kurgusal)', 'lg.unc': 'Belirsizlik dairesi: konum bu dairenin içinde bir yerde (kayıttaki hata payı)', 'lg.site': 'Tesis', 'lg.tr': 'Türkiye',
       'd.time': 'Zaman', 'd.location': 'Konum', 'd.regions': 'Bölgeler', 'd.countries': 'Devletler', 'd.actors': 'Aktörler', 'd.equipment': 'Teçhizat', 'd.claims': 'İddialar',
       'd.sources': 'Kaynaklar', 'd.assessment': 'Değerlendirme', 'd.id': 'Kimlik', 'd.type': 'Tür', 'd.operators': 'İşleten', 'd.country': 'Devlet',
       'd.github': 'GitHub’da görüntüle', 'd.correct': 'Düzeltme öner', 'd.copy': 'Kopyala', 'd.copied': 'Kopyalandı', 'd.archive': 'arşiv',
@@ -281,8 +281,8 @@
       'm.s2.3.d': 'Every piece of information is tied to a source; the source enters the registry and is given a reliability grade. Without an archive link for every source, a record cannot count as verified. Primary sources — the Official Gazette, parliament, ministries, the UN — are preferred over media. Third-party text is never copied: we summarise it in our own words and give the link and an archive link.',
       'm.s2.4.t': 'Scale and automated gates',
       'm.s2.4.d': 'The record is given a source reliability (A–F), an information credibility (1–6) and a status. On every change, automated checks enforce the personal-data patterns, classification markings, the Turkish forces gate, the restricted-source rule and the format rules. Those checks cannot judge meaning: whether two sources are genuinely independent is a human decision.',
-      'm.s2.5.t': 'Human approval — gate 2',
-      'm.s2.5.d': 'A record enters the dataset only after a public review, and sensitive topics need a maintainer’s approval on top of that. Nothing is published without human approval. Maintainers can stop all automated publishing with a single setting. When a correction is added to a record, or a record is withdrawn, a correction note goes out to the channels that carried the original.',
+      'm.s2.5.t': 'Human approval and automatic records',
+      'm.s2.5.d': 'Every verified or partially verified record goes through a public review, and sensitive topics need a maintainer’s approval on top of that. Candidates that pass the collector’s relevance filter are published without anyone reading them, marked “automatic” and “unverified”; their titles and summaries are machine-written and the record says so (ADR 0023). No candidate concerning Turkish forces takes that path. Maintainers can stop all automated publishing with a single setting. When a correction is added to a record, or a record is withdrawn, a correction note goes out to the channels that carried the original.',
       'm.s2.note': 'A bulletin is not a record: it is a short, attributed announcement, always tagged “unverified”, and it is not part of the dataset. Every bulletin either becomes a record or is closed with a withdrawal note.',
       'm.s3.k': 'Verification', 'm.s3.t': 'The verification scale',
       'm.s3.lead': 'Verification answers two separate questions, and the two are independent: a reliable source can relay false information, and an unreliable source can provide true information. The scale we use is the Admiralty (NATO) scale familiar across the OSINT and analysis community.',
@@ -392,7 +392,7 @@
       'p.err': 'Unable to load data.', 'p.retry': 'Try again', 'p.loading': 'Loading',
       'p.zoomIn': 'Zoom in', 'p.zoomOut': 'Zoom out', 'p.reset': 'Reset view', 'p.close': 'Close',
       'p.nogeo': 'no coordinates', 'p.example': 'Example',
-      'lg.unverified': 'Unverified', 'lg.verified': 'Verified', 'lg.partial': 'Partial / disputed', 'lg.example': 'Example (fictional)', 'lg.unc': 'Uncertainty circle: the position is somewhere inside it (the record’s own figure)', 'lg.site': 'Site', 'lg.tr': 'Türkiye',
+      'd.auto': 'Automatic record: published without anyone reading it; the title and summary are machine-written. Read the source.', 'lg.unverified': 'Unverified', 'lg.verified': 'Verified', 'lg.partial': 'Partial / disputed', 'lg.example': 'Example (fictional)', 'lg.unc': 'Uncertainty circle: the position is somewhere inside it (the record’s own figure)', 'lg.site': 'Site', 'lg.tr': 'Türkiye',
       'd.time': 'Time', 'd.location': 'Location', 'd.regions': 'Regions', 'd.countries': 'States', 'd.actors': 'Actors', 'd.equipment': 'Equipment', 'd.claims': 'Claims',
       'd.sources': 'Sources', 'd.assessment': 'Assessment', 'd.id': 'ID', 'd.type': 'Type', 'd.operators': 'Operator', 'd.country': 'State',
       'd.github': 'View on GitHub', 'd.correct': 'Suggest a correction', 'd.copy': 'Copy', 'd.copied': 'Copied', 'd.archive': 'archive',
@@ -522,7 +522,10 @@
     const mm = String(t.getUTCMonth() + 1).padStart(2, '0');
     return `${rec._example ? 'examples' : 'data'}/${DIRS[rec.id.slice(0, 3)]}/${t.getUTCFullYear()}/${mm}/${rec.id}.yaml`;
   };
-  GT.recordUrl = (rec) => `${GT.REPO}/datasets/blob/main/${GT.recordPath(rec)}`;
+  /* Automatic, unverified records (handbook ADR 0023) live on the datasets auto-data branch until a person
+     moves them to main, so their source link points there. */
+  GT.isAuto = (rec) => Array.isArray(rec.tags) && rec.tags.includes('otomatik');
+  GT.recordUrl = (rec) => `${GT.REPO}/datasets/blob/${GT.isAuto(rec) ? 'auto-data' : 'main'}/${GT.recordPath(rec)}`;
 
   // Building an Intl.DateTimeFormat costs milliseconds; a feed or a ticker asks for the same handful of
   // language-and-precision combinations over and over, so they are kept.
@@ -1309,7 +1312,7 @@
     't.goodsk': 'Goods',
     't.goods': 'Which goods are still going?',
     't.goodslead': 'From Israel\'s own returns, by Harmonized System chapter: the monthly average of the twelve months before the halt against the twelve after it. Both windows are read from the same reporter.',
-    't.goodsnote': 'A chapter is a wide category; \\u201ciron and steel\\u201d is not a single product. A row marked \\u25b2 is one delivery rather than a flow: almost the whole window is recorded in a single month. The figures say what arrived, not by which route or on whose ship.',
+    't.goodsnote': 'A chapter is a wide category; “iron and steel” is not a single product. A row marked \\u25b2 is one delivery rather than a flow: almost the whole window is recorded in a single month. The figures say what arrived, not by which route or on whose ship.',
     't.g.open': 'open',
     't.g.headNote': "Pressing a chapter opens it to four digits. A chapter is a wide category: rebar for a building site and sheet for a factory sit in the same one and do not answer the same question. Only the chapters carrying the most can be opened.",
     't.g.chapter': 'Chapter',
