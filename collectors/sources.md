@@ -184,3 +184,24 @@ bakanlıkları 403; Hollanda, Çekya, İsveç, Romanya, Bulgaristan, İtalya, İ
 Ölçülen verim: FCDO 20 öğeden 1 (Bab-ül Mendep G7 açıklaması); Komisyon 10 öğeden 0. Dikkat: FCDO'nun
 "Ukrayna üzerine BMGK konuşması" bölgeyi (black-sea) tutturdu ama konu tablosuna takılıp 0 aldı —
 darboğazın bir kısmı elimizdeki konu terimlerinde, kaynakta değil.
+
+## 2026-09-24 — konu tablosu ölçümü / measuring the topic table
+
+Günün partisi (195 satır) yeniden puanlandı: elenen 189 öğenin **141'i** bir izleme bölgesini
+tutturmuş ama hiçbir konu terimine değmemişti. Çoğu doğru elenmişti (maraton, doğum günü tebriği,
+anma ziyareti); aralarında BMGK'nın Husi saldırılarını kınaması, FCDO'nun Ukrayna konuşması ve Rusya
+cumhurbaşkanının Suudi Arabistan ve üç Orta Asya ülkesiyle telefon görüşmeleri de vardı. Tabloya iki
+grup eklendi, `diplomatic.statement` (mevcut kod) ve `diplomatic.talks` (yeni kod, datasets #35):
+
+| tablo | kuyruk |
+|---|---|
+| önceki | 6 |
+| + statement | 9 |
+| + talks | 13 |
+| ikisi | **16** |
+
+Replayed the day's batch: 141 of 189 rejected items had a region and no topic. Two groups added
+(platform #111); the day's queue goes from 6 to 16, two of them digests the reviewer will dismiss.
+Yöntem `collectors/README.md`'de: terim tahminle değil, partiyi yeniden puanlayıp kazanılanları
+okuyarak eklenir.
+
