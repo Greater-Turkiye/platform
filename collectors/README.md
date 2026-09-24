@@ -387,6 +387,13 @@ Every feed may carry an Admiralty reliability grade. A source graded E or F cann
 is the blacklist, as a grade with a written reason rather than a list of names. D is queued and
 flagged so the reviewer weighs the source, not just the claim.
 
+### Aday akışı yoklamak / probing a candidate feed
+
+`tools/collectors/probe_feeds.py` bir ya da daha çok adresi toplayıcının kendi kimliğiyle çeker ve
+durum / tür / öğe sayısı yazar; `probe-feeds.yml` aynı şeyi GitHub runner'ından yapar (`gh workflow run
+probe-feeds.yml -f urls="…"`). Tarama günlüğü `sources.md`'dedir; kuyruğa alma kararı şartlar okunmadan
+verilmez. The same probe from a runner, for hosts that do not answer from here.
+
 ### Konu tablosunu ölçerek genişletmek / growing the topic table by measurement
 
 `relevance.yaml`'a bir terim eklemenin yolu tahmin değil ölçümdür: `collector-state` dalındaki son

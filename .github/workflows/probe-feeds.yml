@@ -1,0 +1,36 @@
+# Probe candidate feed URLs from a GitHub runner.
+#
+# Some publishers do not resolve or do not answer from a maintainer's network (the US combatant
+# commands' .mil hosts, for one) and a survey needs a second vantage point. This runs the same
+# probe the survey uses, with the collector's own User-Agent, and prints one line per URL. It
+# fetches, it stores nothing, and it never spoofs a browser: a host that refuses the collector
+# here is recorded as refusing, not worked around.
+name: probe-feeds
+
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: Feed URLs, separated by spaces or newlines
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Probe
+        env:
+          URLS: ${{ inputs.urls }}
+        run: |
+          printf '%s\n' "$URLS" | tr ' ' '\n' > "$RUNNER_TEMP/urls.txt"
+          python tools/collectors/probe_feeds.py --file "$RUNNER_TEMP/urls.txt" | tee "$RUNNER_TEMP/probe.txt"
+          { echo '### Probe'; echo; echo '```'; cat "$RUNNER_TEMP/probe.txt"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
