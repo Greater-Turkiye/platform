@@ -967,6 +967,65 @@ topics:
     - siber saldırı
     - siber operasyon
 
+  # Two groups the table did not have, found by measuring rather than guessing. On the batch of
+  # 2026-09-23, 141 of the 189 rejected items had matched a watch region and no topic at all. Most
+  # were noise the filter was right to drop — marathons, birthday greetings, memorial visits — but
+  # among them were the Security Council condemning the Houthi attacks on Saudi Arabia, the FCDO's
+  # address to the Council on Ukraine, and the Russian president's calls with Saudi Arabia and three
+  # Central Asian presidents. Statements are issued; talks are held. Both are signals in a watch
+  # that looks outward, and neither had a word in this file. With both groups the day's queue goes
+  # from 6 to 16, and the reviewer, not the table, decides which of the ten matter.
+  diplomatic.statement:
+    - statement on
+    - statement by
+    - joint statement
+    - press statement
+    - address to the security council
+    - security council
+    - condemn*
+    - ceasefire
+    - cease-fire
+    - resolution
+    - açıklama
+    - ortak bildiri
+    - ateşkes
+    - güvenlik konseyi
+    - заявлени*
+    - совместное заявление
+    - совет безопасности
+    - перемири*
+    - резолюци*
+    - بيان
+    - بيان مشترك
+    - مجلس الأمن
+    - وقف إطلاق النار
+    - قرار
+  diplomatic.talks:
+    - telephone conversation
+    - phone call
+    - talks with
+    - meeting with the president
+    - meeting with president
+    - summit
+    - official visit
+    - state visit
+    - negotiations
+    - bilateral meeting
+    - foreign minister
+    - defence minister
+    - defense minister
+    - telefon görüşmesi
+    - zirve
+    - resmî ziyaret
+    - телефонн* разговор*
+    - переговор*
+    - встреч* с президентом
+    - визит*
+    - саммит*
+    - اتصال هاتفي
+    - محادثات
+    - زيارة رسمية
+    - قمة
   diplomatic.agreement:
     - defence agreement
     - defense agreement

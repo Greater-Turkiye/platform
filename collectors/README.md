@@ -386,3 +386,14 @@ inceleyen kişi iddiayı değil kaynağı tartar.
 Every feed may carry an Admiralty reliability grade. A source graded E or F cannot be queued: that
 is the blacklist, as a grade with a written reason rather than a list of names. D is queued and
 flagged so the reviewer weighs the source, not just the claim.
+
+### Konu tablosunu ölçerek genişletmek / growing the topic table by measurement
+
+`relevance.yaml`'a bir terim eklemenin yolu tahmin değil ölçümdür: `collector-state` dalındaki son
+partiyi alın, elenen öğelerden bölgeyi tutturup konuyu tutturamayanları listeleyin, aday grubu tabloya
+ekleyip aynı parti üzerinde yeniden puanlayın, kazanılan öğeleri tek tek okuyun. 2026-09-24'te
+`diplomatic.statement` ve `diplomatic.talks` bu yolla eklendi: günlük kuyruk 6'dan 16'ya çıktı ve
+kazanılanlar arasında BMGK'nın Husi saldırılarını kınaması ile Rusya–Suudi Arabistan görüşmesi vardı.
+
+Add terms by measurement, not by guess: replay the latest batch against the candidate group and read
+every item it recovers. `diplomatic.statement` and `diplomatic.talks` were added that way.
