@@ -94,12 +94,14 @@
       coop: ['#300a13', 'rgba(153,0,28,0.72)'],
       kin: ['#241017', 'rgba(200,0,42,0.45)'],
       frame: ['#1f1014', 'rgba(153,0,28,0.45)'],
+      strategic: ['#1f1a10', 'rgba(214,161,58,0.55)'], // the panel's amber: a programme partner, not an ally
     };
     const group = (world) => {
-      const g = { land: [], watch: [], frame: [], ally: [], coop: [], kin: [], tr: [], presence: [], nato: [] };
+      const g = { land: [], watch: [], frame: [], ally: [], coop: [], kin: [], strategic: [], tr: [], presence: [], nato: [] };
       for (const f of world.countries) {
         const a = GT.a3(f);
-        g[styleOf(a)].push(f);
+        // a tier the globe has no bucket for must not stop the globe: it is drawn as plain land
+        (g[styleOf(a)] || g.land).push(f);
         if (GT.PARTNERS[a] && GT.PARTNERS[a].presence) g.presence.push(f);
         if (GT.NATO.has(a)) g.nato.push(f);
       }
@@ -271,7 +273,7 @@
       const lean = !full && moveDpr < moveCap;
       if (!lean) { c.beginPath(); path(full ? grat : gratMoving); c.strokeStyle = 'rgba(232,227,220,0.06)'; c.lineWidth = 0.6; c.stroke(); }
       yield;
-      for (const k of ['land', 'watch', 'frame', 'kin', 'coop', 'ally']) {
+      for (const k of ['land', 'watch', 'strategic', 'frame', 'kin', 'coop', 'ally']) {
         if (!g[k].length) continue;
         c.beginPath();
         for (const f of g[k]) path(f);
