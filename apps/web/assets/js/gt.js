@@ -580,6 +580,76 @@
     diplomatic: { tr: 'Diplomatik', en: 'Diplomatic' }, policy: { tr: 'Politika', en: 'Policy' }, other: { tr: 'Diğer', en: 'Other' },
   };
 
+  /* ---------------- type icons ----------------
+     Every event domain and every site type has a colour and a glyph, so the map says what a point
+     is before anyone hovers it. Glyphs are plain 10x10 geometry drawn once as <symbol id="ic-...">
+     (GT.mapDefs) and referenced by <use>; the colour belongs to the category, the ring around an
+     event marker keeps saying how far it is verified. */
+  GT.GLYPH = {
+    target: 'M5 0.6A4.4 4.4 0 1 0 5 9.4A4.4 4.4 0 1 0 5 0.6ZM5 2.2A2.8 2.8 0 1 1 5 7.8A2.8 2.8 0 1 1 5 2.2ZM4.3 3.8H5.7V6.2H4.3Z',
+    arrow: 'M1.5 7.4L6.1 2.8H3.4V1.4H8.6V6.6H7.2V3.9L2.6 8.5Z',
+    base: 'M1 9V4.2L5 1L9 4.2V9H6.2V6.2H3.8V9Z',
+    crate: 'M1 2.5L5 0.8L9 2.5V7.5L5 9.2L1 7.5ZM2.3 3.4V6.8L4.4 7.7V4.3ZM5.6 4.3V7.7L7.7 6.8V3.4ZM2.9 2.7L5 3.6L7.1 2.7L5 1.8Z',
+    rocket: 'M5 0.3C6.8 1.8 7 4.6 6.6 6.8H3.4C3 4.6 3.2 1.8 5 0.3ZM3.4 6.8L1.9 9.4H4ZM6.6 6.8L8.1 9.4H6ZM4.5 7.2H5.5V9.6H4.5Z',
+    burst: 'M5 0L6 3.2L9 1.8L7.2 4.6L10 5.8L6.8 6.3L7.6 9.6L5 7.4L2.4 9.6L3.2 6.3L0 5.8L2.8 4.6L1 1.8L4 3.2Z',
+    plane: 'M5 0.4L5.8 3.7L9.6 5.6V6.5L5.8 5.4L5.5 8.1L6.9 9.1V9.7L5 9.2L3.1 9.7V9.1L4.5 8.1L4.2 5.4L0.4 6.5V5.6L4.2 3.7Z',
+    ship: 'M0.4 5.8H9.6L8 9H2ZM4.4 0.8H5.4V5.8H4.4ZM5.4 1.4L8.6 5H5.4Z',
+    code: 'M3.6 1.8L0.4 5L3.6 8.2L4.5 7.3L2.2 5L4.5 2.7ZM6.4 1.8L9.6 5L6.4 8.2L5.5 7.3L7.8 5L5.5 2.7Z',
+    speech: 'M0.8 1.2H9.2V6.8H4.6L2.4 9V6.8H0.8Z',
+    doc: 'M1.8 0.4H6.4L8.6 2.6V9.6H1.8ZM3 4.4H7.4V5.2H3ZM3 6.2H7.4V7H3Z',
+    dot: 'M5 2.6A2.4 2.4 0 1 0 5 7.4A2.4 2.4 0 1 0 5 2.6Z',
+    tent: 'M5 0.8L9.6 9.2H0.4ZM5 4.6L3.4 9.2H6.6Z',
+    chevron: 'M0.6 9L5 0.8L9.4 9H7L5 5.2L3 9Z',
+    radar: 'M1 9A8 8 0 0 1 9 1V2.8A6.2 6.2 0 0 0 2.8 9ZM3.8 9A5.2 5.2 0 0 1 9 3.8V5.6A3.4 3.4 0 0 0 5.6 9Z',
+    star: 'M5 0.3L6.4 3.6L9.8 3.8L7.2 6L8 9.5L5 7.6L2 9.5L2.8 6L0.2 3.8L3.6 3.6Z',
+    factory: 'M0.5 9.5V4.2L3.5 6V4.2L6.5 6V0.8H9.5V9.5Z',
+  };
+  GT.EV_ICON = {
+    kinetic: { glyph: 'burst', color: '#e0314b' },
+    exercise: { glyph: 'target', color: '#d6a13a' },
+    deployment: { glyph: 'arrow', color: '#e07b39' },
+    basing: { glyph: 'base', color: '#8a6cff' },
+    procurement: { glyph: 'crate', color: '#3fa7d6' },
+    test: { glyph: 'rocket', color: '#c362d6' },
+    air: { glyph: 'plane', color: '#4f8fea' },
+    maritime: { glyph: 'ship', color: '#27b3a3' },
+    cyber: { glyph: 'code', color: '#7cc242' },
+    diplomatic: { glyph: 'speech', color: '#9aa5b1' },
+    policy: { glyph: 'doc', color: '#c2b280' },
+    other: { glyph: 'dot', color: '#7a7a7a' },
+  };
+  GT.SITE_ICON = {
+    'air-base': { glyph: 'plane', color: '#4f8fea' },
+    'dual-use-airport': { glyph: 'plane', color: '#7fa9e8' },
+    'naval-base': { glyph: 'ship', color: '#27b3a3' },
+    port: { glyph: 'ship', color: '#5fc4b8' },
+    garrison: { glyph: 'tent', color: '#c8a45a' },
+    'training-area': { glyph: 'target', color: '#c8a45a' },
+    headquarters: { glyph: 'star', color: '#d8c38a' },
+    'missile-site': { glyph: 'rocket', color: '#e0314b' },
+    'test-range': { glyph: 'rocket', color: '#c362d6' },
+    'air-defense-site': { glyph: 'chevron', color: '#e07b39' },
+    'radar-site': { glyph: 'radar', color: '#f0a040' },
+    'defense-industry': { glyph: 'factory', color: '#3fa7d6' },
+    other: { glyph: 'dot', color: '#8a8a8a' },
+  };
+  GT.evIcon = (rec) => GT.EV_ICON[String(rec.event_type || '').split('.')[0]] || GT.EV_ICON.other;
+  GT.siteIcon = (rec) => GT.SITE_ICON[rec.site_type] || GT.SITE_ICON.other;
+  /* A small inline SVG of a glyph on its colour, for lists and chips outside the map's own <svg>. */
+  GT.iconSvg = (ic, shape) => {
+    const ns = 'http://www.w3.org/2000/svg';
+    const s = document.createElementNS(ns, 'svg');
+    s.setAttribute('viewBox', '0 0 14 14'); s.setAttribute('class', 'ic'); s.setAttribute('aria-hidden', 'true');
+    const bg = document.createElementNS(ns, shape === 'square' ? 'rect' : 'circle');
+    if (shape === 'square') { bg.setAttribute('x', 1); bg.setAttribute('y', 1); bg.setAttribute('width', 12); bg.setAttribute('height', 12); bg.setAttribute('rx', 2.5); }
+    else { bg.setAttribute('cx', 7); bg.setAttribute('cy', 7); bg.setAttribute('r', 6.3); }
+    bg.setAttribute('fill', ic.color);
+    const p = document.createElementNS(ns, 'path');
+    p.setAttribute('d', GT.GLYPH[ic.glyph]); p.setAttribute('fill', '#fff'); p.setAttribute('transform', 'translate(3 3) scale(0.8)');
+    s.append(bg, p);
+    return s;
+  };
+
   /* ---------------- geography ---------------- */
   // world-atlas (Natural Earth, public domain) numeric ids -> ISO alpha-3, plus features without an ISO id.
   const NUM = {
@@ -1410,8 +1480,8 @@
     'r.how2': "The OpenStreetMap counts are leads, not findings: a volunteer's tag does not prove a facility is in use today, and a Second World War position carries the same tag. The query is restricted to Greek territory, so nothing on Turkish soil enters these numbers.",
     'r.how3': 'If a record is wrong, open a correction: the register is written in the knowledge that one wrong line can discredit the whole table.',
   });
-  Object.assign(I18N.tr, { 'p.regionalN': '{region}: {n} kayıt, kesin konum yok — listeyi aç', 'p.regional': 'bölge düzeyi, kesin konum yok', 'lg.regional': 'Olay (bölge düzeyi)' });
-  Object.assign(I18N.en, { 'p.regionalN': '{region}: {n} records, no precise location — open the list', 'p.regional': 'region level only; no precise location', 'lg.regional': 'Event (region level)' });
+  Object.assign(I18N.tr, { 'p.cats': 'Olay türleri', 'p.catsAll': 'Hepsi', 'lg.evtypes': 'Olay türleri (halka rengi: doğrulama durumu)', 'lg.sitetypes': 'Tesis tipleri', 'p.nsrc': '{n} kaynak', 'p.pointN': '{place}: {n} kayıt (tıkla: listele)', 'p.regionalN': '{region}: {n} kayıt, kesin konum yok — listeyi aç', 'p.regional': 'bölge düzeyi, kesin konum yok', 'lg.regional': 'Olay (bölge düzeyi)' });
+  Object.assign(I18N.en, { 'p.cats': 'Event types', 'p.catsAll': 'All', 'lg.evtypes': 'Event types (ring colour: verification status)', 'lg.sitetypes': 'Site types', 'p.nsrc': '{n} sources', 'p.pointN': '{place}: {n} records (click to list)', 'p.regionalN': '{region}: {n} records, no precise location — open the list', 'p.regional': 'region level only; no precise location', 'lg.regional': 'Event (region level)' });
   Object.assign(I18N.tr, { 'lg.mission': 'Türk dış temsilciliği (şehir düzeyi)', 'p.lyr.missions': 'Temsilcilikler','lg.schematic': "Şematik — Türkiye'nin tutumu esas alınarak çizildi, resmî koordinat değildir" });
   Object.assign(I18N.en, { 'lg.mission': 'Turkish diplomatic mission (city level)', 'p.lyr.missions': 'Missions', 'lg.schematic': "Schematic — based on Türkiye's position, not official coordinates" });
   Object.assign(I18N.tr, { 'lg.licence': 'KKTC ruhsat sahası (TPAO) · resmî koordinatlar, KKTC Resmî Gazete 161, 22.9.2011' });
@@ -1505,6 +1575,10 @@
     sym('nuclear', 'M5 5 L5 0.5 A4.5 4.5 0 0 1 8.9 2.75 Z M5 5 L8.9 7.25 A4.5 4.5 0 0 1 1.1 7.25 Z M5 5 L1.1 2.75 A4.5 4.5 0 0 1 5 0.5 Z',
       (s) => s.append('circle').attr('cx', 5).attr('cy', 5).attr('r', 1.1));
     sym('arms', 'M5 0 L6.6 3 V7 L8 9 H6.2 L5 7.6 L3.8 9 H2 L3.4 7 V3 Z');
+    // type glyphs (GT.GLYPH): drawn white on the category colour by the map's markers
+    for (const [id, d] of Object.entries(GT.GLYPH)) {
+      defs.append('symbol').attr('id', 'ic-' + id).attr('viewBox', '0 0 10 10').append('path').attr('d', d);
+    }
     // hatch for territory under occupation (Palestine, Golan, Crimea)
     const h = defs.append('pattern').attr('id', 'occHatch').attr('width', 6).attr('height', 6)
       .attr('patternUnits', 'userSpaceOnUse').attr('patternTransform', 'rotate(45)');

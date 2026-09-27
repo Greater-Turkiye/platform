@@ -416,6 +416,7 @@
      the summary is the number of rows actually shown, and whether the key is open is remembered.
      Seventeen rows pinned open covered half the map, which is what made the panel feel crowded. */
   function syncKey() {
+    renderKeyIcons();
     const box = document.getElementById('p-legend');
     if (!box) return;
     let shown = 0;
@@ -585,6 +586,15 @@
        all of them garbage a moment later: a census after load counted 11,983 live listeners.
        One set on the map, installed once (wireMarkerEvents), reads the record id off the group
        instead. The behaviour is identical; the allocation is not. */
+    /* what the tooltip adds under the type: status, date and how many sources, so a hover answers
+       "how sure, how recent, how many say so" without opening the drawer */
+    const tipMeta = (rec) => {
+      const bits = [];
+      if (rec.assessment) bits.push(GT.txt(GT.STATUS[rec.assessment.status]));
+      if (rec.time && rec.time.start) bits.push(rec.time.start.slice(0, 10));
+      if (rec.sources && rec.sources.length) bits.push(GT.t('p.nsrc', { n: rec.sources.length }));
+      return bits.length ? ' · ' + bits.join(' · ') : '';
+    };
     const bind = (m, rec, title, sub) => m
       .attr('class', 'mk' + (rec.id === state.selected ? ' sel' : ''))
       .attr('tabindex', 0).attr('role', 'button').attr('aria-label', title)
@@ -596,8 +606,11 @@
         if (!g || g.type !== 'Point') continue;
         const [x, y] = proj(g.coordinates);
         const m = gSites.append('g').attr('data-x', x).attr('data-y', y);
-        bind(m, s, GT.txt(s.name), GT.upper(GT.label('site-types', s.site_type)));
-        m.append('path').attr('class', 'mk-site').attr('d', d3.symbol(d3.symbolDiamond, 80)());
+        bind(m, s, GT.txt(s.name), GT.upper(GT.label('site-types', s.site_type)) + tipMeta(s));
+        const ic = GT.siteIcon(s);
+        m.append('rect').attr('class', 'mk-site').attr('x', -7).attr('y', -7).attr('width', 14).attr('height', 14).attr('rx', 3)
+          .style('fill', ic.color);
+        m.append('use').attr('class', 'mk-ic').attr('href', '#ic-' + ic.glyph).attr('x', -4.5).attr('y', -4.5).attr('width', 9).attr('height', 9);
       }
     }
     if (lyr.events.checked) {
@@ -607,6 +620,10 @@
          Anatolia and drew events on Turkish soil that no record puts there. One ring per region,
          with the count, says what is known: this many records, somewhere in this region. */
       const perRegion = new Map();
+      /* Records placed at the same point (every automatic record about Kyiv sits on Kyiv) are one
+         marker with a count, not a pile where only the top one can be reached. The marker shows the
+         newest record's type; clicking it narrows the list to that place. */
+      const perPoint = new Map();
       for (const e of list) {
         const g = e.location && e.location.geometry;
         const pt = g ? (g.type === 'Point' ? g.coordinates : d3.geoCentroid(g)) : null;
@@ -615,11 +632,28 @@
           if (GT.REGIONS[code] && GT.REGIONS[code].at) perRegion.set(code, (perRegion.get(code) || []).concat(e));
           continue;
         }
+        const key = pt[0].toFixed(2) + ',' + pt[1].toFixed(2);
+        if (!perPoint.has(key)) perPoint.set(key, { pt, recs: [] });
+        perPoint.get(key).recs.push(e);
+      }
+      for (const { pt, recs } of perPoint.values()) {
+        const e = recs.find((r) => r.id === state.selected) || recs[0];
+        const n = recs.length;
         const [x, y] = proj(pt);
         const m = gEvents.append('g').attr('data-x', x).attr('data-y', y);
-        bind(m, e, GT.txt(e.title), GT.upper(GT.label('event-types', e.event_type)));
-        if (!reduce && (pulseAll || e.id === state.selected)) m.append('circle').attr('class', 'mk-pulse').attr('r', 6);
-        m.append('circle').attr('class', 'mk-ev st-' + e.assessment.status + (e._example ? ' is-example' : '')).attr('r', 5.5);
+        bind(m, e, GT.txt(e.title), GT.upper(GT.label('event-types', e.event_type)) + tipMeta(e));
+        if (!reduce && (pulseAll || e.id === state.selected)) m.append('circle').attr('class', 'mk-pulse').attr('r', 8);
+        const ic = GT.evIcon(e);
+        m.append('circle').attr('class', 'mk-ev has-ic st-' + e.assessment.status + (e._example ? ' is-example' : '')).attr('r', 7.5)
+          .style('fill', e._example ? null : ic.color);
+        m.append('use').attr('class', 'mk-ic').attr('href', '#ic-' + ic.glyph).attr('x', -4.5).attr('y', -4.5).attr('width', 9).attr('height', 9);
+        if (n > 1) {
+          const place = e.location.place_name ? GT.txt(e.location.place_name) : '';
+          m.attr('data-place', place).attr('data-tip', GT.t('p.pointN', { n, place: place || GT.fmtLL(pt) }))
+            .attr('data-sub', GT.txt(e.title));
+          m.append('circle').attr('class', 'mk-badge').attr('cx', 7).attr('cy', -7).attr('r', 6);
+          m.append('text').attr('class', 'mk-badge-n').attr('x', 7).attr('y', -7).attr('dy', '0.35em').text(n > 99 ? '99+' : n);
+        }
       }
       for (const [code, recs] of perRegion) {
         const [x, y] = proj(GT.REGIONS[code].at);
@@ -651,7 +685,10 @@
     els.map.addEventListener('click', (ev) => {
       const rg = regionGroupAt(ev);
       if (rg) { ev.stopPropagation(); openRegion(rg); return; }
-      const rec = recordOf(groupAt(ev));
+      const g = groupAt(ev);
+      const place = g && g.getAttribute('data-place');
+      if (place && state.q !== place) { ev.stopPropagation(); state.q = place; els.search.value = place; render(); return; }
+      const rec = recordOf(g);
       if (rec) { ev.stopPropagation(); select(rec, true); }
     });
     els.map.addEventListener('keydown', (ev) => {
@@ -846,10 +883,53 @@
     renderPulse();
     syncControlsCount();
     els.banner.hidden = !lyr.examples.checked;
+    renderCats();
     renderFeed(list);
     drawMarkers(list);
     applyRegionClass();
     syncUrl();
+  }
+
+  /* ---------------- type chips ----------------
+     One chip per event domain with its glyph, its colour and how many records the other filters
+     leave in it; a chip toggles the type filter, the same one the select in the controls sets. */
+  function renderCats() {
+    const box = document.getElementById('p-cats');
+    if (!box || !data) return;
+    const keep = state.type; state.type = '';
+    const base = filtered(); state.type = keep;
+    const counts = new Map();
+    for (const e of base) { const d = e.event_type.split('.')[0]; counts.set(d, (counts.get(d) || 0) + 1); }
+    const chips = [];
+    const all = GT.el('button', 'p-cat' + (state.type ? '' : ' on'));
+    all.type = 'button'; all.append(GT.el('span', null, GT.t('p.catsAll')), GT.el('b', 'mono', String(base.length)));
+    all.addEventListener('click', () => { state.type = ''; els.type.value = ''; render(); });
+    chips.push(all);
+    for (const d of Object.keys(GT.EV_ICON)) {
+      const n = counts.get(d) || 0;
+      if (!n && state.type !== d) continue;
+      const b = GT.el('button', 'p-cat' + (state.type === d ? ' on' : ''));
+      b.type = 'button'; b.setAttribute('aria-pressed', String(state.type === d));
+      b.append(GT.iconSvg(GT.EV_ICON[d]), GT.el('span', null, GT.DOMAIN[d] ? GT.txt(GT.DOMAIN[d]) : d), GT.el('b', 'mono', String(n)));
+      b.addEventListener('click', () => { state.type = state.type === d ? '' : d; els.type.value = state.type; render(); });
+      chips.push(b);
+    }
+    box.replaceChildren(...chips);
+  }
+
+  /* ---------------- map key: type icons ---------------- */
+  function renderKeyIcons() {
+    const fill = (id, table, label, shape) => {
+      const box = document.getElementById(id);
+      if (!box || box.childElementCount) return;
+      for (const [k, ic] of Object.entries(table)) {
+        const s = GT.el('span', 'lg-ic');
+        s.append(GT.iconSvg(ic, shape), GT.el('span', null, label(k)));
+        box.append(s);
+      }
+    };
+    fill('p-lg-ev', GT.EV_ICON, (k) => (GT.DOMAIN[k] ? GT.txt(GT.DOMAIN[k]) : k), 'circle');
+    fill('p-lg-site', GT.SITE_ICON, (k) => GT.label('site-types', k) || k, 'square');
   }
 
   function renderFeed(list) {
