@@ -427,6 +427,19 @@ Hiçbir şey saklamaz ve tarayıcı taklidi yapmaz: runner'da da reddeden yayın
 Some publishers do not answer from a maintainer's network; the workflow runs the survey's probe from
 a runner with the collector's own User-Agent and stores nothing.
 
+### Sayfalar tarayıcıda denetlenir / the pages are checked in a browser
+
+```bash
+node tools/web/smoke.mjs                                  # canlı site
+node tools/web/smoke.mjs --base http://localhost:8778/platform/ --chrome "C:/Program Files/Google/Chrome/Application/chrome.exe"
+```
+
+`web-smoke.yml` her site yayınından sonra ve altı saatte bir, bütün sayfaları başsız Chrome'da masaüstü ve telefon
+genişliğinde açar; bir sayfa istisna atarsa, konsola hata yazarsa, animasyonu durursa ya da yana kayarsa iş kırmızıya
+döner ve ekran görüntüleri bir hafta saklanır. Sunucu denetimi çökmüş bir betiğin sayfasından da 200 alır; çöküşü
+yalnızca tarayıcı görür. Every deploy and every six hours, every page is opened in headless Chrome at desktop and
+phone width; an exception, a console error, a stalled animation or a sideways scroll fails the job.
+
 ### Boru hattı kendi durumunu söyler / the pipeline reports itself
 
 ```bash
