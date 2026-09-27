@@ -1,0 +1,50 @@
+name: web-smoke
+
+# Opens every live page in headless Chrome, at desktop and phone width, and fails when a page
+# throws, logs an error, stops animating or scrolls sideways. Server checks (health.yml) see a
+# 200 from a page whose script has crashed; only a browser sees the crash. Runs after every site
+# deploy and every six hours; the screenshots are kept as an artifact for a week.
+on:
+  workflow_run:
+    workflows: [pages]
+    types: [completed]
+  schedule:
+    - cron: "47 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-smoke
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+      - name: Wait for the deploy to be served
+        if: github.event_name == 'workflow_run'
+        run: sleep 60
+      - name: Open the pages
+        env:
+          SMOKE_OUT: ${{ runner.temp }}/smoke
+        run: |
+          mkdir -p "$SMOKE_OUT"
+          node tools/web/smoke.mjs --chrome "$(command -v google-chrome || command -v chromium)" | tee "$RUNNER_TEMP/smoke.txt"
+      - name: Summary
+        if: always()
+        run: |
+          { echo '### Browser smoke test'; echo; echo '```'; cat "$RUNNER_TEMP/smoke.txt" 2>/dev/null; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: smoke-screenshots
+          path: ${{ runner.temp }}/smoke
+          retention-days: 7

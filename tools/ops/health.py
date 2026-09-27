@@ -41,6 +41,7 @@ WORKFLOWS = {
     "msi-activity.yml": {"every_days": 31, "grace_days": 7},
     "trade-vessels.yml": {"every_days": 31, "grace_days": 7},
     "markdown-links.yml": {"every_days": 7, "grace_days": 4},
+    "web-smoke.yml": {"every_days": 1, "grace_days": 1},
 }
 
 # The branch the collectors publish their batch to. If this stops moving, the whole front of the
