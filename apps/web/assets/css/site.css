@@ -1151,3 +1151,11 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .lg-ic { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
 .mk-badge { fill: #0b0b0b; stroke: #fff; stroke-width: 1; vector-effect: non-scaling-stroke; }
 .mk-badge-n { fill: #fff; font-size: 7.5px; font-weight: 700; text-anchor: middle; pointer-events: none; font-family: inherit; }
+
+/* phone: the panel header's links ran off the right edge where nobody could reach them. The title
+   gives way and the links scroll sideways inside the header instead of being cut. */
+@media (max-width: 600px) {
+  .site-header.is-panel .panel-title { display: none; }
+  .panel-tools { min-width: 0; overflow-x: auto; scrollbar-width: none; gap: 14px; white-space: nowrap; }
+  .panel-tools::-webkit-scrollbar { display: none; }
+}

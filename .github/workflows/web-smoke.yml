@@ -36,6 +36,7 @@ jobs:
         env:
           SMOKE_OUT: ${{ runner.temp }}/smoke
         run: |
+          set -o pipefail  # tee must not turn a failed smoke test into a green job
           mkdir -p "$SMOKE_OUT"
           node tools/web/smoke.mjs --chrome "$(command -v google-chrome || command -v chromium)" | tee "$RUNNER_TEMP/smoke.txt"
       - name: Summary
