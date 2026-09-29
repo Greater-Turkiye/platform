@@ -1165,3 +1165,13 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .n-mk-glyph { fill: #fff; pointer-events: none; }
 .n-item .ic { margin-right: 8px; vertical-align: -2px; }
 .n-mk.sel .n-mk-ic { stroke: #fff; stroke-width: 2; }
+
+/* drawer: nearby records */
+.d-near { margin: 18px 0 6px; border-top: 1px solid rgba(232,227,220,.1); padding-top: 12px; }
+.d-near-h { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; opacity: .7; margin: 0 0 8px; font-weight: 600; }
+.d-near-item { display: grid; grid-template-columns: 16px 1fr; column-gap: 8px; width: 100%; text-align: left; background: none; border: 0;
+  padding: 6px 4px; color: inherit; font: inherit; cursor: pointer; border-radius: 2px; }
+.d-near-item:hover { background: rgba(232,227,220,.06); }
+.d-near-item .ic { grid-row: span 2; margin-top: 2px; }
+.d-near-t { font-size: 13px; line-height: 1.3; }
+.d-near-m { font-size: 11px; opacity: .6; }

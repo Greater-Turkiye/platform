@@ -178,6 +178,7 @@
   };
   const allEvents = () => withExamples(data ? data.event : [], 'evt_');
   const allSites = () => withExamples(data ? data.site : [], 'sit_');
+  const pointOf = (r) => { const g = r.location && r.location.geometry; return g ? (g.type === 'Point' ? g.coordinates : d3.geoCentroid(g)) : null; };
   const fold = (s) => String(s || '').toLocaleLowerCase('tr-TR');
   const haystack = (e) => fold([e.id, e.event_type, e.title && e.title.tr, e.title && e.title.en, e.summary && e.summary.tr, e.summary && e.summary.en,
     ...e.regions, ...e.regions.map((r) => GT.label('regions', r))].join(' '));
@@ -1094,6 +1095,35 @@
     idBox.append(GT.el('code', null, rec.id), cp);
     row('d.id', idBox);
     body.append(dl);
+
+    /* Nearby: other records within 60 km of this one, nearest first, each with its type icon and a
+       click that opens it. Only records that carry a point take part, so nothing is placed by guess;
+       the distance is between the recorded points and says so. */
+    const here = pointOf(rec);
+    if (here) {
+      const near = [...allEvents(), ...allSites()]
+        .filter((r) => r.id !== rec.id)
+        .map((r) => { const p = pointOf(r); return p ? { r, km: d3.geoDistance(here, p) * 6371 } : null; })
+        .filter((x) => x && x.km <= 60)
+        .sort((a, b) => a.km - b.km || String(b.r.time && b.r.time.start).localeCompare(String(a.r.time && a.r.time.start)))
+        .slice(0, 8);
+      if (near.length) {
+        const sec = GT.el('section', 'd-near');
+        sec.append(GT.el('h3', 'd-near-h', GT.t('d.near')));
+        for (const { r, km } of near) {
+          const isSite = r.id.startsWith('sit_');
+          const b = GT.el('button', 'd-near-item');
+          b.type = 'button';
+          b.append(GT.iconSvg(isSite ? GT.siteIcon(r) : GT.evIcon(r), isSite ? 'square' : 'circle'),
+            GT.el('span', 'd-near-t', GT.txt(isSite ? r.name : r.title)),
+            GT.el('span', 'd-near-m mono', (km < 1 ? GT.t('d.samePlace') : Math.round(km) + ' km')
+              + (r.time && r.time.start ? ' · ' + r.time.start.slice(0, 10) : '')));
+          b.addEventListener('click', () => select(r, true));
+          sec.append(b);
+        }
+        body.append(sec);
+      }
+    }
 
     const act = GT.el('div', 'd-actions');
     const gh = ext(GT.el('a', 'btn btn-sm', GT.t('d.github')));
