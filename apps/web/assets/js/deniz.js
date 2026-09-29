@@ -273,7 +273,11 @@
         .attr('data-gm-mark', '')
         .attr('tabindex', 0).attr('role', 'button')
         .attr('aria-label', GT.txt(r.name));
-      g.append('path').attr('class', 'n-mk-dot').attr('d', d3.symbol(d3.symbolDiamond, 72)());
+      // the site type's colour and glyph, the same ones the dashboard uses (GT.SITE_ICON)
+      const ic = GT.siteIcon(r);
+      g.append('rect').attr('class', 'n-mk-dot n-mk-ic').attr('x', -7).attr('y', -7).attr('width', 14).attr('height', 14).attr('rx', 3)
+        .style('fill', ic.color);
+      g.append('path').attr('class', 'n-mk-glyph').attr('d', GT.GLYPH[ic.glyph]).attr('transform', 'translate(-4.5 -4.5) scale(0.9)');
       const sub = GT.upper(GT.label('site-types', r.site_type)) + ' · ±' + fmtUnc(loc.uncertainty_m);
       g.on('pointermove', (ev) => showTip(ev, GT.txt(r.name), sub))
         .on('pointerleave', hideTip)
@@ -410,6 +414,7 @@
       const b = GT.el('button', 'n-item' + (r.id === state.selected ? ' on' : ''));
       b.type = 'button';
       b.append(
+        GT.iconSvg(GT.siteIcon(r), 'square'),
         GT.el('span', 'n-item-name', GT.txt(r.name)),
         GT.el('span', 'n-item-meta mono',
           `${GT.upper(GT.label('site-types', r.site_type))} · ±${fmtUnc(r.location.uncertainty_m)}`),

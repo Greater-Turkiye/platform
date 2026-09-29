@@ -1159,3 +1159,9 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
   .panel-tools { min-width: 0; overflow-x: auto; scrollbar-width: none; gap: 14px; white-space: nowrap; }
   .panel-tools::-webkit-scrollbar { display: none; }
 }
+
+/* sea dashboard: register sites in their type's colour and glyph */
+.n-mk-ic { stroke: rgba(0, 0, 0, .6); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.n-mk-glyph { fill: #fff; pointer-events: none; }
+.n-item .ic { margin-right: 8px; vertical-align: -2px; }
+.n-mk.sel .n-mk-ic { stroke: #fff; stroke-width: 2; }
