@@ -20,7 +20,7 @@
 
   const VENDOR = 'assets/vendor/';
   // our own tiles: the gt-tiles Worker reads them out of the PMTiles archive we publish
-  const GT_TILES = 'https://gt-tiles.brasilquart.workers.dev/v1/region-20260917/{z}/{x}/{y}.mvt';
+  const GT_TILES = 'https://gt-tiles.brasilquart.workers.dev/v1/region-20260928/{z}/{x}/{y}.mvt';
   const GT_MAXZOOM = 11; // the archive stops here; MapLibre scales the last level for deeper zooms
   // OpenFreeMap serves tiles, glyphs and sprites with no key and no account; see LICENSES.md.
   const OFM_STYLE = 'https://tiles.openfreemap.org/styles/dark';
