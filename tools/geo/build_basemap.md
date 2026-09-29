@@ -13,9 +13,9 @@ yapılır.
 
 | | |
 |---|---|
-| Area | 13°E–74°E, 22°N–48°N in the archive now served (`region-20260917`); the next archive covers 22°N–56°N, so Ukraine north of 48°N and southern Belarus get a basemap |
+| Area | 13°E–74°E, 22°N–56°N (`region-20260928`, served since 2026-09-29). The previous archive, `region-20260917`, stopped at 48°N and left Kyiv, Kharkiv and southern Belarus without a basemap; it stays in `ARCHIVES` so old URLs keep working |
 | Zoom | 0–11 (MapLibre scales the last level for deeper zooms) |
-| Size | ~709 MB |
+| Size | ~1.46 GB (the 48°N archive was ~709 MB) |
 | Tiles | MVT, gzip, Protomaps basemap schema (`earth`, `water`, `landcover`, `landuse`, `roads`, `places`, …) |
 | Source | [Protomaps](https://protomaps.com) daily planet build, itself built from OpenStreetMap with planetiler |
 | Licence | A Produced Work of OpenStreetMap data — © OpenStreetMap contributors, [ODbL 1.0](https://www.openstreetmap.org/copyright). The credit is served in the TileJSON and drawn on the map. |
