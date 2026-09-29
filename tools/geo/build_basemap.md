@@ -13,7 +13,7 @@ yapılır.
 
 | | |
 |---|---|
-| Area | 13°E–74°E, 22°N–48°N — the panel's `fitExtent`, Balkans to Pakistan, Black Sea to the Gulf |
+| Area | 13°E–74°E, 22°N–48°N in the archive now served (`region-20260917`); the next archive covers 22°N–56°N, so Ukraine north of 48°N and southern Belarus get a basemap |
 | Zoom | 0–11 (MapLibre scales the last level for deeper zooms) |
 | Size | ~709 MB |
 | Tiles | MVT, gzip, Protomaps basemap schema (`earth`, `water`, `landcover`, `landuse`, `roads`, `places`, …) |
@@ -24,6 +24,12 @@ We do not redraw or re-license anything: the extract is a byte-range copy of the
 one rectangle and eleven zoom levels.
 
 ## Rebuilding
+
+**On a runner (preferred):** `gh workflow run basemap-extract.yml -f bbox=13,22,74,56` extracts the
+newest Protomaps build for the box and publishes it as a `basemap-<DATE>` release; the run summary
+gives the URL. Then do the last two steps below (Worker `ARCHIVES` and `GT_TILES`). The box was
+widened to 56°N on 2026-09-29: most automatic records are in Ukraine, north of the old 48°N edge.
+
 
 Needs [`go-pmtiles`](https://github.com/protomaps/go-pmtiles) (a single binary) and `gh`. The
 download is a few hundred range requests against the upstream build; it does not download the
