@@ -24,3 +24,10 @@
 # A SPARQL endpoint, not a page: it answers 403 to a bare GET by design. It is cited as the
 # interface a query was run against, and there is nothing for a link checker to fetch.
 ^https://query\.wikidata\.org/sparql$
+
+# 403 from the runner and from any client that is not a browser: understandingwar.org sits behind a
+# bot challenge ("one moment please"), measured in actions/runs/36705791348 and again with a
+# headless browser on 2026-09-30, which gets the challenge page. The reports are live; the weekly
+# archive check below watches their copies.
+^https://understandingwar\.org/research/middle-east/iran-update-january-21-2026/$
+^https://www\.understandingwar\.org/backgrounder/iran-update-february-6-2025$
