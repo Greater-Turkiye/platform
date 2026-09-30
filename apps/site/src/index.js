@@ -2,6 +2,7 @@
 //
 //   GET /                      -> apps/web, as it is in the repository (the ASSETS binding)
 //   GET /datasets/<file>       -> the dataset export, fetched once per edge and cached
+//   GET /motion/<file>         -> the automatic videos: their list, posters and files (motion's Pages)
 //
 // **Why not just GitHub Pages.** Pages serves the site well and will keep serving it: this Worker
 // is not a migration away from it, it is the copy we control. Three things it can do that Pages
@@ -33,6 +34,10 @@ const DATA_FILES = new Set([
   "feed.json",
   "feed.md",
 ]);
+
+/* The motion repository publishes its automatic videos to its own Pages site: videos.json, and for
+   each video an MP4 and its first frame named after the record. Only those names pass. */
+const MOTION_FILE = /^(videos\.json|v\/auto-evt_[0-9a-z]{26}\.(mp4|jpg))$/;
 
 /* How long each kind of file may be held. The data export changes when a record is merged, so it is
    short and revalidated; the site's own assets are rebuilt with the site, so they are longer; the
@@ -95,6 +100,37 @@ async function dataset(request, env, ctx, name) {
   return response;
 }
 
+async function motion(request, env, ctx, name) {
+  if (!MOTION_FILE.test(name)) return new Response("not a motion file\n", { status: 404 });
+  const video = name.endsWith(".mp4");
+  const cache = caches.default;
+  const key = new Request(new URL(request.url).origin + "/_m/" + name, { method: "GET" });
+  // the list and the posters are small and cached at the edge; a video streams through untouched,
+  // with the visitor's Range header, so seeking works and nothing large is stored
+  if (!video) {
+    const hit = await cache.match(key);
+    if (hit) return hit;
+  }
+  const headers = { accept: request.headers.get("accept") || "*/*" };
+  if (video && request.headers.get("range")) headers.range = request.headers.get("range");
+  const upstream = await fetch(new URL(name, env.MOTION_ORIGIN), { method: request.method, headers });
+  if (!upstream.ok && upstream.status !== 206) {
+    return new Response(`motion upstream: ${upstream.status}\n`, { status: upstream.status === 404 ? 404 : 502 });
+  }
+  const out = new Headers({
+    "content-type": upstream.headers.get("content-type") || (video ? "video/mp4" : "application/octet-stream"),
+    "cache-control": name === "videos.json" ? "public, max-age=300" : "public, max-age=86400",
+    ...SECURITY,
+  });
+  for (const h of ["content-length", "content-range", "accept-ranges", "etag", "last-modified"]) {
+    const v = upstream.headers.get(h);
+    if (v) out.set(h, v);
+  }
+  const response = new Response(upstream.body, { status: upstream.status, headers: out });
+  if (!video) ctx.waitUntil(cache.put(key, response.clone()));
+  return response;
+}
+
 export default {
   async fetch(request, env, ctx) {
     if (request.method !== "GET" && request.method !== "HEAD") {
@@ -104,6 +140,10 @@ export default {
 
     if (url.pathname.startsWith("/datasets/")) {
       return dataset(request, env, ctx, url.pathname.slice("/datasets/".length));
+    }
+
+    if (url.pathname.startsWith("/motion/")) {
+      return motion(request, env, ctx, url.pathname.slice("/motion/".length));
     }
 
     const asset = await env.ASSETS.fetch(request);

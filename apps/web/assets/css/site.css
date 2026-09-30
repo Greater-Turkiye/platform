@@ -1175,3 +1175,23 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .d-near-item .ic { grid-row: span 2; margin-top: 2px; }
 .d-near-t { font-size: 13px; line-height: 1.3; }
 .d-near-m { font-size: 11px; opacity: .6; }
+
+/* videos page: vertical cards, poster first, the file loads on play */
+.v-sec { padding-top: clamp(24px, 4vw, 48px); }
+.v-note { margin: 0 0 28px; font: 500 11px var(--m); letter-spacing: .2em; text-transform: uppercase; color: var(--t3); }
+.v-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(18px, 2.4vw, 32px); grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); }
+.v-card { display: flex; flex-direction: column; background: var(--s1); border: 1px solid var(--line); }
+.v-frame { position: relative; display: block; width: 100%; aspect-ratio: 9 / 16; padding: 0; border: 0; background: var(--s2); cursor: pointer; overflow: hidden; }
+.v-frame img, .v-video { display: block; width: 100%; aspect-ratio: 9 / 16; height: auto; object-fit: cover; background: var(--s2); }
+.v-frame img { transition: transform .6s var(--e), opacity .3s; }
+.v-frame:hover img, .v-frame:focus-visible img { transform: scale(1.02); opacity: .9; }
+.v-play { position: absolute; left: 50%; top: 42%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; background: rgba(5, 5, 5, .62); border: 1px solid var(--line2); }
+.v-play::after { content: ''; position: absolute; left: 26px; top: 20px; border-left: 18px solid var(--t1); border-top: 12px solid transparent; border-bottom: 12px solid transparent; }
+.v-meta { padding: 16px 16px 18px; }
+.v-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 10px; font: 500 10px var(--m); letter-spacing: .12em; color: var(--t3); }
+.v-status { padding: 3px 7px; border: 1px solid currentColor; letter-spacing: .14em; }
+.v-status.st-unv { color: var(--warn); } .v-status.st-part { color: var(--info); } .v-status.st-ok { color: var(--ok); } .v-status.st-disp { color: var(--rb); }
+.v-meta h3 { margin: 0 0 12px; font-size: 15px; font-weight: 700; line-height: 1.35; }
+.v-links { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; font: 500 11px var(--m); letter-spacing: .06em; }
+.v-links a { color: var(--t2); border-bottom: 1px solid var(--line2); }
+.v-links a:hover { color: var(--t1); }

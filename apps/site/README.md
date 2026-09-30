@@ -48,6 +48,7 @@ files from the same commit.
 |---|---|
 | `DATA_ORIGIN` | Veri dışa aktarımının yayımlandığı yer; taşınırsa tek satır değişir / where the dataset export is published |
 | `DATA_MAX_AGE` | Veri yanıtlarının `cache-control` süresi, saniye (varsayılan 300) |
+| `MOTION_ORIGIN` | motion deposunun otomatik videolarını yayımladığı Pages sitesi; `/motion/videos.json` ve `/motion/v/auto-evt_….{mp4,jpg}` buradan gelir, başka ad geçmez. Video, ziyaretçinin `Range` başlığıyla akar ve önbelleğe alınmaz; liste beş dakika, kapak kareleri bir gün tutulur / where the motion repository publishes its automatic videos; only those names pass, a video streams with the visitor's Range header and is not cached |
 
 Önbellek süreleri (`src/index.js` → `cacheFor`): `assets/vendor` ve `assets/fonts` bir hafta,
 diğer `assets/*` bir saat, sayfalar beş dakika — çünkü okuyucu bir değişikliği görmek için sayfayı
