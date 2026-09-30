@@ -68,7 +68,8 @@
   }
 
   fetch(BASE + 'videos.json', { cache: 'no-cache' })
-    .then((r) => (r.ok ? r.json() : Promise.reject(new Error(r.status))))
+    // no list yet is not an error: the first production run has not published one
+    .then((r) => (r.ok ? r.json() : r.status === 404 ? { videos: [] } : Promise.reject(new Error(r.status))))
     .then((d) => { items = (d.videos || []).filter((v) => v && v.video && v.poster); render(); })
     .catch(() => { note.textContent = GT.t('v.error'); });
 
