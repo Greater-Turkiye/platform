@@ -16,7 +16,7 @@ const args = new Map();
 for (let i = 2; i < process.argv.length; i += 2) args.set(process.argv[i].replace(/^--/, ''), process.argv[i + 1]);
 const BASE = args.get('base') || 'https://greater-turkiye.github.io/platform/';
 const CHROME = args.get('chrome') || process.env.CHROME || 'google-chrome';
-const PAGES = ['', 'panel.html', 'deniz.html', 'hava.html', 'ticaret.html', 'sicil.html', 'method.html'];
+const PAGES = ['', 'panel.html', 'deniz.html', 'hava.html', 'ticaret.html', 'sicil.html', 'method.html', 'videolar.html'];
 const WIDTHS = [[1600, 1000], [390, 844]];
 // messages that are not the site's fault: the browser's own complaints about a headless session
 const IGNORE = [/favicon\.ico/i, /Failed to load resource.*(404|net::ERR_ABORTED).*favicon/i];

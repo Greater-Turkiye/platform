@@ -9,7 +9,7 @@
 
   // The site as it is in the repository. Static asset requests are served by Cloudflare itself and
   // do not run the Worker unless `run_worker_first` says so — the Worker exists for the headers and
-  // for the dataset proxy below.
+  // for the dataset and video proxies below.
   "assets": {
     "directory": "../web",
     "binding": "ASSETS",
@@ -24,7 +24,10 @@
   // and the answer is cached at the edge. Moving the export elsewhere later is one line here.
   "vars": {
     "DATA_ORIGIN": "https://greater-turkiye.github.io/datasets/",
-    "DATA_MAX_AGE": "300"
+    "DATA_MAX_AGE": "300",
+    // MOTION_ORIGIN is where the motion repository publishes its automatic videos (videos.json,
+    // posters, MP4s); the videos page asks for `/motion/…` here, for the same reason as the data
+    "MOTION_ORIGIN": "https://greater-turkiye.github.io/motion/"
   },
 
   "observability": {
