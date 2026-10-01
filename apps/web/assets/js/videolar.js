@@ -58,6 +58,32 @@
       links.append(a);
     });
     meta.append(top, h, links);
+    // the same story as an Instagram carousel (motion's tools/post/carousel.mjs): the slides load
+    // only when asked for, in a strip that scrolls one slide at a time
+    if (Array.isArray(v.post) && v.post.length) {
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'v-post-btn';
+      btn.textContent = GT.t('v.post', { n: v.post.length });
+      btn.setAttribute('aria-expanded', 'false');
+      btn.addEventListener('click', () => {
+        const open = btn.getAttribute('aria-expanded') === 'true';
+        const strip = meta.querySelector('.v-post');
+        if (open) { strip?.remove(); btn.setAttribute('aria-expanded', 'false'); return; }
+        const row = document.createElement('div');
+        row.className = 'v-post'; row.tabIndex = 0;
+        row.setAttribute('aria-label', GT.t('v.postLabel'));
+        v.post.forEach((src, i) => {
+          const a = document.createElement('a');
+          a.href = BASE + src; a.target = '_blank'; a.rel = 'noopener';
+          const im = document.createElement('img');
+          im.src = BASE + src; im.alt = GT.t('v.slide', { i: i + 1, n: v.post.length }); im.loading = 'lazy'; im.decoding = 'async'; im.width = 1080; im.height = 1350;
+          a.append(im); row.append(a);
+        });
+        meta.append(row);
+        btn.setAttribute('aria-expanded', 'true');
+      });
+      meta.append(btn);
+    }
     li.append(frame, meta);
     return li;
   }
