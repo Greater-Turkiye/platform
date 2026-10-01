@@ -44,7 +44,14 @@
     st.textContent = v.status;
     const when = document.createElement('time');
     when.dateTime = v.date; when.textContent = GT.fmtDate ? GT.fmtDate(v.date) : v.date;
-    top.append(st, when);
+    top.append(st);
+    // the weekly digest (motion's tools/scene/digest.mjs) says what it is, beside the status
+    if (v.variant === 'digest') {
+      const kind = document.createElement('span');
+      kind.className = 'v-kind'; kind.textContent = GT.t('v.digest');
+      top.append(kind);
+    }
+    top.append(when);
     const h = document.createElement('h3');
     h.textContent = v.title;
     const links = document.createElement('p');

@@ -1190,6 +1190,9 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .v-meta { padding: 16px 16px 18px; }
 .v-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 10px; font: 500 10px var(--m); letter-spacing: .12em; color: var(--t3); }
 .v-status { padding: 3px 7px; border: 1px solid currentColor; letter-spacing: .14em; }
+.v-kind { padding: 3px 7px; background: var(--t1); color: var(--s1); letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
+.v-top { flex-wrap: wrap; }
+.v-top time { margin-left: auto; white-space: nowrap; }
 .v-status.st-unv { color: var(--warn); } .v-status.st-part { color: var(--info); } .v-status.st-ok { color: var(--ok); } .v-status.st-disp { color: var(--rb); }
 .v-meta h3 { margin: 0 0 12px; font-size: 15px; font-weight: 700; line-height: 1.35; }
 .v-links { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; font: 500 11px var(--m); letter-spacing: .06em; }
