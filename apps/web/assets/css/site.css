@@ -1195,3 +1195,8 @@ ol.rules li::before { content: counter(q, decimal-leading-zero); counter-increme
 .v-links { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; font: 500 11px var(--m); letter-spacing: .06em; }
 .v-links a { color: var(--t2); border-bottom: 1px solid var(--line2); }
 .v-links a:hover { color: var(--t1); }
+.v-post-btn { margin-top: 12px; padding: 6px 10px; font: 600 11px var(--m); letter-spacing: .06em; color: var(--t1); background: transparent; border: 1px solid var(--line2); cursor: pointer; }
+.v-post-btn:hover, .v-post-btn[aria-expanded="true"] { border-color: var(--t2); }
+.v-post { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; }
+.v-post a { flex: 0 0 82%; scroll-snap-align: start; }
+.v-post img { display: block; width: 100%; height: auto; border: 1px solid var(--line); }
