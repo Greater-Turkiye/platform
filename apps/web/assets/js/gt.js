@@ -451,12 +451,9 @@
     els.forEach((e) => io.observe(e));
   };
 
-  GT.clock = (el) => {
-    if (!el) return;
-    const tick = () => { el.textContent = new Date().toISOString().slice(11, 19) + 'Z'; };
-    tick();
-    setInterval(tick, 1000);
-  };
+  /* Today's date in UTC, written once. A clock ticking the seconds was ops-room decoration
+     (CLAUDE.md, design): nothing on the page changes every second. */
+  GT.clock = (el) => { if (el) el.textContent = new Date().toISOString().slice(0, 10); };
 
   GT.el = (tag, cls, text) => {
     const n = document.createElement(tag);
@@ -1541,27 +1538,9 @@
   };
   GT.fmtLL = ([lon, lat]) => `${Math.abs(lat).toFixed(2)}°${lat >= 0 ? 'N' : 'S'} · ${Math.abs(lon).toFixed(2)}°${lon >= 0 ? 'E' : 'W'}`;
 
-  /* Draw a radar sweep made of thin slices with increasing opacity; rotated via SMIL so it works in any SVG transform context. */
-  GT.sweep = (parent, radius, reduce, dur) => {
-    const g = parent.append('g').attr('class', 'm-sweep');
-    const inner = g.append('g');
-    const n = 28, span = Math.PI / 3.2;
-    const arc = d3.arc().innerRadius(0).outerRadius(radius);
-    for (let i = 0; i < n; i++) {
-      inner.append('path').attr('class', 'm-sweep-slice')
-        .attr('d', arc({ startAngle: (i / n) * span, endAngle: ((i + 1) / n) * span + 0.002 }))
-        .attr('fill', `rgba(200,0,42,${(0.16 * Math.pow((i + 1) / n, 2.2)).toFixed(4)})`);
-    }
-    inner.append('line').attr('class', 'm-sweep-edge').attr('x1', 0).attr('y1', 0)
-      .attr('x2', radius * Math.sin(span)).attr('y2', -radius * Math.cos(span));
-    if (!reduce) {
-      inner.append('animateTransform').attr('attributeName', 'transform').attr('type', 'rotate')
-        .attr('from', '0').attr('to', '360').attr('dur', (dur || 12) + 's').attr('repeatCount', 'indefinite');
-    } else {
-      inner.attr('transform', 'rotate(40)');
-    }
-    return g;
-  };
+  /* The radar sweep that used to turn over the maps is gone: a fake ops-room HUD is decoration
+     (CLAUDE.md, design). Callers still get a group, so their show/hide code keeps working. */
+  GT.sweep = (parent) => parent.append('g').attr('class', 'm-sweep');
 
   GT.mapDefs = (svg) => {
     const defs = svg.append('defs');
