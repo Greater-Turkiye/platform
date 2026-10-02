@@ -74,7 +74,7 @@ motoru her iki yolu da tek çağrıyla besleyen bir çerçeveye dönüştürmeyi
 dürüst uygulamadan kötüdür.
 
 Paylaşılabilir olan zaten paylaşılıyor: `home.js`, `gt.js`'ten 26 yardımcı kullanır (i18n, veri
-yükleme, coğrafya, ülke ve ortaklık tabloları, biçimlendiriciler, `mapDefs`, `sweep`). Paylaşım
+yükleme, coğrafya, ülke ve ortaklık tabloları, biçimlendiriciler, `mapDefs`; `sweep` draws nothing since the no-decoration rule, CLAUDE.md 4a). Paylaşım
 katmanı orasıdır; `gtmap.js` ise yalnızca SVG haritalar içindir.
 
 `gtmap.js` is the shared engine for the three dashboards. The home-page globe is deliberately not on

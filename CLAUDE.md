@@ -33,6 +33,20 @@ Written for AI agents and for anyone new to the repository. The handbook is the 
 - Keep the still frames of the map visually stable: performance work may simplify moving frames, never the settled view.
 - Verify before merging: serve the site locally, drive it with the CDP screenshot harness, and check both the screenshots and a clean console on desktop and at phone width.
 
+## 4a. Design: no template look, no "AI slop" (owner, 2026-10-02)
+
+The owner's verdict on the typical news-reel look (a metaphor illustration, a sum counting up at
+poster size, stat pills, a teaser line, glow and stars): rubbish design, forbidden. On every page:
+
+- **No counters**: no number that runs up or ticks, no clock ticking seconds; a number appears at its value.
+- **No number alone at poster size**: a number stands with what it counts, at text size.
+- **No generated, stock or metaphor imagery**; the picture is the map, the data and official sources.
+- **No decoration**: no glow, neon or atmosphere halo, radar sweeps, fake HUD, pulsing dots or rings,
+  particles, light rays, gradient decor, bounce or overshoot.
+- **No sticker furniture or bait copy**: no side-stat pills, no "Ama…", "Peki ya…?", "Şok", no emoji.
+
+The same rule, worded for video, is section 4 of the motion repository's CLAUDE.md.
+
 ## 5. Git and pull requests
 
 - Never commit to `main`; `main` is protected. Work on a branch, open a pull request, squash-merge it.
