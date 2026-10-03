@@ -64,3 +64,12 @@ def make_feed(**overrides: object) -> FeedConfig:
     }
     base.update(overrides)
     return FeedConfig(**base)
+
+
+@pytest.fixture(autouse=True)
+def _no_age_limit(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The fixtures are dated September 2026; the queue's age limit would turn them stale with the
+    calendar. Tests of the limit itself pass --max-age-days."""
+    from gt_collectors import review
+
+    monkeypatch.setattr(review, "MAX_AGE_DAYS", 0)

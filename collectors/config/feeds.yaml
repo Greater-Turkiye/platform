@@ -635,3 +635,98 @@ feeds:
       short excerpt and the link. The English terms page is an empty placeholder. Graded C pending a
       track record. ~3 items per day.
 
+  # The Aegean, the Eastern Mediterranean, Cyprus and Libya, added 2026-10-03. Greek and Cypriot state
+  # sites answer 403 to the collector, UN mission sites publish no feed, and the regional outlets
+  # restrict reuse (sources.md, "Bölge akışları"). What passes: US federal works, which carry no
+  # copyright, and GOV.UK under the OGL. Every URL below was fetched with the collector's own
+  # User-Agent on 2026-10-03.
+  - id: rss-usa-c6f
+    kind: rss
+    name: US Sixth Fleet — news
+    country: USA
+    source_id: null
+    url: https://www.c6f.navy.mil/DesktopModules/ArticleCS/RSS.ashx?ContentType=1&Site=968&max=20
+    cadence_minutes: 180
+    lang: en
+    regions: [aegean, east-med, cyprus, libya-north-africa, black-sea]
+    enabled: false
+    queue: true
+    reliability: B
+    terms: https://www.dvidshub.net/about/copyright
+    secrets: []
+    notes: >-
+      Naval Forces Europe-Africa / Sixth Fleet press releases: port visits (Cyprus, Crete), exercises
+      in the Mediterranean and North Africa (Phoenix Express). A US federal work, not subject to
+      copyright in the US. The official release of a port call is news, not tracking: no position
+      feed, no live movements. Items naming Turkish forces are refused downstream (the red line).
+      20 items per fetch, a few a week.
+
+  - id: rss-usa-africom-dvids
+    kind: rss
+    name: US Africa Command — news (DVIDS)
+    country: USA
+    source_id: null
+    url: https://www.dvidshub.net/rss/unit/1015?type=news
+    cadence_minutes: 360
+    lang: en
+    regions: [libya-north-africa]
+    enabled: false
+    queue: true
+    reliability: B
+    terms: https://www.dvidshub.net/about/copyright
+    secrets: []
+    notes: >-
+      AFRICOM's news on DVIDS (africom.mil itself answers 403; DVIDS unit 1015). Much of it is
+      sub-Saharan; the region-gated relevance filter keeps the Libya and North Africa items. A US
+      federal work. `?type=news` keeps articles only; a lettered unit id ("c6f") is not a unit but the
+      whole DVIDS stream. 10 items per fetch.
+
+  - id: atom-gbr-cyprus
+    kind: rss
+    name: GOV.UK — news and communications about Cyprus
+    country: GBR
+    url: https://www.gov.uk/search/news-and-communications.atom?world_locations%5B%5D=cyprus
+    cadence_minutes: 360
+    lang: en
+    regions: [cyprus]
+    enabled: false
+    queue: true
+    reliability: B
+    terms: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+    secrets: []
+    notes: >-
+      UK government items tagged Cyprus (calls with the Cypriot president, the Sovereign Base Areas,
+      joint statements). OGL v3, like the FCDO and MoD feeds; overlaps them, the dedup catches
+      the copies. 20 items per fetch, a few a month.
+
+  - id: atom-gbr-greece
+    kind: rss
+    name: GOV.UK — news and communications about Greece
+    country: GBR
+    url: https://www.gov.uk/search/news-and-communications.atom?world_locations%5B%5D=greece
+    cadence_minutes: 360
+    lang: en
+    regions: [aegean, east-med]
+    enabled: false
+    queue: true
+    reliability: B
+    terms: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+    secrets: []
+    notes: OGL v3. UK items tagged Greece; low volume, much of it diplomatic. 20 items per fetch.
+
+  - id: atom-gbr-libya
+    kind: rss
+    name: GOV.UK — news and communications about Libya
+    country: GBR
+    url: https://www.gov.uk/search/news-and-communications.atom?world_locations%5B%5D=libya
+    cadence_minutes: 720
+    lang: en
+    regions: [libya-north-africa]
+    enabled: false
+    queue: true
+    reliability: B
+    terms: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+    secrets: []
+    notes: >-
+      OGL v3. UK statements at the Security Council on Libya and UNSMIL. Slow (newest item
+      2026-08-18 when added), so twice a day is plenty.
