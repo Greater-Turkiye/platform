@@ -296,3 +296,16 @@ def test_a_broken_relevance_table_stops_the_run(config: Path, tmp_path: Path) ->
 
 def test_min_relevance_is_validated(config: Path, tmp_path: Path) -> None:
     assert main(["--config", str(config), "--queue-dir", str(tmp_path / "q"), "--min-relevance", "3"]) == 2
+
+
+def test_items_older_than_the_window_are_not_queued(config: Path, tmp_path: Path) -> None:
+    """A feed seen for the first time hands over its archive (GOV.UK's Libya feed went back to 2021):
+    items older than the window are counted, not queued and not remembered."""
+    ledger = tmp_path / "seen.jsonl"
+    out = tmp_path / "queue"
+    _queue_run(config, out, "--state", str(ledger), "--max-age-days", "1")  # the fixture is from 2026-09
+    summary = json.loads((out / "summary.json").read_text("utf-8"))
+    # the one item without a date cannot be judged by age and is queued as before
+    assert summary["queued"] == 1 and summary["stale"] == 2
+    assert len(ledger.read_text("utf-8").splitlines()) == 1
+    assert "| Yaş sınırından eski / older than the age limit | 2 |" in (out / "issue.md").read_text("utf-8")

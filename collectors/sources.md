@@ -116,12 +116,24 @@ Cyrillic, which the TR + EN relevance filter cannot read; it stays a lead.
 | RFE/RL — Iran | `https://www.rferl.org/api/z-oiil-vomx-tpergmp` | en | ~2/day | same | `rss-rferl-iran-en` |
 | Hırvatistan Savunma Bakanlığı / Croatian MoD | `https://www.morh.hr/en/feed/` | en | ~0.2/day (Croatian `/feed/` ~17/day, off: the relevance filter reads TR + EN only) | [uvjeti-koristenja](https://www.morh.hr/uvjeti-koristenja/): reuse without permission, source cited | `rss-hrv-mod` |
 | Shafaq News — Security | `https://shafaq.com/rss/en/Security` | en | ~3/day | [terms](https://shafaq.com/ar/terms-and-conditions) (Arabic): journalistic quotation naming the source | `rss-irq-shafaq-security-en` |
+| ABD 6. Filo / US Sixth Fleet | `https://www.c6f.navy.mil/DesktopModules/ArticleCS/RSS.ashx?ContentType=1&Site=968&max=20` | en | a few/week | US federal work, no copyright ([DVIDS copyright](https://www.dvidshub.net/about/copyright)) | `rss-usa-c6f` |
+| ABD Afrika Komutanlığı / US Africa Command (DVIDS) | `https://www.dvidshub.net/rss/unit/1015?type=news` | en | ~1/day | same | `rss-usa-africom-dvids` |
+| GOV.UK — Kıbrıs / Cyprus | `https://www.gov.uk/search/news-and-communications.atom?world_locations%5B%5D=cyprus` | en | a few/month | [OGL v3](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/) | `atom-gbr-cyprus` |
+| GOV.UK — Yunanistan / Greece | `…world_locations%5B%5D=greece` | en | a few/month | OGL v3 | `atom-gbr-greece` |
+| GOV.UK — Libya | `…world_locations%5B%5D=libya` | en | ~1/month | OGL v3 | `atom-gbr-libya` |
 
 Ertelenenler / Deferred: OC Media (CC BY-NC 4.0: whether monetised video counts as non-commercial is
 open), Middle East Monitor (permission clear, advocacy outlet), Syria TV (opinion must be filtered),
 Hetq, Novinite (14-day retention limit), Gazeta.uz, the RFE/RL language services (same terms assumed,
-confirmed only for Slobodna Evropa and Europa Liberă). Uygun aday bulunamayanlar / No candidate passed:
-**Ege, Kıbrıs, Libya, resmî Körfez kaynakları** — Yunan ve Kıbrıs devlet siteleri toplayıcıya 403
+confirmed only for Slobodna Evropa and Europa Liberă). Ege, Kıbrıs ve Libya için ikinci tarama (2026-10-03 akşamı) ABD federal kaynaklarını (telif dışı) ve
+GOV.UK'nin ülke etiketli akışlarını (OGL) buldu; yukarıdaki son beş satır. Koşulları elemeye takılanlar:
+Cyprus Mail ve in-cyprus (tüm hakları saklı), Libya Herald ve Libya Observer (çoğaltma yasak), ERT
+(yalnız kişisel kullanım), operationirini.eu (tüm hakları saklı), ReliefWeb ve Frontex (ticari olmayan /
+kişisel kullanım), KKTC Enformasyon Dairesi (koşul yayımlanmamış). Akışı olmayanlar: UNFICYP, UNSMIL,
+EEAS; Yunan devlet siteleri ve Kathimerini 403. / A second sweep found US federal works and GOV.UK's
+country feeds (the last five rows above); the rest failed on terms or have no reachable feed.
+Uygun aday bulunamayanlar / No candidate passed:
+**Yunan ve Kıbrıs devlet kaynakları, Libya yayın organları, resmî Körfez kaynakları** — Yunan ve Kıbrıs devlet siteleri toplayıcıya 403
 veriyor, oradaki yayın organları yeniden kullanımı kısıtlıyor ya da koşul yayımlamıyor. Mehr News
 English'in sayfasında artık CC BY 4.0 bildirimi var; 2026-09-24 notu yeniden bakılmalı (güvenilirlik
 notu ayrı soru).

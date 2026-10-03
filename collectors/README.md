@@ -238,12 +238,13 @@ gt-collect --feed rss-aze-mod --dry-run --input saved-feed.xml   # çevrimdış�
 gt-collect --queue-dir queue --state state/seen.jsonl --max-items 40
 gt-collect --queue-dir queue --relevance my-tables.yaml     # başka ilgi tablosu / other tables
 gt-collect --queue-dir queue --min-relevance 0              # süzgeçsiz / filter off
+gt-collect --queue-dir queue --max-age-days 0               # yaş sınırı yok / no age limit
 
 # Partiyi D1'e yaz: sinyaller + kuyruk / write the batch to D1: signals + review queue
 gt-collect --write-d1 queue --d1-dry-run
 ```
 
-İki ayrı kapı vardır ve biri diğerini gerektirmez: `enabled: true` + `source_id` → ingest'e gönderilebilir (`INGEST_URL`, `INGEST_HMAC_KEY` gerekir); `queue: true` + kayıtlı `terms` → insan inceleme kuyruğuna girebilir (sır gerekmez, hiçbir şey gönderilmez). / Two independent gates: `enabled: true` with a `source_id` means a feed may be **sent to ingest** (needs `INGEST_URL` and `INGEST_HMAC_KEY`); `queue: true` with its `terms` on record means it may enter the **human review queue** (no secrets, nothing is sent).
+İki ayrı kapı vardır ve biri diğerini gerektirmez: `enabled: true` + `source_id` → ingest'e gönderilebilir (`INGEST_URL`, `INGEST_HMAC_KEY` gerekir); `queue: true` + kayıtlı `terms` → insan inceleme kuyruğuna girebilir (sır gerekmez, hiçbir şey gönderilmez). Kuyruk 30 günden eski öğeleri almaz: ilk kez okunan bir akış bütün arşivini verir (GOV.UK'nin Libya akışı 2021'e iniyordu); bunlar sayılır, deftere yazılmaz. / Two independent gates: `enabled: true` with a `source_id` means a feed may be **sent to ingest** (needs `INGEST_URL` and `INGEST_HMAC_KEY`); `queue: true` with its `terms` on record means it may enter the **human review queue** (no secrets, nothing is sent). The queue skips items published more than 30 days ago (`--max-age-days`): a feed read for the first time hands over its whole archive; they are counted, not remembered.
 
 | Modül / Module | İçerik / Content |
 |---|---|

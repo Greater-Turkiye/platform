@@ -36,6 +36,9 @@ from gt_collectors.relevance import Relevance
 from gt_collectors.signal import Signal
 
 MAX_ITEMS = 40
+# An item published longer ago than this is not queued: it is history, not news. A feed seen for the
+# first time hands over its whole archive; the GOV.UK Libya feed went back to 2021.
+MAX_AGE_DAYS = 30
 BODY_LIMIT = 60_000
 LABEL = "inceleme-kuyrugu"
 WAYBACK_API = "https://archive.org/wayback/available"
@@ -233,6 +236,7 @@ def render_issue(
         f"| Güvenlik süzgeci + geofence eledi / dropped by the safety filter | {stats.get('dropped', 0)} |",
         f"| Kopya / duplicates within the run | {stats.get('duplicates', 0)} |",
         f"| Daha önce kuyruğa girmiş / already in the ledger | {stats.get('known', 0)} |",
+        f"| Yaş sınırından eski / older than the age limit | {stats.get('stale', 0)} |",
         f"| İlgisiz / off-topic (ilgi süzgeci / relevance filter) | {stats.get('off_topic', 0)} |",
         f"| Kuyruğa alınan / queued here | {len(candidates)} |",
         f"| Sonraki çalışmaya ertelenen / deferred to the next run | {deferred} |",

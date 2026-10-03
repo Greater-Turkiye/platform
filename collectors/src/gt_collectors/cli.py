@@ -67,7 +67,7 @@ import sys
 from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from gt_collectors import batch as batch_publish
@@ -118,6 +118,12 @@ def _parser() -> argparse.ArgumentParser:
         "--archive", action="store_true", help="look up a Wayback Machine snapshot for each candidate"
     )
     queue.add_argument("--run-url", metavar="URL", help="link to the workflow run, shown in the issue")
+    queue.add_argument(
+        "--max-age-days",
+        type=int,
+        metavar="N",
+        help="skip items published more than N days ago (default: review.MAX_AGE_DAYS; 0: no limit)",
+    )
     queue.add_argument(
         "--relevance",
         type=Path,
@@ -249,9 +255,12 @@ def _collect_feeds(
     *,
     table: relevance.Table,
     seen: Callable[[Signal], bool],
+    now: datetime | None = None,
 ) -> _Batch:
     """Fetch every feed, filter it and turn what is left into candidates. Never raises."""
     batch = _Batch()
+    days = review.MAX_AGE_DAYS if getattr(args, "max_age_days", None) is None else args.max_age_days
+    oldest = (now or datetime.now(UTC)) - timedelta(days=days) if days > 0 else None
     for feed in feeds:
         summary: dict[str, object] = {"feed": feed.id}
         try:
@@ -266,6 +275,12 @@ def _collect_feeds(
             batch.totals["dropped"] += guarded.dropped
             new = off_topic = 0
             for signal in guarded.kept:
+                # an item older than the window is history, not news: a feed seen for the first
+                # time hands over its whole archive (GOV.UK's Libya feed went back to 2021). It is
+                # not queued and not written to the ledger
+                if oldest and signal.published_at and signal.published_at < oldest:
+                    batch.totals["stale"] += 1
+                    continue
                 if seen(signal):
                     batch.totals["known"] += 1
                     continue
@@ -311,7 +326,7 @@ def _run_queue(feeds: list[FeedConfig], args: argparse.Namespace, now: datetime)
         pending.add(signal, day=day)
         return False
 
-    batch = _collect_feeds(feeds, args, table=table, seen=seen)
+    batch = _collect_feeds(feeds, args, table=table, seen=seen, now=now)
     totals, off_topic = batch.totals, batch.off_topic
     selected, deferred_items = review.select(batch.relevant, args.max_items)
     deferred = len(deferred_items)
@@ -327,6 +342,7 @@ def _run_queue(feeds: list[FeedConfig], args: argparse.Namespace, now: datetime)
         "dropped": totals["dropped"],
         "duplicates": totals["duplicates"],
         "known": totals["known"],
+        "stale": totals["stale"],
         "off_topic": totals["off_topic"],
         "errors": totals["errors"],
     }
