@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from pathlib import Path
 
 import pytest
 
@@ -139,3 +140,15 @@ def test_an_ungraded_queue_feed_still_loads() -> None:
 def test_reliability_must_be_an_admiralty_grade() -> None:
     with pytest.raises(ConfigError, match="Admiralty"):
         _cfg._feed(_queue_feed(reliability="G"), "feeds[0]")
+
+
+def test_a_key_given_twice_is_an_error(tmp_path: Path) -> None:
+    # plain YAML keeps the last value silently: the file once said both `queue: false` and `queue: true`
+    f = tmp_path / "feeds.yaml"
+    f.write_text("feeds:\n  - id: rss-a\n    queue: false\n    queue: true\n", encoding="utf-8")
+    with pytest.raises(ConfigError, match="duplicate key 'queue'"):
+        load_feeds(f)
+
+
+def test_the_shipped_config_loads() -> None:
+    load_feeds(Path(__file__).resolve().parents[1] / "config" / "feeds.yaml")
