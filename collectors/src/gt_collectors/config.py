@@ -120,8 +120,10 @@ def _feed(raw: Any, where: str) -> FeedConfig:
     if reliability is not None and reliability not in RELIABILITY:
         raise ConfigError(f"{where}: reliability must be one of {sorted(RELIABILITY)} (Admiralty scale)")
     if queue and reliability is not None and reliability > QUEUE_MIN_RELIABILITY:
-        raise ConfigError(f"{where}: a source graded {reliability} is below the queue floor ({QUEUE_MIN_RELIABILITY}); "
-                          "grade it in the source record with the reason, and leave queue false")
+        raise ConfigError(
+            f"{where}: a source graded {reliability} is below the queue floor ({QUEUE_MIN_RELIABILITY}); "
+            "grade it in the source record with the reason, and leave queue false"
+        )
     regions = raw.get("regions") or []
     if not isinstance(regions, list) or not all(isinstance(r, str) and CODE_RE.match(r) for r in regions):
         raise ConfigError(f"{where}: regions must be a list of codes")

@@ -560,3 +560,86 @@ feeds:
       notices", and forbid automated access faster "than a human can reasonably produce" — hence
       four fetches a day. Graded C: a sponsor-funded policy advocacy institution, reliable on
       facts, with a line to push; analysis, not reporting. 100 items per fetch.
+
+  # Regional feeds added 2026-10-03 to reduce the automatic records' dependence on one feed (Ukrinform
+  # was ~322 of ~400 sources, so nearly every video was about Ukraine). Each was fetched with the
+  # collector's own User-Agent, parsed as RSS, and its terms read; see sources.md, "Bölge akışları".
+  - id: rss-rferl-en
+    kind: rss
+    name: Radio Free Europe/Radio Liberty (English)
+    country: CZE
+    source_id: null
+    url: https://www.rferl.org/api/
+    cadence_minutes: 120
+    lang: en
+    regions: [caucasus, central-asia, iran, balkans, black-sea]
+    enabled: false
+    queue: true
+    reliability: B
+    terms: https://about.rferl.org/use-our-content/
+    secrets: []
+    notes: >-
+      The use-our-content page welcomes reuse: excerpts must be marked as excerpts and linked, a
+      translation must name the original language and link, no sale, no advertising, no AI training,
+      and permission is revocable. Our records lead with the link and the narration states it reads
+      the record. Graded B: US-funded public broadcaster, sound on events, with an editorial line.
+      ~9 items per day.
+
+  - id: rss-rferl-iran-en
+    kind: rss
+    name: Radio Free Europe/Radio Liberty — Iran (English)
+    country: CZE
+    source_id: null
+    url: https://www.rferl.org/api/z-oiil-vomx-tpergmp
+    cadence_minutes: 180
+    lang: en
+    regions: [iran]
+    enabled: false
+    queue: true
+    reliability: B
+    terms: https://about.rferl.org/use-our-content/
+    secrets: []
+    notes: >-
+      The Iran section of the same site under the same terms. ~2 items per day.
+
+  - id: rss-hrv-mod
+    kind: rss
+    name: Croatian Ministry of Defence (MORH)
+    country: HRV
+    source_id: null
+    url: https://www.morh.hr/en/feed/
+    cadence_minutes: 360
+    lang: en
+    regions: [balkans]
+    enabled: false
+    queue: true
+    reliability: A
+    terms: https://www.morh.hr/uvjeti-koristenja/
+    secrets: []
+    notes: >-
+      Official. Terms: content "may be reused without special permission, citing the source". The
+      English feed is thin (~0.2 items per day); the Croatian one (/feed/, ~17 per day) is left off
+      because the relevance filter reads place and topic words in Turkish and English only, so every
+      Croatian item would be judged off-topic. The Serbian MoD feed (Cyrillic) is left off for the
+      same reason.
+
+  - id: rss-irq-shafaq-security-en
+    kind: rss
+    name: Shafaq News — Security (English)
+    country: IRQ
+    source_id: null
+    url: https://shafaq.com/rss/en/Security
+    cadence_minutes: 180
+    lang: en
+    regions: [iraq]
+    enabled: false
+    queue: true
+    reliability: C
+    terms: https://shafaq.com/ar/terms-and-conditions
+    secrets: []
+    notes: >-
+      Independent Iraqi outlet (Kurdish-owned). The Arabic terms forbid republishing without written
+      permission except journalistic quotation that names the source clearly; we keep a headline, a
+      short excerpt and the link. The English terms page is an empty placeholder. Graded C pending a
+      track record. ~3 items per day.
+

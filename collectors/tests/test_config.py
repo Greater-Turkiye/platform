@@ -4,6 +4,7 @@ import copy
 
 import pytest
 
+from gt_collectors import config as _cfg
 from gt_collectors.config import ConfigError, load_feeds, parse_feeds
 from tests.conftest import COLLECTORS_DIR
 
@@ -104,13 +105,17 @@ def test_queue_defaults_to_false() -> None:
     assert feed.queue is False
 
 
-
-from gt_collectors import config as _cfg
-
-
 def _queue_feed(**extra):
-    raw = {"id": "rss-x", "kind": "rss", "url": "https://example.org/feed", "cadence_minutes": 60,
-           "lang": "en", "enabled": False, "queue": True, "terms": "https://example.org/terms"}
+    raw = {
+        "id": "rss-x",
+        "kind": "rss",
+        "url": "https://example.org/feed",
+        "cadence_minutes": 60,
+        "lang": "en",
+        "enabled": False,
+        "queue": True,
+        "terms": "https://example.org/terms",
+    }
     raw.update(extra)
     return raw
 
