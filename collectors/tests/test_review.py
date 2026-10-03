@@ -203,7 +203,6 @@ def test_archive_lookup_survives_a_network_failure() -> None:
     assert archive_lookup("https://x.example/a", fetcher=fetcher) is None
 
 
-
 def test_the_line_carries_the_source_grade_and_flags_the_floor() -> None:
     body = render_issue([candidate(7, reliability="D")], day=DAY)
     line = next(line for line in body.splitlines() if line.startswith("- [ ]"))
