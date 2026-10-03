@@ -264,7 +264,7 @@ Bağımlılıklar / Dependencies: yalnızca / only `PyYAML` at runtime. We use `
 
 ### Girdi yapılandırması / Input configuration
 
-Tüm RSS akışları tek dosyada: [`config/feeds.yaml`](config/feeds.yaml). Bilinmeyen anahtarlar hata verir. / All RSS feeds live in one file; unknown keys are errors:
+Tüm RSS akışları tek dosyada: [`config/feeds.yaml`](config/feeds.yaml). Bilinmeyen ya da iki kez yazılmış anahtarlar hata verir. / All RSS feeds live in one file; unknown keys and a key given twice are errors:
 
 ```yaml
 feeds:

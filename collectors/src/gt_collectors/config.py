@@ -1,4 +1,4 @@
-"""Collector configuration (YAML). Strict: unknown keys and invalid values are errors.
+"""Collector configuration (YAML). Strict: unknown keys, a key given twice and invalid values are errors.
 
 ``collectors/config/feeds.yaml``::
 
@@ -168,8 +168,29 @@ def parse_feeds(document: Any, where: str = "config") -> list[FeedConfig]:
     return feeds
 
 
+class _UniqueKeyLoader(yaml.SafeLoader):
+    """A safe loader that refuses a key given twice in one mapping. Plain YAML keeps the last value
+    silently: five feeds once carried `queue: false` and then `queue: true`, so the file said both."""
+
+
+def _unique_mapping(loader: yaml.SafeLoader, node: yaml.MappingNode, deep: bool = False) -> Any:
+    seen: set[Any] = set()
+    for key_node, _ in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        if key in seen:
+            raise ConfigError(f"line {key_node.start_mark.line + 1}: duplicate key {key!r}")
+        seen.add(key)
+    return loader.construct_mapping(node, deep)
+
+
+_UniqueKeyLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _unique_mapping)
+
+
 def load_feeds(path: str | Path) -> list[FeedConfig]:
     path = Path(path)
     with path.open(encoding="utf-8") as fh:
-        document = yaml.safe_load(fh)
+        try:
+            document = yaml.load(fh, Loader=_UniqueKeyLoader)  # noqa: S506 - a SafeLoader subclass
+        except ConfigError as exc:
+            raise ConfigError(f"{path}: {exc}") from None
     return parse_feeds(document, str(path))

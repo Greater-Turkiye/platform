@@ -191,7 +191,6 @@ feeds:
     enabled: false
     queue: true
     reliability: C
-    terms: http://en.kremlin.ru/about/copyrights
     secrets: []
     terms: http://en.kremlin.ru/about/copyrights
     notes: >-
@@ -210,7 +209,6 @@ feeds:
     enabled: false
     queue: true
     reliability: C
-    terms: http://en.kremlin.ru/about/copyrights
     secrets: []
     terms: http://en.kremlin.ru/about/copyrights
     notes: Atom, 20 entries, ~5/day. Same caveats as the English feed.
@@ -341,9 +339,7 @@ feeds:
     regions: [global]
     enabled: false
     queue: false
-    queue: true
     reliability: B
-    terms: https://www.un.org/en/about-us/copyright
     secrets: []
     terms: https://www.un.org/en/about-us/copyright
     notes: >-
@@ -361,9 +357,7 @@ feeds:
     regions: [global]
     enabled: false
     queue: false
-    queue: true
     reliability: B
-    terms: https://www.un.org/en/about-us/copyright
     secrets: []
     terms: https://www.un.org/en/about-us/copyright
     notes: RSS 2.0, 30 items (~48 kB). Russian edition of the all-news feed; same terms, same reason.
@@ -395,10 +389,8 @@ feeds:
     lang: en
     regions: [global]
     enabled: false
-    queue: false
     queue: true
     reliability: B
-    terms: https://www.un.org/en/about-us/copyright
     secrets: []
     terms: https://www.un.org/en/about-us/copyright
     notes: >-
