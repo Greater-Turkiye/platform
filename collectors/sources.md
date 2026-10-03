@@ -98,6 +98,34 @@ where the terms forbid redistribution, the facts stay and the wording does not.
 exercise areas of Turkish forces is what ADR 0013 forbids, whoever announced them first. The register
 measures what *other* states announce.
 
+## Bölge akışları / Regional feeds (2026-10-03)
+
+Otomatik kayıtların kaynaklarının ~%80'i tek akıştı (Ukrinform), bu yüzden videoların neredeyse hepsi
+Ukrayna'ydı. Ege, Kıbrıs, Suriye, Irak, İran, Kafkasya, Balkanlar, Libya, Körfez ve Orta Asya için
+aday akışlar 2026-10-03'te toplayıcının kendi `User-Agent`'ıyla çekildi, ayrıştırıldı ve koşulları
+okundu. Koşulları başlık + kısa alıntı + bağlantı kullanımına açıkça izin veren dördü `queue: true` ile
+eklendi. / ~80 % of the automatic records came from one feed. Candidates for the other regions were
+fetched with the collector's User-Agent, parsed, and their terms read; the four whose terms clearly
+allow a headline, a short excerpt and a link were added with `queue: true`. The Serbian MoD feed
+(`https://www.mod.gov.rs/rss.php`, reproduction permitted with the source cited) parses but is in
+Cyrillic, which the TR + EN relevance filter cannot read; it stays a lead.
+
+| Yayıncı / Publisher | Akış / Feed | Dil | Sıklık | Koşullar / Terms | `feeds.yaml` id |
+|---|---|---|---|---|---|
+| RFE/RL | `https://www.rferl.org/api/` | en | ~9/day | [use-our-content](https://about.rferl.org/use-our-content/): reuse welcomed; excerpts marked and linked; translations name the original language; no sale, ads or AI training | `rss-rferl-en` |
+| RFE/RL — Iran | `https://www.rferl.org/api/z-oiil-vomx-tpergmp` | en | ~2/day | same | `rss-rferl-iran-en` |
+| Hırvatistan Savunma Bakanlığı / Croatian MoD | `https://www.morh.hr/en/feed/` | en | ~0.2/day (Croatian `/feed/` ~17/day, off: the relevance filter reads TR + EN only) | [uvjeti-koristenja](https://www.morh.hr/uvjeti-koristenja/): reuse without permission, source cited | `rss-hrv-mod` |
+| Shafaq News — Security | `https://shafaq.com/rss/en/Security` | en | ~3/day | [terms](https://shafaq.com/ar/terms-and-conditions) (Arabic): journalistic quotation naming the source | `rss-irq-shafaq-security-en` |
+
+Ertelenenler / Deferred: OC Media (CC BY-NC 4.0: whether monetised video counts as non-commercial is
+open), Middle East Monitor (permission clear, advocacy outlet), Syria TV (opinion must be filtered),
+Hetq, Novinite (14-day retention limit), Gazeta.uz, the RFE/RL language services (same terms assumed,
+confirmed only for Slobodna Evropa and Europa Liberă). Uygun aday bulunamayanlar / No candidate passed:
+**Ege, Kıbrıs, Libya, resmî Körfez kaynakları** — Yunan ve Kıbrıs devlet siteleri toplayıcıya 403
+veriyor, oradaki yayın organları yeniden kullanımı kısıtlıyor ya da koşul yayımlamıyor. Mehr News
+English'in sayfasında artık CC BY 4.0 bildirimi var; 2026-09-24 notu yeniden bakılmalı (güvenilirlik
+notu ayrı soru).
+
 ## Akış bulunamayanlar / No feed confirmed
 
 | Ülke / Country | Denenen / Tried | Sonuç / Result |
