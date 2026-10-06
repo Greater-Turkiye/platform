@@ -304,3 +304,34 @@ not unresolved. Everything else that refused us here refused the runner too; onl
 Arab News: şartlar sayfası (`/terms-conditions`, `/termsandconditions`) `backup.arabnews.com`'a
 yönlendirip 404 veriyor; akışta telif ögesi yok. Şartlar okunmadan kuyruk yok — kapalı.
 
+
+## 2026-10-06 — Türkiye'nin çevresi taraması / survey of Türkiye's surroundings
+
+Son haftanın 290 otomatik kaydının 207'si Ukrinform'dan geldi. Deniz (Karadeniz, Ege, Doğu Akdeniz,
+Kızıldeniz), Kıbrıs, Yunanistan, Kafkasya, İsrail–İran–Levant, Suriye, Irak ve bölgedeki ABD/NATO
+kuvvetleri için ~75 adres toplayıcının kendi kimliğiyle çekildi ve koşulları okundu. Üçü kuyruğa
+alındı; tam liste `feeds.yaml` başlığında ("Third survey of 2026-10-06"). / 207 of the week's 290
+automatic records came from Ukrinform. ~75 URLs for the seas and states around Türkiye were fetched
+with the collector's User-Agent and their terms read; three were queued.
+
+| Yayıncı / Publisher | Akış / Feed | Sıklık | Son 20'de ilgili / relevant of recent | Koşullar / Terms | `feeds.yaml` id |
+|---|---|---|---|---|---|
+| ABD Merkez Komutanlığı / US Central Command (DVIDS) | `https://www.dvidshub.net/rss/unit/72?type=news` | a few/week, 10 per fetch | 8 of 10 | US federal work, no copyright ([DVIDS copyright](https://www.dvidshub.net/about/copyright)) | `rss-usa-centcom-dvids` |
+| ABD Deniz Kuvvetleri Merkez Komutanlığı / 5. Filo — NAVCENT (DVIDS) | `https://www.dvidshub.net/rss/unit/164?type=news` | ~1–2/month | 5 of 10 | same | `rss-usa-navcent-dvids` |
+| NEWS.am (English) | `https://news.am/en/rss` | ~20/day, 100 per fetch, titles only | 4 of 20 security, 5 diplomacy | [terms](https://news.am/en/terms): short excerpts for information with the source and an active link | `rss-arm-newsam-en` |
+
+Elenenler / Rejected: DVIDS EUCOM (son öğe 2024), NATO MARCOM (2023), CJTF-OIR (2026-01, görev bitti),
+USAREUR-AF, USAFE, AFCENT, ARCENT, Souda Bay, USAG Black Sea (bölgeyle ilgisi düşük), DVIDS 6. Filo
+(`rss-usa-c6f` ile aynı); VOA (çoğu 2025); USNI News, JAMnews, Syria Direct, Iraqi News, Syrian Observer,
+To Vima, Proto Thema, Armenpress, JNS (tüm hakları saklı / izin gerekli); Global Voices (CC BY ama
+ilgisi düşük); Mehr News ve Tehran Times (CC BY yalnızca `<meta>` etiketinde, görünen altbilgi "All
+rights reserved": çelişkili); Trend (RSS koşulu arşivlemeyi yasaklıyor); report.az (ekonomi ağırlıklı);
+Enab Baladi (koşul sayfaları istemcimize 403). Ertelenen / Deferred: IranWire (alıntı serbest, ticari
+kullanım yasak — OC Media ile aynı açık soru). Akışı olmayan ipuçları / Leads without a feed: UKMTO
+(OGL; olaylar betikle yükleniyor — ayrı bir toplayıcı adayı), EUNAVFOR Atalanta (kaynak belirtilerek
+çoğaltma serbest; `rss.xml` boş), Black Sea News, CivilNet. İstemcimize 403: usembassy.gov siteleri,
+MARAD, NATO MARCOM/AIRCOM/JFC Naples, Combined Maritime Forces, Yunan ve Kıbrıs devlet siteleri.
+
+Kırmızı çizgi / Red line: üç akışın son öğelerinde Türk kuvvetlerine dair öğe yok; CENTCOM'un sorumluluk
+alanı Türkiye'yi kapsamaz. Kürt yayın organları bu taramada aday yapılmadı. / None of the three feeds'
+recent items concerns Turkish forces; Kurdish outlets were not candidates.

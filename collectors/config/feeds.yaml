@@ -62,6 +62,46 @@
 #   defmin.fi, kaitseministeerium.ee, mil.ee, kam.lt, mod.gov.lv, consilium: 403 to our client
 #   defensie.nl, army.cz, forsvarsmakten.se, mapn.ro, mod.bg, difesa.it, defensa.gob.es: no feed
 #
+# Third survey of 2026-10-06 — Türkiye's surroundings, because 207 of the week's 290 automatic
+# records came from Ukrinform. ~75 URLs probed with our client; three feeds queued:
+#   dvidshub.net CENTCOM  unit 72. US federal work (17 U.S.C. § 105), DVIDS copyright page read;
+#                         8 of its 10 items are Iran, Gulf, Iraq or Jordan security events -> queue
+#   dvidshub.net NAVCENT  unit 164 (Naval Forces Central Command / 5th Fleet). Same basis; 5 of 10
+#                         items maritime security in the Gulf and Arabian Sea -> queue
+#   news.am (English)     terms: "short excerpts ... for informational, analytical or reference
+#                         purposes" with the source named and an active link -> queue, C
+#   DVIDS EUCOM (1064)    newest item 2024-12 -> off       NATO MARCOM on DVIDS (2566): newest 2023 -> off
+#   DVIDS CJTF-OIR (2994) newest item 2026-01; the mission ended on 2026-09-30 -> off
+#   DVIDS USAREUR-AF (70), USAFE (137), AFCENT (407), ARCENT (69), NSA Souda Bay (1831), USAG Black
+#                         Sea (8071): 0 to 4 of 10 items about our regions (ceremonies, community) -> off
+#   DVIDS Sixth Fleet (374) the same releases as rss-usa-c6f, which is current -> not added (duplicate)
+#   voanews.com/api/      11 current items, the other 9 from 2025-03; 2 of 20 in our regions -> off
+#   news.usni.org         "All Rights Reserved"; 1 of 25 items in our seas -> off
+#   globalvoices.org      CC BY 3.0, but 1 of 15 items (Caucasus, MENA feeds) is a security event -> off
+#   en.mehrnews.com       CC BY 4.0 appears only in a <meta> tag; the visible footer says "All rights
+#                         reserved" and there is no terms page. Contradictory -> off. tehrantimes.com
+#                         (same group, same CMS, same contradiction) -> off
+#   iranwire.com          quotation allowed "provided you mention the source", but no commercial use
+#                         -> deferred, like OC Media (is monetised video commercial? open)
+#   trend.az              copyright policy: RSS users must "Not archive the feed or its content"; our
+#                         batches are archived -> off
+#   report.az             "should be referred to through hyperlinks"; 1 of 20 items security, the rest
+#                         economy -> off
+#   armenpress.am         "written permission" required -> off      hetq.am  excerpts only "to the
+#                         extent permissible by law" -> off       jns.org  licence required -> off
+#   jam-news.net, syriadirect.org, iraqinews.com, syrianobserver.com, tovima.com, en.protothema.gr,
+#   greekcitytimes.com, financialmirror.com, philenews.com, levant24.com, ina.iq, maritime-executive,
+#   newarab.com, al-monitor.com, middleeasteye.net: all rights reserved or reproduction forbidden -> off
+#   english.enabbaladi.net feed answers, but every terms and about page is 403 to our client -> off
+#   Leads, no feed: ukmto.org ("published under the Open Government Licence"; incidents load by
+#   script), eunavfor.eu ("Reproduction is authorised, provided the source is acknowledged"; rss.xml
+#   has no items), blackseanews.net (reuse with a link), civilnet.am (excerpts with attribution).
+#   403 to our client: *.usembassy.gov (gr, cy, ge, am, az, iq, il, lb, tr), maritime.dot.gov,
+#   marad.dot.gov, mc.nato.int, ac.nato.int, jfcnaples.nato.int, combinedmaritimeforces.com,
+#   972mag.com, cna.org.cy, 1tv.ge, government.gov.gr, hcg.gr, pio.gov.cy.
+#   No feed at known paths: armenpress.am, eurasianet.org, caucasianknot.info, amna.gr, apa.az,
+#   interpressnews.ge, kathimerini.com.cy, navy.ro. agenda.ge timed out; tasnimnews.com did not resolve.
+#
 # reliability: the Admiralty source-reliability grade (ADR 0006), A-F. It grades the *source's
 #   record of accuracy*, never the party's politics: a state press office that publishes what the
 #   state did is C (fairly reliable, interested party); a wire that corrects its errors is B.
@@ -730,3 +770,73 @@ feeds:
     notes: >-
       OGL v3. UK statements at the Security Council on Libya and UNSMIL. Slow (newest item
       2026-08-18 when added), so twice a day is plenty.
+
+  # Third survey of 2026-10-06 (header): the Gulf and Red Sea from the US command that operates there,
+  # and the Caucasus from an Armenian outlet whose terms allow a short excerpt with a link.
+  - id: rss-usa-centcom-dvids
+    kind: rss
+    name: US Central Command — news (DVIDS)
+    country: USA
+    source_id: null
+    url: https://www.dvidshub.net/rss/unit/72?type=news
+    cadence_minutes: 180
+    lang: en
+    regions: [gulf-red-sea, iran, iraq, syria, levant]
+    enabled: false
+    queue: true
+    reliability: B
+    terms: https://www.dvidshub.net/about/copyright
+    secrets: []
+    notes: >-
+      CENTCOM's releases on DVIDS (unit 72; centcom.mil's own press pages are 403 to our client).
+      DVIDS copyright page: "works of authorship prepared by U.S. Government employees as part of
+      their official duties are not eligible for copyright protection in the United States". Graded
+      B: the command reports its own actions accurately, as a party to them. 10 items per fetch, a
+      few a week; on 2026-10-06, 8 of 10 were security events in our regions (the Iran blockade,
+      strikes on IRGC tankers, the end of the Iraq mission, an exercise with Jordan). CENTCOM's area
+      does not include Türkiye; items naming Turkish forces are refused downstream all the same.
+
+  - id: rss-usa-navcent-dvids
+    kind: rss
+    name: US Naval Forces Central Command / 5th Fleet — news (DVIDS)
+    country: USA
+    source_id: null
+    url: https://www.dvidshub.net/rss/unit/164?type=news
+    cadence_minutes: 720
+    lang: en
+    regions: [gulf-red-sea]
+    enabled: false
+    queue: true
+    reliability: B
+    terms: https://www.dvidshub.net/about/copyright
+    secrets: []
+    notes: >-
+      NAVCENT / 5th Fleet on DVIDS (unit 164); same public-domain basis as rss-usa-centcom-dvids.
+      Combined Maritime Forces command changes, rescues at sea, readouts with Gulf navies. Slow: the
+      10 items span 2026-02 to 2026-09, and 5 of them are shipboard ceremonies the relevance filter
+      drops, hence twice a day.
+
+  - id: rss-arm-newsam-en
+    kind: rss
+    name: NEWS.am (English)
+    country: ARM
+    source_id: null
+    url: https://news.am/en/rss
+    cadence_minutes: 180
+    lang: en
+    regions: [caucasus]
+    enabled: false
+    queue: true
+    reliability: C
+    terms: https://news.am/en/terms
+    secrets: []
+    notes: >-
+      Private Yerevan outlet. Terms: "it is allowed only the use of short excerpts from materials
+      published on the website for informational, analytical or reference purposes, provided that"
+      the excerpt does not replace the original and NEWS.am is named with an active link — the
+      queue keeps a title, one excerpt and the link. Graded C: quick on events in Armenia and on the
+      Azerbaijani border, with an Armenian framing, and its "Newspaper:" items relay other papers'
+      unconfirmed reports. The feed carries titles and links only, no description, so the relevance
+      filter scores the title alone. ~20 items a day, 100 per fetch; on 2026-10-06, 4 of the last 20 were
+      security events (an Azerbaijani soldier's border crossing, Iran and the TRIPP corridor) and 5
+      more regional diplomacy. No item in the 100 concerned Turkish forces.
