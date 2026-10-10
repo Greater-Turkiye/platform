@@ -11,9 +11,9 @@
     "deploy": "wrangler deploy"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "0.22.0",
-    "vitest": "4.1.11",
-    "wrangler": "4.132.0"
+    "@cloudflare/vitest-pool-workers": "0.23.0",
+    "vitest": "5.0.3",
+    "wrangler": "4.148.0"
   },
   "overrides": {
     "sharp": ">=0.35.4"
