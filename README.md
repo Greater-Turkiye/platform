@@ -498,3 +498,9 @@ karşılaştırır, tek dilde kalmış anahtarları ve iki dilde farklı `{token
 `GT.t` returns the key itself when it cannot find it, so a mistyped key does not fail — it ships.
 This script checks every `data-i18n` key on every page against both tables, and flags keys defined
 in one language only or carrying different placeholders in the two.
+
+## Issues
+
+Issues here are worked by Claude Code in GitHub Actions through the org-wide workflow ([Greater-Turkiye/.github](https://github.com/Greater-Turkiye/.github#issues-are-worked-by-claude), called from `.github/workflows/claude.yml`): a new issue is assigned to the owner and resolved end to end; the `claude` label or an `@claude` comment starts it again. Only people with write access can start it.
+
+Buradaki issue'lar GitHub Actions içinde Claude Code tarafından çözülür: yeni issue sahibine atanır ve baştan sona çözülür; `claude` etiketi ya da `@claude` yorumu yeniden başlatır.
