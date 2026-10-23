@@ -28,7 +28,8 @@
     frame.append(img, play);
     frame.addEventListener('click', () => {
       const video = document.createElement('video');
-      video.src = BASE + v.video; video.poster = BASE + v.poster;
+      // the English cut (motion's English track, `video_en`) for a visitor reading in English
+      video.src = BASE + (GT.lang === 'en' && v.video_en ? v.video_en : v.video); video.poster = BASE + v.poster;
       video.controls = true; video.autoplay = true; video.playsInline = true; video.loop = true; video.preload = 'auto';
       video.className = 'v-video';
       frame.replaceWith(video);
