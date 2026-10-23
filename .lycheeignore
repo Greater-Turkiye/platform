@@ -31,3 +31,9 @@
 # archive check below watches their copies.
 ^https://understandingwar\.org/research/middle-east/iran-update-january-21-2026/$
 ^https://www\.understandingwar\.org/backgrounder/iran-update-february-6-2025$
+
+# Request timed out from the runner, twice in a row (actions/runs/39882403853, both attempts,
+# 2026-10-23): TPAO's KKTC licence page and the Lebanese Army's privacy page. Both are official
+# pages cited as sources; remove these lines when the runner reaches them again.
+^https://www\.tpao\.gov\.tr/kktc$
+^https://www\.lebarmy\.gov\.lb/en/content/privacy-and-security$
