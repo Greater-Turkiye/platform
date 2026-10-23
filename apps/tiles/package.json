@@ -13,6 +13,6 @@
     "pmtiles": "4.5.0"
   },
   "devDependencies": {
-    "wrangler": "4.132.0"
+    "wrangler": "4.147.0"
   }
 }
