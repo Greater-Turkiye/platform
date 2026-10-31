@@ -17,8 +17,8 @@ dependencies = [
 [project.optional-dependencies]
 # Exact pins so lint/test results are reproducible in CI.
 dev = [
-  "pytest==9.1.1",
-  "ruff==0.16.8",
+  "pytest==9.2.0",
+  "ruff==0.17.3",
 ]
 
 [project.scripts]
